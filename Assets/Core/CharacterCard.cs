@@ -1,93 +1,66 @@
 namespace Core
 {
-    public abstract class Card
+    /// <summary>
+    /// 记录了每个角色卡的设定(yaml配置文件与游戏搭桥）
+    /// </summary>
+    [System.Serializable]
+    public class CharacterCard
     {
-     public enum CardState
-      {
-          //默认的，没有在手牌、场上、部长位，可招募卡牌中出现
-          None,
-          /// <summary>
-          /// 在可招募卡牌中出现
-          /// </summary>
-          Available,
-          /// <summary>
-          /// 是手牌
-          /// </summary>
-          Hand,
-          /// <summary>
-          /// 登场出战
-          /// </summary>
-          Present,
-          /// <summary>
-          /// 部长位
-          /// </summary>
-          Chief,
-      }
 
-      /// <summary>
-      /// 此卡状态
-      /// </summary>
-      public CardState State = CardState.None;
+        /// <summary>
+        /// 卡牌名称
+        /// </summary>
+        public readonly string CardName;
+        
+        /// <summary>
+        /// 角色名称
+        /// </summary>
+        public readonly string CharacterName;
 
-      /// <summary>
-      /// 生命值
-      /// </summary>
-      public int HealthPoint
-      {
-          get
-          {
-              return _healthPoint;
-          }
-      }
+        /// <summary>
+        /// 性别 -1 无性别或性别不重要 1男 0女
+        /// </summary>
+        public readonly int gender;
 
+        /// <summary>
+        /// 所用声优
+        /// </summary>
+        public readonly Information.CV CV ;
 
-      /// <summary>
-      /// 攻击力
-      /// </summary>
-      public int Power
-      {
-          get
-          {
-              return _power;
-          }
-      }
-      
+        /// <summary>
+        /// 所属动画
+        /// </summary>
+        public readonly Information.Anime Anime ;
 
-      /// <summary>
-      /// 生命值
-      /// </summary>
-      private int _healthPoint;
+        /// <summary>
+        /// 是否允许作为部长（主持，英雄）
+        /// </summary>
+        public bool allowAsChief;
 
-      /// <summary>
-      /// 攻击力
-      /// </summary>
-      private int _power;
+        /// <summary>
+        /// 生命值
+        /// </summary>
+        public int HealthPoint;
 
-      /// <summary>
-      /// 受到伤害
-      /// </summary>
-      /// <param name="damage">正数</param>
-      public void GetDamaged(int damage) => ChangeHealthAndPower(true, damage, false, 0);
+        /// <summary>
+        /// 攻击力
+        /// </summary>
+        public int Power;
 
-      /// <summary>
-      /// 攻击力提升
-      /// </summary>
-      /// <param name="value">正数</param>
-      public void PowerUp(int value) => ChangeHealthAndPower(false, 0, true, value);
+        /// <summary>
+        /// 此卡能力
+        /// </summary>
+        public Information.CardAbilityTypes Ability = Information.CardAbilityTypes.None;
+
+        /// <summary>
+        /// 角色能力逻辑
+        /// </summary>
+        public AbilityLogic AbilityLogic;
 
 
-      /// <summary>
-      /// 修改血量和攻击力
-      /// </summary>
-      /// <param name="changeHealth">要修改生命值吗</param>
-      /// <param name="value1">对血量修改，加法运算</param>
-      /// <param name="changePower">要修改攻击力吗</param>
-      /// <param name="value2">对攻击力修改，加法运算</param>
-      public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2)
-      {
-          if (changeHealth) _healthPoint += value1;
-          if (changePower) _power += value2;
-      }
-
+        public CharacterCard()
+        {
+           // CardName = ""
+        }
     }
 }
