@@ -13,7 +13,7 @@ namespace Core
         public readonly string CardName;
         
         /// <summary>
-        /// 角色名称
+        /// 角色名称（无则空）
         /// </summary>
         public readonly string CharacterName;
 
@@ -48,19 +48,31 @@ namespace Core
         public int Power;
 
         /// <summary>
-        /// 此卡能力
+        /// 此卡的能力类型
         /// </summary>
-        public Information.CardAbilityTypes Ability = Information.CardAbilityTypes.None;
+        public Information.CardAbilityTypes AbilityType = Information.CardAbilityTypes.None;
 
         /// <summary>
-        /// 角色能力逻辑
+        /// 能力描述
         /// </summary>
-        public AbilityLogic AbilityLogic;
+        public string AbilityDescription;
+        
+
 
 
         public CharacterCard()
         {
-           // CardName = ""
+            CardName = "种田.jpg";
+            CharacterName = string.Empty;
+            gender = -1;
+            CV = Information.CV.None;
+            Anime = Information.Anime.Universal;
+            allowAsChief = false;
+            HealthPoint = 3;
+            Power = 2;
+            AbilityType = Information.CardAbilityTypes.Debut;
+            AbilityDescription = "将场上";
+
         }
     }
 }

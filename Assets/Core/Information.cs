@@ -1,63 +1,88 @@
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
+
 namespace Core
 {
     [System.Serializable]
-    public struct AbilityLogic
+    public struct AbilityLogicReason
     {
         /// <summary>
-        /// 条件对象的检索范围
+        /// 条件对象
         /// </summary>
-        public Information.Objects ScopeOfObj;
+        public Information.Objects ReasonObject;
 
         /// <summary>
-        /// 收缩范围以确定条件对象
+        /// 确定对象用的额外条件
         /// </summary>
-        public Information.ExtraCondition ShrinkedScopeToSpecifyObj;
+        public Information.ExtraCondition ReasonExtraCondition;
+
 
         /// <summary>
-        /// 要对条件对象判断的参数
+        /// 判断的参数
         /// </summary>
-        public Information.ParameterToChange[] ObjParameter;
+        public Information.Parameter ReasonParameter;
 
         /// <summary>
-        /// 条件对象参数的逻辑 -1非 0或 1与
+        /// 判断方法
         /// </summary>
-        public int[] ParameterLogic;
+        public Information.JudgeMethod ReasonJudgeMethod;
 
         /// <summary>
-        /// 条件对象参数的阈值
+        /// 原因判断逻辑 | -2 < | -1 <= | 0 == | 1 >= | 2 > |
         /// </summary>
-        public string[] ParameterThreshold;
+        /// <returns></returns>
+        public int Logic;
         
+        /// <summary>
+        /// 阈值
+        /// </summary>
+        public string Threshold;
         
-        //在ParameterLogic要求的逻辑下，所有要判断的条件对象的参数均为true时，才执行下面的逻辑
+       
+
+
+    }
+    
+    [System.Serializable]
+    public struct AbilityLogicResult
+    {
+        /// <summary>
+        /// true=对满足阈值条件的卡牌发动效果，忽略下方新一轮的对象筛选（结果对象筛选）
+        /// </summary>
+        public bool RevisePassedReasonObjects;
+        
+        //新一轮的对象筛选（筛选出结果对象）
+        
+        /// <summary>
+        /// 结果对象
+        /// </summary>
+        public Information.Objects ResultObject;
+
+        /// <summary>
+        /// 确定结果对象用的额外条件
+        /// </summary>
+        public Information.ExtraCondition ReasonExtraCondition;
         
         
         /// <summary>
-        /// 目标对象的检索范围
+        /// 结果对象要修改的参数
         /// </summary>
-        public Information.Objects ScopeOfGoalObj;
-        
+        public Information.Parameter ParameterToChange;
+
         /// <summary>
-        /// 确定目标对象用的额外条件
+        /// 结果对象参数的修改方法
         /// </summary>
-        public Information.ExtraCondition ShrinkedScopeToSpecifyGoalObj;
-        
+        public Information.CalculationMethod CalculationMethod;
+
         /// <summary>
-        /// 目标对象要修改的变量
+        /// 修改的值。如何计算按照CalculationMethod来
         /// </summary>
-        public Information.ParameterToChange[] ParameterToChange;
-        
-        /// <summary>
-        /// 目标对象参数的变化数值
-        /// </summary>
-        public string[] values;
+        public string Value;
     }
 
     public class Information
     {
-
         /// <summary>
-        /// 事件执行对象或事件检索范围
+        /// 对象检索范围
         /// </summary>
         public enum Objects
         {
@@ -111,15 +136,10 @@ namespace Core
             /// </summary>
             Last,
             
-            /// <summary>
-            /// 召唤
-            /// </summary>
-            Summon,
-            
         }
 
         /// <summary>
-        /// 确定事件执行对象用的额外条件
+        /// 确定对象用的额外条件
         /// </summary>
         public enum ExtraCondition
         {
@@ -128,29 +148,69 @@ namespace Core
             CharacterName,
             Gender,
             CV,
-            Summon,
+         
         }
 
         /// <summary>
-        /// 要修改的参数
+        /// 判断或修改的参数
         /// </summary>
-        public enum ParameterToChange
+        public enum Parameter
         {
             None,
-
+            CardCount,
             Coin,
-
             Power,
-
             HealthPoint,
-
             Silence,
-
             State,
-            
-            Summon,
+            CV,
+            CharacterName,
+            CardName,
         }
 
+        /// <summary>
+        /// 判断方法
+        /// </summary>
+        public enum JudgeMethod
+        {
+            /// <summary>
+            /// 取值
+            /// </summary>
+            Value,
+            /// <summary>
+            /// 计数
+            /// </summary>
+            Count,
+        }
+
+        /// <summary>
+        /// 对结果参数的计算方法
+        /// </summary>
+        public enum CalculationMethod
+        {
+           /// <summary>
+           /// 加法
+           /// </summary>
+            addition,
+           /// <summary>
+           /// 减法
+           /// </summary>
+            subtraction, 
+           /// <summary>
+           /// 乘法
+           /// </summary>
+            multiplication,
+           /// <summary>
+           /// 除法
+           /// </summary>
+            division,
+           /// <summary>
+           /// 设定为某个值
+           /// </summary>
+           ChangeTo,
+            
+        }
+        
         /// <summary>
         /// 角色卡能力类型
         /// </summary>
@@ -248,26 +308,74 @@ namespace Core
         /// </summary>
         public enum Anime
         {
-            通用,
-            全金属狂潮,
+            /// <summary>
+            /// 通用或不重要
+            /// </summary>
+            Universal,
+            /// <summary>
+            /// 全金属狂潮
+            /// </summary>
+            FullMetalPanic,
             AIR,
-            凉宫春日的忧郁,
+            /// <summary>
+            /// 凉宫春日的忧郁
+            /// </summary>
+            TheMelancholyOfHaruhiSuzumiya,
             Kanon,
-            幸运星,
+            /// <summary>
+            /// 幸运星
+            /// </summary>
+            LuckyStar,
             CLANNAD,
-            轻音少女,
-            冰菓,
-            中二病也要谈恋爱,
-            玉子市场,
+            /// <summary>
+            /// 轻音少女
+            /// </summary>
+            Kon,
+            /// <summary>
+            /// 冰菓
+            /// </summary>
+            Hyouka,
+            /// <summary>
+            /// 中二病也要谈恋爱
+            /// </summary>
+            LoveChunibyoAndOtherDelusions,
+            /// <summary>
+            /// 玉子市场
+            /// </summary>
+            TamakoMarket,
             Free,
-            境界的彼方,
-            甘城光辉游乐园,
-            吹响吧上低音号,
-            无彩限的怪灵世界,
-            小林家的龙女仆,
-            紫罗兰永恒花园,
-            弦音风舞高中弓道部,
-            巴加的工作室,
+            /// <summary>
+            /// 境界的彼方
+            /// </summary>
+            BeyondTheBoundary,
+            /// <summary>
+            /// 甘城光辉游乐园
+            /// </summary>
+            AmagiBrilliantPark,
+            /// <summary>
+            /// 吹响吧!上低音号
+            /// </summary>
+            SoundEuphonium,
+            /// <summary>
+            /// 无彩限的怪灵世界
+            /// </summary>
+            MyriadColorsPhantomWorld,
+            /// <summary>
+            /// 小林家的龙女仆
+            /// </summary>
+            MissKobayashiDragonMaid,
+            /// <summary>
+            /// 紫罗兰永恒花园
+            /// </summary>
+            VioletEvergarden,
+            /// <summary>
+            /// 弦音风舞高中弓道部
+            /// </summary>
+            KazemaiKoukouKyuudoubu,
+            /// <summary>
+            /// 巴加的工作室
+            /// </summary>
+            BajaStudio,
         }
 
         /// <summary>
@@ -309,7 +417,7 @@ namespace Core
             /// <summary>
             /// 渡边明乃
             /// </summary>
-            WatanabeAkeno
+            WatanabeAkeno,
             /// <summary>
             /// 川澄绫子
             /// </summary>
@@ -325,7 +433,7 @@ namespace Core
             /// <summary>
             /// 杉田智和
             /// </summary>
-            SugidaTomokazu
+            SugidaTomokazu,
             /// <summary>
             /// 后藤邑子
             /// </summary>
@@ -337,7 +445,7 @@ namespace Core
             /// <summary>
             /// 松冈由贵
             /// </summary>
-            MatsuokaYuki
+            MatsuokaYuki,
             /// <summary>
             /// 桑谷夏子
             /// </summary>

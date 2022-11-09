@@ -41,5 +41,38 @@ namespace Core
             if (changeHealth) HealthPoint += value1;
             if (changePower) Power += value2;
         }
+
+
+        /// <summary>
+        /// 改变此卡状态
+        /// </summary>
+        public void ChangeState()
+        {
+            
+        }
+
+        /// <summary>
+        /// 登场执行
+        /// </summary>
+        public virtual void OnDebut()
+        {
+            
+        }
+
+        /// <summary>
+        /// 每次轮到该卡都执行
+        /// </summary>
+        public virtual void Normal()
+        {
+            
+        }
+
+        /// <summary>
+        /// 退场时执行
+        /// </summary>
+        public virtual void Exit()
+        {
+            
+        }
     }
 }
