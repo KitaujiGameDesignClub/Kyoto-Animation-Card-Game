@@ -2,6 +2,9 @@ using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 
 namespace Core
 {
+    /// <summary>
+    /// 角色卡能力的触发原因
+    /// </summary>
     [System.Serializable]
     public struct AbilityLogicReason
     {
@@ -9,13 +12,7 @@ namespace Core
         /// 条件对象
         /// </summary>
         public Information.Objects ReasonObject;
-
-        /// <summary>
-        /// 确定对象用的额外条件
-        /// </summary>
-        public Information.ExtraCondition ReasonExtraCondition;
-
-
+        
         /// <summary>
         /// 判断的参数
         /// </summary>
@@ -27,7 +24,7 @@ namespace Core
         public Information.JudgeMethod ReasonJudgeMethod;
 
         /// <summary>
-        /// 原因判断逻辑 | -2 < | -1 <= | 0 == | 1 >= | 2 > |
+        /// 原因判断逻辑 ( -2 小于 ) ( -1 小于等于 )(  0 等于 )( 1 大于等于 ) ( 2 大于)
         /// </summary>
         /// <returns></returns>
         public int Logic;
@@ -36,12 +33,31 @@ namespace Core
         /// 阈值
         /// </summary>
         public string Threshold;
-        
-       
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reasonObject">条件对象</param>
+        /// <param name="reasonParameter">判断的参数</param>
+        /// <param name="reasonJudgeMethod">判断方法</param>
+        /// <param name="logic">原因判断逻辑 ( -2 小于 ) ( -1 小于等于 )(  0 等于 )( 1 大于等于 ) ( 2 大于)</param>
+        /// <param name="threshold">阈值</param>
+        public AbilityLogicReason(Information.Objects reasonObject, Information.Parameter reasonParameter,
+            Information.JudgeMethod reasonJudgeMethod, int logic, string threshold)
+        {
+            ReasonObject = reasonObject;
+            ReasonJudgeMethod = reasonJudgeMethod;
+            ReasonParameter = reasonParameter;
+            Logic = logic;
+            Threshold = threshold;
+        }
 
     }
     
+    /// <summary>
+    /// 角色卡能力触发的效果
+    /// </summary>
     [System.Serializable]
     public struct AbilityLogicResult
     {
@@ -51,18 +67,12 @@ namespace Core
         public bool RevisePassedReasonObjects;
         
         //新一轮的对象筛选（筛选出结果对象）
-        
+
         /// <summary>
         /// 结果对象
         /// </summary>
         public Information.Objects ResultObject;
 
-        /// <summary>
-        /// 确定结果对象用的额外条件
-        /// </summary>
-        public Information.ExtraCondition ReasonExtraCondition;
-        
-        
         /// <summary>
         /// 结果对象要修改的参数
         /// </summary>
@@ -77,10 +87,47 @@ namespace Core
         /// 修改的值。如何计算按照CalculationMethod来
         /// </summary>
         public string Value;
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="revisePassedReasonObjects">true=对满足阈值条件的卡牌发动效果，忽略下方新一轮的对象筛选（结果对象筛选）</param>
+/// <param name="resultObject">结果对象</param>
+/// <param name="parameterToChange">结果对象要修改的参数</param>
+/// <param name="calculationMethod">结果对象参数的修改方法</param>
+/// <param name="value">修改的值。如何计算按照CalculationMethod来</param>
+        public AbilityLogicResult(bool revisePassedReasonObjects, Information.Objects resultObject,
+            Information.Parameter parameterToChange, Information.CalculationMethod calculationMethod, string value)
+        {
+            ResultObject = resultObject;
+            RevisePassedReasonObjects = revisePassedReasonObjects;
+            ParameterToChange = parameterToChange;
+            CalculationMethod = calculationMethod;
+            Value = value;
+        }
     }
 
+    /// <summary>
+    /// 角色羁绊
+    /// </summary>
+    [System.Serializable]
+    public struct CharactersConnect
+    {
+        /// <summary>
+        /// 羁绊类型
+        /// </summary>
+        public Information.ConnectTypes ConnectType;
+
+        /// <summary>
+        /// 同一种羁绊类型中，只有在相同层上的，才可以激活
+        /// </summary>
+        public string ConnectLayer;
+    }
+    
     public class Information
     {
+        
+        
         /// <summary>
         /// 对象检索范围
         /// </summary>
@@ -139,19 +186,6 @@ namespace Core
         }
 
         /// <summary>
-        /// 确定对象用的额外条件
-        /// </summary>
-        public enum ExtraCondition
-        {
-            None,
-            CardName,
-            CharacterName,
-            Gender,
-            CV,
-         
-        }
-
-        /// <summary>
         /// 判断或修改的参数
         /// </summary>
         public enum Parameter
@@ -166,6 +200,7 @@ namespace Core
             CV,
             CharacterName,
             CardName,
+            ConnectEnabled,
         }
 
         /// <summary>
@@ -210,6 +245,35 @@ namespace Core
            ChangeTo,
             
         }
+
+
+        /// <summary>
+        /// 角色卡羁绊类别
+        /// </summary>
+        public enum ConnectTypes
+        {
+            /// <summary>
+            /// 无任何羁绊或不必要
+            /// </summary>
+            None,
+            /// <summary>
+            /// 恋人
+            /// </summary>
+            Lovers,
+            /// <summary>
+            /// 挚友
+            /// </summary>
+            BestFriends,
+            /// <summary>
+            /// 竞争对手
+            /// </summary>
+            Competitor,
+            /// <summary>
+            /// 兄弟姐妹
+            /// </summary>
+            BroOrSis,
+           
+        }
         
         /// <summary>
         /// 角色卡能力类型
@@ -236,6 +300,8 @@ namespace Core
             /// </summary>
             Exit,
         }
+        
+     
 
 
         /// <summary>
@@ -716,28 +782,6 @@ namespace Core
             KobushiNobuyuk,
             
         }
-
-
-        public enum CharacterName
-        {
-            通用,
-            //凉宫
-            凉宫春日,
-            阿虚,
-            长门有希,
-            朝比奈实玖瑠,
-            古泉一树,
-            朝仓凉子,
-            鹤屋,
-            喜绿江美里,
-            国木田,
-            电脑研究社社长,
-            虚妹,
-            //幸运星
-            泉此方,
-            柊镜,
-            柊司,
-            高良美幸,
-        }
+        
     }
 }

@@ -1,3 +1,5 @@
+using System;
+
 namespace Core
 {
     /// <summary>
@@ -10,17 +12,22 @@ namespace Core
         /// <summary>
         /// 卡牌名称
         /// </summary>
-        public readonly string CardName;
+        public string CardName;
+
+        /// <summary>
+        /// 图片路径（一般与角色配置文件同路径）
+        /// </summary>
+        public string imagePath;
         
         /// <summary>
         /// 角色名称（无则空）
         /// </summary>
-        public readonly string CharacterName;
+        public string CharacterName;
 
         /// <summary>
         /// 性别 -1 无性别或性别不重要 1男 0女
         /// </summary>
-        public readonly int gender;
+        public int gender;
 
         /// <summary>
         /// 所用声优
@@ -38,41 +45,54 @@ namespace Core
         public bool allowAsChief;
 
         /// <summary>
-        /// 生命值
+        /// 基础生命值
         /// </summary>
-        public int HealthPoint;
+        public int BasicHealthPoint;
 
         /// <summary>
-        /// 攻击力
+        /// 基础攻击力
         /// </summary>
-        public int Power;
+        public int BasicPower;
 
         /// <summary>
         /// 此卡的能力类型
         /// </summary>
         public Information.CardAbilityTypes AbilityType = Information.CardAbilityTypes.None;
 
+        public AbilityLogicReason Reason;
+
+        public AbilityLogicResult Result;
+
         /// <summary>
         /// 能力描述
         /// </summary>
         public string AbilityDescription;
-        
 
+        /// <summary>
+        /// 角色间羁绊
+        /// </summary>
+        public CharactersConnect[] Connects;
 
 
         public CharacterCard()
         {
+            imagePath = String.Empty;
             CardName = "种田.jpg";
             CharacterName = string.Empty;
             gender = -1;
             CV = Information.CV.None;
             Anime = Information.Anime.Universal;
             allowAsChief = false;
-            HealthPoint = 3;
-            Power = 2;
+            BasicHealthPoint = 3;
+            BasicPower = 2;
             AbilityType = Information.CardAbilityTypes.Debut;
-            AbilityDescription = "将场上";
-
+            Reason = new AbilityLogicReason(Information.Objects.AllOnSpot, Information.Parameter.CV,
+                Information.JudgeMethod.Count, 2, "1");
+            Result = new AbilityLogicResult(true, Information.Objects.AllOnSpot, Information.Parameter.State,
+                Information.CalculationMethod.ChangeTo, Information.CardState.Available.ToString());
+            
+            AbilityDescription = "使场上所有相同声优的角色退场";
+            Connects = null;
         }
     }
 }
