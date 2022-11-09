@@ -658,21 +658,62 @@ namespace Core
             /// 久川绫
             /// </summary>
             HisakawaAya,
-            冬马由美,
-            田村由香里,
-            西村千奈美,
-            斋藤千和,
-            兴梠里美,
-            置鲇龙太郎,
-            井上喜久子,
-            广桥凉,
-            神田朱未,
-            桑岛法子,
-            雪野五月,
-            榎本温子,
-            麻生美代子,
-            青木静香,
-            小伏伸之,
+            /// <summary>
+            /// 冬马由美
+            /// </summary>
+            TomaYumi,
+            /// <summary>
+            /// 田村由香里
+            /// </summary>
+            TamuraYukari,
+            /// <summary>
+            /// 西村千奈美
+            /// </summary>
+            NishimuraChinami,
+            /// <summary>
+            /// 斋藤千和
+            /// </summary>
+            SaitouChiwa,
+            /// <summary>
+            /// 兴梠里美
+            /// </summary>
+            KoorogiSatomi,
+            /// <summary>
+            /// 置鲇龙太郎
+            /// </summary>
+            OkiayuRyoutarou,
+            /// <summary>
+            /// 井上喜久子
+            /// </summary>
+            KumagaiKikuko,
+            /// <summary>
+            /// 广桥凉
+            /// </summary>
+            HirohashiRyou,
+            /// <summary>
+            /// 神田朱未
+            /// </summary>
+            KandaAkemi,
+            /// <summary>
+            /// 桑岛法子
+            /// </summary>
+            KuwashimaHoko,
+            /// <summary>
+            /// 雪野五月
+            /// </summary>
+            YukinoSatsuki,
+            /// <summary>
+            /// 榎本温子
+            /// </summary>
+            EnomotoAtsuko,
+            /// <summary>
+            /// 麻生美代子
+            /// </summary>
+            AsouMiyoko,
+            /// <summary>
+            /// 小伏伸之
+            /// </summary>
+            KobushiNobuyuk,
             
         }
 
