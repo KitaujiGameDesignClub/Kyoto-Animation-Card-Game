@@ -294,36 +294,126 @@ namespace Core
             /// </summary>
             SuzukiTatsuhisa,
             KENN,
-            进藤尚美,
-            山冈百合,
-            丰田萌绘,
-            渡边明乃,
-            川澄绫子,
-            今野宏美,
-            平野绫,
-            杉田智和,
-            后藤邑子,
-            小野大辅,
-            松冈由贵,
-            桑谷夏子,
-            白石稔,
-            松元惠,
-            青木沙耶香,
-            加藤英美里,
-            福原香织,
-            古谷静佳,
-            中村悠一,
-            佐藤聪美,
-            阪口大助,
-            茅野爱衣,
-            日笠阳子,
-            早见沙织,
-            小仓唯,
-            悠木碧,
-            竹达彩奈,
-            寿美菜子,
-            福山润,
-            内田真礼,
+            /// <summary>
+            /// 进藤尚美
+            /// </summary>
+            ShindoNaomi,
+            /// <summary>
+            /// 山冈百合
+            /// </summary>
+            YamaokaYuri,
+            /// <summary>
+            /// 丰田萌绘
+            /// </summary>
+            ToyotaMoe,
+            /// <summary>
+            /// 渡边明乃
+            /// </summary>
+            WatanabeAkeno
+            /// <summary>
+            /// 川澄绫子
+            /// </summary>
+            KawasumiAyako,
+            /// <summary>
+            /// 今野宏美
+            /// </summary>
+            KonnoHiromi,
+            /// <summary>
+            /// 平野绫
+            /// </summary>
+            HiranoAya,
+            /// <summary>
+            /// 杉田智和
+            /// </summary>
+            SugidaTomokazu
+            /// <summary>
+            /// 后藤邑子
+            /// </summary>
+            GotouYuuko,
+            /// <summary>
+            /// 小野大辅
+            /// </summary>
+            OnoDaisuke,
+            /// <summary>
+            /// 松冈由贵
+            /// </summary>
+            MatsuokaYuki
+            /// <summary>
+            /// 桑谷夏子
+            /// </summary>
+            KuwataniNatsuko,
+            /// <summary>
+            /// 白石稔
+            /// </summary>
+            ShiraishiMInoru,
+            /// <summary>
+            /// 松元惠
+            /// </summary>
+            MatsumotoMegumi,
+            /// <summary>
+            /// 青木沙耶香
+            /// </summary>
+            AokiSayaka,
+            /// <summary>
+            /// 加藤英美里
+            /// </summary>
+            KatouEmiri,
+            /// <summary>
+            /// 福原香织
+            /// </summary>
+            HukuharaKaori,
+            /// <summary>
+            /// 古谷静佳
+            /// </summary>
+            HuruyaShizuka,
+            /// <summary>
+            /// 中村悠一
+            /// </summary>
+            NakamuraYuuichi,
+            /// <summary>
+            /// 佐藤聪美
+            /// </summary>
+            SatouSatomi,
+            /// <summary>
+            /// 阪口大助
+            /// </summary>
+            SakaguchiDaisuke,
+            /// <summary>
+            /// 茅野爱衣
+            /// </summary>
+            KayanoAi,
+            /// <summary>
+            /// 日笠阳子
+            /// </summary>
+            HikasaYouko,
+            /// <summary>
+            /// 早见沙织
+            /// </summary>
+            HayamiSaori,
+            /// <summary>
+            /// 小仓唯
+            /// </summary>
+            OguraYui,
+            /// <summary>
+            /// 悠木碧
+            /// </summary>
+            YuukiAoi,
+            /// <summary>
+            /// 竹达彩奈
+            /// </summary>
+            TaketatsuAyana,
+            /// <summary>
+            /// 寿美菜子
+            /// </summary>
+            KotobukiMinako,
+            /// <summary>
+            /// 福山润
+            /// </summary>
+            HukuyamaJun,
+            /// <summary>
+            /// 内田真礼
+            /// </summary>
+            UchitdaMaaya,
             长妻树里,
             赤崎千夏,
             保志总一朗,
