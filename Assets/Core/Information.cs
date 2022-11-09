@@ -285,7 +285,10 @@ namespace Core
             /// 茅原实里
             /// </summary>
             ChiharaMinori,
-            种田梨沙,
+            /// <summary>
+            /// 种田梨沙
+            /// </summary>
+            TanedaRisa,
             铃木达央,
             KENN,
             进藤尚美,
