@@ -414,40 +414,142 @@ namespace Core
             /// 内田真礼
             /// </summary>
             UchitdaMaaya,
-            长妻树里,
-            赤崎千夏,
-            保志总一朗,
-            设乐麻美,
-            浅仓杏美,
-            上坂堇,
-            仙台惠理,
-            洲崎绫,
-            田丸笃志,
-            金子有希,
-            黑泽朋世,
-            安济知佳,
-            朝井彩加,
-            石谷春贵,
-            藤村鼓乃美,
-            种崎敦美,
-            东山奈央,
-            樱井孝宏,
-            沼仓爱美,
-            田村睦心,
-            桑原由气,
-            长绳麻理亚,
-            高田忧希,
-            高桥未奈美,
-            岭内知美,
-            石原夏织,
-            中原麻衣,
-            野中蓝,
-            田所梓,
-            金元寿子,
-            川上伦子,
-            冈本麻见,
-            柚木凉香,
-            久川绫,
+            /// <summary>
+            /// 长妻树里
+            /// </summary>
+            NagatsumaJuri,
+            /// <summary>
+            /// 赤崎千夏
+            /// </summary>
+            AkasakiChinatsu,
+            /// <summary>
+            /// 保志总一朗
+            /// </summary>
+            HoshiSouichitou,
+            /// <summary>
+            /// 设乐麻美
+            /// </summary>
+            ShitaraMami,
+            /// <summary>
+            /// 浅仓杏美
+            /// </summary>
+            AsakuraAzumi,
+            /// <summary>
+            /// 上坂堇
+            /// </summary>
+            UesakaSumire,
+            /// <summary>
+            /// 仙台惠理
+            /// </summary>
+            SendaiEri,
+            /// <summary>
+            /// 洲崎绫
+            /// </summary>
+            SuzakiAya,
+            /// <summary>
+            /// 田丸笃志
+            /// </summary>
+            TamaruAtsushi,
+            /// <summary>
+            /// 金子有希
+            /// </summary>
+            KanekoYuuki,
+            /// <summary>
+            /// 黑泽朋世
+            /// </summary>
+            KurosawaTomoyo,
+            /// <summary>
+            /// 安济知佳
+            /// </summary>
+            AnzaiChika,
+            /// <summary>
+            /// 朝井彩加
+            /// </summary>
+            AsaiAyaka,
+            /// <summary>
+            /// 石谷春贵
+            /// </summary>
+            IshiyaHaruki,
+            /// <summary>
+            /// 藤村鼓乃美
+            /// </summary>
+            HujimuraKonomi,
+            /// <summary>
+            /// 种崎敦美
+            /// </summary>
+            TanezakiAtsumi,
+            /// <summary>
+            /// 东山奈央
+            /// </summary>
+            TouyamaNao,
+            /// <summary>
+            /// 樱井孝宏
+            /// </summary>
+            SakuraiTakahiro,
+            /// <summary>
+            /// 沼仓爱美
+            /// </summary>
+            NumakuraManami,
+            /// <summary>
+            /// 田村睦心
+            /// </summary>
+            TamuraMutsumi,
+            /// <summary>
+            /// 桑原由气
+            /// </summary>
+            KuwaharaYuuki,
+            /// <summary>
+            /// 长绳麻理亚
+            /// </summary>
+            NaganawaMaria,
+            /// <summary>
+            /// 高田忧希
+            /// </summary>
+            TakadaYuuki,
+            /// <summary>
+            /// 高桥未奈美
+            /// </summary>
+            TakahashiMinami,
+            /// <summary>
+            /// 岭内知美
+            /// </summary>
+            MineuchiTomomi,
+            /// <summary>
+            /// 石原夏织
+            /// </summary>
+            IshiharaKaori,
+            /// <summary>
+            /// 中原麻衣
+            /// </summary>
+            NakaharaMai,
+            /// <summary>
+            /// 野中蓝
+            /// </summary>
+            NonakaAi,
+            /// <summary>
+            /// 田所梓
+            /// </summary>
+            TadokoroAzusa,
+            /// <summary>
+            /// 金元寿子
+            /// </summary>
+            KanemotoHisako,
+            /// <summary>
+            /// 川上伦子
+            /// </summary>
+            KawakamiTomoko,
+            /// <summary>
+            /// 冈本麻见
+            /// </summary>
+            OkamotoAsami,
+            /// <summary>
+            /// 柚木凉香
+            /// </summary>
+            YuzukiRyouka,
+            /// <summary>
+            /// 久川绫
+            /// </summary>
+            HisakawaAya,
             冬马由美,
             田村由香里,
             西村千奈美,
