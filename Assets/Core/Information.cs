@@ -289,7 +289,10 @@ namespace Core
             /// 种田梨沙
             /// </summary>
             TanedaRisa,
-            铃木达央,
+            /// <summary>
+            /// 铃木达央
+            /// </summary>
+            SuzukiTatsuhisa,
             KENN,
             进藤尚美,
             山冈百合,
