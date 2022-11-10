@@ -171,8 +171,8 @@ namespace FantomLib
         {
             Event ev = Event.current;
             Rect dropRect = GUILayoutUtility.GetRect(0f, 21f, GUILayout.ExpandWidth(true));
-            GUI.Box(dropRect, dropLabel);
-
+            UnityEngine.GUI.Box(dropRect, dropLabel);
+            
             switch (ev.type) {
                 case EventType.DragUpdated:
                 case EventType.DragPerform:

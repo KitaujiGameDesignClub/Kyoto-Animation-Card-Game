@@ -15,6 +15,11 @@ namespace Core
         public string CardName;
 
         /// <summary>
+        /// 此卡的总数。不宜过大
+        /// </summary>
+        public int CardCount;
+        
+        /// <summary>
         /// 图片路径（一般与角色配置文件同路径）
         /// </summary>
         public string imagePath;
@@ -78,6 +83,7 @@ namespace Core
         {
             imagePath = String.Empty;
             CardName = "种田.jpg";
+            CardCount = 1;
             CharacterName = string.Empty;
             gender = -1;
             CV = Information.CV.None;
@@ -91,7 +97,7 @@ namespace Core
             Result = new AbilityLogicResult(true, Information.Objects.AllOnSpot, Information.Parameter.State,
                 Information.CalculationMethod.ChangeTo, Information.CardState.Available.ToString());
             
-            AbilityDescription = "使场上所有相同声优的角色退场";
+            AbilityDescription = "使场上所有相同声优的角色退场返回到准备区";
             Connects = null;
         }
     }
