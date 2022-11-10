@@ -15,7 +15,7 @@ namespace Core
         public string CardName;
 
         /// <summary>
-        /// 此卡的总数。不宜过大
+        /// 此卡的总数。不宜过大。0则不在牌堆中出现，需要summon（召唤）
         /// </summary>
         public int CardCount;
         
@@ -40,9 +40,9 @@ namespace Core
         public readonly Information.CV CV ;
 
         /// <summary>
-        /// 所属动画
+        /// 所属动画（可以自定义，额外添加一些修饰符什么的，比如 中二世界-中二病也要谈恋爱、与中二病也要谈恋爱就分属两个不同的阵营了
         /// </summary>
-        public readonly Information.Anime Anime ;
+        public readonly string Anime;
 
         /// <summary>
         /// 是否允许作为部长（主持，英雄）
@@ -87,7 +87,7 @@ namespace Core
             CharacterName = string.Empty;
             gender = -1;
             CV = Information.CV.None;
-            Anime = Information.Anime.Universal;
+            Anime = Information.Anime.Universal.ToString();
             allowAsChief = false;
             BasicHealthPoint = 3;
             BasicPower = 2;

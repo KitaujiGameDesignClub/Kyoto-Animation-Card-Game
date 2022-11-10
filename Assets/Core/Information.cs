@@ -9,7 +9,7 @@ namespace Core
     public struct AbilityLogicReason
     {
         /// <summary>
-        /// 条件对象
+        /// 条件对象 为Any时，不进行后续判断，直接运行Result所定义的能力，且RevisePassedReasonObjects=false
         /// </summary>
         public Information.Objects ReasonObject;
         
@@ -113,15 +113,27 @@ namespace Core
     [System.Serializable]
     public struct CharactersConnect
     {
+        
+        /*
+         * 羁绊类型：最终用于确定羁绊的效果。
+         * 羁绊层（ConnectLayer）；
+         *  例子如下：
+         *  折木奉太郎（Love[Male]），LowPower折木（Love[Male]），千反田爱馏（Love[Female]），黄喉偶人（Love[Female]），伊原摩耶花（Love）
+         *  当己方场上存在 折木奉太郎和LowPower折木时，不会触发羁绊效果。因为羁绊层相同，[标记内容]也相同；
+         *  当己方场上存在 折木奉太郎和千反田爱馏时，会触发羁绊效果。因为羁绊层相同，但是[标记内容]不同；
+         *  当己方场上存在 千反田爱馏和伊原摩耶花时，会触发羁绊效果，因为没有标记内容的”伊原摩耶花“可以和任何羁绊层为”Love“的角色卡产生羁绊。
+         */
+        
         /// <summary>
         /// 羁绊类型
         /// </summary>
         public Information.ConnectTypes ConnectType;
 
         /// <summary>
-        /// 同一种羁绊类型中，只有在相同层上的，才可以激活
+        /// 同一种羁绊类型中，只有在相同层上的，才可以激活。可以加入额外标记：[标记内容]：标记内容不同的卡牌之间才能够激活羁绊。
         /// </summary>
         public string ConnectLayer;
+        
     }
     
     public class Information
@@ -133,6 +145,10 @@ namespace Core
         /// </summary>
         public enum Objects
         {
+            /// <summary>
+            /// 任何情况下都会可以
+            /// </summary>
+            Any,
             /// <summary>
             /// 发动者自身
             /// </summary>
@@ -186,7 +202,7 @@ namespace Core
         }
 
         /// <summary>
-        /// 判断或修改的参数
+        /// 判断或修改的参数（Objects为Any时，忽视此类型）
         /// </summary>
         public enum Parameter
         {
