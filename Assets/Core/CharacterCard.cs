@@ -10,10 +10,16 @@ namespace Core
     {
 
         /// <summary>
-        /// 卡牌名称
+        /// 卡牌名称（仅英语，文件名也是这个）
         /// </summary>
         public string CardName;
 
+        /// <summary>
+        /// 友好卡牌名，用来显示给玩家的
+        /// </summary>
+        public string FriendlyCardName;
+        
+        
         /// <summary>
         /// 此卡的总数。不宜过大。0则不在牌堆中出现，需要summon（召唤）
         /// </summary>
@@ -40,9 +46,9 @@ namespace Core
         public readonly Information.CV CV ;
 
         /// <summary>
-        /// 所属动画（可以自定义，额外添加一些修饰符什么的，比如 中二世界-中二病也要谈恋爱、与中二病也要谈恋爱就分属两个不同的阵营了
+        /// 所属卡组（可以自定义，一般是番剧名称，额外添加一些修饰符什么的，比如 中二世界-中二病也要谈恋爱、与中二病也要谈恋爱就分属两个不同的阵营了
         /// </summary>
-        public readonly string Anime;
+        public readonly string BelongBundleName;
 
         /// <summary>
         /// 是否允许作为部长（主持，英雄）
@@ -82,19 +88,20 @@ namespace Core
         public CharacterCard()
         {
             imagePath = String.Empty;
-            CardName = "种田.jpg";
+            CardName = "ZhongTian.jpg";
+            FriendlyCardName = "种田.jpg";
             CardCount = 1;
             CharacterName = string.Empty;
             gender = -1;
             CV = Information.CV.None;
-            Anime = Information.Anime.Universal.ToString();
+            BelongBundleName = Information.Anime.Universal.ToString();
             allowAsChief = false;
             BasicHealthPoint = 3;
             BasicPower = 2;
             AbilityType = Information.CardAbilityTypes.Debut;
             Reason = new AbilityLogicReason(Information.Objects.AllOnSpot, Information.Parameter.CV,
                 Information.JudgeMethod.Count, 2, "1");
-            Result = new AbilityLogicResult(true, Information.Objects.AllOnSpot, Information.Parameter.State,
+            Result = new AbilityLogicResult(true, string.Empty,Information.Objects.AllOnSpot, Information.Parameter.State,
                 Information.CalculationMethod.ChangeTo, Information.CardState.Available.ToString());
             
             AbilityDescription = "使场上所有相同声优的角色退场返回到准备区";

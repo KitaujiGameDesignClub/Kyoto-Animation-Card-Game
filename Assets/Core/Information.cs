@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 
 namespace Core
@@ -65,6 +66,12 @@ namespace Core
         /// true=对满足阈值条件的卡牌发动效果，忽略下方新一轮的对象筛选（结果对象筛选）
         /// </summary>
         public bool RevisePassedReasonObjects;
+
+        /// <summary>
+        /// 召唤一个符合CardName的卡牌
+        /// </summary>
+        public string SummonCardName;
+        
         
         //新一轮的对象筛选（筛选出结果对象）
 
@@ -96,7 +103,7 @@ namespace Core
 /// <param name="parameterToChange">结果对象要修改的参数</param>
 /// <param name="calculationMethod">结果对象参数的修改方法</param>
 /// <param name="value">修改的值。如何计算按照CalculationMethod来</param>
-        public AbilityLogicResult(bool revisePassedReasonObjects, Information.Objects resultObject,
+        public AbilityLogicResult(bool revisePassedReasonObjects,string summonCardName, Information.Objects resultObject,
             Information.Parameter parameterToChange, Information.CalculationMethod calculationMethod, string value)
         {
             ResultObject = resultObject;
@@ -104,6 +111,7 @@ namespace Core
             ParameterToChange = parameterToChange;
             CalculationMethod = calculationMethod;
             Value = value;
+            SummonCardName = summonCardName;
         }
     }
 
@@ -386,7 +394,7 @@ namespace Core
         }
 
         /// <summary>
-        /// 所属动画（阵营，社团）
+        /// 所属动画（卡包，阵营，社团）
         /// </summary>
         public enum Anime
         {
