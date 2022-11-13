@@ -26,9 +26,9 @@ namespace Core
         public int CardCount;
         
         /// <summary>
-        /// 图片路径（一般与角色配置文件同路径）
+        /// 图片名字（一般与角色配置文件同路径）
         /// </summary>
-        public string imagePath;
+        public string imageName;
         
         /// <summary>
         /// 角色名称（无则空）
@@ -87,7 +87,7 @@ namespace Core
 
         public CharacterCard()
         {
-            imagePath = String.Empty;
+            imageName = String.Empty;
             CardName = "ZhongTian.jpg";
             FriendlyCardName = "种田.jpg";
             CardCount = 1;
