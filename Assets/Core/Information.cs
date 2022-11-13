@@ -3,6 +3,9 @@ using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 
 namespace Core
 {
+
+    
+    
     /// <summary>
     /// 角色卡能力的触发原因
     /// </summary>
@@ -146,7 +149,16 @@ namespace Core
     
     public class Information
     {
+        #region 各种版本号信息
+
+        //a.b:a修改后，说明不兼容之前的旧版本，需要升级旧版文件
+        //b修改后，是小修改，可以兼容
         
+        public const string  CardMakerVersion = "1.0";
+        public const string CharacterCardMaker = "1.0";
+        public const string ManifestVersion = "1.0";
+
+        #endregion
         
         /// <summary>
         /// 对象检索范围
