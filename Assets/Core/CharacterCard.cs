@@ -18,7 +18,11 @@ namespace Core
         /// 友好卡牌名，用来显示给玩家的
         /// </summary>
         public string FriendlyCardName;
-        
+
+        /// <summary>
+        /// 角色标签
+        /// </summary>
+        public Information.CharacterTag[] tags;
         
         /// <summary>
         /// 此卡的总数。不宜过大。0则不在牌堆中出现，需要summon（召唤）

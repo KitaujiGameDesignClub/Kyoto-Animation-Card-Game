@@ -462,6 +462,7 @@ MonoBehaviour:
   newCard:
     CardName: "\u79CD\u7530.jpg"
     FriendlyCardName: "\u79CD\u7530.jpg"
+    tags: 
     CardCount: 1
     imageName: 
     CharacterName: 
@@ -477,7 +478,7 @@ MonoBehaviour:
       Logic: 2
       Threshold: 1
     Result:
-      RevisePassedReasonObjects: 1
+      RegardActivatorAsResultObject: 1
       SummonCardName: 
       ResultObject: 7
       ParameterToChange: 6

@@ -12,8 +12,10 @@ namespace Core
     [System.Serializable]
     public struct AbilityLogicReason
     {
+     
+        
         /// <summary>
-        /// 条件对象 为Any时，不进行后续判断，直接运行Result所定义的能力，且RevisePassedReasonObjects=false
+        /// 条件对象 为Any时，不进行后续判断，直接运行Result所定义的能力，且RegardActivatorAsResultObject=false
         /// </summary>
         public Information.Objects ReasonObject;
         
@@ -28,7 +30,7 @@ namespace Core
         public Information.JudgeMethod ReasonJudgeMethod;
 
         /// <summary>
-        /// 原因判断逻辑 ( -2 小于 ) ( -1 小于等于 )(  0 等于 )( 1 大于等于 ) ( 2 大于)
+        /// 原因判断逻辑 ( -2 小于 ) ( -1 小于等于 )(  0 等于/包含 )( 1 大于等于 ) ( 2 大于)
         /// </summary>
         /// <returns></returns>
         public int Logic;
@@ -66,9 +68,9 @@ namespace Core
     public struct AbilityLogicResult
     {
         /// <summary>
-        /// true=对满足阈值条件的卡牌发动效果，忽略下方新一轮的对象筛选（结果对象筛选）
+        /// true=对触发此能力的卡牌发动效果，忽略下方新一轮的对象筛选（结果对象筛选）
         /// </summary>
-        public bool RevisePassedReasonObjects;
+        public bool RegardActivatorAsResultObject;
 
         /// <summary>
         /// 召唤一个符合CardName的卡牌
@@ -101,16 +103,16 @@ namespace Core
 /// <summary>
 /// 
 /// </summary>
-/// <param name="revisePassedReasonObjects">true=对满足阈值条件的卡牌发动效果，忽略下方新一轮的对象筛选（结果对象筛选）</param>
+/// <param name="regardActivatorAsResultObject">true=对触发此效果的卡牌发动效果，忽略下方新一轮的对象筛选（结果对象筛选）</param>
 /// <param name="resultObject">结果对象</param>
 /// <param name="parameterToChange">结果对象要修改的参数</param>
 /// <param name="calculationMethod">结果对象参数的修改方法</param>
 /// <param name="value">修改的值。如何计算按照CalculationMethod来</param>
-        public AbilityLogicResult(bool revisePassedReasonObjects,string summonCardName, Information.Objects resultObject,
+        public AbilityLogicResult(bool regardActivatorAsResultObject,string summonCardName, Information.Objects resultObject,
             Information.Parameter parameterToChange, Information.CalculationMethod calculationMethod, string value)
         {
             ResultObject = resultObject;
-            RevisePassedReasonObjects = revisePassedReasonObjects;
+            RegardActivatorAsResultObject = regardActivatorAsResultObject;
             ParameterToChange = parameterToChange;
             CalculationMethod = calculationMethod;
             Value = value;
@@ -134,11 +136,6 @@ namespace Core
          *  当己方场上存在 折木奉太郎和千反田爱馏时，会触发羁绊效果。因为羁绊层相同，但是[标记内容]不同；
          *  当己方场上存在 千反田爱馏和伊原摩耶花时，会触发羁绊效果，因为没有标记内容的”伊原摩耶花“可以和任何羁绊层为”Love“的角色卡产生羁绊。
          */
-        
-        /// <summary>
-        /// 羁绊类型
-        /// </summary>
-        public Information.ConnectTypes ConnectType;
 
         /// <summary>
         /// 同一种羁绊类型中，只有在相同层上的，才可以激活。可以加入额外标记：[标记内容]：标记内容不同的卡牌之间才能够激活羁绊。
@@ -219,6 +216,11 @@ namespace Core
             /// </summary>
             Last,
             
+            /// <summary>
+            /// 成功触发能力的那个角色卡
+            /// </summary>
+            Activator,
+            
         }
 
         /// <summary>
@@ -229,6 +231,7 @@ namespace Core
             None,
             CardCount,
             Coin,
+            Tag,
             Power,
             HealthPoint,
             Silence,
@@ -281,35 +284,7 @@ namespace Core
            ChangeTo,
             
         }
-
-
-        /// <summary>
-        /// 角色卡羁绊类别
-        /// </summary>
-        public enum ConnectTypes
-        {
-            /// <summary>
-            /// 无任何羁绊或不必要
-            /// </summary>
-            None,
-            /// <summary>
-            /// 恋人
-            /// </summary>
-            Lovers,
-            /// <summary>
-            /// 挚友
-            /// </summary>
-            BestFriends,
-            /// <summary>
-            /// 竞争对手
-            /// </summary>
-            Competitor,
-            /// <summary>
-            /// 兄弟姐妹
-            /// </summary>
-            BroOrSis,
-           
-        }
+        
         
         /// <summary>
         /// 角色卡能力类型
@@ -335,6 +310,26 @@ namespace Core
             /// 退场（亡语），每次战斗中此卡被击败时发动
             /// </summary>
             Exit,
+            
+            /// <summary>
+            /// 自己受伤时触发
+            /// </summary>
+            GetHurt,
+            
+            /// <summary>
+            /// 敌方有卡牌发动攻击时触发
+            /// </summary>
+            WhenEnemyAttack,
+            
+            /// <summary>
+            /// 当己方成员攻击时触发
+            /// </summary>
+            WhenMemberAttack,
+            
+            /// <summary>
+            /// 当己方成员被攻击时触发
+            /// </summary>
+            WhenMemberGethHurt,
         }
         
      
@@ -818,6 +813,38 @@ namespace Core
             KobushiNobuyuk,
             
         }
-        
+
+/// <summary>
+/// 玩家tag
+/// </summary>
+        public enum CharacterTag
+        {
+            /// <summary>
+            /// 无特殊标签
+            /// </summary>
+            None,
+            /// <summary>
+            /// 隶属于SOS
+            /// </summary>
+            SOS,
+            /// <summary>
+            /// 属于轻音部
+            /// </summary>
+            Kon,
+            
+            /// <summary>
+            /// 吹奏乐部
+            /// </summary>
+            Suisogakubu,
+           
+            /// <summary>
+            /// 北宇治的学生
+            /// </summary>
+            Kitauji,
+            
+            
+            
+            
+        }
     }
 }
