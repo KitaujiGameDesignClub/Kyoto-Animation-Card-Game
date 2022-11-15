@@ -37,7 +37,7 @@ namespace Core
         /// <summary>
         /// 角色名称（无则空）
         /// </summary>
-        public string CharacterName;
+        public Information.CharacterName CharacterName;
 
         /// <summary>
         /// 性别 -1 无性别或性别不重要 1男 0女
@@ -47,12 +47,12 @@ namespace Core
         /// <summary>
         /// 所用声优
         /// </summary>
-        public readonly Information.CV CV ;
+        public Information.CV CV ;
 
         /// <summary>
         /// 所属卡组（可以自定义，一般是番剧名称，额外添加一些修饰符什么的，比如 中二世界-中二病也要谈恋爱、与中二病也要谈恋爱就分属两个不同的阵营了
         /// </summary>
-        public readonly string BelongBundleName;
+        public string BelongBundleName;
 
         /// <summary>
         /// 是否允许作为部长（主持，英雄）
@@ -82,7 +82,8 @@ namespace Core
         /// 能力描述
         /// </summary>
         public string AbilityDescription;
-
+        
+        
         /// <summary>
         /// 角色间羁绊
         /// </summary>
@@ -91,11 +92,11 @@ namespace Core
 
         public CharacterCard()
         {
-            imageName = String.Empty;
+            imageName = String.Empty;//编辑器选择图片
             CardName = "ZhongTian.jpg";
             FriendlyCardName = "种田.jpg";
             CardCount = 1;
-            CharacterName = string.Empty;
+            CharacterName  = Information.CharacterName.None;
             gender = -1;
             CV = Information.CV.None;
             BelongBundleName = Information.Anime.Universal.ToString();
@@ -110,6 +111,71 @@ namespace Core
             
             AbilityDescription = "使场上所有相同声优的角色退场返回到准备区";
             Connects = null;
+            tags = null;
         }
+
+
+
+       /// <summary>
+       ///  将角色卡的配置文件移交到游戏中，使其可以在游戏中操作
+       /// </summary>
+       /// <param name="playerId">角色卡属于哪个玩家1=A 2=B</param>
+       /// <returns></returns>
+        public CharacterInGame PayToGame(int playerId)
+        {
+            //参数传递
+            var inGame = new CharacterInGame(this,playerId);
+
+            return null;
+
+
+        }
+        
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// 在这里存一些例子
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static CharacterCard Examples(int index)
+        {
+            switch (index)
+            {
+                //节能折木，每回合降低自身攻击力，除非千反田在场
+                case 0:
+                    return new CharacterCard()
+                    {
+                       
+                        allowAsChief = true,
+                        BasicHealthPoint = 7,
+                        BasicPower = 4,
+                        CardCount = 1,
+                        CardName = "EnergySavingHoutarou",
+                        CharacterName = Information.CharacterName.OrekiHoutarou,
+                        Connects = null, //不太好写，要用到编辑器
+                        FriendlyCardName = "节能型折木",
+                        gender = 1,
+                        CV = Information.CV.NakamuraYuuichi,
+                        BelongBundleName = Information.Anime.Hyouka.ToString(),
+                        imageName = String.Empty, //编辑器选择图片
+                        AbilityDescription = "节能折木，每回合降低自身攻击力，除非己方千反田在场",
+                        AbilityType = Information.CardAbilityTypes.Normal,
+                        Reason = new AbilityLogicReason(Information.Objects.AllInTeam,Information.Parameter.CharacterName,Information.JudgeMethod.Value,-3,Information.CharacterName.ChitandaEru.ToString()),
+                        Result = new AbilityLogicResult(false,null,Information.Objects.Self,Information.Parameter.Power,Information.CalculationMethod.addition,"-1"),
+                        tags = null, //不太好写，要用到编辑器
+
+                    };
+                    break;
+                
+                default:
+                    return new CharacterCard();
+                    break;
+            }
+            
+            
+        }
+#endif
+    
     }
 }

@@ -5,26 +5,34 @@ namespace Core
     /// <summary>
     /// 用于储存和获取当前游戏的所有状态
     /// </summary>
-    public static class State
+    public static class GameState
     {
-      
 
         /// <summary>
-        /// 玩家A登场的角色卡（最多6个）
+        /// 玩家各自所有可用的卡牌（包含手牌+场上的牌+可以被招募的牌）
         /// </summary>
-        public static List<CharacterInGame> CardOnSpotPlayerA;
+        public static List<CharacterInGame>[] AllAvailableCards= new List<CharacterInGame>[2];
+
+
         /// <summary>
-        /// 角色A手牌里的角色卡（最多10个）
+        /// 各自登场的角色卡（最多6个）
         /// </summary>
-        public static List<CharacterInGame> CardInHandPlayerA;
+        public static List<CharacterInGame>[] CardOnSpot = new List<CharacterInGame>[2];
         /// <summary>
-        /// 玩家B登场的角色卡（最多6个）
+        /// 各自手牌里的角色卡（最多10个）
         /// </summary>
-        public static List<CharacterInGame> CardOnSpotPlayerB;
+        public static List<CharacterInGame>[] CardInHand = new List<CharacterInGame>[2];
+
+
         /// <summary>
-        /// 角色B手牌里的角色卡（最多10个）
+        /// 哪一队在攻击 0=A 1=B
         /// </summary>
-        public static List<CharacterInGame> CardInHandPlayerB;
+        public static int whichTeamIsAttacking;
+
+        /// <summary>
+        /// 哪一张卡正在执行攻击等有关逻辑（1-6）
+        /// </summary>
+        public static int[] whichCardPerforming = { 1, 1 };
     }
 }
 

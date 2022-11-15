@@ -1,4 +1,5 @@
 using KitaujiGameDesignClub.GameFramework.UI;
+using KitaujiGameDesignClub.GameFramework.Tools;
 using UnityEngine;
 
 namespace KitaujiGameDesignClub.GameFramework

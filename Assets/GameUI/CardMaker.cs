@@ -5,7 +5,7 @@ using System.IO;
 using Core;
 using UnityEngine;
 using SimpleFileBrowser;
-using KitaujiGameDesignClub.GameFramework;
+using KitaujiGameDesignClub.GameFramework.Tools;
 using UnityEngine.UI;
 
 public class CardMaker : MonoBehaviour

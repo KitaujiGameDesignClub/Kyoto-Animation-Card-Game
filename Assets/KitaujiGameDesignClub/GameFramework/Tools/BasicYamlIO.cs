@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace KitaujiGameDesignClub.GameFramework
+namespace KitaujiGameDesignClub.GameFramework.Tools
 {
     /// <summary>
     /// 用于记录yaml文件在哪里读写，读写什么
@@ -9,8 +9,17 @@ namespace KitaujiGameDesignClub.GameFramework
     [Serializable]
     public class BasicYamlIO
     {
+        /// <summary>
+        /// 文件名（含拓展名）
+        /// </summary>
         public string FileName;
+        /// <summary>
+        /// 从根目录开始的路径（Android：从presistentData开始）
+        /// </summary>
         public string Path;
+        /// <summary>
+        /// 注释（需要写入#符号）
+        /// </summary>
         public string Note;
 
         public const int BasicYamlVersion = 1;
@@ -18,10 +27,10 @@ namespace KitaujiGameDesignClub.GameFramework
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="fileName">保存的文件名（不含拓展名）</param>
-        /// <param name="path">从根目录开始的路径，与saves同级，开头结尾不能有“ / ”</param>
+        /// <param name="fileName">保存的文件名（含拓展名）</param>
+        /// <param name="path">从根目录开始的路径（Android：从presistentData开始），与saves同级，开头结尾不能有“ / ”</param>
         /// <param name="note">注释（需要写入#符号）</param>
-        public BasicYamlIO(string fileName ="Default",string path = "saves",string note = null)
+        public BasicYamlIO(string fileName ="Default.yaml",string path = "saves",string note = null)
         {
             FileName = fileName;
             Path = path;

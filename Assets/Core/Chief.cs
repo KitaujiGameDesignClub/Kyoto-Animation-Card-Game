@@ -1,5 +1,8 @@
 namespace Core
 {
+  /// <summary>
+  /// 社团主持/部长
+  /// </summary>
   public class Chief
   {
     public int healthPoint = 40;

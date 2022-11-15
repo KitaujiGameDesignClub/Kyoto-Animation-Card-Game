@@ -30,7 +30,7 @@ namespace Core
         public Information.JudgeMethod ReasonJudgeMethod;
 
         /// <summary>
-        /// 原因判断逻辑 ( -2 小于 ) ( -1 小于等于 )(  0 等于/包含 )( 1 大于等于 ) ( 2 大于)
+        /// 原因判断逻辑 （-3 不包含）( -2 小于 ) ( -1 小于等于 )(  0 等于/包含 )( 1 大于等于 ) ( 2 大于) 
         /// </summary>
         /// <returns></returns>
         public int Logic;
@@ -47,7 +47,7 @@ namespace Core
         /// <param name="reasonObject">条件对象</param>
         /// <param name="reasonParameter">判断的参数</param>
         /// <param name="reasonJudgeMethod">判断方法</param>
-        /// <param name="logic">原因判断逻辑 ( -2 小于 ) ( -1 小于等于 )(  0 等于 )( 1 大于等于 ) ( 2 大于)</param>
+        /// <param name="logic">原因判断逻辑 （-3 不包含）( -2 小于 ) ( -1 小于等于 )(  0 等于 )( 1 大于等于 ) ( 2 大于)</param>
         /// <param name="threshold">阈值</param>
         public AbilityLogicReason(Information.Objects reasonObject, Information.Parameter reasonParameter,
             Information.JudgeMethod reasonJudgeMethod, int logic, string threshold)
@@ -136,7 +136,11 @@ namespace Core
          *  当己方场上存在 折木奉太郎和千反田爱馏时，会触发羁绊效果。因为羁绊层相同，但是[标记内容]不同；
          *  当己方场上存在 千反田爱馏和伊原摩耶花时，会触发羁绊效果，因为没有标记内容的”伊原摩耶花“可以和任何羁绊层为”Love“的角色卡产生羁绊。
          */
-
+        
+        /// <summary>
+        /// 羁绊类型
+        /// </summary>
+        public Information.ConnectTypes ConnectType;
         /// <summary>
         /// 同一种羁绊类型中，只有在相同层上的，才可以激活。可以加入额外标记：[标记内容]：标记内容不同的卡牌之间才能够激活羁绊。
         /// </summary>
@@ -163,7 +167,7 @@ namespace Core
         public enum Objects
         {
             /// <summary>
-            /// 任何情况下都会可以
+            /// 任何情况下都会可以 ，不进行后续判断，直接运行Result所定义的能力，且RegardActivatorAsResultObject=false
             /// </summary>
             Any,
             /// <summary>
@@ -172,15 +176,9 @@ namespace Core
             Self,
 
             /// <summary>
-            /// 己方部长（主持，英雄）
+            /// 场上所有卡牌
             /// </summary>
-            ChiefInTeam,
-
-            /// <summary>
-            /// 敌方部长（主持，英雄）
-            /// </summary>
-            ChiefOfEnemy,
-
+            AllOnSpot,
             /// <summary>
             /// 己方场上随机一位角色
             /// </summary>
@@ -202,11 +200,6 @@ namespace Core
             AllOfEnemy,
 
             /// <summary>
-            /// 场上所有角色卡
-            /// </summary>
-            AllOnSpot,
-
-            /// <summary>
             /// （己方）发动者的上一位
             /// </summary>
             Next,
@@ -217,7 +210,7 @@ namespace Core
             Last,
             
             /// <summary>
-            /// 成功触发能力的那个角色卡
+            /// 成功触发能力的那个角色卡（现在就用于判断是谁打了我）
             /// </summary>
             Activator,
             
@@ -265,19 +258,13 @@ namespace Core
            /// <summary>
            /// 加法
            /// </summary>
-            addition,
-           /// <summary>
-           /// 减法
-           /// </summary>
-            subtraction, 
+           addition,
+           
            /// <summary>
            /// 乘法
            /// </summary>
             multiplication,
-           /// <summary>
-           /// 除法
-           /// </summary>
-            division,
+        
            /// <summary>
            /// 设定为某个值
            /// </summary>
@@ -315,25 +302,30 @@ namespace Core
             /// 自己受伤时触发
             /// </summary>
             GetHurt,
+        }
+
+
+        /// <summary>
+        /// 角色名称
+        /// </summary>
+        public enum CharacterName
+        {
+            /// <summary>
+            /// 没有角色设定或不重要
+            /// </summary>
+            None,
+            //冰菓
             
             /// <summary>
-            /// 敌方有卡牌发动攻击时触发
+            /// 折木 奉太郎
             /// </summary>
-            WhenEnemyAttack,
-            
+            OrekiHoutarou,
             /// <summary>
-            /// 当己方成员攻击时触发
+            /// 千反田 爱馏
             /// </summary>
-            WhenMemberAttack,
-            
-            /// <summary>
-            /// 当己方成员被攻击时触发
-            /// </summary>
-            WhenMemberGethHurt,
+            ChitandaEru,
         }
         
-     
-
 
         /// <summary>
         /// 游戏状态
@@ -371,6 +363,34 @@ namespace Core
             Fin,
         }
 
+        /// <summary>
+        /// 角色卡羁绊类别
+        /// </summary>
+        public enum ConnectTypes
+        {
+            /// <summary>
+            /// 无任何羁绊或不必要
+            /// </summary>
+            None,
+            /// <summary>
+            /// 恋人
+            /// </summary>
+            Lovers,
+            /// <summary>
+            /// 挚友
+            /// </summary>
+            BestFriends,
+            /// <summary>
+            /// 竞争对手
+            /// </summary>
+            Competitor,
+            /// <summary>
+            /// 兄弟姐妹
+            /// </summary>
+            BroOrSis,
+
+        }
+        
         /// <summary>
         /// 角色卡状态
         /// </summary>
@@ -841,7 +861,14 @@ namespace Core
             /// 北宇治的学生
             /// </summary>
             Kitauji,
-            
+            /// <summary>
+            /// 恐怖的
+            /// </summary>
+            Horrifying,
+            /// <summary>
+            /// 胆小的
+            /// </summary>
+            Coward,
             
             
             

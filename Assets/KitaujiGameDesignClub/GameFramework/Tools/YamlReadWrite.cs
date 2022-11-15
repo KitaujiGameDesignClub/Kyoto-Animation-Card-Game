@@ -4,7 +4,7 @@ using System.Text;
 using UnityEngine;
 using YamlDotNet.Serialization;
 
-namespace KitaujiGameDesignClub.GameFramework
+namespace KitaujiGameDesignClub.GameFramework.Tools
 {
     /// <summary>
     /// 如果要修改FileName或是添加其他IO用变量，请继承
@@ -59,17 +59,17 @@ namespace KitaujiGameDesignClub.GameFramework
 
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
             StreamWriter streamWriter =
-                new StreamWriter($"{UnityButNotAssets}/{profile.Path}/{profile.FileName}.yaml", false, Encoding.UTF8);
+                new StreamWriter($"{UnityButNotAssets}/{profile.Path}/{profile.FileName}", false, Encoding.UTF8);
 
 #elif UNITY_ANDROID
            StreamWriter streamWriter =
-            new StreamWriter($"{Application.persistentDataPath}/{profile.Path}/{profile.FileName}.yaml", false,
+            new StreamWriter($"{Application.persistentDataPath}/{profile.Path}/{profile.FileName}", false,
                 Encoding.UTF8);
 #endif
             streamWriter.Write(authenticContent);
             streamWriter.Dispose();
             streamWriter.Close();
-     
+            Debug.Log($"成功写入：{profile.Path}/{profile.FileName}");
 
 
 
@@ -98,16 +98,16 @@ namespace KitaujiGameDesignClub.GameFramework
             {
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
                 streamReader =
-                    new StreamReader($"{UnityButNotAssets}/{yaml.Path}/{yaml.FileName}.yaml", Encoding.UTF8);
+                    new StreamReader($"{UnityButNotAssets}/{yaml.Path}/{yaml.FileName}", Encoding.UTF8);
 #elif UNITY_ANDROID
            streamReader =
-                new StreamReader($"{Application.persistentDataPath}/{yaml.Path}/{yaml.FileName}.yaml", Encoding.UTF8);
+                new StreamReader($"{Application.persistentDataPath}/{yaml.Path}/{yaml.FileName}", Encoding.UTF8);
 #endif
             
                 var fileContent = deserializer.Deserialize<T>(streamReader.ReadToEnd());
                 streamReader.Dispose();
                 streamReader.Close();
-                Debug.Log($"成功加载：{yaml.Path}/{yaml.FileName}.yaml");
+                Debug.Log($"成功加载：{yaml.Path}/{yaml.FileName}");
                 return fileContent;
            
             }
@@ -118,7 +118,7 @@ namespace KitaujiGameDesignClub.GameFramework
                 streamReader.Close();
             
                 //不存在的话，初始化一个
-                Debug.Log($"{yaml.Path}中不存在合规的{yaml.FileName}.yaml，已经初始化此文件");
+                Debug.Log($"{yaml.Path}中不存在合规的{yaml.FileName}，已经初始化此文件");
                 BasicYamlIO newFile = new BasicYamlIO(yaml.FileName,yaml.Path,yaml.Note);
                 Write(newFile,content);
                 return content;
