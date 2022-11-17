@@ -20,6 +20,11 @@ namespace Core
         public string FriendlyCardName;
 
         /// <summary>
+        /// 所属卡包的名字（阵营）
+        /// </summary>
+        public string BundleName;
+        
+        /// <summary>
         /// 角色标签
         /// </summary>
         public Information.CharacterTag[] tags;
@@ -106,7 +111,7 @@ namespace Core
             AbilityType = Information.CardAbilityTypes.Debut;
             Reason = new AbilityLogicReason(Information.Objects.AllOnSpot, Information.Parameter.CV,
                 Information.JudgeMethod.Count, 2, "1");
-            Result = new AbilityLogicResult(true, string.Empty,Information.Objects.AllOnSpot, Information.Parameter.State,
+            Result = new AbilityLogicResult(true, string.Empty,false,Information.Objects.AllOnSpot, Information.Parameter.State,
                 Information.CalculationMethod.ChangeTo, Information.CardState.Available.ToString());
             
             AbilityDescription = "使场上所有相同声优的角色退场返回到准备区";
@@ -162,7 +167,7 @@ namespace Core
                         AbilityDescription = "节能折木，每回合降低自身攻击力，除非己方千反田在场",
                         AbilityType = Information.CardAbilityTypes.Normal,
                         Reason = new AbilityLogicReason(Information.Objects.AllInTeam,Information.Parameter.CharacterName,Information.JudgeMethod.Value,-3,Information.CharacterName.ChitandaEru.ToString()),
-                        Result = new AbilityLogicResult(false,null,Information.Objects.Self,Information.Parameter.Power,Information.CalculationMethod.addition,"-1"),
+                        Result = new AbilityLogicResult(false,null,false,Information.Objects.Self,Information.Parameter.Power,Information.CalculationMethod.addition,"-1"),
                         tags = null, //不太好写，要用到编辑器
 
                     };

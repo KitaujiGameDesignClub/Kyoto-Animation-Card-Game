@@ -7,7 +7,7 @@ namespace Core
     
     
     /// <summary>
-    /// 角色卡能力的触发原因
+    /// 角色卡能力的触发原因（简称能力原因）
     /// </summary>
     [System.Serializable]
     public struct AbilityLogicReason
@@ -62,7 +62,7 @@ namespace Core
     }
     
     /// <summary>
-    /// 角色卡能力触发的效果
+    /// 角色卡能力触发的效果（简称能力效果）
     /// </summary>
     [System.Serializable]
     public struct AbilityLogicResult
@@ -73,10 +73,14 @@ namespace Core
         public bool RegardActivatorAsResultObject;
 
         /// <summary>
-        /// 召唤一个符合CardName的卡牌
+        /// 召唤一个符合CardName的卡牌（空则不召唤）
         /// </summary>
         public string SummonCardName;
-        
+
+        /// <summary>
+        /// 嘲讽
+        /// </summary>
+        public bool Ridicule;
         
         //新一轮的对象筛选（筛选出结果对象）
 
@@ -100,17 +104,20 @@ namespace Core
         /// </summary>
         public string Value;
 
-/// <summary>
-/// 
-/// </summary>
-/// <param name="regardActivatorAsResultObject">true=对触发此效果的卡牌发动效果，忽略下方新一轮的对象筛选（结果对象筛选）</param>
-/// <param name="resultObject">结果对象</param>
-/// <param name="parameterToChange">结果对象要修改的参数</param>
-/// <param name="calculationMethod">结果对象参数的修改方法</param>
-/// <param name="value">修改的值。如何计算按照CalculationMethod来</param>
-        public AbilityLogicResult(bool regardActivatorAsResultObject,string summonCardName, Information.Objects resultObject,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="regardActivatorAsResultObject">true=对触发此效果的卡牌发动效果，忽略下方新一轮的对象筛选（结果对象筛选）</param>
+        /// <param name="summonCardName">召唤一个符合CardName的卡牌（空则不召唤）</param>
+        /// <param name="ridicule">嘲讽？</param>
+        /// <param name="resultObject">结果对象</param>
+        /// <param name="parameterToChange">结果对象要修改的参数</param>
+        /// <param name="calculationMethod">结果对象参数的修改方法</param>
+        /// <param name="value">修改的值。如何计算按照CalculationMethod来</param>
+        public AbilityLogicResult(bool regardActivatorAsResultObject,string summonCardName,bool ridicule, Information.Objects resultObject,
             Information.Parameter parameterToChange, Information.CalculationMethod calculationMethod, string value)
         {
+            Ridicule = ridicule;
             ResultObject = resultObject;
             RegardActivatorAsResultObject = regardActivatorAsResultObject;
             ParameterToChange = parameterToChange;
@@ -214,6 +221,15 @@ namespace Core
             /// </summary>
             Activator,
             
+            /// <summary>
+            /// 对方的chief
+            /// </summary>
+            ChiefOfEnemy,
+            
+            /// <summary>
+            /// 己方的chief
+            /// </summary>
+            OurChief,
         }
 
         /// <summary>
@@ -221,7 +237,7 @@ namespace Core
         /// </summary>
         public enum Parameter
         {
-            None,
+            
             CardCount,
             Coin,
             Tag,

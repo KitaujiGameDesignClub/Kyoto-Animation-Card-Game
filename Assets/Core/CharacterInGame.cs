@@ -12,16 +12,15 @@ namespace Core
         /// <summary>
         /// 解析能力的结果
         /// </summary>
-      public struct AnalyseAbilityConclusion
-      {
-          
-      }
+        public struct AnalyseAbilityConclusion
+        {
+        }
 
         /// <summary>
         /// 是哪一个玩家的可用牌 0=A 1=B
         /// </summary>
         public int playerId;
-        
+
         /// <summary>
         /// 沉默回合数 
         /// </summary>
@@ -53,15 +52,15 @@ namespace Core
         /// </summary>
         /// <param name="characterCard">角色卡配置</param>
         /// <param name="playerId">属于哪个玩家？ 0=A 1=B</param>
-        public CharacterInGame(CharacterCard characterCard,int playerId)
+        public CharacterInGame(CharacterCard characterCard, int playerId)
         {
             CardName = characterCard.CardName;
             imageName = characterCard.imageName;
             gender = characterCard.gender;
             tags = characterCard.tags;
             Connects = characterCard.Connects;
-           // Reason = characterCard.Reason;不需要。因为后面解析完角色能力后就可以直接用了
-           // Result = characterCard.Result;
+            // Reason = characterCard.Reason;不需要。因为后面解析完角色能力后就可以直接用了
+            // Result = characterCard.Result;
             AbilityDescription = characterCard.AbilityDescription;
             AbilityType = characterCard.AbilityType;
             allowAsChief = characterCard.allowAsChief;
@@ -72,26 +71,28 @@ namespace Core
             CV = characterCard.CV;
             BasicHealthPoint = characterCard.BasicHealthPoint;
             actualHealthPoint = BasicHealthPoint;
-          //  characterCard.BelongBundleName 不需要，因为只有游戏开始时（选择阵营阶段）用到此变量
-          FriendlyCardName = characterCard.FriendlyCardName;
-          silence = 0;
-          State = Information.CardState.Available;
-          connectEnabled = false;
-          this.playerId = playerId;
+            //  characterCard.BelongBundleName 不需要，因为只有游戏开始时（选择阵营阶段）用到此变量
+            FriendlyCardName = characterCard.FriendlyCardName;
+            silence = 0;
+            State = Information.CardState.Available;
+            connectEnabled = false;
+            this.playerId = playerId;
         }
-        
-        
+
+
         /// <summary>
         /// 受到伤害
         /// </summary>
         /// <param name="damage">正数</param>
-        public void GetDamaged(int damage,CharacterInGame activator) => ChangeHealthAndPower(true, damage, false, 0,activator);
+        public void GetDamaged(int damage, CharacterInGame activator) =>
+            ChangeHealthAndPower(true, damage, false, 0, activator);
 
         /// <summary>
         /// 攻击力提升
         /// </summary>
         /// <param name="value">正数</param>
-        public void PowerUp(int value,CharacterInGame activator) => ChangeHealthAndPower(false, 0, true, value,activator);
+        public void PowerUp(int value, CharacterInGame activator) =>
+            ChangeHealthAndPower(false, 0, true, value, activator);
 
 
         /// <summary>
@@ -102,7 +103,8 @@ namespace Core
         /// <param name="changePower">要修改攻击力吗</param>
         /// <param name="value2">对攻击力修改，加法运算</param>
         /// <param name="Activator">是谁触发了这个函数</param>
-        public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2,CharacterInGame Activator)
+        public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2,
+            CharacterInGame Activator)
         {
             if (changeHealth)
             {
@@ -113,19 +115,19 @@ namespace Core
                 {
                     OnHurt(Activator);
                 }
-                
-                if(BasicHealthPoint <= 0)
+
+                if (BasicHealthPoint <= 0)
                 {
                     //do something....
                 }
             }
-            
-            
+
+
             if (changePower)
             {
                 BasicPower += value2;
-                
-                if(BasicPower <= 0)
+
+                if (BasicPower <= 0)
                 {
                     //do something....
                 }
@@ -149,74 +151,80 @@ namespace Core
         /// <summary>
         /// 登场执行
         /// </summary>
-        public  void OnDebut()
+        public void OnDebut()
         {
             if (AbilityType == Information.CardAbilityTypes.Debut)
             {
-                AbilityExecution(this);
+                AbilityReasonAnalyze(this);
             }
         }
 
         /// <summary>
         /// 每次轮到该卡都执行
         /// </summary>
-        public  void Normal()
+        public void Normal()
         {
             if (AbilityType == Information.CardAbilityTypes.Normal)
             {
-                AbilityExecution(this);
+                AbilityReasonAnalyze(this);
             }
         }
 
         /// <summary>
         /// 退场时执行
         /// </summary>
-        public  void Exit()
+        public void Exit()
         {
             if (AbilityType == Information.CardAbilityTypes.Exit)
             {
-                AbilityExecution(this);
+                AbilityReasonAnalyze(this);
             }
         }
 
-      /// <summary>
-      /// 被击时执行
-      /// </summary>
-      /// <param name="activator">是谁触发了这个函数（谁打我了）</param>
+        /// <summary>
+        /// 被击时执行
+        /// </summary>
+        /// <param name="activator">是谁触发了这个函数（谁打我了）</param>
         public void OnHurt(CharacterInGame activator)
         {
             if (AbilityType == Information.CardAbilityTypes.GetHurt)
             {
-                AbilityExecution(activator);
+                AbilityReasonAnalyze(activator);
             }
         }
 
 
         /// <summary>
-        /// 能力逻辑的实现
+        /// 能力触发原因判定
         /// </summary>
-        public void AbilityExecution(CharacterInGame activator)
+        public void AbilityReasonAnalyze(CharacterInGame activator)
         {
             //确定条件对象们
-            CharacterInGame[] ReasonObjects;//确定范围内的对象
+            CharacterInGame[] ReasonObjects = new CharacterInGame[0]; //确定范围内的对象
+            Chief chief = null;
 
             #region 确定条件对象们
-  Random rd = new Random();
+
+            Random rd = new Random();
             switch (Reason.ReasonObject)
             {
                 //条件对象是：触发此能力的卡牌
                 case Information.Objects.Activator:
                     //如果是受击是触发能力，则把activator（攻击者）作为条件对象
                     //其他情况下，把自己作为条件对象
-                  
-                        ReasonObjects = new CharacterInGame[1];
-                        ReasonObjects[0] = activator;
-                  
+
+                    ReasonObjects = new CharacterInGame[1];
+                    ReasonObjects[0] = activator;
+
                     break;
-                
+
+                /// 任何情况下都会可以 ，不进行后续判断，直接运行Result所定义的能力，且RegardActivatorAsResultObject=false
                 case Information.Objects.Any:
-                    break;
-                
+                    Result.RegardActivatorAsResultObject = false;
+                    AbilityResultAnalyze();
+                    return;
+
+
                 //己方上一位卡牌
                 case Information.Objects.Last:
                     //只有一张卡，不执行
@@ -225,8 +233,10 @@ namespace Core
                         ReasonObjects = null;
                         return;
                     }
+
                     ReasonObjects = new CharacterInGame[1];
-                    ReasonObjects[0] = GameState.CardOnSpot[playerId][GameState.whichCardPerforming[playerId] == 1 ? 6 : -1];
+                    ReasonObjects[0] =
+                        GameState.CardOnSpot[playerId][GameState.whichCardPerforming[playerId] == 1 ? 6 : -1];
                     break;
                 //己方下一位卡牌
                 case Information.Objects.Next:
@@ -236,57 +246,116 @@ namespace Core
                         ReasonObjects = null;
                         return;
                     }
+
                     ReasonObjects = new CharacterInGame[1];
-                    ReasonObjects[0] = GameState.CardOnSpot[playerId][GameState.whichCardPerforming[playerId] == 6 ? 1 : +1];
+                    ReasonObjects[0] =
+                        GameState.CardOnSpot[playerId][GameState.whichCardPerforming[playerId] == 6 ? 1 : +1];
                     break;
-                
+
                 case Information.Objects.Self:
                     ReasonObjects = new CharacterInGame[1];
                     ReasonObjects[0] = this;
                     break;
-                
-                //己方场上所有的卡牌
+
+                //己方场上所有的角色卡牌
                 case Information.Objects.AllInTeam:
                     ReasonObjects = CommonTools.ListArrayConversion(GameState.CardOnSpot[playerId]);
                     break;
-                
-                //敌方场上所有的卡牌
+
+                //敌方场上所有的角色卡牌
                 case Information.Objects.AllOfEnemy:
-                    ReasonObjects = CommonTools.ListArrayConversion(GameState.CardOnSpot[playerId == 1 ? 0:1]);
+                    ReasonObjects = CommonTools.ListArrayConversion(GameState.CardOnSpot[playerId == 1 ? 0 : 1]);
                     break;
-                
+
+                //场上所有角色卡牌
+                case Information.Objects.AllOnSpot:
+                    ReasonObjects = new CharacterInGame[GameState.CardOnSpot[0].Count + GameState.CardOnSpot[1].Count];
+                    for (int i = 0; i < ReasonObjects.Length; i++)
+                    {
+                        if (i < GameState.CardOnSpot[0].Count)
+                        {
+                            ReasonObjects[i] = GameState.CardOnSpot[0][i];
+                        }
+                        else
+                        {
+                            ReasonObjects[i] = GameState.CardOnSpot[1][i - GameState.CardOnSpot[0].Count];
+                        }
+                    }
+
+                    break;
+
                 // 己方场上随机一位角色
                 case Information.Objects.RandomInTeam:
-                  
+
                     ReasonObjects = new CharacterInGame[1];
                     ReasonObjects[0] =
                         GameState.CardOnSpot[playerId][rd.Next(1, GameState.CardOnSpot[playerId].Count + 1)];
                     break;
-                
+
                 // 地方方场上随机一位角色
                 case Information.Objects.RandomOfEnemy:
                     ReasonObjects = new CharacterInGame[1];
-                    ReasonObjects[0] =GameState.CardOnSpot[playerId == 1 ? 0:1][rd.Next(1, GameState.CardOnSpot[playerId].Count + 1)];
+                    ReasonObjects[0] =
+                        GameState.CardOnSpot[playerId == 1 ? 0 : 1][
+                            rd.Next(1, GameState.CardOnSpot[playerId].Count + 1)];
                     break;
-            
 
-          
-          
-                
-          
-                    
-                    
+
+                //对家主持/主席/部长
+                case Information.Objects.ChiefOfEnemy:
+                    chief = GameState.chiefs[playerId == 0 ? 1 : 0];
+                    break;
+
+                //自家主持/主席/部长
+                case Information.Objects.OurChief:
+                    chief = GameState.chiefs[playerId];
+                    break;
             }
+
             #endregion
 
             //判断的参数
-            string[] parameterValues;//参数值
-            #region 判断的参数
+            string[] parameterValues;  //获取要判断的参数的值
+            if (chief != null)
+            {
+                parameterValues = new string[1];
+            }
+            else
+            {
+                parameterValues  = new string[ReasonObjects.Length];
+            }
+          
 
-
+            #region 获取判断的参数的值
+            switch (Reason.ReasonParameter)
+            {
+                case Information.Parameter.Coin:
+                    if (chief != null) parameterValues[0] = chief.coin.ToString();
+                    else throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断金币数，但是能力原因的条件对象不是chief");
+                    break;
+              
+                case Information.Parameter.Power:
+                    if (chief == null)
+                    {
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            parameterValues[i] = ReasonObjects[i].actualPower.ToString();
+                        }
+                    }
+                    else throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断攻击力，但是能力原因的条件对象不是角色卡");
+                    break;
+                  
+            }
 
             #endregion
         }
-        
+
+
+        /// <summary>
+        /// 能力结果解析
+        /// </summary>
+        private void AbilityResultAnalyze()
+        {
+        }
     }
 }

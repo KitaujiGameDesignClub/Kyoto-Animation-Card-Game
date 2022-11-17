@@ -33,6 +33,11 @@ namespace Core
         /// 哪一张卡正在执行攻击等有关逻辑（1-6）
         /// </summary>
         public static int[] whichCardPerforming = { 1, 1 };
+
+        /// <summary>
+        /// 双方的部长
+        /// </summary>
+        public static Chief[] chiefs = new Chief[2];
     }
 }
 

@@ -79,4 +79,13 @@ public class CardMaker : MonoBehaviour
     {
         
     }
+
+
+#if UNITY_EDITOR
+    [ContextMenu("各类测试")]
+    public void test()
+    {
+        throw new Exception("试试");
+    }
+#endif
 }
