@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using KitaujiGameDesignClub.GameFramework.Tools;
+using PlasticGui.Configuration.CloudEdition.Welcome;
 
 namespace Core
 {
@@ -200,8 +201,8 @@ namespace Core
         public void AbilityReasonAnalyze(CharacterInGame activator)
         {
             //确定条件对象们
-            CharacterInGame[] ReasonObjects = new CharacterInGame[0]; //确定范围内的对象
-            Chief chief = null;
+            CharacterInGame[] ReasonObjects = new CharacterInGame[0]; //确定范围内的条件对象
+            Chief chief = null;//储存主持/部长的条件对象
 
             #region 确定条件对象们
 
@@ -329,11 +330,13 @@ namespace Core
             #region 获取判断的参数的值
             switch (Reason.ReasonParameter)
             {
+                //部长/主席/主持的金币数量
                 case Information.Parameter.Coin:
                     if (chief != null) parameterValues[0] = chief.coin.ToString();
-                    else throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断金币数，但是能力原因的条件对象不是chief");
+                    else throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断部长金币数，但是能力原因的条件对象不是chief");
                     break;
               
+                //角色卡的攻击力
                 case Information.Parameter.Power:
                     if (chief == null)
                     {
@@ -342,12 +345,105 @@ namespace Core
                             parameterValues[i] = ReasonObjects[i].actualPower.ToString();
                         }
                     }
-                    else throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断攻击力，但是能力原因的条件对象不是角色卡");
+                    else throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡攻击力，但是能力原因的条件对象不是角色卡");
                     break;
                   
+                //角色卡是否被静默
+                case Information.Parameter.Silence:
+                    if (chief == null)
+                    {
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            parameterValues[i] = ReasonObjects[i].silence.ToString();//0 1 2...
+                        }
+                    }
+                    else throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡是否被沉默，但是能力原因的条件对象不是角色卡");
+                    break;
+                
+                //角色卡状态
+                case Information.Parameter.State:
+                    if (chief == null)
+                    {
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            parameterValues[i] = ReasonObjects[i].State.ToString();
+                        }
+                    }
+                    else throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡状态，但是能力原因的条件对象不是角色卡");
+                    break;
+                
+                //tag对比
+                case Information.Parameter.Tag:
+                    if (chief == null)
+                    {
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            foreach (var tag in ReasonObjects[i].tags)
+                            {
+                                parameterValues[i] = $"{parameterValues[i]}={tag}";//最终的效果就是，每一个角色卡记录的tags:=SOS=coward，即每个tag间都有个=连接，第一个标签前有一个=
+                            }
+                        }
+                    }
+                    else throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡标签，但是能力原因的条件对象不是角色卡");
+                    break;
+                
+                //角色卡&部长的角色名字（固定的）
+                case Information.Parameter.CharacterName:
+                    if (chief == null)
+                    {
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            parameterValues[i] = ReasonObjects[i].CharacterName.ToString();
+                        }
+                    }
+                    else
+                    {
+                        parameterValues[0] = chief.CharacterName.ToString();
+                    }
+                    break;
+                
+                case Information.Parameter.CV:
+                    if (chief == null)
+                    {
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            parameterValues[i] = ReasonObjects[i].CV.ToString();
+                        }
+                    }
+                    else
+                    {
+                        parameterValues[0] = chief.CV.ToString();
+                    }
+                    break;
+                    
             }
 
             #endregion
+
+            
+            //根据判断方法，进行数值计算
+            string[] values;
+
+            #region 根据判断方法，进行数值计算
+
+            switch (Reason.ReasonJudgeMethod)
+            {
+                //count：有几个参数？
+                case Information.JudgeMethod.Count:
+                    values = new string[1];
+                    values[0] = parameterValues.Length.ToString();
+                    break;
+                
+                //如果是value，直接把参数的值作为判断的值
+                case Information.JudgeMethod.Value:
+                    values = parameterValues;
+                    break;
+            }
+
+
+            #endregion
+            
+            
         }
 
 

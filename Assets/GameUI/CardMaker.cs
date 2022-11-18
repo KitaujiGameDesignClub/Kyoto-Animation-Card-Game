@@ -85,7 +85,7 @@ public class CardMaker : MonoBehaviour
     [ContextMenu("各类测试")]
     public void test()
     {
-        throw new Exception("试试");
+        throw new Exception(false.ToString());
     }
 #endif
 }

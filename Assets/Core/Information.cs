@@ -237,8 +237,6 @@ namespace Core
         /// </summary>
         public enum Parameter
         {
-            
-            CardCount,
             Coin,
             Tag,
             Power,
@@ -246,9 +244,10 @@ namespace Core
             Silence,
             State,
             CV,
+            /// <summary>
+            /// 角色名字
+            /// </summary>
             CharacterName,
-            CardName,
-            ConnectEnabled,
         }
 
         /// <summary>
@@ -257,11 +256,11 @@ namespace Core
         public enum JudgeMethod
         {
             /// <summary>
-            /// 取值
+            /// 取值（获取参数的值or内容）
             /// </summary>
             Value,
             /// <summary>
-            /// 计数
+            /// 计数（获得参数的数量）
             /// </summary>
             Count,
         }
