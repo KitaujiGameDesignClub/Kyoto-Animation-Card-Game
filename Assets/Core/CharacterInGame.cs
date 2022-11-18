@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using PlasticGui.Configuration.CloudEdition.Welcome;
 
@@ -422,7 +423,7 @@ namespace Core
 
             
             //根据判断方法，进行数值计算
-            string[] values;
+            string[] values = new string[0];
 
             #region 根据判断方法，进行数值计算
 
@@ -439,18 +440,107 @@ namespace Core
                     values = parameterValues;
                     break;
             }
-
-
+            
             #endregion
             
             
+            //运用判断逻辑，对阈值进行判定
+            //只要存在一个符合要求的，就说明
+            bool AllowAbilityExection = false;
+            //储存每个条件对象对于此参数要求是否满足 （true就符合条件）
+            var CheckedKixedValuesState = new bool[values.Length];
+           
+            #region 运用判断逻辑，对阈值进行判定
+
+            switch (Reason.ReasonParameter)
+            {
+                //数据为Int
+                case Information.Parameter.Coin or  Information.Parameter.Power or Information.Parameter.Silence or Information.Parameter.HealthPoint:
+                  //将string转换为正规的类型
+                    int[] fixedValues = new int[values.Length];
+                
+                  //将记录的values转换成Int，并进行有关的判断逻辑处理
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        //将记录的values转换成Int
+                        if (!int.TryParse(values[i], out fixedValues[i]))
+                        {
+                          throw new Exception(
+                                $"{FriendlyCardName}(内部名称：{CardName} 隶属：{BundleName})的能力出发原因中，{Reason.ReasonParameter.ToString()}是int的，但是给定的阈值形式上不符合int类型");
+                        }
+                        else
+                        {
+                            //按照记录的逻辑方式判断能否
+                            switch (Reason.Logic)
+                            {
+                                //-3 不包含
+                                case -3:
+                                    CheckedKixedValuesState[i] = !fixedValues.Contains(int.Parse(Reason.Threshold));
+                                    break;
+                                
+                                //-2 小于
+                                case -2:
+                                    CheckedKixedValuesState[i] = fixedValues[i] < int.Parse(Reason.Threshold);
+                                    break;
+                                
+                                //小于等于
+                                case -1:
+                                    CheckedKixedValuesState[i] = fixedValues[i] <= int.Parse(Reason.Threshold);
+                                    break;
+                                
+                                //等于（包含）
+                                case 0:
+                                    CheckedKixedValuesState[i] = fixedValues[i] == int.Parse(Reason.Threshold);
+                                    break;
+                                
+                                //大于等于
+                                case 1:
+                                    CheckedKixedValuesState[i] = fixedValues[i] >= int.Parse(Reason.Threshold);
+                                    break;
+                                
+                                //大于
+                                case 2:
+                                    CheckedKixedValuesState[i] = fixedValues[i] > int.Parse(Reason.Threshold);
+                                    break;
+                            }
+                        }
+                        
+                        //如果有触发对象的参数符合要求，则记录以下，说明能力能正常被触发了
+                        if (CheckedKixedValuesState[i]) AllowAbilityExection = true;
+                        
+                       
+                        //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
+                        if (!Result.RegardActivatorAsResultObject || Result.SummonCardName != String.Empty)
+                        {
+                            if (AllowAbilityExection) break;
+                        }
+                      
+                    }
+            
+                    break;
+                
+                
+            }
+            
+
+            #endregion
+
+            
+            
+            
+            //有符合要求的条件对象，就执行能力的结果逻辑
+            if (AllowAbilityExection)
+            {
+                AbilityResultAnalyze(CheckedKixedValuesState);
+            }
         }
 
 
-        /// <summary>
-        /// 能力结果解析
-        /// </summary>
-        private void AbilityResultAnalyze()
+       /// <summary>
+       /// 能力结果解析
+       /// </summary>
+       /// <param name="checkedKixedValuesState">储存每个条件对象对于此参数要求是否满足 （true就符合条件）</param>
+        private void AbilityResultAnalyze(bool[] checkedKixedValuesState = null)
         {
         }
     }

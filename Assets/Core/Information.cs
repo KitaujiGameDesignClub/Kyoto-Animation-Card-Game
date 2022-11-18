@@ -260,7 +260,7 @@ namespace Core
             /// </summary>
             Value,
             /// <summary>
-            /// 计数（获得参数的数量）
+            /// 计数（获得参数的数量，仅适用于CV、CharacterName等定性的、非布尔类型）
             /// </summary>
             Count,
         }
