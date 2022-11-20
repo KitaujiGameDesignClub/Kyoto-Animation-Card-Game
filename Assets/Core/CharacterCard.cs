@@ -109,10 +109,8 @@ namespace Core
             BasicHealthPoint = 3;
             BasicPower = 2;
             AbilityType = Information.CardAbilityTypes.Debut;
-            Reason = new AbilityLogicReason(Information.Objects.AllOnSpot, Information.Parameter.CV,
-                Information.JudgeMethod.Count, 2, "1");
-            Result = new AbilityLogicResult(true, string.Empty,false,Information.Objects.AllOnSpot, Information.Parameter.State,
-                Information.CalculationMethod.ChangeTo, Information.CardState.Available.ToString());
+            Reason = new AbilityLogicReason();
+            Result = new AbilityLogicResult();
             
             AbilityDescription = "使场上所有相同声优的角色退场返回到准备区";
             Connects = null;
@@ -166,8 +164,8 @@ namespace Core
                         imageName = String.Empty, //编辑器选择图片
                         AbilityDescription = "节能折木，每回合降低自身攻击力，除非己方千反田在场",
                         AbilityType = Information.CardAbilityTypes.Normal,
-                        Reason = new AbilityLogicReason(Information.Objects.AllInTeam,Information.Parameter.CharacterName,Information.JudgeMethod.Value,-3,Information.CharacterName.ChitandaEru.ToString()),
-                        Result = new AbilityLogicResult(false,null,false,Information.Objects.Self,Information.Parameter.Power,Information.CalculationMethod.addition,"-1"),
+                      //  Reason = new AbilityLogicReason(Information.Objects.AllInTeam,Information.Parameter.CharacterName,Information.JudgeMethod.Value,-3,Information.CharacterName.ChitandaEru.ToString()),
+                      //  Result = new AbilityLogicResult(false,null,false,Information.Objects.Self,Information.Parameter.Power,Information.CalculationMethod.addition,"-1"),
                         tags = null, //不太好写，要用到编辑器
 
                     };

@@ -31,6 +31,11 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         /// <returns></returns>
         public static T[] ListArrayConversion<T>(List<T> list)
         {
+            if (list == null || list.Count == 0)
+            {
+                return null;
+            }
+            
             var array = new T[list.Count];
 
             for (int i = 0; i < list.Count; i++)

@@ -12,52 +12,38 @@ namespace Core
     [System.Serializable]
     public struct AbilityLogicReason
     {
-     
-        
+
+
         /// <summary>
-        /// 条件对象 为Any时，不进行后续判断，直接运行Result所定义的能力，且RegardActivatorAsResultObject=false
+        /// 确定条件对象
         /// </summary>
-        public Information.Objects ReasonObject;
+        public NeededObjects NeededObjects;
+
+        
+        //下面这些参数，并不是为了再次缩小条件对象的范围，而是在上面求出来的范围中，设置触发能力的条件
         
         /// <summary>
-        /// 判断的参数
+        /// 可以对确定的条件对象的参数进行判断，判断结果为真（或参数设置为None），会触发能力效果
         /// </summary>
         public Information.Parameter ReasonParameter;
-
+        
         /// <summary>
-        /// 判断方法
+        /// 如何进行参数判断，对值判断亦或是对数量判断
         /// </summary>
         public Information.JudgeMethod ReasonJudgeMethod;
-
+        
         /// <summary>
-        /// 原因判断逻辑 （-3 不包含）( -2 小于 ) ( -1 小于等于 )(  0 等于/包含 )( 1 大于等于 ) ( 2 大于) 
+        /// 参数判断逻辑 （-3 不包含/不等于）( -2 小于 ) ( -1 小于等于 )(  0 等于/包含 )( 1 大于等于 ) ( 2 大于) 
         /// </summary>
         /// <returns></returns>
         public int Logic;
         
         /// <summary>
-        /// 阈值
+        /// 参数判断阈值
         /// </summary>
         public string Threshold;
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="reasonObject">条件对象</param>
-        /// <param name="reasonParameter">判断的参数</param>
-        /// <param name="reasonJudgeMethod">判断方法</param>
-        /// <param name="logic">原因判断逻辑 （-3 不包含）( -2 小于 ) ( -1 小于等于 )(  0 等于 )( 1 大于等于 ) ( 2 大于)</param>
-        /// <param name="threshold">阈值</param>
-        public AbilityLogicReason(Information.Objects reasonObject, Information.Parameter reasonParameter,
-            Information.JudgeMethod reasonJudgeMethod, int logic, string threshold)
-        {
-            ReasonObject = reasonObject;
-            ReasonJudgeMethod = reasonJudgeMethod;
-            ReasonParameter = reasonParameter;
-            Logic = logic;
-            Threshold = threshold;
-        }
+      
+        
 
     }
     
@@ -87,7 +73,7 @@ namespace Core
         /// <summary>
         /// 结果对象
         /// </summary>
-        public Information.Objects ResultObject;
+        public NeededObjects ResultObject;
 
         /// <summary>
         /// 结果对象要修改的参数
@@ -104,27 +90,34 @@ namespace Core
         /// </summary>
         public string Value;
 
+      
+    }
+
+    /// <summary>
+    /// 需要对象（最终对这些对象的参数进行判定或者是修改）
+    /// </summary>
+    [System.Serializable]
+    public struct NeededObjects
+    {
         /// <summary>
-        /// 
+        /// 确定所需对象的大范围 。chief的话，就不进行后续处理了
         /// </summary>
-        /// <param name="regardActivatorAsResultObject">true=对触发此效果的卡牌发动效果，忽略下方新一轮的对象筛选（结果对象筛选）</param>
-        /// <param name="summonCardName">召唤一个符合CardName的卡牌（空则不召唤）</param>
-        /// <param name="ridicule">嘲讽？</param>
-        /// <param name="resultObject">结果对象</param>
-        /// <param name="parameterToChange">结果对象要修改的参数</param>
-        /// <param name="calculationMethod">结果对象参数的修改方法</param>
-        /// <param name="value">修改的值。如何计算按照CalculationMethod来</param>
-        public AbilityLogicResult(bool regardActivatorAsResultObject,string summonCardName,bool ridicule, Information.Objects resultObject,
-            Information.Parameter parameterToChange, Information.CalculationMethod calculationMethod, string value)
-        {
-            Ridicule = ridicule;
-            ResultObject = resultObject;
-            RegardActivatorAsResultObject = regardActivatorAsResultObject;
-            ParameterToChange = parameterToChange;
-            CalculationMethod = calculationMethod;
-            Value = value;
-            SummonCardName = summonCardName;
-        }
+        public Information.Objects LargeScope;
+        /// <summary>
+        /// 用于缩小范围以确定对象的参数 None时，直接把需要的对象定义为大范围内的所有对象，不进行后续处理
+        /// </summary>
+        public Information.Parameter ParameterToShrinkScope;
+
+        /// <summary>
+        /// 参数判断逻辑 （-3 不包含/不等于）( -2 小于 ) ( -1 小于等于 )(  0 等于/包含 )( 1 大于等于 ) ( 2 大于) 
+        /// </summary>
+        /// <returns></returns>
+        public int Logic;
+        
+        /// <summary>
+        /// 参数判断阈值
+        /// </summary>
+        public string Threshold;
     }
 
     /// <summary>
@@ -237,7 +230,8 @@ namespace Core
         /// </summary>
         public enum Parameter
         {
-            Coin,
+            None,
+            
             Tag,
             Power,
             HealthPoint,
@@ -248,6 +242,12 @@ namespace Core
             /// 角色名字
             /// </summary>
             CharacterName,
+            /// <summary>
+            /// 场上卡牌的数量
+            /// </summary>
+            CardCountOnSpot,
+            Coin,
+            
         }
 
         /// <summary>
@@ -850,7 +850,7 @@ namespace Core
         }
 
 /// <summary>
-/// 玩家tag
+/// 玩家tag（预设的，玩家可以自定义）
 /// </summary>
         public enum CharacterTag
         {
