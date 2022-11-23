@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Core
 {
@@ -23,11 +24,11 @@ namespace Core
         /// 所属卡包的名字（阵营）
         /// </summary>
         public string BundleName;
-        
+
         /// <summary>
         /// 角色标签
         /// </summary>
-        public Information.CharacterTag[] tags;
+        public List<string> tags;
         
         /// <summary>
         /// 此卡的总数。不宜过大。0则不在牌堆中出现，需要summon（召唤）
@@ -53,11 +54,6 @@ namespace Core
         /// 所用声优
         /// </summary>
         public Information.CV CV ;
-
-        /// <summary>
-        /// 所属卡组（可以自定义，一般是番剧名称，额外添加一些修饰符什么的，比如 中二世界-中二病也要谈恋爱、与中二病也要谈恋爱就分属两个不同的阵营了
-        /// </summary>
-        public string BelongBundleName;
 
         /// <summary>
         /// 是否允许作为部长（主持，英雄）
@@ -104,7 +100,7 @@ namespace Core
             CharacterName  = Information.CharacterName.None;
             gender = -1;
             CV = Information.CV.None;
-            BelongBundleName = Information.Anime.Universal.ToString();
+            BundleName = Information.Anime.Universal.ToString();
             allowAsChief = false;
             BasicHealthPoint = 3;
             BasicPower = 2;
@@ -160,7 +156,7 @@ namespace Core
                         FriendlyCardName = "节能型折木",
                         gender = 1,
                         CV = Information.CV.NakamuraYuuichi,
-                        BelongBundleName = Information.Anime.Hyouka.ToString(),
+                       BundleName = Information.Anime.Hyouka.ToString(),
                         imageName = String.Empty, //编辑器选择图片
                         AbilityDescription = "节能折木，每回合降低自身攻击力，除非己方千反田在场",
                         AbilityType = Information.CardAbilityTypes.Normal,

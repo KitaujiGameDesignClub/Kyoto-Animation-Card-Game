@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using PlasticGui.Configuration.CloudEdition.Welcome;
 
@@ -11,12 +12,6 @@ namespace Core
     /// </summary>
     public class CharacterInGame : CharacterCard
     {
-        /// <summary>
-        /// 解析能力的结果
-        /// </summary>
-        public struct AnalyseAbilityConclusion
-        {
-        }
 
         /// <summary>
         /// 是哪一个玩家的可用牌 0=A 1=B
@@ -27,6 +22,11 @@ namespace Core
         /// 沉默回合数 
         /// </summary>
         public int silence = 0;
+        
+        /// <summary>
+        /// 嘲讽回合数
+        /// </summary>
+        public int ridicule = 0;
 
         /// <summary>
         /// 实际攻击力（各种影响攻击力的都对这个参数修改）
@@ -47,6 +47,8 @@ namespace Core
         /// 羁绊被激活
         /// </summary>
         public bool connectEnabled = false;
+
+    
 
 
         /// <summary>
@@ -76,6 +78,7 @@ namespace Core
             //  characterCard.BelongBundleName 不需要，因为只有游戏开始时（选择阵营阶段）用到此变量
             FriendlyCardName = characterCard.FriendlyCardName;
             silence = 0;
+            ridicule = 0;
             State = Information.CardState.Available;
             connectEnabled = false;
             this.playerId = playerId;
@@ -267,7 +270,7 @@ namespace Core
 
                     break;
 
-                //角色卡是否被静默
+                //角色卡是否被静默（沉默回合数）
                 case Information.Parameter.Silence:
                     if (chief == null)
                     {
@@ -278,9 +281,25 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡是否被沉默，但是能力原因的条件对象不是角色卡");
+                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡沉默回合数，但是能力原因的条件对象不是角色卡");
 
                     break;
+                
+                //角色卡的嘲讽回合数
+                case Information.Parameter.Ridicule:
+                    if (chief == null)
+                    {
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            parameterValues[i] = ReasonObjects[i].ridicule.ToString(); //0 1 2...
+                        }
+                    }
+                    else
+                        throw new Exception(
+                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡炒粉回合数，但是能力原因的条件对象不是角色卡");
+
+                    break;
+
 
                 //角色卡状态
                 case Information.Parameter.State:
@@ -583,9 +602,24 @@ namespace Core
         private void AbilityResultAnalyze(CharacterInGame[] reasonObjects = null)
         {
             //能力发动到谁身上？
-            Chief chief = null;
-            CharacterInGame[] characterInGames = null;
+            Chief chiefToOperate = null;
+            CharacterInGame[] characterToOperate = null;
 
+            //召唤
+            if (Result.SummonCardName != String.Empty)
+            {
+                Manager.CardDebut(playerId,
+                    GameState.AllAvailableCards[playerId]
+                        .Find(new Predicate<CharacterInGame>(game =>
+                            game.CharacterName.Equals(Result.SummonCardName))));
+               
+            }
+            
+            //嘲讽（自身）
+            if (Result.Ridicule)
+            {
+                ridicule = ChangeIntValue(ridicule);
+            }
             #region 获取能力发动的对象 能力发动到谁身上？
 
             //如果要召唤，那就直接不把激活能力的条件对象作为结果对象
@@ -597,16 +631,94 @@ namespace Core
             //如果把激活能力的条件对象作为结果对象，才查找对象
             if (Result.RegardActivatorAsResultObject)
             {
-                characterInGames = reasonObjects;
+                characterToOperate = reasonObjects;
             }
             //如果不把激活能力的条件对象作为结果对象，则重新寻找一次
             else
             {
-                chief = GetNeededChief(Result.ResultObject);
-                characterInGames = GetNeededCards(Result.ResultObject);
+                chiefToOperate = GetNeededChief(Result.ResultObject);
+                characterToOperate = GetNeededCards(Result.ResultObject);
             }
 
             #endregion
+
+            #region 修改参数
+
+            foreach (var card in characterToOperate)
+            {
+                switch (Result.ParameterToChange)
+                {
+                    case Information.Parameter.Coin:
+                        throw new Exception(
+                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
+                    
+                    case Information.Parameter.HealthPoint:
+                        card.actualHealthPoint = ChangeIntValue(card.actualHealthPoint);
+                        break;
+                    case Information.Parameter.Power:
+                        card.actualPower = ChangeIntValue(card.actualPower);
+                        break;
+                    
+                    case Information.Parameter.Silence:
+                        card.silence = ChangeIntValue(card.silence);
+                        break;
+                    
+                    case Information.Parameter.Tag:
+                        switch (Result.CalculationMethod)
+                        {
+                            //添加/删除一个tag  values种，如果有个“-”。说明是减去这个tag
+                            case Information.CalculationMethod.addition:
+                                //开头没有-号，加上一个tag
+                                if (Result.Value.Substring(0, 1) != "-" && !card.tags.Contains(Result.Value))
+                                {
+                                    card.tags.Add(Result.Value);
+                                }
+                                //开头有-号，减去一个tag
+                                else if (Result.Value.Substring(0, 1) == "-" && card.tags.Contains(Result.Value))
+                                {
+                                    card.tags.Remove(Result.Value);
+                                }
+                                break;
+                            
+                            default:
+                                throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要用乘法修改tag");
+                                break;
+                        }
+                        break;
+                    
+                    case Information.Parameter.State:
+                        card.State = (Information.CardState)Enum.Parse(typeof(Information.CardState), Result.Value);
+                        break;
+
+                }
+            }
+
+            #endregion
+        }
+
+        /// <summary>
+        /// 修改int类型的值，并返回最终值
+        /// </summary>
+        /// <param name="parameter">被修改的参数</param>
+        /// <param name="values">（</param>
+        private int ChangeIntValue(int parameter)
+        {
+            switch (Result.CalculationMethod)
+            {
+                case Information.CalculationMethod.addition:
+                   parameter += int.Parse(Result.Value); 
+                    break;
+                    
+                case Information.CalculationMethod.ChangeTo:
+                    parameter = int.Parse(Result.Value); 
+                    break;
+                    
+                case Information.CalculationMethod.multiplication:
+                    parameter = (int)(parameter * float.Parse(Result.Value)); 
+                    break;
+            }
+
+            return parameter;
         }
 
         /// <summary>
@@ -626,6 +738,10 @@ namespace Core
             Random rd = new Random();
             switch (objectsScope.LargeScope)
             {
+                case Information.Objects.None:
+                    break;
+                
+                
                 //条件对象是：触发此能力的卡牌
                 case Information.Objects.Activator:
                     //如果是受击是触发能力，则把activator（攻击者）作为条件对象
@@ -753,6 +869,10 @@ namespace Core
                     case Information.Parameter.Silence:
                         parameter = neededCards[i].silence.ToString();
                         break;
+                    
+                    case Information.Parameter.Ridicule:
+                        parameter = neededCards[i].ridicule.ToString();
+                        break;
 
                     case Information.Parameter.State:
                         parameter = neededCards[i].State.ToString();
@@ -777,7 +897,7 @@ namespace Core
                 {
                     //数据为Int
                     case Information.Parameter.Coin or Information.Parameter.Power or Information.Parameter.Silence
-                        or Information.Parameter.HealthPoint:
+                        or Information.Parameter.HealthPoint or Information.Parameter.Ridicule:
                         //将string转换为正规的类型（int）
                         int fixedValue;
                         int thresholdInt = int.Parse(Reason.Threshold);

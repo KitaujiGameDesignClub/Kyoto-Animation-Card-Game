@@ -64,7 +64,7 @@ namespace Core
         public string SummonCardName;
 
         /// <summary>
-        /// 嘲讽
+        /// 嘲讽（回合数用下面的value和配套算法来计算）
         /// </summary>
         public bool Ridicule;
         
@@ -167,6 +167,11 @@ namespace Core
         public enum Objects
         {
             /// <summary>
+            /// 不设定范围
+            /// </summary>
+            None,
+            
+            /// <summary>
             /// 任何情况下都会可以 ，不进行后续判断，直接运行Result所定义的能力，且RegardActivatorAsResultObject=false
             /// </summary>
             Any,
@@ -236,16 +241,13 @@ namespace Core
             Power,
             HealthPoint,
             Silence,
+            Ridicule,
             State,
             CV,
             /// <summary>
             /// 角色名字
             /// </summary>
             CharacterName,
-            /// <summary>
-            /// 场上卡牌的数量
-            /// </summary>
-            CardCountOnSpot,
             Coin,
             
         }
