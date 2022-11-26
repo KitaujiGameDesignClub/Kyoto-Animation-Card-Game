@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using KitaujiGameDesignClub.GameFramework.Tools;
-using PlasticGui.Configuration.CloudEdition.Welcome;
+
 
 namespace Core
 {
@@ -52,7 +51,7 @@ namespace Core
 
 
         /// <summary>
-        /// 按照角色的配置文件，创建游戏中可用的角色卡
+        /// 按照角色的配置文件，创建游戏中可用的角色卡（登场时调用）
         /// </summary>
         /// <param name="characterCard">角色卡配置</param>
         /// <param name="playerId">属于哪个玩家？ 0=A 1=B</param>
@@ -75,11 +74,11 @@ namespace Core
             CV = characterCard.CV;
             BasicHealthPoint = characterCard.BasicHealthPoint;
             actualHealthPoint = BasicHealthPoint;
-            //  characterCard.BelongBundleName 不需要，因为只有游戏开始时（选择阵营阶段）用到此变量
+            BundleName = characterCard.BundleName;
             FriendlyCardName = characterCard.FriendlyCardName;
             silence = 0;
             ridicule = 0;
-            State = Information.CardState.Available;
+            State = Information.CardState.Present;
             connectEnabled = false;
             this.playerId = playerId;
         }
@@ -361,7 +360,8 @@ namespace Core
                     }
                     else
                     {
-                        parameterValues[0] = chief.CV.ToString();
+                        throw new Exception(
+                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断部长{chief.ChiefName}的声优，但是这是禁止事项");
                     }
 
                     break;
@@ -610,8 +610,8 @@ namespace Core
             {
                 Manager.CardDebut(playerId,
                     GameState.AllAvailableCards[playerId]
-                        .Find(new Predicate<CharacterInGame>(game =>
-                            game.CharacterName.Equals(Result.SummonCardName))));
+                        .Find(new Predicate<CharacterCard>(game =>
+                            game.CardName.Equals(Result.SummonCardName))));
                
             }
             
@@ -644,6 +644,7 @@ namespace Core
 
             #region 修改参数
 
+            //角色卡
             foreach (var card in characterToOperate)
             {
                 switch (Result.ParameterToChange)
@@ -693,6 +694,13 @@ namespace Core
                 }
             }
 
+            //主持
+            switch (Result.ParameterToChange)
+            {
+                case Information.Parameter.Coin:
+                    chiefToOperate.coin = ChangeIntValue(chiefToOperate.coin);
+                    break;
+            }
             #endregion
         }
 

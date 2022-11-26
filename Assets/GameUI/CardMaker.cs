@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using Core;
 using UnityEngine;
 using SimpleFileBrowser;
 using KitaujiGameDesignClub.GameFramework.Tools;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class CardMaker : MonoBehaviour
@@ -25,7 +25,18 @@ public class CardMaker : MonoBehaviour
     /// 临时路径（制作卡包时存放各类资源和文档）
     /// </summary>
     private readonly string tempPath = $"Temp/CardMaker/{Information.CardMakerVersion}";
- 
+
+    
+    /// <summary>
+    /// 游戏加载时的实践
+    /// </summary>
+    [Header("游戏加载时的实践")]
+    public UnityEvent OnGameLoad;
+
+    private void Awake()
+    {
+        OnGameLoad.Invoke();
+    }
 
     private void Start()
     {
@@ -63,7 +74,7 @@ public class CardMaker : MonoBehaviour
            Directory.CreateDirectory(tempPath);
            
            //创建清单文件
-           YamlReadWrite.Write(new BasicYamlIO("manifest",tempPath,"# 卡包清单文件。提供简单的、笼统的卡包信息"),new CardBundlesManifest());
+           YamlReadWrite.Write(new DescribeFileIO("manifest",tempPath,"# 卡包清单文件。提供简单的、笼统的卡包信息"),new CardBundlesManifest());
 
            //先暂时防着
            yield return new WaitForEndOfFrame();

@@ -1,8 +1,12 @@
 using System.Collections.Generic;
-using UnityEngine;
+
+
 
 namespace KitaujiGameDesignClub.GameFramework.Tools
 {
+    /// <summary>
+    /// 常用的一些工具
+    /// </summary>
     public class CommonTools 
     {
         /// <summary>
@@ -45,5 +49,16 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
 
             return array;
         }
+
+        /// <summary>
+        /// 【PR标记点专用】将有好的时间线转化为电脑可以用的（视频帧数） 
+        /// </summary>
+        public static int ConvertFriendlyToReadable(int videoFps, string friendlyContent, int lag)
+        {
+            //00:00:00:00
+            string[] fix = friendlyContent.Split(':');
+            return int.Parse(fix[3]) + int.Parse(fix[2]) * videoFps + int.Parse(fix[1]) * 60 * videoFps + lag;
+        }
+        
     }
 }

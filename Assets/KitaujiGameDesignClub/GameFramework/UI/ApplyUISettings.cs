@@ -102,8 +102,8 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             resolution.value = 0;
             for (int i = 0; i < machineResoultion.Length; i++)
             {
-                //如果是16：9，则视为可用分辨率，加到下拉框里
-                if (Mathf.Abs((float)machineResoultion[i].width / machineResoultion[i].height - 1.77f) <= 0.1f)
+                //如果是16：9@60Hz，则视为可用分辨率，加到下拉框里
+                if (Mathf.Abs((float)machineResoultion[i].width / machineResoultion[i].height - 1.77f) <= 0.1f && machineResoultion[i].refreshRate == 60)
                 {
                     //此分辨率添加到下拉框
                     resolution.options.Add(new TMP_Dropdown.OptionData(

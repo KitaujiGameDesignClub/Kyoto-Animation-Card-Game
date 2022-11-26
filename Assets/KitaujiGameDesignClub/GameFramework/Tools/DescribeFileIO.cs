@@ -4,17 +4,17 @@ using UnityEngine;
 namespace KitaujiGameDesignClub.GameFramework.Tools
 {
     /// <summary>
-    /// 用于记录yaml文件在哪里读写，读写什么
+    /// 定义文件的读写路径（yamL：顺便还能加个注释）
     /// </summary>
     [Serializable]
-    public class BasicYamlIO
+    public struct DescribeFileIO
     {
         /// <summary>
         /// 文件名（含拓展名）
         /// </summary>
         public string FileName;
         /// <summary>
-        /// 从根目录开始的路径（Android：从presistentData开始）
+        /// 从根目录开始的相对路径（Android：从presistentData开始，以-开头的话，为绝对路径）
         /// </summary>
         public string Path;
         /// <summary>
@@ -25,12 +25,12 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         public const int BasicYamlVersion = 1;
 
         /// <summary>
-        /// 
+        /// 定义文件的读写路径（yamL：顺便还能加个注释）
         /// </summary>
         /// <param name="fileName">保存的文件名（含拓展名）</param>
-        /// <param name="path">从根目录开始的路径（Android：从presistentData开始），与saves同级，开头结尾不能有“ / ”</param>
+        /// <param name="path">从根目录开始的相对路径（移动平台&WebGL：从presistentData开始，以-开头的话，为绝对路径），开头结尾不能有“ / ”</param>
         /// <param name="note">注释（需要写入#符号）</param>
-        public BasicYamlIO(string fileName ="Default.yaml",string path = "saves",string note = null)
+        public DescribeFileIO(string fileName ="Default.yaml",string path = "saves",string note = null)
         {
             FileName = fileName;
             Path = path;
@@ -72,9 +72,14 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
             //默认设置
             MusicVolume = musicVolume;
             SoundEffectVolume = soundEffectVolume;
-            fullscreenMode = FullScreenMode.FullScreenWindow;
+            fullscreenMode  = FullScreenMode.Windowed;
             sync = false;
-            resolution = new Resolution();
+            resolution = new Resolution()
+            {
+                height = 720,
+                width = 1280,
+                refreshRate = 60
+            };
             antiAliasing = 1;
             dithering = false;
             showConsole = true;

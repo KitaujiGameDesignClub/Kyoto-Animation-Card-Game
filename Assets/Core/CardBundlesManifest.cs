@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using KitaujiGameDesignClub.GameFramework.Tools;
 
 namespace  Core
 {
@@ -58,7 +59,12 @@ namespace  Core
         /// </summary>
         [NonSerialized] public ConnectWithCardName[] ConnectsCategorization = Array.Empty<ConnectWithCardName>();
 
-
+        /// <summary>
+        /// 记录一下在那里读写
+        /// </summary>
+        [NonSerialized]
+        public KitaujiGameDesignClub.GameFramework.Tools.DescribeFileIO io =
+            new DescribeFileIO("DefaultBundle.KgdCardBundles", $"temp/NewBundle");
         
         /// <summary>
         /// 读取所有的卡牌，得到上面两个不序列化的变量的值，并进行后续的分析

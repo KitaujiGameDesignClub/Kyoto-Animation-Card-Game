@@ -1,5 +1,3 @@
-using System;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 
 namespace Core
 {
@@ -331,16 +329,28 @@ namespace Core
             /// 没有角色设定或不重要
             /// </summary>
             None,
-            //冰菓
             
+            //冰菓
             /// <summary>
-            /// 折木 奉太郎
+            /// 折木奉太郎
             /// </summary>
             OrekiHoutarou,
             /// <summary>
-            /// 千反田 爱馏
+            /// 千反田爱馏
             /// </summary>
             ChitandaEru,
+            
+            //Kon
+            /// <summary>
+            /// 平泽唯
+            /// </summary>
+            HirasawaYui,
+            
+            //Hibike!Euphonium
+            
+            
+            //中二病
+            
         }
         
 

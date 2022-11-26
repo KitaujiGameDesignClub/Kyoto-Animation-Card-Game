@@ -12,15 +12,16 @@ namespace Core
     /// 角色名称（无则空）
     /// </summary>
     public Information.CharacterName CharacterName;
-    
+
     /// <summary>
-    /// 所用声优
+    /// 部长的名字
     /// </summary>
-    public Information.CV CV ;
-    
-    public void ConvertToChief(CharacterCard characterCard)
+    public string ChiefName;
+
+    public Chief(CharacterCard characterCard)
     {
-    
+        CharacterName = characterCard.CharacterName;
+        ChiefName = characterCard.FriendlyCardName;
     }
   }
 }

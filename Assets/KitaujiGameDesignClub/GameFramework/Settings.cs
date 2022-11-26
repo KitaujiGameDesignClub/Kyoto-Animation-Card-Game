@@ -17,7 +17,7 @@ namespace KitaujiGameDesignClub.GameFramework
         /// <summary>
         /// 用于读写文件，包含要读写的文件名路径
         /// </summary>
-        public static BasicYamlIO BasicSettingIO
+        public static DescribeFileIO BasicSettingIO
         {
             get { return _basicSetting; }
         }
@@ -25,8 +25,8 @@ namespace KitaujiGameDesignClub.GameFramework
         /// <summary>
         /// 用于读写文件，包含要读写的文件名路径
         /// </summary>
-        private static readonly BasicYamlIO _basicSetting =
-            new BasicYamlIO(fileName: "BasicSettings", note: "# 游戏基本设置");
+        private static readonly DescribeFileIO _basicSetting =
+            new DescribeFileIO(fileName: "BasicSettings.cfg", note: "# 游戏基本设置");
 
 
         /// <summary>

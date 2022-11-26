@@ -11,7 +11,7 @@ namespace Core
         /// <summary>
         /// 玩家各自所有可用的卡牌（包含手牌+场上的牌+可以被招募的牌）
         /// </summary>
-        public static List<CharacterInGame>[] AllAvailableCards= new List<CharacterInGame>[2];
+        public static List<CharacterCard>[] AllAvailableCards = new List<CharacterCard>[2];
 
 
         /// <summary>

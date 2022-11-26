@@ -11,7 +11,6 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
     /// </summary>
     public class YamlReadWrite
     {
-
         /// <summary>
         /// Assets上一级的目录（结尾没有/）
         /// </summary>
@@ -32,15 +31,14 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
                 return done;
             }
 
-#elif  UNITY_ANDROID
+#else
         get
         {
             return Application.persistentDataPath;
         }
-   
-        
+
+
 #endif
-      
         }
 
         /// <summary>
@@ -49,30 +47,26 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         /// <param name="profile">yamlIO文件设置</param>
         /// <param name="content">写入的内容</param>
         /// <typeparam name="T"></typeparam>
-        public static void Write<T>(BasicYamlIO profile,T content) 
+        public static void Write<T>(DescribeFileIO profile, T content)
         {
-
+           
+            
             Serializer serializer = new Serializer();
 
+          
+            
             //得到最终呈现在文件中的文本内容
-            string authenticContent = $"# Only for {Application.productName}\n# fileVersion:{BasicYamlIO.BasicYamlVersion}\n{profile.Note}\n{serializer.Serialize(content)}";
+            string authenticContent =
+                $"# Only for {Application.productName}\n# fileVersion:{DescribeFileIO.BasicYamlVersion}\n{profile.Note}\n{serializer.Serialize(content)}";
 
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+
             StreamWriter streamWriter =
-                new StreamWriter($"{UnityButNotAssets}/{profile.Path}/{profile.FileName}", false, Encoding.UTF8);
-
-#elif UNITY_ANDROID
-           StreamWriter streamWriter =
-            new StreamWriter($"{Application.persistentDataPath}/{profile.Path}/{profile.FileName}", false,
-                Encoding.UTF8);
-#endif
+                new StreamWriter($"{GetFullPath(profile.Path)}/{profile.FileName}", false, Encoding.UTF8);
+            
             streamWriter.Write(authenticContent);
             streamWriter.Dispose();
             streamWriter.Close();
             Debug.Log($"成功写入：{profile.Path}/{profile.FileName}");
-
-
-
         }
 
         /// <summary>
@@ -82,85 +76,78 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         /// <param name="content">读取文件的内容（作为默认值）</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Read<T>(BasicYamlIO yaml,T content)
+        public static T Read<T>(DescribeFileIO yaml, T content)
         {
-            //如果文件夹不存在，则创建
-            CheckAndCreateDirectory(yaml.Path);
-        
             Deserializer deserializer = new();
-        
+
             //存在的话就读取
             StreamReader streamReader = StreamReader.Null;
 
-        
+
             //尝试yaml文件
             try
             {
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
                 streamReader =
-                    new StreamReader($"{UnityButNotAssets}/{yaml.Path}/{yaml.FileName}", Encoding.UTF8);
-#elif UNITY_ANDROID
-           streamReader =
-                new StreamReader($"{Application.persistentDataPath}/{yaml.Path}/{yaml.FileName}", Encoding.UTF8);
-#endif
-            
+                    new StreamReader($"{GetFullPath(yaml.Path)}/{yaml.FileName}", Encoding.UTF8);
+
+
                 var fileContent = deserializer.Deserialize<T>(streamReader.ReadToEnd());
                 streamReader.Dispose();
                 streamReader.Close();
+              
                 Debug.Log($"成功加载：{yaml.Path}/{yaml.FileName}");
                 return fileContent;
-           
             }
             catch (Exception)
             {
                 //关闭之前的文件流，防止出现IOException: Sharing violation错误
                 streamReader.Dispose();
                 streamReader.Close();
-            
+
                 //不存在的话，初始化一个
                 Debug.Log($"{yaml.Path}中不存在合规的{yaml.FileName}，已经初始化此文件");
-                BasicYamlIO newFile = new BasicYamlIO(yaml.FileName,yaml.Path,yaml.Note);
-                Write(newFile,content);
+                DescribeFileIO newFile = new DescribeFileIO(yaml.FileName, yaml.Path, yaml.Note);
+                Write(newFile, content);
                 return content;
             }
-        
         }
 
-
-        /// <summary>
-        /// 检查是否存在所需的游戏文件夹，不存在则创建
-        /// <param name="path">从根目录开始的路径，与saves同级，开头结尾不能有“ / ”</param>
-        /// </summary>
-        static void CheckAndCreateDirectory(string path)
+        
+/// <summary>
+/// 获取完整的，绝对路径（并创建有关的文件夹）
+/// </summary>
+/// <param name="path">开头有-的话，就是绝对路径；反之就是从游戏根目录开始的相对路径</param>
+/// <returns></returns>
+        static string GetFullPath(string path)
         {
-#if UNITY_EDITOR || UNITY_EDITOR_WIN
-            if (!Directory.Exists($"{UnityButNotAssets}/{path}"))
+            //实际路径（绝对路径）
+            string actualPath  = String.Empty;
+            //给的路径有个-  说明是绝对路径
+            if (path.Substring(0, 1).Equals("-"))
             {
-                Directory.CreateDirectory($"{UnityButNotAssets}/{path}");
+                actualPath = path;
+            }
+            //开头没有-，是从根目录开始的相对路径
+            else
+            {
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+                actualPath = $"{UnityButNotAssets}/{path}";
+                
+#else
+                actualPath = $"{Application.persistentDataPath}/{path}";
+#endif
+                
+            }
+            
+            //如果文件夹不存在，则创建
+            if (!Directory.Exists(actualPath))
+            {
+                Directory.CreateDirectory( actualPath);
             }
 
-#elif UNITY_ANDROID
-
-          if (!Directory.Exists($"{Application.persistentDataPath}/{path}"))
-        {
-            Directory.CreateDirectory($"{Application.persistentDataPath}/{path}");
+            return actualPath;
         }
-#endif
+
        
-       
-        }
-
-
-        /// <summary>
-        /// 【PR标记点专用】将有好的时间线转化为电脑可以用的（视频帧数） 
-        /// </summary>
-        public static int ConvertFriendlyToReadable(int videoFps, string friendlyContent,int lag)
-        {
-            //00:00:00:00
-            string[] fix = friendlyContent.Split(':');
-            return int.Parse(fix[3]) + int.Parse(fix[2]) * videoFps + int.Parse(fix[1]) * 60 * videoFps + lag;
-        }
-
-
     }
 }

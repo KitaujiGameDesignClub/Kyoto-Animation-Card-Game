@@ -26,11 +26,8 @@ namespace KitaujiGameDesignClub.GameFramework
         [ContextMenu("游戏初始化")]
         public virtual void Awake()
         {
-            
-            //游戏视频设置（Editor一侧）初始化
-            VideoSettingsInitialization();
-            
-            
+
+
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
 
@@ -66,37 +63,6 @@ namespace KitaujiGameDesignClub.GameFramework
         }
 
 
-/// <summary>
-/// 游戏视频设置（Editor一侧）初始化
-/// </summary>
-        private void VideoSettingsInitialization()
-        {
-            
-           
-#if UNITY_EDITOR
-            //编辑器将显示设置设为默认值
-            //standalone
-            PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
-            PlayerSettings.resizableWindow = false;
-            PlayerSettings.defaultIsNativeResolution = true;
-            PlayerSettings.allowFullscreenSwitch = true;
-            PlayerSettings.SetAspectRatio(AspectRatio.Aspect4by3,false);
-            PlayerSettings.SetAspectRatio(AspectRatio.Aspect5by4,false);
-            PlayerSettings.SetAspectRatio(AspectRatio.Aspect16by10,false);
-            PlayerSettings.SetAspectRatio(AspectRatio.Aspect16by9,true);
-            PlayerSettings.SetAspectRatio(AspectRatio.AspectOthers,false);
-            //android
-            PlayerSettings.Android.renderOutsideSafeArea = false;
-            PlayerSettings.Android.fullscreenMode = FullScreenMode.FullScreenWindow;
-            PlayerSettings.Android.resizableWindow = false;
-            PlayerSettings.Android.maxAspectRatio = 1.86f;//16:9
-            PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
-            PlayerSettings.useAnimatedAutorotation = true;
-            PlayerSettings.allowedAutorotateToPortrait = false;
-            PlayerSettings.allowedAutorotateToLandscapeLeft = true;
-            PlayerSettings.allowedAutorotateToLandscapeRight = true;
-            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
-#endif
-        }
+
     }
 }
