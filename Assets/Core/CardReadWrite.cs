@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using Core;
+using SimpleFileBrowser;
 
 
 /// <summary>
@@ -16,7 +17,7 @@ public class CardReadWrite
 
 
   /// <summary>
-  /// 创建新的卡包（编辑器创建）
+  /// 创建新的卡包（编辑器创建用）
   /// </summary>
   /// <returns>创建好后，要进行编辑的卡包</returns>
    public static CardBundlesManifest CreateNewBundle()
@@ -30,6 +31,15 @@ public class CardReadWrite
 
 
    }
+
+  /// <summary>
+  /// 编辑已有卡包（发布格式为KgdCardBundles的一个zip文件）
+  /// </summary>
+  /// <returns></returns>
+  public static CardBundlesManifest CardBundleEdit()
+  {
+      return null;
+  }
    
    
    /// <summary>
@@ -50,4 +60,15 @@ public class CardReadWrite
    {
       yield break;
    }
+
+   /// <summary>
+   /// 获取某一个卡包
+   /// </summary>
+   /// <returns></returns>
+   public static IEnumerator GetBundle()
+   {
+       yield break;
+   }
+   
+   
 }

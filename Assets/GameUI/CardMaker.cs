@@ -35,13 +35,18 @@ public class CardMaker : MonoBehaviour
 
     private void Awake()
     {
+        //加载游戏的事件
         OnGameLoad.Invoke();
+       
     }
 
     private void Start()
     {
         //隐藏文件选择器
         FileBrowser.HideDialog(true);
+        
+        //android储存权限申请
+        AndroidRequestPermeission();
     }
 
     public void AndroidRequestPermeission()
@@ -51,34 +56,19 @@ public class CardMaker : MonoBehaviour
         if (FileBrowser.CheckPermission() == FileBrowser.Permission.Denied)
         {
             //不能读取外部储存的有关逻辑
+            Notify.notify.CreateNotification(null, delegate { }, "储存权限被拒绝", "如果要编辑卡包，需要储存权限\n点击黑色区域返回游戏标题", 0.8f);
         }
     }
-
-
+    
 
     public void CreateBundle()
     {
         OnBrowerShow();
-        StartCoroutine(createBundle());
-
-    }
-
-    IEnumerator createBundle()
-    {
-
-        
+        CardReadWrite.CreateNewBundle();
        
-        
-  
-           //创建临时目录
-           Directory.CreateDirectory(tempPath);
-           
-           //创建清单文件
-           YamlReadWrite.Write(new DescribeFileIO("manifest",tempPath,"# 卡包清单文件。提供简单的、笼统的卡包信息"),new CardBundlesManifest());
-
-           //先暂时防着
-           yield return new WaitForEndOfFrame();
     }
+
+
 
 
     void OnBrowerShow()
@@ -96,7 +86,8 @@ public class CardMaker : MonoBehaviour
     [ContextMenu("各类测试")]
     public void test()
     {
-        throw new Exception(false.ToString());
+        //不能读取外部储存的有关逻辑
+        Notify.notify.CreateNotification(null, delegate { }, "储存权限被拒绝", "如果要编辑卡包，需要储存权限\n点击黑色区域返回游戏标题", 0.8f);
     }
 #endif
 }
