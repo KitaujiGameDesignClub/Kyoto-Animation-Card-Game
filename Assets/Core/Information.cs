@@ -527,7 +527,13 @@ namespace Core
         /// </summary>
         public enum CV
         {
+            /// <summary>
+            /// 没有使用声优或者声优不重要
+            /// </summary>
             None,
+            /// <summary>
+            /// 列表中不存在的声优
+            /// </summary>
             Else,
             /// <summary>
             /// 丰崎爱生

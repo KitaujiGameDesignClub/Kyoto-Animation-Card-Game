@@ -9,11 +9,14 @@ using KitaujiGameDesignClub.GameFramework.UI;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
+/// <summary>
+/// 卡包/卡牌制作用
+/// </summary>
 public class CardMaker : MonoBehaviour
 {
 
     /// <summary>
-    /// 主要的界面和debug界面，在选择文件的时候输入被禁用
+    /// 主要的界面和debug界面，在选择文件的时候输入会被禁用
     /// </summary>
     public GraphicRaycaster MainUIAndDebug;
     
@@ -23,10 +26,9 @@ public class CardMaker : MonoBehaviour
     private string WorkingPath;
 
     /// <summary>
-    /// 临时路径（制作卡包时存放各类资源和文档）
+    /// 现在正在编辑的卡包的清单
     /// </summary>
-    private readonly string tempPath = $"Temp/CardMaker/{Information.CardMakerVersion}";
-
+    private CardBundlesManifest nowEditingBundle;
     
     /// <summary>
     /// 游戏加载时的实践
@@ -57,21 +59,33 @@ public class CardMaker : MonoBehaviour
         if (FileBrowser.CheckPermission() == FileBrowser.Permission.Denied)
         {
             //不能读取外部储存的有关逻辑
-            Notify.notify.CreateNotification(null, delegate { }, "储存权限被拒绝", "如果要编辑卡包，需要储存权限\n点击黑色区域返回游戏标题", 0.8f);
+            Notify.notify.CreateNotification(null, delegate { }, "储存权限被拒绝", "如果要编辑卡包，需要储存权限\n点击黑色区域返回游戏标题", 1f);
         }
     }
     
-
+/// <summary>
+/// 创建卡包
+/// </summary>
     public void CreateBundle()
     {
-        OnBrowerShow();
-        CardReadWrite.CreateNewBundle();
+      
+        nowEditingBundle = CardReadWrite.CreateNewBundle();
        
     }
 
+/// <summary>
+/// 创建新卡牌
+/// </summary>
+public void CreateCard()
+{
+    
+}
 
 
 
+/// <summary>
+/// 主要的界面和debug界面，在选择文件的时候输入被禁用
+/// </summary>
     void OnBrowerShow()
     {
         MainUIAndDebug.ignoreReversedGraphics = true;

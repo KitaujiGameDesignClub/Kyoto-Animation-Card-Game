@@ -10,26 +10,60 @@ using SimpleFileBrowser;
 /// </summary>
 public class CardReadWrite
 {
+
+    /// <summary>
+    /// 新卡包缓存路径
+    /// </summary>
+    public const string newBundleTempPath = "Temp/newBundle";
+
+    /// <summary>
+    /// 新卡牌的缓存路径（仅创建新卡牌时使用）
+    /// </summary>
+    public const string newCardTempPath = "Temp/newCard";
+    
+    
    /// <summary>
    /// 所有的卡包
    /// </summary>
    public CardBundlesManifest[] AllBundles = null;
 
 
-  /// <summary>
-  /// 创建新的卡包（编辑器创建用）
-  /// </summary>
-  /// <returns>创建好后，要进行编辑的卡包</returns>
+   /// <summary>
+   /// 创建新的卡包（编辑器创建用）
+   /// </summary>
+   /// <returns>创建好后，要进行编辑的卡包</returns>
    public static CardBundlesManifest CreateNewBundle()
    {
-      var io = new DescribeFileIO("BundleManifest.yaml", "Temp/newBundle","# card bundle manifest.\n# It'll tell you the summary of the bundle.");
-      var manifest = new CardBundlesManifest();
-      manifest.io = io;
-      
-      YamlReadWrite.Write(io,manifest);
-      return manifest;
+       var io = new DescribeFileIO("BundleManifest.yml", newBundleTempPath,
+           "# card bundle manifest.\n# It'll tell you the summary of the bundle.");
+       var manifest = new CardBundlesManifest();
+       
 
+       YamlReadWrite.Write(io, manifest);
+       return manifest;
+   }
 
+   public static CharacterCard CreateNewCard(bool onlyCard)
+   {
+       string path;
+       //仅仅是创建一个卡牌
+       if (onlyCard)
+       {
+           path = newCardTempPath;
+       }
+       //隶属于卡包的新卡牌
+       else
+       {
+           path = $"{newBundleTempPath}/cards";
+       }
+
+       var io = new DescribeFileIO("CharacterCard.yml", path,
+           "# character card profile.\n# It'll tell you all the information of character card.");
+
+       var card = new CharacterCard();
+       
+       YamlReadWrite.Write(io, card);
+       return card;
    }
 
   /// <summary>
