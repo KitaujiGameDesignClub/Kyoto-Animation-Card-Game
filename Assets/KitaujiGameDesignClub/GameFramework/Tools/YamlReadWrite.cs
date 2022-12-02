@@ -57,7 +57,7 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
             
             //得到最终呈现在文件中的文本内容
             string authenticContent =
-                $"# Only for {Application.productName}\n# fileVersion:{DescribeFileIO.BasicYamlVersion}\n{profile.Note}\n{serializer.Serialize(content)}";
+                $"{serializer.Serialize(content)}\n \n# Only for {Application.productName}\n{profile.Note}";
 
 
             StreamWriter streamWriter =

@@ -12,9 +12,9 @@ namespace  Core
     public class CardBundlesManifest
     {
         /// <summary>
-        /// 清单文件版本号（从文件中读取的）
+        /// 清单文件代码版本号（如果代码上有修改，且修改后不兼容，就+1）
         /// </summary>
-        public string version = Information.ManifestVersion;
+        public int CodeVersion = Information.ManifestVersion;
 
 
         /// <summary>
@@ -28,6 +28,11 @@ namespace  Core
         /// </summary>
         public string FriendlyBundleName = "默认卡包（支持TMP_text的富文本）";
 
+        /// <summary>
+        /// 卡包版本。用于玩家和作者进行区分
+        /// </summary>
+        public string BundleVersion = "v1.0";
+        
         /// <summary>
         /// 图片名字
         /// </summary>

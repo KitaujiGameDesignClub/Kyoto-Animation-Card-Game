@@ -22,7 +22,7 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         /// </summary>
         public string Note;
 
-        public const int BasicYamlVersion = 1;
+        
 
         /// <summary>
         /// 定义文件的读写路径（yamL：顺便还能加个注释）
@@ -44,8 +44,6 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
     [Serializable]
     public struct BasicSettings
     {
-        public const int SettingVersion = 1;
-        
         //音频设置
         public float MusicVolume;
         public float SoundEffectVolume;

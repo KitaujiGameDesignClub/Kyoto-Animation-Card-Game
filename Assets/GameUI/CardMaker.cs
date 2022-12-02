@@ -14,26 +14,23 @@ using UnityEngine.UI;
 /// </summary>
 public class CardMaker : MonoBehaviour
 {
-
-    /// <summary>
-    /// 主要的界面和debug界面，在选择文件的时候输入会被禁用
-    /// </summary>
-    public GraphicRaycaster MainUIAndDebug;
-    
     /// <summary>
     /// 工作路径（卡包的读写）
     /// </summary>
     private string WorkingPath;
 
-    /// <summary>
-    /// 现在正在编辑的卡包的清单
-    /// </summary>
-    private CardBundlesManifest nowEditingBundle;
 
-        /// <summary>
-        /// 现在正在编辑的卡牌
-        /// </summary>
-    private CharacterCard nowEditingCard;
+
+  
+  
+    /// <summary>
+    /// 主要的界面和debug界面，在选择文件的时候输入会被禁用
+    /// </summary>
+    [Header("主界面")]  public GraphicRaycaster MainUIAndDebug;
+
+    [Header("bundle editor")] public BundleEditor bundleEditor;
+
+    [Header("card editor")] public CardEditor cardEditor;
     
     /// <summary>
     /// 游戏加载时的实践
@@ -74,7 +71,8 @@ public class CardMaker : MonoBehaviour
     public void CreateBundle()
     {
       
-        nowEditingBundle = CardReadWrite.CreateNewBundle();
+        bundleEditor.nowEditingBundle = CardReadWrite.CreateNewBundle();
+        bundleEditor.gameObject.SetActive(true);
        
     }
 
@@ -83,7 +81,8 @@ public class CardMaker : MonoBehaviour
 /// </summary>
 public void CreateCard(bool onlyCard)
 {
-    nowEditingCard = CardReadWrite.CreateNewCard(onlyCard);
+    cardEditor.nowEditingCard = CardReadWrite.CreateNewCard(onlyCard);
+    cardEditor.gameObject.SetActive(true);
 }
 
 

@@ -10,6 +10,11 @@ namespace Core
     public class CharacterCard
     {
         /// <summary>
+        /// 角色卡文件代码版本号（如果代码上有修改，且修改后不兼容，就+1）
+        /// </summary>
+        public int CodeVersion => Information.CharacterCardMaker;
+        
+        /// <summary>
         /// 卡牌名称（仅英语，文件名也是这个）
         /// </summary>
         public string CardName = "CharacterCard";

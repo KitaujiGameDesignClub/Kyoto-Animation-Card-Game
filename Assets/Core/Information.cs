@@ -152,10 +152,10 @@ namespace Core
 
         //a.b:a修改后，说明不兼容之前的旧版本，需要升级旧版文件
         //b修改后，是小修改，可以兼容
-        
-        public const string  CardMakerVersion = "1.0";
-        public const string CharacterCardMaker = "1.0";
-        public const string ManifestVersion = "1.0";
+
+        public const int CardMakerVersion = 1;
+        public const int CharacterCardMaker = 1;
+        public const int ManifestVersion = 1;
 
         #endregion
         

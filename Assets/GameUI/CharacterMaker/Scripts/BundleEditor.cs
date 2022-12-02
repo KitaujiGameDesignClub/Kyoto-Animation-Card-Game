@@ -1,18 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Core;
 using UnityEngine;
 
 public class BundleEditor : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+{   
+    /// <summary>
+    /// 现在正在编辑的卡包的清单
+    /// </summary>
+   [HideInInspector]  public CardBundlesManifest nowEditingBundle;
+  
 }
