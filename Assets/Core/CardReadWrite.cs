@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Codice.Client.Common.Threading;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using Core;
 using SimpleFileBrowser;
@@ -43,6 +44,11 @@ public class CardReadWrite
        return manifest;
    }
 
+   /// <summary>
+   /// 创建新卡牌
+   /// </summary>
+   /// <param name="onlyCard"></param>
+   /// <returns></returns>
    public static CharacterCard CreateNewCard(bool onlyCard)
    {
        string path;
@@ -95,14 +101,19 @@ public class CardReadWrite
       yield break;
    }
 
-   /// <summary>
-   /// 获取某一个卡包
-   /// </summary>
-   /// <returns></returns>
-   public static IEnumerator GetBundle()
-   {
-       yield break;
-   }
+  /// <summary>
+  /// 获取某一个卡包
+  /// </summary>
+  /// <param name="fullPath">卡包的完整路径</param>
+  /// <param name="fileCodeVersion">得到这个卡包的编码版本</param>
+  /// <returns></returns>
+   public static CardBundlesManifest GetBundle(string fullPath,out int fileCodeVersion)
+  {
+      fileCodeVersion = 1;
+      return null;
+  }
+   
+
    
    
 }

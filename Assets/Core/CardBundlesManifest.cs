@@ -36,7 +36,7 @@ namespace  Core
         /// <summary>
         /// 图片名字
         /// </summary>
-        public string ImageName = String.Empty;
+        public string ImageName ="default";
 
         /// <summary>
         /// 此卡包作者名称
@@ -44,9 +44,14 @@ namespace  Core
         public string AuthorName = "作者名称（支持TMP_text的富文本）";
 
         /// <summary>
+        ///卡包简短介绍（支持TMP_text的富文本） 
+        /// </summary>
+        public string shortDescription = "卡包简短介绍（支持TMP_text的富文本） ";
+        
+        /// <summary>
         /// 卡包介绍（支持TMP_text的富文本）
         /// </summary>
-        public string Description = "卡包介绍（支持TMP_text的富文本）";
+        public string Description = "卡包介绍（支持TMP_text的富文本，仅在卡包详细信息内显示）";
 
         /// <summary>
         /// 卡包备注。只在卡包制作器中显示，不会对玩家显示
@@ -55,24 +60,11 @@ namespace  Core
 
 
         /// <summary>
-        /// 储存所有的卡牌（便于游戏和编辑卡包中使用）
+        /// 卡牌数量
         /// </summary>
-        [NonSerialized] public List<CharacterCard> AllCards = new List<CharacterCard>();
+        public int cardNumber = 0;
 
-        /// <summary>
-        /// 按照羁绊类型和羁绊层把所有的卡牌归纳一下（便于游戏和编辑卡包中使用）
-        /// </summary>
-        [NonSerialized] public ConnectWithCardName[] ConnectsCategorization = Array.Empty<ConnectWithCardName>();
-        
-        
-        /// <summary>
-        /// 读取所有的卡牌，得到上面两个不序列化的变量的值，并进行后续的分析
-        /// </summary>
-        public void Analysis()
-        {
-            
-        }
-        
+      
     }
 
 
