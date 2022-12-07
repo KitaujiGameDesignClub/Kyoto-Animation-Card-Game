@@ -32,8 +32,18 @@ public class BundleEditor : MonoBehaviour
     public TMP_Text descriptionOfBundle;
     public TMP_Text authorAndVersion;
     public SpriteRenderer image;
+
     
-    
+    /// <summary>
+    /// 成品预览
+    /// </summary>
+    [Header("储存")]
+    public GameObject preview;
+/// <summary>
+/// 禁用输入层
+/// </summary>
+    public GameObject banInput;
+     string savePath = string.Empty;
     
     public void CreateNewBundle()
     {
@@ -69,18 +79,51 @@ public class BundleEditor : MonoBehaviour
             codeVersionCheck.text =
                 $"清单代码版本号：{Information.ManifestVersion}\n编辑器代码版本号：{Information.ManifestVersion}\n<color=green>完全兼容</color>";
             
-            //更新一下卡包预览
-            OnEndEdit();
-            //现在还没有改内容，关闭修改标记
-            changeSignal.SetActive(false);
+           
         }
         //不是创建的，是在修改已有的卡包
         else
         {
         }
+        
+        
+        //更新一下卡包预览
+        OnEndEdit();
+        //现在还没有改内容，关闭修改标记
+        changeSignal.SetActive(false);
+        //打开成品预览
+        preview.SetActive(true);
+       //允许玩家输入
+       banInput.SetActive(false);
     }
 
+/// <summary>
+/// 保存或另存为
+/// </summary>
+    public async void Save()
+    {
+        //关闭成品预览
+        preview.SetActive(false);
 
+        //还没有保存过/不是打开编辑卡包，打开选择文件的窗口，选择保存位置
+        if (savePath == string.Empty)
+        {
+            await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, false,
+                initialFilename: $"{bundleName.text}.kabundle",title:"保存卡包",saveButtonText:"选择文件夹");
+
+            
+            
+            if (FileBrowser.Success)
+            {
+                //打开输入禁用层
+                banInput.SetActive(true);
+                
+                
+                
+            }
+        }
+    }
+    
     /// <summary>
     /// 输入框内的数据完成，调用此函数，用于显示最终的效果
     /// </summary>
@@ -94,20 +137,19 @@ public class BundleEditor : MonoBehaviour
     }
     
 
-    public async void selectImage()
+    public async void selectImage(bool userChoose)
     {
         FileBrowser.SetFilters(false, new FileBrowser.Filter("图片", ".jpg", ".bmp", ".png"));
         UniTask.SwitchToThreadPool();
 
-        Debug.Log("要加载");
+      
 
         await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, null, null, "选择卡包图片", "选择");
-
-        Debug.Log("加载了");
+        
 
         if (FileBrowser.Success)
         {
-            Debug.Log("加载成功");
+            Debug.Log($"加载成功，图片文件{FileBrowser.Result[0]}");
 
             //下载（加载）图片
             var hander = new DownloadHandlerTexture();
@@ -139,6 +181,8 @@ public class BundleEditor : MonoBehaviour
                     //更新预览图片和编辑器内图片
                     bundleImage.sprite = sprite;
                     image.sprite = sprite;
+                    if(userChoose)  changeSignal.SetActive(true);
+                  
                 }
                 else
                 {
