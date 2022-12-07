@@ -26,7 +26,7 @@ namespace  Core
         /// <summary>
         /// 友好型名称。在游戏中会显示此卡包名称。（可以中文）
         /// </summary>
-        public string FriendlyBundleName = "默认卡包（支持TMP_text的富文本）";
+        public string FriendlyBundleName = "默认卡包";
 
         /// <summary>
         /// 卡包版本。用于玩家和作者进行区分
@@ -41,17 +41,17 @@ namespace  Core
         /// <summary>
         /// 此卡包作者名称
         /// </summary>
-        public string AuthorName = "作者名称（支持TMP_text的富文本）";
+        public string AuthorName = "作者名称";
 
         /// <summary>
         ///卡包简短介绍（支持TMP_text的富文本） 
         /// </summary>
-        public string shortDescription = "卡包简短介绍（支持TMP_text的富文本） ";
+        public string shortDescription = "卡包简短介绍 ";
         
         /// <summary>
         /// 卡包介绍（支持TMP_text的富文本）
         /// </summary>
-        public string Description = "卡包介绍（支持TMP_text的富文本，仅在卡包详细信息内显示）";
+        public string Description = "卡包介绍";
 
         /// <summary>
         /// 卡包备注。只在卡包制作器中显示，不会对玩家显示

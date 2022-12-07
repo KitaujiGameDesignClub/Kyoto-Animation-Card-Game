@@ -20,12 +20,21 @@ public class BundleEditor : MonoBehaviour
     public TMP_InputField bundleFriendlyName;
     public TMP_InputField bundleVersion;
     public TMP_InputField authorName;
-    public TMP_InputField shortDescription;
     public TMP_InputField description;
     public TMP_InputField remark;
     public TMP_Text codeVersionCheck;
     public Image bundleImage;
-
+    /// <summary>
+    /// 修改标记
+    /// </summary>
+    [Space] public GameObject changeSignal;
+    [Header("效果显示")] public TMP_Text friendlyName;
+    public TMP_Text descriptionOfBundle;
+    public TMP_Text authorAndVersion;
+    public SpriteRenderer image;
+    
+    
+    
     public void CreateNewBundle()
     {
         gameObject.SetActive(true);
@@ -55,10 +64,15 @@ public class BundleEditor : MonoBehaviour
             description.text = nowEditingBundle.Description;
             remark.text = nowEditingBundle.Remarks;
             bundleVersion.text = nowEditingBundle.BundleVersion;
-            shortDescription.text = nowEditingBundle.shortDescription;
+          //  shortDescription.text = nowEditingBundle.shortDescription;
 
             codeVersionCheck.text =
                 $"清单代码版本号：{Information.ManifestVersion}\n编辑器代码版本号：{Information.ManifestVersion}\n<color=green>完全兼容</color>";
+            
+            //更新一下卡包预览
+            OnEndEdit();
+            //现在还没有改内容，关闭修改标记
+            changeSignal.SetActive(false);
         }
         //不是创建的，是在修改已有的卡包
         else
@@ -66,8 +80,18 @@ public class BundleEditor : MonoBehaviour
         }
     }
 
-    
-   
+
+    /// <summary>
+    /// 输入框内的数据完成，调用此函数，用于显示最终的效果
+    /// </summary>
+    public void OnEndEdit()
+    {
+        friendlyName.text = bundleFriendlyName.text;
+        descriptionOfBundle.text = description.text;
+        authorAndVersion.text = $"{authorName.text} - {bundleVersion.text}";
+        image.sprite = bundleImage.sprite;
+        changeSignal.SetActive(true);
+    }
     
 
     public async void selectImage()
@@ -110,7 +134,11 @@ public class BundleEditor : MonoBehaviour
                             ? hander.texture.height
                             : hander.texture.width;
                     }
-                    bundleImage.sprite = Sprite.Create(hander.texture,new Rect(0f,0f,size,size),Vector2.zero);
+                    var sprite = Sprite.Create(hander.texture,new Rect(0f,0f,size,size),Vector2.one/2f);
+                  
+                    //更新预览图片和编辑器内图片
+                    bundleImage.sprite = sprite;
+                    image.sprite = sprite;
                 }
                 else
                 {
