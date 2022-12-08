@@ -6,7 +6,7 @@ using KitaujiGameDesignClub.GameFramework.Tools;
 namespace  Core
 {
     /// <summary>
-    /// 为每一个卡组列一个清单
+    /// 为每一个卡组列一个清单（卡包清单）
     /// </summary>
     [System.Serializable]
     public class CardBundlesManifest

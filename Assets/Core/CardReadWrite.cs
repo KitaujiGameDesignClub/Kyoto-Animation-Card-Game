@@ -3,8 +3,8 @@ using System.Collections;
 using Codice.Client.Common.Threading;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using Core;
-using SimpleFileBrowser;
-
+using Cysharp.Threading.Tasks;
+using System.IO;
 
 /// <summary>
 /// 卡牌读写
@@ -13,7 +13,7 @@ public class CardReadWrite
 {
 
     /// <summary>
-    /// 新卡包缓存路径
+    /// 新卡包缓存路径（保存时，会将此文件夹打包）
     /// </summary>
     public const string newBundleTempPath = "Temp/newBundle";
 
@@ -29,27 +29,36 @@ public class CardReadWrite
    public CardBundlesManifest[] AllBundles = null;
 
 
-   /// <summary>
-   /// 创建新的卡包（编辑器创建用）
-   /// </summary>
-   /// <returns>创建好后，要进行编辑的卡包</returns>
-   public static CardBundlesManifest CreateNewBundle()
+    /// <summary>
+    /// 创建卡包清单文件（编辑器创建用）
+    /// </summary>
+    /// <param name="cardBundlesManifest"></param>
+    /// <param name="fullPath">保存的完整路径</param>
+    /// <returns></returns>
+    public static async UniTask CreateBundleManifestFile(CardBundlesManifest cardBundlesManifest,string fullPath,string imageFullPath)
    {
-       var io = new DescribeFileIO("BundleManifest.yml", newBundleTempPath,
-           "# card bundle manifest.\n# It'll tell you the summary of the bundle.");
-       var manifest = new CardBundlesManifest();
-       
 
-       YamlReadWrite.Write(io, manifest);
-       return manifest;
-   }
+        //清单文件
+        var io = new DescribeFileIO($"{cardBundlesManifest.BundleName}.kabundle", $"-{fullPath}/{cardBundlesManifest.BundleName}",
+            "# card bundle manifest.\n# It'll tell you the summary of the bundle.");
+        await YamlReadWrite.WriteAsync(io, cardBundlesManifest);
+        //封面图片
+        if (cardBundlesManifest.ImageName != string.Empty)
+        {
+            File.Copy(imageFullPath, $"{fullPath}/{cardBundlesManifest.BundleName}/{Path.GetFileName(imageFullPath)}");
 
-   /// <summary>
-   /// 创建新卡牌
-   /// </summary>
-   /// <param name="onlyCard"></param>
-   /// <returns></returns>
-   public static CharacterCard CreateNewCard(bool onlyCard)
+
+        }
+
+
+    }
+
+    /// <summary>
+    /// 创建新卡牌
+    /// </summary>
+    /// <param name="onlyCard"></param>
+    /// <returns></returns>
+    public static CharacterCard CreateNewCard(bool onlyCard)
    {
        string path;
        //仅仅是创建一个卡牌

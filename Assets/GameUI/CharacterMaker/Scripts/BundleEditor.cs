@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using System.IO;
 
 public class BundleEditor : MonoBehaviour
 {
@@ -43,8 +44,20 @@ public class BundleEditor : MonoBehaviour
 /// 禁用输入层
 /// </summary>
     public GameObject banInput;
+    /// <summary>
+    /// 保存的状态
+    /// </summary>
+    public TMP_Text saveStatus;
+    /// <summary>
+    /// 储存路径
+    /// </summary>
      string savePath = string.Empty;
-    
+
+    /// <summary>
+    /// 新图片的完整路径
+    /// </summary>
+    string newImageFullPath = string.Empty;
+
     public void CreateNewBundle()
     {
         gameObject.SetActive(true);
@@ -67,7 +80,7 @@ public class BundleEditor : MonoBehaviour
         if (create)
         {
             //直接把新的当作正在编辑的卡包，并获取信息
-            nowEditingBundle = CardReadWrite.CreateNewBundle();
+            nowEditingBundle = new CardBundlesManifest();//创建一个缓存文件
             bundleName.text = nowEditingBundle.BundleName;
             bundleFriendlyName.text = nowEditingBundle.FriendlyBundleName;
             authorName.text = nowEditingBundle.AuthorName;
@@ -97,19 +110,27 @@ public class BundleEditor : MonoBehaviour
        banInput.SetActive(false);
     }
 
+
+    /// <summary>
+    /// 保存或另存为
+    /// </summary>
+    public void Save() => AsyncSave();
+
+
 /// <summary>
 /// 保存或另存为
 /// </summary>
-    public async void Save()
+    async UniTask AsyncSave()
     {
         //关闭成品预览
         preview.SetActive(false);
 
+
+
         //还没有保存过/不是打开编辑卡包，打开选择文件的窗口，选择保存位置
         if (savePath == string.Empty)
         {
-            await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, false,
-                initialFilename: $"{bundleName.text}.kabundle",title:"保存卡包",saveButtonText:"选择文件夹");
+            await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, false,title:"保存卡包",saveButtonText:"选择文件夹");
 
             
             
@@ -117,11 +138,24 @@ public class BundleEditor : MonoBehaviour
             {
                 //打开输入禁用层
                 banInput.SetActive(true);
+
+
+                saveStatus.text = "保存卡包配置文件...";
                 
+               await CardReadWrite.CreateBundleManifestFile(nowEditingBundle,FileBrowser.Result[0],newImageFullPath);
+               
                 
-                
+
+                saveStatus.text = "保存卡牌配置文件...";
+               
+
+
             }
         }
+
+
+        //保存完了，打开预览
+        preview.SetActive(true);
     }
     
     /// <summary>
@@ -134,18 +168,28 @@ public class BundleEditor : MonoBehaviour
         authorAndVersion.text = $"{authorName.text} - {bundleVersion.text}";
         image.sprite = bundleImage.sprite;
         changeSignal.SetActive(true);
+
+       
     }
-    
 
-    public async void selectImage(bool userChoose)
+
+
+    /// <summary>
+    /// 玩家选择图片
+    /// </summary>
+#pragma warning disable CS4014 // 没有等待的必要
+    public void selectImage() => AsyncSelectImage();
+#pragma warning restore CS4014 // 没有等待的必要
+
+
+
+    async UniTask AsyncSelectImage()
     {
-        FileBrowser.SetFilters(false, new FileBrowser.Filter("图片", ".jpg", ".bmp", ".png"));
-        UniTask.SwitchToThreadPool();
+        FileBrowser.SetFilters(false, new FileBrowser.Filter("图片", ".jpg", ".bmp", ".png",".gif"));
 
-      
 
-        await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, null, null, "选择卡包图片", "选择");
-        
+       await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, null, null, "选择卡包图片", "选择");
+
 
         if (FileBrowser.Success)
         {
@@ -181,8 +225,11 @@ public class BundleEditor : MonoBehaviour
                     //更新预览图片和编辑器内图片
                     bundleImage.sprite = sprite;
                     image.sprite = sprite;
-                    if(userChoose)  changeSignal.SetActive(true);
-                  
+                    changeSignal.SetActive(true);
+                    //更新清单配置
+                    newImageFullPath = FileBrowser.Result[0];
+                    nowEditingBundle.ImageName = $"{System.IO.Path.GetFileName(newImageFullPath)}";
+
                 }
                 else
                 {
@@ -190,10 +237,6 @@ public class BundleEditor : MonoBehaviour
                 }
             }
             
-        }
-        else
-        {
-            Debug.Log("及");
         }
     }
 }

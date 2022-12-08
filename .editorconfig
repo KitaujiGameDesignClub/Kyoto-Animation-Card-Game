@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# IDE0022: 使用方法的程序块主体
+dotnet_diagnostic.IDE0022.severity = none
+
+# CS4014: 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+dotnet_diagnostic.CS4014.severity = none
