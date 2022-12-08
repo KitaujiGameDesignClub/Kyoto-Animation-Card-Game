@@ -29,56 +29,37 @@ public class CardReadWrite
    public CardBundlesManifest[] AllBundles = null;
 
 
-    /// <summary>
-    /// 创建卡包清单文件（编辑器创建用）
-    /// </summary>
-    /// <param name="cardBundlesManifest"></param>
-    /// <param name="fullPath">保存的完整路径</param>
-    /// <returns></returns>
-    public static async UniTask CreateBundleManifestFile(CardBundlesManifest cardBundlesManifest,string fullPath,string imageFullPath)
+   /// <summary>
+   /// 创建卡包清单文件（编辑器创建用）
+   /// </summary>
+   /// <param name="cardBundlesManifest"></param>
+   /// <param name="fullPath">保存的完整路径</param>
+   /// <param name="imageFullPath">新图片的完整路径，将图片复制到卡包目录下</param>
+   /// <returns></returns>
+   public static async UniTask CreateBundleManifestFile(CardBundlesManifest cardBundlesManifest,string fullPath,string imageFullPath)
    {
 
         //清单文件
-        var io = new DescribeFileIO($"{cardBundlesManifest.BundleName}.kabundle", $"-{fullPath}/{cardBundlesManifest.BundleName}",
+        var io = new DescribeFileIO($"{cardBundlesManifest.BundleName}.kabmanifest", $"-{fullPath}/{cardBundlesManifest.BundleName}",
             "# card bundle manifest.\n# It'll tell you the summary of the bundle.");
         await YamlReadWrite.WriteAsync(io, cardBundlesManifest);
-        //封面图片
+        //复制封面图片
         if (cardBundlesManifest.ImageName != string.Empty)
         {
             File.Copy(imageFullPath, $"{fullPath}/{cardBundlesManifest.BundleName}/{Path.GetFileName(imageFullPath)}");
-
-
         }
 
 
     }
 
     /// <summary>
-    /// 创建新卡牌
+    /// 创建卡牌文件
     /// </summary>
     /// <param name="onlyCard"></param>
     /// <returns></returns>
-    public static CharacterCard CreateNewCard(bool onlyCard)
+    public static async UniTask CreateCardFile(CharacterCard characterCard)
    {
-       string path;
-       //仅仅是创建一个卡牌
-       if (onlyCard)
-       {
-           path = newCardTempPath;
-       }
-       //隶属于卡包的新卡牌
-       else
-       {
-           path = $"{newBundleTempPath}/cards";
-       }
-
-       var io = new DescribeFileIO("CharacterCard.yml", path,
-           "# character card profile.\n# It'll tell you all the information of character card.");
-
-       var card = new CharacterCard();
-       
-       YamlReadWrite.Write(io, card);
-       return card;
+      
    }
 
   /// <summary>

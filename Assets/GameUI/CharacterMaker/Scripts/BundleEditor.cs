@@ -40,18 +40,7 @@ public class BundleEditor : MonoBehaviour
     /// </summary>
     [Header("储存")]
     public GameObject preview;
-/// <summary>
-/// 禁用输入层
-/// </summary>
-    public GameObject banInput;
-    /// <summary>
-    /// 保存的状态
-    /// </summary>
-    public TMP_Text saveStatus;
-    /// <summary>
-    /// 储存路径
-    /// </summary>
-     string savePath = string.Empty;
+
 
     /// <summary>
     /// 新图片的完整路径
@@ -106,57 +95,24 @@ public class BundleEditor : MonoBehaviour
         changeSignal.SetActive(false);
         //打开成品预览
         preview.SetActive(true);
-       //允许玩家输入
-       banInput.SetActive(false);
+     
     }
 
 
     /// <summary>
     /// 保存或另存为
     /// </summary>
-    public void Save() => AsyncSave();
-
-
-/// <summary>
-/// 保存或另存为
-/// </summary>
-    async UniTask AsyncSave()
+    public async void Save()
     {
         //关闭成品预览
         preview.SetActive(false);
-
-
-
-        //还没有保存过/不是打开编辑卡包，打开选择文件的窗口，选择保存位置
-        if (savePath == string.Empty)
-        {
-            await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, false,title:"保存卡包",saveButtonText:"选择文件夹");
-
-            
-            
-            if (FileBrowser.Success)
-            {
-                //打开输入禁用层
-                banInput.SetActive(true);
-
-
-                saveStatus.text = "保存卡包配置文件...";
-                
-               await CardReadWrite.CreateBundleManifestFile(nowEditingBundle,FileBrowser.Result[0],newImageFullPath);
-               
-                
-
-                saveStatus.text = "保存卡牌配置文件...";
-               
-
-
-            }
-        }
-
-
-        //保存完了，打开预览
-        preview.SetActive(true);
+        //执行保存or另存为操作
+       await CardMaker.cardMaker.AsyncSave(null,nowEditingBundle,newImageFullPath);
+       //保存完了，打开预览
+       preview.SetActive(true);
     }
+
+
     
     /// <summary>
     /// 输入框内的数据完成，调用此函数，用于显示最终的效果
