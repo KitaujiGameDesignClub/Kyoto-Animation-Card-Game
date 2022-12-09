@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 
 namespace KitaujiGameDesignClub.GameFramework.UI
@@ -20,6 +21,11 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         [Header("强通知")]
         [SerializeField] private LeanWindow strongNotification;
 
+        [SerializeField] private Button buttonOne;
+        [SerializeField] private Button buttonTwo;
+        [SerializeField] private Button buttonThree;
+        [SerializeField] private TMP_Text[] buttonTexts = new TMP_Text[3];
+        
         /// <summary>
         /// 通知内容
         /// </summary>
@@ -71,13 +77,46 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         /// <param name="title">通知标题</param>
         /// <param name="content">通知内容</param>
         /// <param name="fontSizeRate">全局字体大小（相对值）</param>
-        public void CreateStrongNotification(UnityAction onNotify,UnityAction OnOff,string title,string content,float fontSizeRate = 1f)
+        public void CreateStrongNotification(UnityAction onNotify,UnityAction OnOff,string title,string content,UnityAction Button1 = null,string ButtonOneText = "确认",UnityAction Button2 = null,string ButtonTwoText = "返回",UnityAction Button3 = null,string ButtonThreeText = "取消",float fontSizeRate = 1f)
         {
+            
+            
+            
+            //优先处理按钮
+            //激活与禁用
+            buttonOne.gameObject.SetActive(Button1 != null);
+            buttonTwo.gameObject.SetActive(Button2 != null);
+            buttonThree.gameObject.SetActive(Button3 != null);
+            //以往事件清除
+            buttonOne.onClick.RemoveAllListeners();
+            buttonThree.onClick.RemoveAllListeners();
+            buttonTwo.onClick.RemoveAllListeners();
+            //事件添加
+            if (Button1 != null)
+            {
+                buttonOne.onClick.AddListener(Button1);
+                buttonTexts[0].text = ButtonOneText;
+            }
+            if (Button2 != null)
+            {
+                buttonTwo.onClick.AddListener(Button2);
+                buttonTexts[1].text = ButtonTwoText;
+            }
+            if (Button3 != null)
+            {
+                buttonTexts[2].text = ButtonThreeText;
+                buttonThree.onClick.AddListener(Button3);
+            }
+            
+//清除残留事件
+strongNotification.OnOn.RemoveAllListeners();
+Shutdown.OnDown.RemoveAllListeners();
+
             if(onNotify != null)  strongNotification.OnOn.AddListener(onNotify);
        
             Shutdown.OnDown.AddListener(delegate
             {
-                strongNotification.TurnOff();
+                TurnOffStrongNotification();
                 if(OnOff != null) OnOff.Invoke();
             });
 
@@ -90,6 +129,12 @@ namespace KitaujiGameDesignClub.GameFramework.UI
       
         }
 
+
+        public void TurnOffStrongNotification()
+        {
+            strongNotification.TurnOff();
+        }
+        
 /// <summary>
 /// 创建通知（横幅通知）
 /// </summary>
@@ -98,12 +143,14 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 /// <param name="fontSizeRate">全局字体大小（相对值）</param>
         public void CreateBannerNotification(UnityAction onNotify, string content,float fontSizeRate = 1f)
         {
+            BannerNotification.OnPulse.RemoveAllListeners();
+            
             if(onNotify != null)  BannerNotification.OnPulse.AddListener(delegate(int arg0) { onNotify.Invoke(); });
 
          
 
-            this.strongContent.text = content;
-            this.strongContent.fontSize = DefaultfontSize[0] * fontSizeRate;
+           BannerContent.text = content;
+           BannerContent.fontSize = DefaultfontSize[0] * fontSizeRate;
         
             BannerNotification.Pulse();
             Debug.Log($"发生通知：{content}");

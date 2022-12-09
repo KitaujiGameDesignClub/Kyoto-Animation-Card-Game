@@ -152,13 +152,14 @@ namespace Core
 
         //a.b:a修改后，说明不兼容之前的旧版本，需要升级旧版文件
         //b修改后，是小修改，可以兼容
-
-        public const int CardMakerVersion = 1;
         public const int CharacterCardMaker = 1;
         public const int ManifestVersion = 1;
 
         #endregion
-        
+
+
+        #region 角色能力设定
+ 
         /// <summary>
         /// 对象检索范围
         /// </summary>
@@ -318,6 +319,10 @@ namespace Core
             /// </summary>
             GetHurt,
         }
+        
+
+        #endregion
+       
 
 
         /// <summary>
@@ -522,6 +527,9 @@ namespace Core
             BajaStudio,
         }
 
+        
+        
+        
         /// <summary>
         /// 声优（按照萌娘百科中人物照片上方的中文译名记）
         /// </summary>

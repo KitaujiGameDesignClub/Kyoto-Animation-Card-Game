@@ -28,10 +28,16 @@ namespace  Core
         /// </summary>
         public string FriendlyBundleName = "默认卡包";
 
+        public Information.Anime Anime = Information.Anime.Universal;
+        
+        
+        
         /// <summary>
         /// 卡包版本。用于玩家和作者进行区分
         /// </summary>
         public string BundleVersion = "v1.0";
+        
+        
         
         /// <summary>
         /// 图片名字
@@ -46,7 +52,7 @@ namespace  Core
         /// <summary>
         ///卡包简短介绍（支持TMP_text的富文本） 
         /// </summary>
-        public string shortDescription = "卡包简短介绍 ";
+        public string shortDescription = "卡包简短介绍";
         
         /// <summary>
         /// 卡包介绍（支持TMP_text的富文本）
@@ -58,13 +64,6 @@ namespace  Core
         /// </summary>
         public string Remarks = "游戏默认卡包。可以按照提示进行修改。此处的备注只会在卡包中显示，不会对玩家显示";
 
-
-        /// <summary>
-        /// 卡牌数量
-        /// </summary>
-        public int cardNumber = 0;
-
-      
     }
 
 
