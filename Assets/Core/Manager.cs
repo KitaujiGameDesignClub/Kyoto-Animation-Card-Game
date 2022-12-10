@@ -27,7 +27,7 @@ namespace Core
             
             
             
-            GameState.chiefs[teamId] = new Chief(oneOfThreeCards);
+            GameState.chiefs[teamId] = new Chief(oneOfThreeCards.profile);
         }
         
         /// <summary>

@@ -39,6 +39,9 @@ public class CardReadWrite
         }
     }
 
+
+
+
     /// <summary>
     /// 创建卡牌文件
     /// </summary>
@@ -128,20 +131,56 @@ public class CardReadWrite
     /// 获取所有的卡包
     /// </summary>
     /// <returns></returns>
-    public static IEnumerator GetAllBundles()
+    public static async UniTask GetAllBundles()
     {
-        yield break;
+
     }
 
     /// <summary>
-    /// 获取某一个卡包
+    /// 读取某一个卡包（清单+卡牌）
     /// </summary>
-    /// <param name="fullPath">卡包的完整路径</param>
-    /// <param name="fileCodeVersion">得到这个卡包的编码版本</param>
+    /// <param name="fullPath">卡组清单的完整路径</param>
     /// <returns></returns>
-    public static CardBundlesManifest GetBundle(string fullPath, out int fileCodeVersion)
+    public static async UniTask<Bundle> GetBundle(string fullPath)
     {
-        fileCodeVersion = 1;
+        try
+        {
+
+        }
+        catch
+        {
+
+        }
+
         return null;
+    }
+
+
+    /// <summary>
+    /// yaml文件修复（对于清单文件和卡牌文件）
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="yamlFilesText"></param>
+    /// <returns></returns>
+    public static async UniTask<T> YamlFixer<T>(T yamlFilesText)
+    {
+        var type = yamlFilesText.GetType();
+
+        if (type == typeof(CardBundlesManifest))
+        {
+            return default;
+        }
+        else if (type == typeof(CharacterCard))
+        {
+            return default;
+        }
+        else
+        {
+            throw new Exception($"yaml修复器不支持{type}类型，此修复器只能接受{typeof(CardBundlesManifest)}和{typeof(CharacterCard)}");
+        }
+
+
+
+
     }
 }

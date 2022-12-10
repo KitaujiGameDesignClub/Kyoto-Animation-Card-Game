@@ -9,8 +9,12 @@ namespace Core
     /// <summary>
     /// 角色卡在游戏中的表现和状态
     /// </summary>
-    public class CharacterInGame : CharacterCard
+    public class CharacterInGame
     {
+        /// <summary>
+        /// 此角色卡的配置文件
+        /// </summary>
+        public CharacterCard profile;
 
         /// <summary>
         /// 是哪一个玩家的可用牌 0=A 1=B
@@ -57,25 +61,7 @@ namespace Core
         /// <param name="playerId">属于哪个玩家？ 0=A 1=B</param>
         public CharacterInGame(CharacterCard characterCard, int playerId)
         {
-            CardName = characterCard.CardName;
-            imageName = characterCard.imageName;
-            gender = characterCard.gender;
-            tags = characterCard.tags;
-            Connects = characterCard.Connects;
-            // Reason = characterCard.Reason;不需要。因为后面解析完角色能力后就可以直接用了
-            // Result = characterCard.Result;
-            AbilityDescription = characterCard.AbilityDescription;
-            AbilityType = characterCard.AbilityType;
-            allowAsChief = characterCard.allowAsChief;
-            BasicPower = characterCard.BasicPower;
-            actualPower = BasicPower;
-            CardCount = characterCard.CardCount;
-            CharacterName = characterCard.CharacterName;
-            CV = characterCard.CV;
-            BasicHealthPoint = characterCard.BasicHealthPoint;
-            actualHealthPoint = BasicHealthPoint;
-            BundleName = characterCard.BundleName;
-            FriendlyCardName = characterCard.FriendlyCardName;
+            profile = characterCard;
             silence = 0;
             ridicule = 0;
             State = Information.CardState.Present;
@@ -112,7 +98,7 @@ namespace Core
         {
             if (changeHealth)
             {
-                BasicHealthPoint += value1;
+               actualHealthPoint += value1;
 
                 //受到伤害
                 if (value1 < 0)
@@ -120,7 +106,7 @@ namespace Core
                     OnHurt(Activator);
                 }
 
-                if (BasicHealthPoint <= 0)
+                if (actualHealthPoint <= 0)
                 {
                     //do something....
                 }
@@ -129,9 +115,9 @@ namespace Core
 
             if (changePower)
             {
-                BasicPower += value2;
+               actualPower += value2;
 
-                if (BasicPower <= 0)
+                if (actualPower <= 0)
                 {
                     //do something....
                 }
@@ -157,7 +143,7 @@ namespace Core
         /// </summary>
         public void OnDebut()
         {
-            if (AbilityType == Information.CardAbilityTypes.Debut)
+            if (profile.AbilityType == Information.CardAbilityTypes.Debut)
             {
                 AbilityReasonAnalyze(this);
             }
@@ -168,7 +154,7 @@ namespace Core
         /// </summary>
         public void Normal()
         {
-            if (AbilityType == Information.CardAbilityTypes.Normal)
+            if (profile.AbilityType == Information.CardAbilityTypes.Normal)
             {
                 AbilityReasonAnalyze(this);
             }
@@ -179,7 +165,7 @@ namespace Core
         /// </summary>
         public void Exit()
         {
-            if (AbilityType == Information.CardAbilityTypes.Exit)
+            if (profile.AbilityType == Information.CardAbilityTypes.Exit)
             {
                 AbilityReasonAnalyze(this);
             }
@@ -191,7 +177,7 @@ namespace Core
         /// <param name="activator">是谁触发了这个函数（谁打我了）</param>
         public void OnHurt(CharacterInGame activator)
         {
-            if (AbilityType == Information.CardAbilityTypes.GetHurt)
+            if (profile.AbilityType == Information.CardAbilityTypes.GetHurt)
             {
                 AbilityReasonAnalyze(activator);
             }
@@ -210,17 +196,17 @@ namespace Core
             #region 确定条件对象们
 
             //如果是any情况下都能运行，那么直接运行结果逻辑，之后终止
-            if (Reason.NeededObjects.LargeScope == Information.Objects.Any)
+            if (profile.Reason.NeededObjects.LargeScope == Information.Objects.Any)
             {
-                Result.RegardActivatorAsResultObject = false;
+                profile.Result.RegardActivatorAsResultObject = false;
                 AbilityResultAnalyze();
                 return;
             }
             else
             {
                 //确定条件对象们
-                ReasonObjects = GetNeededCards(Reason.NeededObjects, activator); //确定范围内的条件对象
-                chief = GetNeededChief(Reason.NeededObjects); //储存主持/部长的条件对象
+                ReasonObjects = GetNeededCards(profile.Reason.NeededObjects, activator); //确定范围内的条件对象
+                chief = GetNeededChief(profile.Reason.NeededObjects); //储存主持/部长的条件对象
             }
 
             #endregion
@@ -244,14 +230,14 @@ namespace Core
 
             #region 获取判断的参数的值
 
-            switch (Reason.ReasonParameter)
+            switch (profile.Reason.ReasonParameter)
             {
                 //部长/主席/主持的金币数量
                 case Information.Parameter.Coin:
                     if (chief != null) parameterValues[0] = chief.coin.ToString();
                     else
                         throw new Exception(
-                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断部长金币数，但是能力原因的条件对象不是chief");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断部长金币数，但是能力原因的条件对象不是chief");
                     break;
 
                 //角色卡的攻击力
@@ -265,7 +251,7 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡攻击力，但是能力原因的条件对象不是角色卡");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断角色卡攻击力，但是能力原因的条件对象不是角色卡");
 
                     break;
 
@@ -280,7 +266,7 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡沉默回合数，但是能力原因的条件对象不是角色卡");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断角色卡沉默回合数，但是能力原因的条件对象不是角色卡");
 
                     break;
                 
@@ -295,7 +281,7 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡炒粉回合数，但是能力原因的条件对象不是角色卡");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断角色卡炒粉回合数，但是能力原因的条件对象不是角色卡");
 
                     break;
 
@@ -311,7 +297,7 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡状态，但是能力原因的条件对象不是角色卡");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断角色卡状态，但是能力原因的条件对象不是角色卡");
 
                     break;
 
@@ -321,7 +307,7 @@ namespace Core
                     {
                         for (int i = 0; i < parameterValues.Length; i++)
                         {
-                            foreach (var tag in ReasonObjects[i].tags)
+                            foreach (var tag in ReasonObjects[i].profile.tags)
                             {
                                 parameterValues[i] =
                                     $"{parameterValues[i]}={tag}"; //最终的效果就是，每一个角色卡记录的tags:=SOS=coward，即每个tag间都有个=连接，第一个标签前有一个=
@@ -330,7 +316,7 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断角色卡标签，但是能力原因的条件对象不是角色卡");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断角色卡标签，但是能力原因的条件对象不是角色卡");
 
                     break;
 
@@ -340,7 +326,7 @@ namespace Core
                     {
                         for (int i = 0; i < parameterValues.Length; i++)
                         {
-                            parameterValues[i] = ReasonObjects[i].CharacterName.ToString();
+                            parameterValues[i] = ReasonObjects[i].profile.CharacterName.ToString();
                         }
                     }
                     else
@@ -355,13 +341,13 @@ namespace Core
                     {
                         for (int i = 0; i < parameterValues.Length; i++)
                         {
-                            parameterValues[i] = ReasonObjects[i].CV.ToString();
+                            parameterValues[i] = ReasonObjects[i].profile.CV.ToString();
                         }
                     }
                     else
                     {
                         throw new Exception(
-                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要判断部长{chief.ChiefName}的声优，但是这是禁止事项");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断部长{chief.ChiefName}的声优，但是这是禁止事项");
                     }
 
                     break;
@@ -375,7 +361,7 @@ namespace Core
 
             #region 根据判断方法，准备数值计算
 
-            switch (Reason.ReasonJudgeMethod)
+            switch (profile.Reason.ReasonJudgeMethod)
             {
                 //count：有几个参数？
                 case Information.JudgeMethod.Count:
@@ -401,13 +387,13 @@ namespace Core
             #region 运用判断逻辑，对阈值进行判定
 
             //count（计数）判定：
-            if (Reason.ReasonJudgeMethod == Information.JudgeMethod.Count)
+            if (profile.Reason.ReasonJudgeMethod == Information.JudgeMethod.Count)
             {
                 //满足要求的参数的长度
                 var parameterValuesLength = int.Parse(values[0]);
-                int thresholdInt = int.Parse(Reason.Threshold);
+                int thresholdInt = int.Parse(profile.Reason.Threshold);
 
-                switch (Reason.Logic)
+                switch (profile.Reason.Logic)
                 {
                     //不等于（不包含）
                     case -3:
@@ -442,14 +428,14 @@ namespace Core
             else
             {
                 //这些都是对values（数值进行判定）
-                switch (Reason.ReasonParameter)
+                switch (profile.Reason.ReasonParameter)
                 {
                     //数据为Int
                     case Information.Parameter.Coin or Information.Parameter.Power or Information.Parameter.Silence
                         or Information.Parameter.HealthPoint:
                         //将string转换为正规的类型（int）
                         int[] fixedValues = new int[values.Length];
-                        int thresholdInt = int.Parse(Reason.Threshold);
+                        int thresholdInt = int.Parse(profile.Reason.Threshold);
 
                         //将记录的values转换成Int，并进行有关的判断逻辑处理
                         for (int i = 0; i < values.Length; i++)
@@ -458,12 +444,12 @@ namespace Core
                             if (!int.TryParse(values[i], out fixedValues[i]))
                             {
                                 throw new Exception(
-                                    $"{FriendlyCardName}(内部名称：{CardName} 隶属：{BundleName})的能力出发原因中，{Reason.ReasonParameter.ToString()}是int的，但是给定的阈值形式上不符合int类型");
+                                    $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 隶属：{profile.BundleName})的能力出发原因中，{profile.Reason.ReasonParameter.ToString()}是int的，但是给定的阈值形式上不符合int类型");
                             }
                             else
                             {
                                 //按照记录的逻辑方式判断能否
-                                switch (Reason.Logic)
+                                switch (profile.Reason.Logic)
                                 {
                                     //-3 不包含（不等于）
                                     case -3:
@@ -502,7 +488,7 @@ namespace Core
 
 
                             //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
-                            if (!Result.RegardActivatorAsResultObject || Result.SummonCardName != String.Empty)
+                            if (!profile.Result.RegardActivatorAsResultObject || profile.Result.SummonCardName != String.Empty)
                             {
                                 if (AllowAbilityExection) break;
                             }
@@ -516,16 +502,16 @@ namespace Core
                         for (int i = 0; i < values.Length; i++)
                         {
                             //按照记录的逻辑方式判断能否
-                            switch (Reason.Logic)
+                            switch (profile.Reason.Logic)
                             {
                                 //-3 不等于（不包含）
                                 case -3:
-                                    CheckedFixedValuesState[i] = values[i] != Reason.Threshold;
+                                    CheckedFixedValuesState[i] = values[i] != profile.Reason.Threshold;
                                     break;
 
                                 //等于（包含）
                                 case 0:
-                                    CheckedFixedValuesState[i] = values[i] == Reason.Threshold;
+                                    CheckedFixedValuesState[i] = values[i] == profile.Reason.Threshold;
                                     break;
                             }
 
@@ -535,7 +521,7 @@ namespace Core
 
 
                             //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
-                            if (!Result.RegardActivatorAsResultObject || Result.SummonCardName != String.Empty)
+                            if (!profile.Result.RegardActivatorAsResultObject || profile.Result.SummonCardName != String.Empty)
                             {
                                 if (AllowAbilityExection) break;
                             }
@@ -554,16 +540,16 @@ namespace Core
 
 
                             //按照记录的逻辑方式判断能否
-                            switch (Reason.Logic)
+                            switch (profile.Reason.Logic)
                             {
                                 //-3 不包含
                                 case -3:
-                                    CheckedFixedValuesState[i] = !allTags.Contains(Reason.Threshold);
+                                    CheckedFixedValuesState[i] = !allTags.Contains(profile.Reason.Threshold);
                                     break;
 
                                 //等于（包含）
                                 case 0:
-                                    CheckedFixedValuesState[i] = allTags.Contains(Reason.Threshold);
+                                    CheckedFixedValuesState[i] = allTags.Contains(profile.Reason.Threshold);
                                     break;
                             }
 
@@ -573,7 +559,7 @@ namespace Core
 
 
                             //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
-                            if (!Result.RegardActivatorAsResultObject || Result.SummonCardName != String.Empty)
+                            if (!profile.Result.RegardActivatorAsResultObject || profile.Result.SummonCardName != String.Empty)
                             {
                                 if (AllowAbilityExection) break;
                             }
@@ -606,38 +592,38 @@ namespace Core
             CharacterInGame[] characterToOperate = null;
 
             //召唤
-            if (Result.SummonCardName != String.Empty)
+            if (profile.Result.SummonCardName != String.Empty)
             {
                 Manager.CardDebut(playerId,
                     GameState.AllAvailableCards[playerId]
                         .Find(new Predicate<CharacterCard>(game =>
-                            game.CardName.Equals(Result.SummonCardName))));
+                            game.CardName.Equals(profile.Result.SummonCardName))));
                
             }
             
             //嘲讽（自身）
-            if (Result.Ridicule)
+            if (profile.Result.Ridicule)
             {
                 ridicule = ChangeIntValue(ridicule);
             }
             #region 获取能力发动的对象 能力发动到谁身上？
 
             //如果要召唤，那就直接不把激活能力的条件对象作为结果对象
-            if (Result.SummonCardName != string.Empty)
+            if (profile.Result.SummonCardName != string.Empty)
             {
-                Result.RegardActivatorAsResultObject = false;
+                profile.Result.RegardActivatorAsResultObject = false;
             }
 
             //如果把激活能力的条件对象作为结果对象，才查找对象
-            if (Result.RegardActivatorAsResultObject)
+            if (profile.Result.RegardActivatorAsResultObject)
             {
                 characterToOperate = reasonObjects;
             }
             //如果不把激活能力的条件对象作为结果对象，则重新寻找一次
             else
             {
-                chiefToOperate = GetNeededChief(Result.ResultObject);
-                characterToOperate = GetNeededCards(Result.ResultObject);
+                chiefToOperate = GetNeededChief(profile.Result.ResultObject);
+                characterToOperate = GetNeededCards(profile.Result.ResultObject);
             }
 
             #endregion
@@ -647,11 +633,11 @@ namespace Core
             //角色卡
             foreach (var card in characterToOperate)
             {
-                switch (Result.ParameterToChange)
+                switch (profile.Result.ParameterToChange)
                 {
                     case Information.Parameter.Coin:
                         throw new Exception(
-                            $"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
                     
                     case Information.Parameter.HealthPoint:
                         card.actualHealthPoint = ChangeIntValue(card.actualHealthPoint);
@@ -665,37 +651,37 @@ namespace Core
                         break;
                     
                     case Information.Parameter.Tag:
-                        switch (Result.CalculationMethod)
+                        switch (profile.Result.CalculationMethod)
                         {
                             //添加/删除一个tag  values种，如果有个“-”。说明是减去这个tag
                             case Information.CalculationMethod.addition:
                                 //开头没有-号，加上一个tag
-                                if (Result.Value.Substring(0, 1) != "-" && !card.tags.Contains(Result.Value))
+                                if (profile.Result.Value.Substring(0, 1) != "-" && !card.profile.tags.Contains(profile.Result.Value))
                                 {
-                                    card.tags.Add(Result.Value);
+                                    card.profile.tags.Add(profile.Result.Value);
                                 }
                                 //开头有-号，减去一个tag
-                                else if (Result.Value.Substring(0, 1) == "-" && card.tags.Contains(Result.Value))
+                                else if (profile.Result.Value.Substring(0, 1) == "-" && card.profile.tags.Contains(profile.Result.Value))
                                 {
-                                    card.tags.Remove(Result.Value);
+                                    card.profile.tags.Remove(profile.Result.Value);
                                 }
                                 break;
                             
                             default:
-                                throw new Exception($"{FriendlyCardName}(内部名称：{CardName} 所属：{BundleName})想要用乘法修改tag");
+                                throw new Exception($"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要用乘法修改tag");
                                 break;
                         }
                         break;
                     
                     case Information.Parameter.State:
-                        card.State = (Information.CardState)Enum.Parse(typeof(Information.CardState), Result.Value);
+                        card.State = (Information.CardState)Enum.Parse(typeof(Information.CardState), profile.Result.Value);
                         break;
 
                 }
             }
 
             //主持
-            switch (Result.ParameterToChange)
+            switch (profile.Result.ParameterToChange)
             {
                 case Information.Parameter.Coin:
                     chiefToOperate.coin = ChangeIntValue(chiefToOperate.coin);
@@ -711,18 +697,18 @@ namespace Core
         /// <param name="values">（</param>
         private int ChangeIntValue(int parameter)
         {
-            switch (Result.CalculationMethod)
+            switch (profile.Result.CalculationMethod)
             {
                 case Information.CalculationMethod.addition:
-                   parameter += int.Parse(Result.Value); 
+                   parameter += int.Parse(profile.Result.Value); 
                     break;
                     
                 case Information.CalculationMethod.ChangeTo:
-                    parameter = int.Parse(Result.Value); 
+                    parameter = int.Parse(profile.Result.Value); 
                     break;
                     
                 case Information.CalculationMethod.multiplication:
-                    parameter = (int)(parameter * float.Parse(Result.Value)); 
+                    parameter = (int)(parameter * float.Parse(profile.Result.Value)); 
                     break;
             }
 
@@ -859,11 +845,11 @@ namespace Core
                 switch (objectsScope.ParameterToShrinkScope)
                 {
                     case Information.Parameter.CharacterName:
-                        parameter = neededCards[i].CharacterName.ToString();
+                        parameter = neededCards[i].profile.CharacterName.ToString();
                         break;
 
                     case Information.Parameter.CV:
-                        parameter = neededCards[i].CV.ToString();
+                        parameter = neededCards[i].profile.CV.ToString();
                         break;
 
                     case Information.Parameter.HealthPoint:
@@ -887,10 +873,10 @@ namespace Core
                         break;
 
                     case Information.Parameter.Tag:
-                        foreach (var tag in tags)
+                        foreach (var tag in profile.tags)
                         {
                             parameter =
-                                $"{parameter}={tag}"; //最终的效果就是，每一个角色卡记录的tags:=SOS=coward，即每个tag间都有个=连接，第一个标签前有一个=
+                                $"{parameter}={tag}"; //最终的效果就是，每一个角色卡记录的profile.tags:=SOS=coward，即每个tag间都有个=连接，第一个标签前有一个=
                         }
 
                         break;
@@ -908,19 +894,19 @@ namespace Core
                         or Information.Parameter.HealthPoint or Information.Parameter.Ridicule:
                         //将string转换为正规的类型（int）
                         int fixedValue;
-                        int thresholdInt = int.Parse(Reason.Threshold);
+                        int thresholdInt = int.Parse(profile.Reason.Threshold);
 
                         //将记录的values转换成Int，并进行有关的判断逻辑处理
                         //将记录的values转换成Int
                         if (!int.TryParse(parameter, out fixedValue))
                         {
                             throw new Exception(
-                                $"{FriendlyCardName}(内部名称：{CardName} 隶属：{BundleName})无法找到正确的对象，因为所找对象的参数是int型，但是给定的阈值形式上不符合int类型");
+                                $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 隶属：{profile.BundleName})无法找到正确的对象，因为所找对象的参数是int型，但是给定的阈值形式上不符合int类型");
                         }
                         else
                         {
                             //按照记录的逻辑方式判断能否
-                            allowed = Reason.Logic switch
+                            allowed = profile.Reason.Logic switch
                             {
                                 //-3 不包含（不等于）
                                 -3 => fixedValue != thresholdInt,
@@ -944,37 +930,37 @@ namespace Core
                     case Information.Parameter.CharacterName or Information.Parameter.CV:
                     
                             //按照记录的逻辑方式判断能否
-                            switch (Reason.Logic)
+                            switch (profile.Reason.Logic)
                             {
                                 //-3 不等于（不包含）
                                 case -3:
-                                    allowed =parameter != Reason.Threshold;
+                                    allowed =parameter != profile.Reason.Threshold;
                                     break;
 
                                 //等于（包含）
                                 case 0:
-                                    allowed =parameter == Reason.Threshold;
+                                    allowed =parameter == profile.Reason.Threshold;
                                     break;
                             }
                         break;
 
-                    //每一个角色卡记录的tags:=SOS=coward
+                    //每一个角色卡记录的profile.tags:=SOS=coward
                     case Information.Parameter.Tag:
                         
                             //得到每一个对象的所有tag（0不能要）
                             string[] allTags = parameter.Split('=');
 
                             //按照记录的逻辑方式判断能否
-                            switch (Reason.Logic)
+                            switch (profile.Reason.Logic)
                             {
                                 //-3 不包含
                                 case -3:
-                                    allowed = !allTags.Contains(Reason.Threshold);
+                                    allowed = !allTags.Contains(profile.Reason.Threshold);
                                     break;
 
                                 //等于（包含）
                                 case 0:
-                                    allowed = allTags.Contains(Reason.Threshold);
+                                    allowed = allTags.Contains(profile.Reason.Threshold);
                                     break;
                             }
                             

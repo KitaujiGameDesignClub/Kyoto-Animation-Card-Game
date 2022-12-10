@@ -44,6 +44,10 @@ public class CardMaker : MonoBehaviour
     /// 储存路径
     /// </summary>
     string savePath = string.Empty;
+    /// <summary>
+    /// 现在正在编辑的卡包（卡组）（包含了清单和卡片配置）
+    /// </summary>
+    [HideInInspector] public Bundle nowEditingBundle;
 
     /// <summary>
     /// 游戏加载时的实践
@@ -98,18 +102,30 @@ public class CardMaker : MonoBehaviour
     {
         //现在还没有改内容，关闭修改标记
         changeSignal.SetActive(false);
-        bundleEditor.CreateNewBundle();
+        bundleEditor.OpenManifestEditor(true);
+        nowEditingBundle = new();
     }
 
     /// <summary>
-    /// 创建新卡牌
+    /// 编辑卡包
     /// </summary>
-    public void CreateCard(bool onlyCard)
+    public void EditBundle()
+    {
+        //现在还没有改内容，关闭修改标记
+        changeSignal.SetActive(false);
+        bundleEditor.OpenManifestEditor(false);
+    }
+
+    /// <summary>
+    /// 仅创建新卡牌
+    /// </summary>
+    public void OnlyCreateCard(bool onlyCard)
     {
         //现在还没有改内容，关闭修改标记
         changeSignal.SetActive(false);
         // cardEditor.nowEditingCard = CardReadWrite.CreateNewCard(onlyCard);
         cardEditor.gameObject.SetActive(true);
+        nowEditingBundle = new();
     }
 
 /// <summary>
