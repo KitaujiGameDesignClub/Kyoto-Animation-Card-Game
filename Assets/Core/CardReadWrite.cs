@@ -11,10 +11,7 @@ using System.IO;
 /// </summary>
 public class CardReadWrite
 {
-    /// <summary>
-    /// 所有的卡包
-    /// </summary>
-    public CardBundlesManifest[] AllBundles = null;
+
 
 
     /// <summary>
@@ -35,7 +32,7 @@ public class CardReadWrite
         //复制封面图片
         if (imageFullPath != String.Empty)
         {
-            File.Copy(imageFullPath, $"{fullPath}/{cardBundlesManifest.BundleName}/{Path.GetFileName(imageFullPath)}",true);
+            File.Copy(imageFullPath, $"{fullPath}/{cardBundlesManifest.BundleName}/{Path.GetFileName(imageFullPath)}", true);
         }
     }
 
@@ -108,7 +105,7 @@ public class CardReadWrite
 
             case Information.Anime.TheMelancholyOfHaruhiSuzumiya:
                 return "凉宫春日的忧郁";
-            
+
             case Information.Anime.VioletEvergarden:
                 return "紫罗兰永恒花园";
 
@@ -117,23 +114,78 @@ public class CardReadWrite
         }
     }
 
-    /// <summary>
-    /// 编辑已有卡包（发布格式为KgdCardBundles的一个zip文件）
-    /// </summary>
-    /// <returns></returns>
-    public static CardBundlesManifest CardBundleEdit()
-    {
-        return null;
-    }
-
 
     /// <summary>
-    /// 获取所有的卡包
+    /// 在规定的游戏目录下获取所有的卡包
     /// </summary>
     /// <returns></returns>
-    public static async UniTask GetAllBundles()
+    public static async UniTask<Bundle[]> GetAllBundles()
     {
 
+        Bundle[] bundles = null;
+
+        await UniTask.RunOnThreadPool(async delegate ()
+         {
+             //有规定的文件夹吗
+             //有的话，尝试读取所有的卡组
+             if (Directory.Exists(Information.bundlesPath))
+             {
+                 ArrayList allBundles = new();
+
+                 //卡组文件夹的子文件夹
+                 var allDirectories = Directory.GetDirectories(Information.bundlesPath, "*", SearchOption.TopDirectoryOnly);
+
+                 for (int i = 0; i < allDirectories.Length; i++)
+                 {
+                     //试试读取，合规的清单文件是有值的
+                     var manifest = await YamlReadWrite.ReadAsync<CardBundlesManifest>(new DescribeFileIO("*.kabmanifes", $"-{allDirectories[i]}"), null, false);
+
+                     //是合规的清单文件，就把他加进来
+                     //并对后续卡牌进行获取
+                     if (manifest != null)
+                     {
+                         //清单加进来了（加入到对应的卡包中）
+                         var bundle = new Bundle();
+                         bundle.manifest = manifest;
+
+                         //看看这个卡包内有多少卡牌文件
+                         var allCardsFilesInThisBundle = Directory.GetFiles($"{allDirectories[i]}/cards", "*.kabcard");
+                         ArrayList allCards = new();
+                         //试试读取，合规的卡牌文件是有值的
+                         for (int j = 0; j < allCardsFilesInThisBundle.Length; j++)
+                         {
+                             var card = await YamlReadWrite.ReadAsync<CharacterInGame>(new DescribeFileIO(Path.GetFileName(allCardsFilesInThisBundle[j]), $"-{allDirectories[i]}/cards"), null, false);
+                             //是合规的卡牌文件，把他加进来
+                             allCards.Add(card);
+
+                         }
+                         //把所有合规的卡牌文件，加入到对应的卡包中
+                         bundle.cards = (CharacterCard[])allCards.ToArray(typeof(CharacterCard));
+
+                         //把读取好卡牌和清单的卡组（bundle）传递出去
+                         allBundles.Add(bundle);
+                     }
+
+                 }
+
+                 bundles = (Bundle[])allBundles.ToArray(typeof(Bundle));
+
+
+             }
+             //没有这个路径，初始化，并返回空值
+             else
+             {
+                 Directory.CreateDirectory(Information.bundlesPath);
+                 StreamWriter streamWriter = new StreamWriter($"{Information.bundlesPath}/readme.txt", true, System.Text.Encoding.UTF8);
+                 await streamWriter.WriteAsync("将卡组放在此文件夹中。使用编辑器创建的卡组基本上均可以。以后如果存在不兼容的情况，会有自动修复机制尝试修复（挖了个坑）");
+
+             }
+
+
+         });
+
+
+        return bundles;
     }
 
     /// <summary>
@@ -143,16 +195,19 @@ public class CardReadWrite
     /// <returns></returns>
     public static async UniTask<Bundle> GetBundle(string fullPath)
     {
+        Bundle load = null;
+
         try
         {
-
+            load = await YamlReadWrite.ReadAsync(new DescribeFileIO(Path.GetFileName(fullPath), $"-{fullPath}"), new Bundle());
         }
-        catch
+        catch (Exception e)
         {
-
+            //先暂时这样，这里应该是提示玩家进行修复，之后用YamlFixer修复
+            throw e;
         }
 
-        return null;
+        return load;
     }
 
 

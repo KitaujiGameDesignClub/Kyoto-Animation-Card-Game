@@ -1,9 +1,11 @@
 
+using KitaujiGameDesignClub.GameFramework.Tools;
+
 namespace Core
 {
 
-    
-    
+    #region 能力与羁绊
+
     /// <summary>
     /// 角色卡能力的触发原因（简称能力原因）
     /// </summary>
@@ -145,7 +147,9 @@ namespace Core
         public string ConnectLayer;
         
     }
-    
+
+    #endregion
+
     public class Information
     {
         #region 各种版本号信息
@@ -158,8 +162,12 @@ namespace Core
         #endregion
 
 
+        #region 内置路径
+        public static readonly string bundlesPath = $"{YamlReadWrite.UnityButNotAssets}/bundles";
+        #endregion
+
         #region 角色能力设定
- 
+
         /// <summary>
         /// 对象检索范围
         /// </summary>

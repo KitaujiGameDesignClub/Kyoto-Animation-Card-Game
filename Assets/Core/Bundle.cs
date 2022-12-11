@@ -9,6 +9,12 @@ namespace Core
     {
         public CardBundlesManifest manifest;
         public CharacterCard[] cards;
+
+        public Bundle()
+        {
+            manifest = new();
+            cards = null;
+        }
     }
 }
 

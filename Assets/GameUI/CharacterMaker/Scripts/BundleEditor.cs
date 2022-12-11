@@ -123,7 +123,7 @@ public class BundleEditor : MonoBehaviour
         {
             //直接把新的当作正在编辑的卡包，并获取信息
             CardMaker.cardMaker.nowEditingBundle.manifest = new CardBundlesManifest();//创建一个缓存文件
-            bundleName.text = string.Empty;
+            bundleName.text = CardMaker.cardMaker.nowEditingBundle.manifest.BundleName;
             bundleFriendlyName.text = string.Empty;
             authorName.text = string.Empty;
             description.text = string.Empty;
@@ -146,7 +146,7 @@ public class BundleEditor : MonoBehaviour
 
             if (FileBrowser.Success)
             {
-
+                await CardReadWrite.GetBundle(FileBrowser.Result[0]);
             }
 
         }

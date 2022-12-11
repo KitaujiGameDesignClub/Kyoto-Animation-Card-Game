@@ -13,7 +13,7 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
     public class YamlReadWrite
     {
         /// <summary>
-        /// Assets上一级的目录（结尾没有/）
+        /// PC:Assets上一级的目录（结尾没有/） Andorid:Application.persistentDataPath
         /// </summary>
         /// <returns></returns>
         public static string UnityButNotAssets
@@ -98,11 +98,12 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         /// <summary>
         /// 读取yaml
         /// </summary>
-        /// <param name="yaml"></param>
+        /// <param name="yaml">IO</param>
         /// <param name="content">读取文件的内容（作为默认值）</param>
+        /// <param name="createFileIfNotExit">如果文件不存在，则在返回默认值的时候顺便创建一个文件。文件内容为默认值</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static async UniTask<T>  ReadAsync<T>(DescribeFileIO yaml, T content)
+        public static async UniTask<T>  ReadAsync<T>(DescribeFileIO yaml, T content,bool createFileIfNotExit = true)
         {
             Deserializer deserializer = new();
 
@@ -124,20 +125,29 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
               
                 return fileContent;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 //关闭之前的文件流，防止出现IOException: Sharing violation错误
                 streamReader.Dispose();
                 streamReader.Close();
 
                 //不存在的话，初始化一个
-                Debug.Log($"{yaml.Path}中不存在合规的{yaml.FileName}，已经初始化此文件");
+             
                 DescribeFileIO newFile = new DescribeFileIO(yaml.FileName, yaml.Path, yaml.Note);
-               await WriteAsync(newFile, content);
+                if (createFileIfNotExit) 
+                {
+                    await WriteAsync(newFile, content);
+                    Debug.Log($"{yaml.Path}中不存在合规的{yaml.FileName}，错误原因{e}，已创建默认文件");
+                }
+                else
+                {
+                    Debug.Log($"{yaml.Path}中不存在合规的{yaml.FileName}，错误原因{e}，未对本地文件做处理");
+                }  
                 return content;
             }
         }
 
+ 
 
         /// <summary>
         /// 读取yaml
@@ -168,14 +178,14 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
                 Debug.Log($"成功加载：{yaml.Path}/{yaml.FileName}");
                 return fileContent;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 //关闭之前的文件流，防止出现IOException: Sharing violation错误
                 streamReader.Dispose();
                 streamReader.Close();
 
                 //不存在的话，初始化一个
-                Debug.Log($"{yaml.Path}中不存在合规的{yaml.FileName}，已经初始化此文件");
+                Debug.Log($"{yaml.Path}中不存在合规的{yaml.FileName}，错误原因：{e}，已经初始化此文件");
                 DescribeFileIO newFile = new DescribeFileIO(yaml.FileName, yaml.Path, yaml.Note);
                 Write(newFile, content);
                 return content;
@@ -202,12 +212,9 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
             else
             {
                
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+
                 actualPath = $"{UnityButNotAssets}/{path}";
                 
-#else
-                actualPath = $"{Application.persistentDataPath}/{path}";
-#endif
                 
             }
 
