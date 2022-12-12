@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using KitaujiGameDesignClub.GameFramework.UI;
+using KitaujiGameDesignClub.GameFramework.UI.InputFieldSearch;
 
 public class BundleEditor : MonoBehaviour
 {

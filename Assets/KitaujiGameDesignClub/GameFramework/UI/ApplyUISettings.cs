@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using Lean.Gui;
 using TMPro;
@@ -8,21 +7,14 @@ using Screen = UnityEngine.Device.Screen;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {
+    /// <summary>
+    /// 负责读取并应用基础设置（UI部分）
+    /// </summary>
     public class ApplyUISettings : MonoBehaviour
     {
         //视频设置
         public TMP_Dropdown fullScreenMode;
         public TMP_Dropdown resolution;
-
-        /// <summary>
-        /// 可以用到的全部分辨率在其数组内的id
-        /// </summary>
-        private List<int> availableResolution = new List<int>();
-
-        /// <summary>
-        /// availableResolution内被选定的分辨率
-        /// </summary>
-        private int selectedResolutionId = -1;
 
         public TMP_Dropdown antiAliasing;
         public LeanToggle sync;
