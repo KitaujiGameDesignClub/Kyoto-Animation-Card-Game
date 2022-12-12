@@ -62,7 +62,7 @@ namespace  Core
         /// <summary>
         /// 卡包备注。只在卡包制作器中显示，不会对玩家显示
         /// </summary>
-        public string Remarks = "游戏默认卡包。可以按照提示进行修改。此处的备注只会在卡包中显示，不会对玩家显示";
+        public string Remarks = "这是你新建的卡组。从这里开始创作！";
 
     }
 

@@ -100,10 +100,11 @@ public class CardMaker : MonoBehaviour
     /// </summary>
     public void CreateBundle()
     {
+        
+        nowEditingBundle = new();
+        bundleEditor.OpenManifestEditorForCreation();
         //现在还没有改内容，关闭修改标记
         changeSignal.SetActive(false);
-        bundleEditor.OpenManifestEditor(true);
-        nowEditingBundle = new();
     }
 
     /// <summary>
@@ -113,7 +114,7 @@ public class CardMaker : MonoBehaviour
     {
         //现在还没有改内容，关闭修改标记
         changeSignal.SetActive(false);
-        bundleEditor.OpenManifestEditor(false);
+        bundleEditor.OpenManifestEditor();
     }
 
     /// <summary>
@@ -133,6 +134,7 @@ public class CardMaker : MonoBehaviour
 /// </summary>
     public void ReturnToMakerTitle()
     {
+        changeSignal.SetActive(false);
         CardEditorPlane.SetActive(false);
         ManifestEditorPlane.SetActive(false);
         title.SetActive(true);

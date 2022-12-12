@@ -467,6 +467,7 @@ namespace Core
         {
             switch (anime)
             {
+
                 case Information.Anime.AIR:
                     return "AIR";
 
@@ -504,7 +505,7 @@ namespace Core
                     return "中二病也要谈恋爱";
 
                 case Information.Anime.LuckyStar:
-                    return "Lucky☆Star";
+                    return "幸运☆星";
 
                 case Information.Anime.MissKobayashiDragonMaid:
                     return "小林家的龙女仆";
@@ -524,8 +525,11 @@ namespace Core
                 case Information.Anime.VioletEvergarden:
                     return "紫罗兰永恒花园";
 
-                default:
+                case Anime.Universal:
                     return "通用卡牌";
+
+                default:
+                    throw new System.Exception("意外的错误");
             }
         }
         /// <summary>

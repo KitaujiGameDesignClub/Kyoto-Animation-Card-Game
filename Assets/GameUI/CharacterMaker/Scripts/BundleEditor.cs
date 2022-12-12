@@ -44,25 +44,63 @@ public class BundleEditor : MonoBehaviour
     {
         //初始化Anime的搜索栏
         var names = Enum.GetNames(typeof(Information.Anime));
+
         List<string> all = new List<string>();
-        for (int i = 0; i < name.Length; i++)
+        for (int i = 0; i < names.Length; i++)
         {
-          all.Add(Information.GetAnimeChinsesName((Information.Anime)i));
+
+
+
+
+            all.Add(Information.GetAnimeChinsesName((Information.Anime)i));
         }
         Anime.Initialization(all);
     }
 
     /// <summary>
-    /// 打开manifest editor
+    /// 打开manifest editor（适用于编辑已有的卡组清单文件）
     /// </summary>
     /// <param name="create">是新创建的吗</param>
-    public void OpenManifestEditor(bool create)
+    public async UniTask OpenManifestEditor()
     {
-
-        //初始化编辑器内容
-        ReadManifestContent(create);
         //启用编辑器
         gameObject.SetActive(true);
+        //初始化编辑器内容
+        await ReadManifestContent();
+
+    }
+
+    /// <summary>
+    /// 打开manifest editor（适用于创建卡组清单文件）
+    /// </summary>
+    public void OpenManifestEditorForCreation()
+    {
+        //启用编辑器
+        gameObject.SetActive(true);
+
+        //直接把新的当作正在编辑的卡包，并获取信息
+        var manifest = CardMaker.cardMaker.nowEditingBundle.manifest;
+        bundleName.text = manifest.BundleName;
+        bundleFriendlyName.text = manifest.FriendlyBundleName;
+        authorName.text = manifest.AuthorName;
+        Anime.text = string.Empty;
+        description.text = manifest.Description;
+        remark.text = manifest.Remarks;
+        bundleVersion.text = manifest.BundleVersion;
+        //  shortDescription.text = CardMaker.cardMaker.nowEditingBundle.manifest.shortDescription;
+        bundleImage.sprite = DefaultImage;
+
+
+        codeVersionCheck.text =
+            $"清单代码版本号：{Information.ManifestVersion}\n编辑器代码版本号：{Information.ManifestVersion}\n<color=green>完全兼容</color>";
+
+
+
+        //更新一下卡包预览
+        OnEndEdit();
+
+        Debug.Log("?");
+
     }
 
 
@@ -77,28 +115,28 @@ public class BundleEditor : MonoBehaviour
         {
             Notify.notify.CreateStrongNotification(null, null, "卡包清单尚未保存", "此卡包的清单文件尚未保存，要保存吗？", delegate
                {
-                //保存，并停留在编辑器界面
+                   //保存，并停留在编辑器界面
 
-                //关闭通知
-                Notify.notify.TurnOffStrongNotification();
-                //弹出保存界面
-                Save();
+                   //关闭通知
+                   Notify.notify.TurnOffStrongNotification();
+                   //弹出保存界面
+                   Save();
                }, "保存", delegate
               {
-                //不保存，且回到Maker标题
+                  //不保存，且回到Maker标题
 
-                //关闭通知
-                Notify.notify.TurnOffStrongNotification();
-                //回到标题节目（退出清单编辑器）
-                CardMaker.cardMaker.ReturnToMakerTitle();
-               }, "不保存", delegate
-             {
-                //不保存，但是停留在编辑器节界面
+                  //关闭通知
+                  Notify.notify.TurnOffStrongNotification();
+                  //回到标题节目（退出清单编辑器）
+                  CardMaker.cardMaker.ReturnToMakerTitle();
+              }, "不保存", delegate
+            {
+                 //不保存，但是停留在编辑器节界面
 
-                //关闭通知
-                Notify.notify.TurnOffStrongNotification();
+                 //关闭通知
+                 Notify.notify.TurnOffStrongNotification();
 
-               });
+            });
         }
         //不存在任何修改的话
         else
@@ -110,43 +148,19 @@ public class BundleEditor : MonoBehaviour
 
 
     /// <summary>
-    /// 初始化（读取）编辑器内容（新的manifest）
+    /// 读取清单文件内容
     /// </summary>
     /// <param name="create"></param>
-    async UniTask ReadManifestContent(bool create)
+    async UniTask ReadManifestContent()
     {
-        //根据是否为新创建的bundle，来判断code version，初始化编辑器内容
-        if (create)
+
+
+        FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组清单文件", ".kabmanifest"));
+        await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, false, title: "选择卡组", loadButtonText: "加载");
+
+        if (FileBrowser.Success)
         {
-            //直接把新的当作正在编辑的卡包，并获取信息
-            CardMaker.cardMaker.nowEditingBundle.manifest = new CardBundlesManifest();//创建一个缓存文件
-            bundleName.text = CardMaker.cardMaker.nowEditingBundle.manifest.BundleName;
-            bundleFriendlyName.text = string.Empty;
-            authorName.text = string.Empty;
-            Anime.text = string.Empty;
-            description.text = string.Empty;
-            remark.text = string.Empty;
-            bundleVersion.text = string.Empty;
-            //  shortDescription.text = CardMaker.cardMaker.nowEditingBundle.manifest.shortDescription;
-            bundleImage.sprite = DefaultImage;
-           
-
-            codeVersionCheck.text =
-                $"清单代码版本号：{Information.ManifestVersion}\n编辑器代码版本号：{Information.ManifestVersion}\n<color=green>完全兼容</color>";
-
-
-        }
-        //不是创建的，是在修改已有的卡包
-        else
-        {
-            FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组清单文件", ".kabmanifest"));
-            await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, false, title: "选择卡组", loadButtonText: "加载");
-
-            if (FileBrowser.Success)
-            {
-                await CardReadWrite.GetBundle(FileBrowser.Result[0]);
-            }
-
+            await CardReadWrite.GetBundle(FileBrowser.Result[0]);
         }
 
 
