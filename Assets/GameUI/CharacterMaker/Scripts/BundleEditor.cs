@@ -17,7 +17,7 @@ public class BundleEditor : MonoBehaviour
 
     [Header("编辑器")] public TMP_InputField bundleName;
     public TMP_InputField bundleFriendlyName;
-    public TMP_Dropdown Anime;
+    public InputFieldSearch Anime;
     public TMP_InputField bundleVersion;
     public TMP_InputField authorName;
     public TMP_InputField description;
@@ -39,20 +39,17 @@ public class BundleEditor : MonoBehaviour
     /// </summary>
     string newImageFullPath = string.Empty;
 
+
     private void Awake()
     {
-        //初始化动漫下拉栏
-        Anime.ClearOptions();
-        List<TMP_Dropdown.OptionData> list = new List<TMP_Dropdown.OptionData>();
-        var allAnimes = Enum.GetNames(typeof(Information.Anime));
-        for (int i = 0; i < allAnimes.Length; i++)
+        //初始化Anime的搜索栏
+        var names = Enum.GetNames(typeof(Information.Anime));
+        List<string> all = new List<string>();
+        for (int i = 0; i < name.Length; i++)
         {
-            list.Add(new TMP_Dropdown.OptionData(CardReadWrite.GetAnimeChinsesName((Information.Anime)i)));
+          all.Add(Information.GetAnimeChinsesName((Information.Anime)i));
         }
-        Anime.AddOptions(list);
-        Anime.value = 0;
-
-
+        Anime.Initialization(all);
     }
 
     /// <summary>
@@ -126,12 +123,13 @@ public class BundleEditor : MonoBehaviour
             bundleName.text = CardMaker.cardMaker.nowEditingBundle.manifest.BundleName;
             bundleFriendlyName.text = string.Empty;
             authorName.text = string.Empty;
+            Anime.text = string.Empty;
             description.text = string.Empty;
             remark.text = string.Empty;
             bundleVersion.text = string.Empty;
             //  shortDescription.text = CardMaker.cardMaker.nowEditingBundle.manifest.shortDescription;
             bundleImage.sprite = DefaultImage;
-            Anime.value = 0;
+           
 
             codeVersionCheck.text =
                 $"清单代码版本号：{Information.ManifestVersion}\n编辑器代码版本号：{Information.ManifestVersion}\n<color=green>完全兼容</color>";
@@ -181,7 +179,7 @@ public class BundleEditor : MonoBehaviour
         CardMaker.cardMaker.nowEditingBundle.manifest.BundleName = bundleName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName = friendlyName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.BundleVersion = bundleVersion.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.Anime = (Information.Anime)Anime.value;
+        CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.ImageName = newImageFullPath == string.Empty
             ? CardMaker.cardMaker.nowEditingBundle.manifest.ImageName
             : Path.GetFileName(newImageFullPath);
@@ -191,7 +189,7 @@ public class BundleEditor : MonoBehaviour
 
         //更新预览
         friendlyName.text = bundleFriendlyName.text;
-        descriptionOfBundle.text = $"<B><#AD0015><size=113%>{CardReadWrite.GetAnimeChinsesName(CardMaker.cardMaker.nowEditingBundle.manifest.Anime)}</size></color></B>\n{description.text}";
+        descriptionOfBundle.text = $"<B><#AD0015><size=113%>{Anime.text}</size></color></B>\n{description.text}";
         authorAndVersion.text = $"{authorName.text} - ver {bundleVersion.text}";
         image.sprite = bundleImage.sprite;
         CardMaker.cardMaker.changeSignal.SetActive(true);

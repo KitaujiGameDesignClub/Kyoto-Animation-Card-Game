@@ -11,7 +11,7 @@ namespace Core
     /// <summary>
     /// 角色名称（无则空）
     /// </summary>
-    public Information.CharacterName CharacterName;
+    public string CharacterName;
 
     /// <summary>
     /// 部长的名字

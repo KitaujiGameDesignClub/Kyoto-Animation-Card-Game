@@ -28,7 +28,7 @@ namespace  Core
         /// </summary>
         public string FriendlyBundleName = "默认卡包";
 
-        public Information.Anime Anime = Information.Anime.Universal;
+        public string Anime;
         
         
         

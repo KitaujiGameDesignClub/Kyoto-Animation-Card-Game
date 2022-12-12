@@ -460,6 +460,74 @@ namespace Core
             Chief,
         }
 
+
+        #region 动漫规范名称
+
+        public static string GetAnimeChinsesName(Information.Anime anime)
+        {
+            switch (anime)
+            {
+                case Information.Anime.AIR:
+                    return "AIR";
+
+                case Information.Anime.AmagiBrilliantPark:
+                    return "甘城光辉游乐园";
+
+                case Information.Anime.BajaStudio:
+                    return "巴加的工作室";
+
+                case Information.Anime.BeyondTheBoundary:
+                    return "境界的彼方";
+
+                case Information.Anime.CLANNAD:
+                    return "CLANNAD";
+
+                case Information.Anime.Free:
+                    return "free!";
+
+                case Information.Anime.FullMetalPanic:
+                    return "全金属狂潮第二季（校园篇）";
+
+                case Information.Anime.Hyouka:
+                    return "冰菓";
+
+                case Information.Anime.Kanon:
+                    return "KANON";
+
+                case Information.Anime.KazemaiKoukouKyuudoubu:
+                    return "弦音 -风舞高中弓道部-";
+
+                case Information.Anime.Kon:
+                    return "轻音少女";
+
+                case Information.Anime.LoveChunibyoAndOtherDelusions:
+                    return "中二病也要谈恋爱";
+
+                case Information.Anime.LuckyStar:
+                    return "Lucky☆Star";
+
+                case Information.Anime.MissKobayashiDragonMaid:
+                    return "小林家的龙女仆";
+
+                case Information.Anime.MyriadColorsPhantomWorld:
+                    return "无彩限的怪灵世界";
+
+                case Information.Anime.SoundEuphonium:
+                    return "吹响吧!上低音号";
+
+                case Information.Anime.TamakoMarket:
+                    return "玉子市场";
+
+                case Information.Anime.TheMelancholyOfHaruhiSuzumiya:
+                    return "凉宫春日的忧郁";
+
+                case Information.Anime.VioletEvergarden:
+                    return "紫罗兰永恒花园";
+
+                default:
+                    return "通用卡牌";
+            }
+        }
         /// <summary>
         /// 所属动画（卡包，阵营，社团）
         /// </summary>
@@ -534,12 +602,16 @@ namespace Core
             /// </summary>
             BajaStudio,
         }
+        
+
+        #endregion
+        
 
         
         
         
         /// <summary>
-        /// 声优（按照萌娘百科中人物照片上方的中文译名记）
+        /// 声优（按照萌娘百科中人物照片上方的中文译名记）（用于储存文件）
         /// </summary>
         public enum CV
         {

@@ -47,7 +47,7 @@ namespace Core
         /// <summary>
         /// 角色名称（无则空）
         /// </summary>
-        public Information.CharacterName CharacterName = Information.CharacterName.None;
+        public string CharacterName;
 
         /// <summary>
         /// 性别 -1 无性别或性别不重要 1男 0女
@@ -143,7 +143,6 @@ namespace Core
                         BasicPower = 4,
                         CardCount = 1,
                         CardName = "EnergySavingHoutarou",
-                        CharacterName = Information.CharacterName.OrekiHoutarou,
                         Connects = null, //不太好写，要用到编辑器
                         FriendlyCardName = "节能型折木",
                         gender = 1,
