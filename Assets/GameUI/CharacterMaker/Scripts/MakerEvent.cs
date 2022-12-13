@@ -4,7 +4,3 @@ using KitaujiGameDesignClub.GameFramework.UI;
 using UnityEngine;
 
 
-public class MakerEvent : basicEvents
-{
-
-}

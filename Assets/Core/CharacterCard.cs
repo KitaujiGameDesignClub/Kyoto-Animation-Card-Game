@@ -12,7 +12,7 @@ namespace Core
         /// <summary>
         /// 角色卡文件代码版本号（如果代码上有修改，且修改后不兼容，就+1）
         /// </summary>
-        public int CodeVersion => Information.CharacterCardMaker;
+        public int CodeVersion = Information.CharacterCardMaker;
         
         /// <summary>
         /// 卡牌名称（仅英语，文件名也是这个）
@@ -50,14 +50,9 @@ namespace Core
         public string CharacterName;
 
         /// <summary>
-        /// 性别 -1 无性别或性别不重要 1男 0女
+        /// 性别 0 无性别或性别不重要 1男 2女
         /// </summary>
         public int gender = -1;
-
-        /// <summary>
-        /// 所用声优
-        /// </summary>
-        public Information.CV CV = Information.CV.None;
 
         /// <summary>
         /// 是否允许作为部长（主持，英雄）
@@ -145,8 +140,7 @@ namespace Core
                         CardName = "EnergySavingHoutarou",
                         Connects = null, //不太好写，要用到编辑器
                         FriendlyCardName = "节能型折木",
-                        gender = 1,
-                        CV = Information.CV.NakamuraYuuichi,
+                        gender = 0,
                         BundleName = Information.Anime.Hyouka.ToString(),
                         imageName = String.Empty, //编辑器选择图片
                         AbilityDescription = "节能折木，每回合降低自身攻击力，除非己方千反田在场",

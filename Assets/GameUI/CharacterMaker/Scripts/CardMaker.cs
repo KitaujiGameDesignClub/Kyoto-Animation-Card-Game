@@ -17,6 +17,9 @@ public class CardMaker : MonoBehaviour
 {
     public static CardMaker cardMaker;
 
+    public KitaujiGameDesignClub.GameFramework.Tools.BasicEvents basicEvents;
+   
+
     [Header("界面切换")] public GameObject title;
     [FormerlySerializedAs("ManifestEditor")] public GameObject ManifestEditorPlane;
     [FormerlySerializedAs("CardEditor")] public GameObject CardEditorPlane;
@@ -90,7 +93,7 @@ public class CardMaker : MonoBehaviour
         if (FileBrowser.CheckPermission() == FileBrowser.Permission.Denied)
         {
             //不能读取外部储存的有关逻辑
-            Notify.notify.CreateStrongNotification(null, delegate { GetComponent<basicEvents>().ReturnToTitle(); },
+            Notify.notify.CreateStrongNotification(null, delegate { basicEvents.ReturnToTitle(); },
                 "储存权限被拒绝", "如果要编辑或制作卡包，需要储存权限\n点击黑色区域返回游戏标题");
         }
     }

@@ -1,15 +1,56 @@
-using System;
 using KitaujiGameDesignClub.GameFramework.@interface;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {
-    public class InGameEvents : basicEvents,IUpdate
+    public class InGameEvents :MonoBehaviour,IUpdate
     {
         [Header("调试内容")] public GameObject[] DebugMode;
       [Header("展示fps的框框")]
         public GameObject fpsShow;
-        
+        public  KitaujiGameDesignClub.GameFramework.Tools.BasicEvents basicEvents;
+
+        [Header("按下ｅｓｃ键")]
+        public UnityEvent OnEscapeClick;
+
+        #region basicEvent的方法实现（为了兼容旧版本特别这样子弄的）
+        public void ExitGame()
+        {
+            if (basicEvents != null) basicEvents.ExitGame();
+        }
+
+
+        public void StartGame()
+        {
+            if (basicEvents != null) basicEvents.StartGame();
+        }
+
+        public void clickSound()
+        {
+            if (basicEvents != null) basicEvents.clickSound();
+        }
+
+        public void OpenWeb()
+        {
+            if (basicEvents != null) basicEvents.OpenWeb();
+        }
+
+        public void ReturnToTitle()
+        {
+            if (basicEvents != null) basicEvents.ReturnToTitle();
+        }
+
+        public void PlayAgain()
+        {
+            if (basicEvents != null) basicEvents.PlayAgain();
+        }
+
+      
+
+
+        #endregion
+
         private void Awake()
         {
             Settings.ApplySettings();
@@ -32,7 +73,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         {
             UpdateManager.RegisterUpdate(this);
             //给控制台发个彩蛋
-            Debug();
+            if (basicEvents != null) basicEvents.Debug();
         }
     
         public void FastUpdate()

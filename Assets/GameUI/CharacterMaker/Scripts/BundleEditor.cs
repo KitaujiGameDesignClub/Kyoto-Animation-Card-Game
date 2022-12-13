@@ -43,18 +43,18 @@ public class BundleEditor : MonoBehaviour
 
     private void Awake()
     {
-        //初始化Anime的搜索栏
+        //初始化Anime的下拉栏
+        Anime.ClearOptions();
         var names = Enum.GetNames(typeof(Information.Anime));
 
-        List<string> all = new List<string>();
+        List<TMP_Dropdown.OptionData> all = new();
         for (int i = 0; i < names.Length; i++)
         {
-
-
-
-
-            all.Add(Information.GetAnimeChinsesName((Information.Anime)i));
+            all.Add(new TMP_Dropdown.OptionData(Information.GetAnimeChinsesName((Information.Anime)i)));
         }
+        Anime.AddOptions(all);
+        Anime.value = 0;
+        Anime.RefreshShownValue();
        
     }
 
@@ -194,13 +194,26 @@ public class BundleEditor : MonoBehaviour
         CardMaker.cardMaker.nowEditingBundle.manifest.BundleName = bundleName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName = friendlyName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.BundleVersion = bundleVersion.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.captionText.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.ImageName = newImageFullPath == string.Empty
+             CardMaker.cardMaker.nowEditingBundle.manifest.ImageName = newImageFullPath == string.Empty
             ? CardMaker.cardMaker.nowEditingBundle.manifest.ImageName
             : Path.GetFileName(newImageFullPath);
         CardMaker.cardMaker.nowEditingBundle.manifest.AuthorName = authorName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.Description = description.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.Remarks = remark.text;
+        try
+        {
+            CardMaker.cardMaker.nowEditingBundle.manifest.Anime = ((Information.Anime)Anime.value).ToString();
+            Debug.Log(((Information.Anime)Anime.value).ToString());
+        }
+        catch (Exception e)
+        {
+            Anime.value = 0;
+            Anime.RefreshShownValue();
+            Notify.notify.CreateBannerNotification(null, $"意外情况发生，已将卡组\"{bundleFriendlyName.text}\"的所属动画设置为\"{Information.GetAnimeChinsesName(Information.Anime.Universal).ToString()}\",详细错误信息可以看控制台", 0.65f);
+            throw e;
+        }
+       
+
 
         //更新预览
         friendlyName.text = bundleFriendlyName.text;
@@ -280,4 +293,17 @@ public class BundleEditor : MonoBehaviour
             }
         }
     }
-}
+
+#if UNITY_EDITOR
+
+    [ContextMenu("测试")]
+    public void test()
+    {
+
+        Anime.value = 0;
+        Anime.RefreshShownValue();
+        Notify.notify.CreateBannerNotification(null, $"意外情况发生，已将卡组\"{bundleFriendlyName.text}\"的所属动画设置为\"{Information.GetAnimeChinsesName(Information.Anime.Universal).ToString()}\",详细错误信息可以看控制台", 0.65f);
+        throw new Exception("SSSS");
+    }
+#endif
+    }

@@ -463,6 +463,8 @@ namespace Core
 
         #region 动漫规范名称
 
+        //因为动漫名称中会有一些特殊的字符，所以就采用英文保存了
+
         public static string GetAnimeChinsesName(Information.Anime anime)
         {
             switch (anime)
