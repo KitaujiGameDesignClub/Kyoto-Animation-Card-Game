@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using KitaujiGameDesignClub.GameFramework.UI;
-using KitaujiGameDesignClub.GameFramework.UI.InputFieldSearch;
+
 
 public class BundleEditor : MonoBehaviour
 {
@@ -18,7 +18,7 @@ public class BundleEditor : MonoBehaviour
 
     [Header("编辑器")] public TMP_InputField bundleName;
     public TMP_InputField bundleFriendlyName;
-    public InputFieldSearch Anime;
+    public TMP_Dropdown Anime;
     public TMP_InputField bundleVersion;
     public TMP_InputField authorName;
     public TMP_InputField description;
@@ -55,7 +55,7 @@ public class BundleEditor : MonoBehaviour
 
             all.Add(Information.GetAnimeChinsesName((Information.Anime)i));
         }
-        Anime.Initialization(all);
+       
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public class BundleEditor : MonoBehaviour
         bundleName.text = manifest.BundleName;
         bundleFriendlyName.text = manifest.FriendlyBundleName;
         authorName.text = manifest.AuthorName;
-        Anime.text = string.Empty;
+        Anime.value =0;
         description.text = manifest.Description;
         remark.text = manifest.Remarks;
         bundleVersion.text = manifest.BundleVersion;
@@ -194,7 +194,7 @@ public class BundleEditor : MonoBehaviour
         CardMaker.cardMaker.nowEditingBundle.manifest.BundleName = bundleName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName = friendlyName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.BundleVersion = bundleVersion.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.text;
+        CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.captionText.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.ImageName = newImageFullPath == string.Empty
             ? CardMaker.cardMaker.nowEditingBundle.manifest.ImageName
             : Path.GetFileName(newImageFullPath);
@@ -204,7 +204,7 @@ public class BundleEditor : MonoBehaviour
 
         //更新预览
         friendlyName.text = bundleFriendlyName.text;
-        descriptionOfBundle.text = $"<B><#AD0015><size=113%>{Anime.text}</size></color></B>\n{description.text}";
+        descriptionOfBundle.text = $"<B><#AD0015><size=113%>{Anime.captionText.text}</size></color></B>\n{description.text}";
         authorAndVersion.text = $"{authorName.text} - ver {bundleVersion.text}";
         image.sprite = bundleImage.sprite;
         CardMaker.cardMaker.changeSignal.SetActive(true);
