@@ -158,7 +158,9 @@ namespace Core
         //b修改后，是小修改，可以兼容
         public const int CharacterCardMaker = 1;
         public const int ManifestVersion = 1;
-
+        
+        public const string AnimeListVersion = "ver 1.0-京阿尼更新";
+        
         #endregion
 
 
@@ -462,154 +464,30 @@ namespace Core
 
 
         #region 动漫规范名称
-
-        //因为动漫名称中会有一些特殊的字符，所以就采用英文保存了
-
-        public static string GetAnimeChinsesName(Information.Anime anime)
-        {
-            switch (anime)
-            {
-
-                case Information.Anime.AIR:
-                    return "AIR";
-
-                case Information.Anime.AmagiBrilliantPark:
-                    return "甘城光辉游乐园";
-
-                case Information.Anime.BajaStudio:
-                    return "巴加的工作室";
-
-                case Information.Anime.BeyondTheBoundary:
-                    return "境界的彼方";
-
-                case Information.Anime.CLANNAD:
-                    return "CLANNAD";
-
-                case Information.Anime.Free:
-                    return "free!";
-
-                case Information.Anime.FullMetalPanic:
-                    return "全金属狂潮第二季（校园篇）";
-
-                case Information.Anime.Hyouka:
-                    return "冰菓";
-
-                case Information.Anime.Kanon:
-                    return "KANON";
-
-                case Information.Anime.KazemaiKoukouKyuudoubu:
-                    return "弦音 -风舞高中弓道部-";
-
-                case Information.Anime.Kon:
-                    return "轻音少女";
-
-                case Information.Anime.LoveChunibyoAndOtherDelusions:
-                    return "中二病也要谈恋爱";
-
-                case Information.Anime.LuckyStar:
-                    return "幸运☆星";
-
-                case Information.Anime.MissKobayashiDragonMaid:
-                    return "小林家的龙女仆";
-
-                case Information.Anime.MyriadColorsPhantomWorld:
-                    return "无彩限的怪灵世界";
-
-                case Information.Anime.SoundEuphonium:
-                    return "吹响吧!上低音号";
-
-                case Information.Anime.TamakoMarket:
-                    return "玉子市场";
-
-                case Information.Anime.TheMelancholyOfHaruhiSuzumiya:
-                    return "凉宫春日的忧郁";
-
-                case Information.Anime.VioletEvergarden:
-                    return "紫罗兰永恒花园";
-
-                case Anime.Universal:
-                    return "通用卡牌";
-
-                default:
-                    throw new System.Exception("意外的错误");
-            }
-        }
-        /// <summary>
-        /// 所属动画（卡包，阵营，社团）
-        /// </summary>
-        public enum Anime
-        {
-            /// <summary>
-            /// 通用或不重要
-            /// </summary>
-            Universal,
-            /// <summary>
-            /// 全金属狂潮
-            /// </summary>
-            FullMetalPanic,
-            AIR,
-            /// <summary>
-            /// 凉宫春日的忧郁
-            /// </summary>
-            TheMelancholyOfHaruhiSuzumiya,
-            Kanon,
-            /// <summary>
-            /// 幸运星
-            /// </summary>
-            LuckyStar,
-            CLANNAD,
-            /// <summary>
-            /// 轻音少女
-            /// </summary>
-            Kon,
-            /// <summary>
-            /// 冰菓
-            /// </summary>
-            Hyouka,
-            /// <summary>
-            /// 中二病也要谈恋爱
-            /// </summary>
-            LoveChunibyoAndOtherDelusions,
-            /// <summary>
-            /// 玉子市场
-            /// </summary>
-            TamakoMarket,
-            Free,
-            /// <summary>
-            /// 境界的彼方
-            /// </summary>
-            BeyondTheBoundary,
-            /// <summary>
-            /// 甘城光辉游乐园
-            /// </summary>
-            AmagiBrilliantPark,
-            /// <summary>
-            /// 吹响吧!上低音号
-            /// </summary>
-            SoundEuphonium,
-            /// <summary>
-            /// 无彩限的怪灵世界
-            /// </summary>
-            MyriadColorsPhantomWorld,
-            /// <summary>
-            /// 小林家的龙女仆
-            /// </summary>
-            MissKobayashiDragonMaid,
-            /// <summary>
-            /// 紫罗兰永恒花园
-            /// </summary>
-            VioletEvergarden,
-            /// <summary>
-            /// 弦音风舞高中弓道部
-            /// </summary>
-            KazemaiKoukouKyuudoubu,
-            /// <summary>
-            /// 巴加的工作室
-            /// </summary>
-            BajaStudio,
-        }
         
-
+        public static string[] AnimeList =
+        {
+            "通用卡牌",
+            "全金属狂潮第二季（校园篇）",
+            "AIR",
+            "凉宫春日的忧郁",
+            "Kanon",
+            "幸运☆星",
+            "CLANNAD",
+            "轻音少女",
+            "冰菓",
+            "中二病也要谈恋爱！",
+            "玉子市场",
+            "free!",
+            "境界的彼方",
+            "甘城光辉游乐园",
+            "吹响吧!上低音号",
+            "无彩限的怪灵世界",
+            "小林家的龙女仆",
+            "紫罗兰永恒花园",
+            "弦音 -风舞高中弓道部-",
+            "巴加的工作室",
+        };
         #endregion
         
 

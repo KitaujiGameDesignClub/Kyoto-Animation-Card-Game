@@ -7,12 +7,35 @@ using Cysharp.Threading.Tasks;
 using System.IO;
 
 /// <summary>
-/// 卡牌读写
+/// 卡牌读写，卡牌资源读写
 /// </summary>
 public class CardReadWrite
 {
 
+    public static readonly DescribeFileIO AnimeListIO = new DescribeFileIO("animeList.yml", "saves", "# 此文件包含了动漫列表，用于规范卡组中所属动画的文本" +
+        "\n# 此文件不会影响正常游戏，但是编辑器“所属动画”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
+        "\n# 为便于后期维护，如果要添加自定义内容，请在默认内容之后添加" +
+        $"\n# 默认内容由\"{Information.AnimeListVersion}\"呈现");
 
+    #region 资源读写
+
+    /// <summary>
+    /// 读取所有的Anime
+    /// </summary>
+    /// <returns></returns>
+    public static void ReadAnimeList()
+    {
+        Information.AnimeList = YamlReadWrite.Read(AnimeListIO, Information.AnimeList);
+    }
+
+    public static void WriteAnimeList(string[] list = null)
+    {
+        if (list == null) list = Information.AnimeList;
+        YamlReadWrite.Write(AnimeListIO, list);
+    }
+    
+
+    #endregion
 
     /// <summary>
     /// 创建卡包清单文件（编辑器创建用）

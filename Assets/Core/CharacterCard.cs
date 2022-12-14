@@ -83,12 +83,12 @@ namespace Core
         /// </summary>
         public string AbilityDescription = "我很好奇能力是什么";
 
-
+/*
         /// <summary>
         /// 角色间羁绊
         /// </summary>
         public CharactersConnect[] Connects;
-
+*/
         /// <summary>
         /// 登场音频.ogg（仅限主持/部长/chief）
         /// </summary>
@@ -103,20 +103,7 @@ namespace Core
         /// 能力触发音频 .ogg
         /// </summary>
         public string voiceAbility;
-
-
-        /// <summary>
-        ///  将角色卡的配置文件移交到游戏中，使其可以在游戏中操作
-        /// </summary>
-        /// <param name="playerId">角色卡属于哪个玩家1=A 2=B</param>
-        /// <returns></returns>
-        public CharacterInGame PayToGame(int playerId)
-        {
-            //参数传递
-            var inGame = new CharacterInGame(this, playerId);
-
-            return null;
-        }
+        
 
 
 #if UNITY_EDITOR
@@ -133,21 +120,7 @@ namespace Core
                 case 0:
                     return new CharacterCard()
                     {
-                        allowAsChief = true,
-                        BasicHealthPoint = 7,
-                        BasicPower = 4,
-                        CardCount = 1,
-                        CardName = "EnergySavingHoutarou",
-                        Connects = null, //不太好写，要用到编辑器
-                        FriendlyCardName = "节能型折木",
-                        gender = 0,
-                        BundleName = Information.Anime.Hyouka.ToString(),
-                        imageName = String.Empty, //编辑器选择图片
-                        AbilityDescription = "节能折木，每回合降低自身攻击力，除非己方千反田在场",
-                        AbilityType = Information.CardAbilityTypes.Normal,
-                        //  Reason = new AbilityLogicReason(Information.Objects.AllInTeam,Information.Parameter.CharacterName,Information.JudgeMethod.Value,-3,Information.CharacterName.ChitandaEru.ToString()),
-                        //  Result = new AbilityLogicResult(false,null,false,Information.Objects.Self,Information.Parameter.Power,Information.CalculationMethod.addition,"-1"),
-                        tags = null, //不太好写，要用到编辑器
+                       
                     };
                     break;
 

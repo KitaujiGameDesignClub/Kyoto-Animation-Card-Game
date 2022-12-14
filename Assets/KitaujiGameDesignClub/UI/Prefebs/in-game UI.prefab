@@ -2096,7 +2096,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1943891308266877177
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2737,7 +2737,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a9fd8f6b461461f4a92eafc60921ee78, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7f0db3cf23c93fc4eac01cb3a52388ee, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -7157,9 +7157,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90ed39eb80fedb844ac2628a45fc04db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameScene: 3
-  LoadScene: 2
-  OpeningScene: 1
+  DebugMode:
+  - {fileID: 3970873988262164920}
+  - {fileID: 1943891308253007939}
+  fpsShow: {fileID: 3610711147900019137}
+  basicEvents: {fileID: 0}
   OnEscapeClick:
     m_PersistentCalls:
       m_Calls:
@@ -7199,10 +7201,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  DebugMode:
-  - {fileID: 3970873988262164920}
-  - {fileID: 1943891308253007939}
-  fpsShow: {fileID: 3610711147900019137}
 --- !u!1 &3610711149243746470
 GameObject:
   m_ObjectHideFlags: 0

@@ -26,7 +26,7 @@ namespace KitaujiGameDesignClub.GameFramework
         /// 用于读写文件，包含要读写的文件名路径
         /// </summary>
         private static readonly DescribeFileIO _basicSetting =
-            new DescribeFileIO(fileName: "BasicSettings.cfg", note: "# 游戏基本设置");
+            new DescribeFileIO(fileName: "BasicSettings.yml", note: "# 游戏基本设置");
 
 
         /// <summary>

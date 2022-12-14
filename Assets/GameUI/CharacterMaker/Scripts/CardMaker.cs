@@ -60,6 +60,9 @@ public class CardMaker : MonoBehaviour
 
     private void Awake()
     {
+      
+        
+        
         cardMaker = this;
 
         //加载游戏的事件
@@ -76,6 +79,9 @@ public class CardMaker : MonoBehaviour
 
     private void Start()
     {
+        //io处理
+        CardReadWrite.ReadAnimeList();
+        
         //隐藏文件选择器
         FileBrowser.HideDialog();
 

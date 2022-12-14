@@ -45,12 +45,11 @@ public class BundleEditor : MonoBehaviour
     {
         //初始化Anime的下拉栏
         Anime.ClearOptions();
-        var names = Enum.GetNames(typeof(Information.Anime));
 
         List<TMP_Dropdown.OptionData> all = new();
-        for (int i = 0; i < names.Length; i++)
+        for (int i = 0; i < Information.AnimeList.Length; i++)
         {
-            all.Add(new TMP_Dropdown.OptionData(Information.GetAnimeChinsesName((Information.Anime)i)));
+            all.Add(new TMP_Dropdown.OptionData(Information.AnimeList[i]));
         }
         Anime.AddOptions(all);
         Anime.value = 0;
@@ -99,9 +98,6 @@ public class BundleEditor : MonoBehaviour
 
         //更新一下卡包预览
         OnEndEdit();
-
-        Debug.Log("?");
-
     }
 
 
@@ -200,21 +196,8 @@ public class BundleEditor : MonoBehaviour
         CardMaker.cardMaker.nowEditingBundle.manifest.AuthorName = authorName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.Description = description.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.Remarks = remark.text;
-        try
-        {
-            CardMaker.cardMaker.nowEditingBundle.manifest.Anime = ((Information.Anime)Anime.value).ToString();
-            Debug.Log(((Information.Anime)Anime.value).ToString());
-        }
-        catch (Exception e)
-        {
-            Anime.value = 0;
-            Anime.RefreshShownValue();
-            Notify.notify.CreateBannerNotification(null, $"意外情况发生，已将卡组\"{bundleFriendlyName.text}\"的所属动画设置为\"{Information.GetAnimeChinsesName(Information.Anime.Universal).ToString()}\",详细错误信息可以看控制台", 0.65f);
-            throw e;
-        }
-       
-
-
+        CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.captionText.text;
+        
         //更新预览
         friendlyName.text = bundleFriendlyName.text;
         descriptionOfBundle.text = $"<B><#AD0015><size=113%>{Anime.captionText.text}</size></color></B>\n{description.text}";
@@ -300,10 +283,7 @@ public class BundleEditor : MonoBehaviour
     public void test()
     {
 
-        Anime.value = 0;
-        Anime.RefreshShownValue();
-        Notify.notify.CreateBannerNotification(null, $"意外情况发生，已将卡组\"{bundleFriendlyName.text}\"的所属动画设置为\"{Information.GetAnimeChinsesName(Information.Anime.Universal).ToString()}\",详细错误信息可以看控制台", 0.65f);
-        throw new Exception("SSSS");
+       
     }
 #endif
     }

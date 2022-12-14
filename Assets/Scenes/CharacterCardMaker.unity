@@ -7217,8 +7217,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -814.1071, y: 190.50995}
-  m_SizeDelta: {x: 286.24, y: 286.24}
+  m_AnchoredPosition: {x: -1049.9, y: 238.31}
+  m_SizeDelta: {x: 121.33, y: 161.77}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &868479093
 MonoBehaviour:
@@ -7296,7 +7296,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2185b3928be36eb4f8ebcb94983b4877, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6502afffb6931754997104ac61805a0a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -10383,7 +10383,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5689606950982645631, guid: 4f638cd995240cf4fb54b2bca61a72be, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 55.62
+      value: 55.619995
       objectReference: {fileID: 0}
     - target: {fileID: 5689606950982645631, guid: 4f638cd995240cf4fb54b2bca61a72be, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -15080,7 +15080,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.00024414062, y: -41.65001}
+  m_AnchoredPosition: {x: -0.00024414062, y: -41.650024}
   m_SizeDelta: {x: 2.0999756, y: -83.29999}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1488360327
@@ -23510,8 +23510,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 417, y: -0.0000076294}
-  m_SizeDelta: {x: 478.45, y: 219.71}
+  m_AnchoredPosition: {x: 318.3, y: -8.055}
+  m_SizeDelta: {x: 478.45, y: 145.66}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2121307524
 MonoBehaviour:
@@ -23533,7 +23533,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2190\u8FD9\u4E2A\u662F\u9ED8\u8BA4\u56FE\u7247\n\u70B9\u51FB\u56FE\u7247\u53EF\u4EE5\u66F4\u6362\u5361\u5305\u56FE\u7247\n\u63A8\u8350\u4F7F\u7528\u6B63\u65B9\u5F62\u56FE\u7247\uFF081:1\uFF09\n\u63A8\u8350\u5206\u8FA8\u7387256x256\u53CA\u4EE5\u4E0A"
+  m_text: "\u2190\u8FD9\u4E2A\u662F\u9ED8\u8BA4\u56FE\u7247\n\u70B9\u51FB\u56FE\u7247\u53EF\u4EE5\u66F4\u6362\u5361\u724C\u56FE\u7247\n\u63A8\u8350\u6BD4\u4F8B3:4\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e531db932cdc4074091be635a05b4130, type: 2}
   m_sharedMaterial: {fileID: -6327819750537963467, guid: e531db932cdc4074091be635a05b4130, type: 2}
@@ -23560,8 +23560,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 33
+  m_fontSizeBase: 33
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
