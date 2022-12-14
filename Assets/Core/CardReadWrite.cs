@@ -12,10 +12,10 @@ using System.IO;
 public class CardReadWrite
 {
 
-    public static readonly DescribeFileIO AnimeListIO = new DescribeFileIO("animeList.yml", "saves", "# 此文件包含了动漫列表，用于规范卡组中所属动画的文本" +
-        "\n# 此文件不会影响正常游戏，但是编辑器“所属动画”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
-        "\n# 为便于后期维护，如果要添加自定义内容，请在默认内容之后添加" +
-        $"\n# 默认内容由\"{Information.AnimeListVersion}\"呈现");
+
+
+
+
 
     #region 资源读写
 
@@ -25,13 +25,13 @@ public class CardReadWrite
     /// <returns></returns>
     public static void ReadAnimeList()
     {
-        Information.AnimeList = YamlReadWrite.Read(AnimeListIO, Information.AnimeList);
+        Information.AnimeList = YamlReadWrite.Read(Information.AnimeListIO, Information.AnimeList);
     }
 
-    public static void WriteAnimeList(string[] list = null)
+
+    public static void ReadTags()
     {
-        if (list == null) list = Information.AnimeList;
-        YamlReadWrite.Write(AnimeListIO, list);
+        Information.tags = YamlReadWrite.Read(Information.TagsIO, Information.tags);
     }
     
 

@@ -160,12 +160,25 @@ namespace Core
         public const int ManifestVersion = 1;
         
         public const string AnimeListVersion = "ver 1.0-京阿尼更新";
-        
+        public const string tagsVersion = "ver 1.0-京阿尼更新";
+
         #endregion
 
 
         #region 内置路径
         public static readonly string bundlesPath = $"{YamlReadWrite.UnityButNotAssets}/bundles";
+
+        public static readonly DescribeFileIO AnimeListIO = new DescribeFileIO("animeList.yml", "saves", "# 此文件包含了动漫列表，用于规范卡组中所属动画的文本" +
+    "\n# 此文件不会影响正常游戏，但是编辑器“所属动画”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
+    "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）" +
+    $"\n# 此文件的默认内容由本游戏的“{AnimeListVersion}”版本呈现");
+
+
+        public static readonly DescribeFileIO TagsIO = new DescribeFileIO("tags.yml", "saves", "# 此文件包含了角色卡牌可以使用的tag，用于规范tag文本" +
+            "\n# 此文件不会影响正常游戏，但是卡牌编辑器“角色标签”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
+            "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）" +
+            "\n# 分类标记要用“%”开头，含有此标记的字符不会作为角色tag，分类标记可以相同，游戏会自动合并" +
+            $"\n# 此文件的默认内容由本游戏的“{tagsVersion}”版本呈现");
         #endregion
 
         #region 角色能力设定
@@ -329,10 +342,74 @@ namespace Core
             /// </summary>
             GetHurt,
         }
-        
+
 
         #endregion
-       
+
+
+        #region 角色标签（默认值）
+
+        public static string[] tags =
+        {
+            "%组织",
+            "HTT",
+            "SOS团",
+            "极东魔术昼寝结社之夏",
+            "吹奏乐部",
+
+            "%场所",
+            "北宇治",
+            "樱丘高中",
+            "神山高校",
+            "县立北高",
+            "银杏学园高中",
+
+            "%职业",
+            "学生",
+            "老师",
+            "职场人员",
+            "音乐家",
+            
+            "%种族",
+            "人",
+            "龙",
+            "猫",
+            "狗",
+
+            "%性格",
+             "中二",
+             "节能",
+             "傲娇",
+
+            "%特长",
+            "唱歌",
+             "乐器",
+            "手眼通天",
+            "知书达理",
+            "无所不知",
+            
+           
+
+            "%感情",
+            "有男友朋友",
+            "有挚友",
+            "单身",
+            "百合",
+
+            "%家庭",
+            "父母",
+            "哥哥",
+            "弟弟",
+            "姐姐",
+            "妹妹",
+
+            
+
+        };
+
+
+
+        #endregion
 
 
         /// <summary>
@@ -405,6 +482,7 @@ namespace Core
             Fin,
         }
 
+
         /// <summary>
         /// 角色卡羁绊类别
         /// </summary>
@@ -463,7 +541,7 @@ namespace Core
         }
 
 
-        #region 动漫规范名称
+        #region 动漫规范名称（默认值）
         
         public static string[] AnimeList =
         {
@@ -839,44 +917,5 @@ namespace Core
             
         }
 
-/// <summary>
-/// 玩家tag（预设的，玩家可以自定义）
-/// </summary>
-        public enum CharacterTag
-        {
-            /// <summary>
-            /// 无特殊标签
-            /// </summary>
-            None,
-            /// <summary>
-            /// 隶属于SOS
-            /// </summary>
-            SOS,
-            /// <summary>
-            /// 属于轻音部
-            /// </summary>
-            Kon,
-            
-            /// <summary>
-            /// 吹奏乐部
-            /// </summary>
-            Suisogakubu,
-           
-            /// <summary>
-            /// 北宇治的学生
-            /// </summary>
-            Kitauji,
-            /// <summary>
-            /// 恐怖的
-            /// </summary>
-            Horrifying,
-            /// <summary>
-            /// 胆小的
-            /// </summary>
-            Coward,
-            
-            
-            
-        }
     }
 }
