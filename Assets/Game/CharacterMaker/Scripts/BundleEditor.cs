@@ -18,7 +18,7 @@ public class BundleEditor : MonoBehaviour
 
     [Header("编辑器")] public TMP_InputField bundleName;
     public TMP_InputField bundleFriendlyName;
-    public TMP_Dropdown Anime;
+    public InputFieldWithDropdown Anime;
     public TMP_InputField bundleVersion;
     public TMP_InputField authorName;
     public TMP_InputField description;
@@ -41,19 +41,15 @@ public class BundleEditor : MonoBehaviour
     string newImageFullPath = string.Empty;
 
 
-    private void Awake()
+    private void Start()
     {
         //初始化Anime的下拉栏
-        Anime.ClearOptions();
-
-        List<TMP_Dropdown.OptionData> all = new();
+        List<string> all = new();
         for (int i = 0; i < Information.AnimeList.Length; i++)
         {
-            all.Add(new TMP_Dropdown.OptionData(Information.AnimeList[i]));
+            all.Add(Information.AnimeList[i]);
         }
-        Anime.AddOptions(all);
-        Anime.value = 0;
-        Anime.RefreshShownValue();
+        Anime.ChangeOptionDatas(all);
        
     }
 
@@ -63,6 +59,8 @@ public class BundleEditor : MonoBehaviour
     /// <param name="create">是新创建的吗</param>
     public async UniTask OpenManifestEditor()
     {
+     
+        
         //启用编辑器
         gameObject.SetActive(true);
         //初始化编辑器内容
@@ -83,7 +81,7 @@ public class BundleEditor : MonoBehaviour
         bundleName.text = manifest.BundleName;
         bundleFriendlyName.text = manifest.FriendlyBundleName;
         authorName.text = manifest.AuthorName;
-        Anime.value =0;
+        Anime.text = Information.AnimeList[0];
         description.text = manifest.Description;
         remark.text = manifest.Remarks;
         bundleVersion.text = manifest.BundleVersion;
@@ -196,11 +194,11 @@ public class BundleEditor : MonoBehaviour
         CardMaker.cardMaker.nowEditingBundle.manifest.AuthorName = authorName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.Description = description.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.Remarks = remark.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.captionText.text;
+        CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.text;
         
         //更新预览
         friendlyName.text = bundleFriendlyName.text;
-        descriptionOfBundle.text = $"<B><#AD0015><size=113%>{Anime.captionText.text}</size></color></B>\n{description.text}";
+        descriptionOfBundle.text = $"<B><#AD0015><size=113%>{Anime.text}</size></color></B>\n{description.text}";
         authorAndVersion.text = $"{authorName.text} - ver {bundleVersion.text}";
         image.sprite = bundleImage.sprite;
         CardMaker.cardMaker.changeSignal.SetActive(true);

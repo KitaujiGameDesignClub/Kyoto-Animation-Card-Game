@@ -412,6 +412,13 @@ namespace Core
         #endregion
 
 
+        #region 角色基本属性（性别，角色
+
+        
+
+        #endregion
+        
+        
         /// <summary>
         /// 角色名称
         /// </summary>
