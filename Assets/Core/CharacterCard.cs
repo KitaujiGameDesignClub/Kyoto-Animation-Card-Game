@@ -50,6 +50,11 @@ namespace Core
         public string CharacterName;
 
         /// <summary>
+        /// 所用声优
+        /// </summary>
+        public string CV = Information.CV[0];
+
+        /// <summary>
         /// 性别 0 无性别或性别不重要 1男 2女
         /// </summary>
         public int gender = -1;

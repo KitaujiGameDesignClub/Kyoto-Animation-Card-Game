@@ -33,7 +33,12 @@ public class CardReadWrite
     {
         Information.tags = YamlReadWrite.Read(Information.TagsIO, Information.tags);
     }
-    
+
+    public static void ReadCV()
+    {
+        Information.CV = YamlReadWrite.Read(Information.cvIO, Information.CV);
+    }
+
 
     #endregion
 

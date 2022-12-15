@@ -16,10 +16,7 @@ namespace Core
         /// </summary>
         public CharacterCard profile;
 
-        /// <summary>
-        /// 所用声优
-        /// </summary>
-        public Information.CV CV = Information.CV.None;
+
 
         /// <summary>
         /// 是哪一个玩家的可用牌 0=A 1=B
@@ -346,7 +343,7 @@ namespace Core
                     {
                         for (int i = 0; i < parameterValues.Length; i++)
                         {
-                            parameterValues[i] = ReasonObjects[i].CV.ToString();
+                            parameterValues[i] = ReasonObjects[i].profile.CV.ToString();
                         }
                     }
                     else
@@ -853,7 +850,7 @@ namespace Core
                         break;
 
                     case Information.Parameter.CV:
-                        parameter = neededCards[i].CV.ToString();
+                        parameter = neededCards[i].profile.CV.ToString();
                         break;
 
                     case Information.Parameter.HealthPoint:

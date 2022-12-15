@@ -166,18 +166,23 @@ namespace Core
 
 
         #region 内置路径
-        public static readonly string bundlesPath = $"{YamlReadWrite.UnityButNotAssets}/bundles";
+        public static string bundlesPath /*= $"{YamlReadWrite.UnityButNotAssets}/bundles"*/;//在这里直接初始化会报错
 
         public static readonly DescribeFileIO AnimeListIO = new DescribeFileIO("animeList.yml", "saves", "# 此文件包含了动漫列表，用于规范卡组中所属动画的文本" +
     "\n# 此文件不会影响正常游戏，但是编辑器“所属动画”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
-    "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）" +
+    "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）。可以加入空行" +
     $"\n# 此文件的默认内容由本游戏的“{AnimeListVersion}”版本呈现");
 
 
         public static readonly DescribeFileIO TagsIO = new DescribeFileIO("tags.yml", "saves", "# 此文件包含了角色卡牌可以使用的tag，用于规范tag文本" +
             "\n# 此文件不会影响正常游戏，但是卡牌编辑器“角色标签”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
-            "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）" +
+            "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）。可以加入空行" +
             "\n# 分类标记要用“%”开头，含有此标记的字符不会作为角色tag，分类标记可以相同，游戏会自动合并" +
+            $"\n# 此文件的默认内容由本游戏的“{tagsVersion}”版本呈现");
+
+        public static readonly DescribeFileIO cvIO = new DescribeFileIO("cv.yml", "saves", "# 此文件包含了角色卡牌可以使用的声优名称，用于规范声优翻译" +
+            "\n# 此文件不会影响正常游戏，但是卡牌编辑器“角色声优”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
+            "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）。可以加入空行" +
             $"\n# 此文件的默认内容由本游戏的“{tagsVersion}”版本呈现");
         #endregion
 
@@ -574,355 +579,104 @@ namespace Core
             "巴加的工作室",
         };
         #endregion
-        
 
-        
-        
-        
+
+
+
+
         /// <summary>
         /// 声优（按照萌娘百科中人物照片上方的中文译名记）（用于储存文件）
         /// </summary>
-        public enum CV
+        public static string[] CV =
         {
-            /// <summary>
-            /// 没有使用声优或者声优不重要
-            /// </summary>
-            None,
-            /// <summary>
-            /// 列表中不存在的声优
-            /// </summary>
-            Else,
-            /// <summary>
-            /// 丰崎爱生
-            /// </summary>
-            ToyosakiAki,
-            /// <summary>
-            /// 茅原实里
-            /// </summary>
-            ChiharaMinori,
-            /// <summary>
-            /// 种田梨沙
-            /// </summary>
-            TanedaRisa,
-            /// <summary>
-            /// 铃木达央
-            /// </summary>
-            SuzukiTatsuhisa,
-            KENN,
-            /// <summary>
-            /// 进藤尚美
-            /// </summary>
-            ShindoNaomi,
-            /// <summary>
-            /// 山冈百合
-            /// </summary>
-            YamaokaYuri,
-            /// <summary>
-            /// 丰田萌绘
-            /// </summary>
-            ToyotaMoe,
-            /// <summary>
-            /// 渡边明乃
-            /// </summary>
-            WatanabeAkeno,
-            /// <summary>
-            /// 川澄绫子
-            /// </summary>
-            KawasumiAyako,
-            /// <summary>
-            /// 今野宏美
-            /// </summary>
-            KonnoHiromi,
-            /// <summary>
-            /// 平野绫
-            /// </summary>
-            HiranoAya,
-            /// <summary>
-            /// 杉田智和
-            /// </summary>
-            SugidaTomokazu,
-            /// <summary>
-            /// 后藤邑子
-            /// </summary>
-            GotouYuuko,
-            /// <summary>
-            /// 小野大辅
-            /// </summary>
-            OnoDaisuke,
-            /// <summary>
-            /// 松冈由贵
-            /// </summary>
-            MatsuokaYuki,
-            /// <summary>
-            /// 桑谷夏子
-            /// </summary>
-            KuwataniNatsuko,
-            /// <summary>
-            /// 白石稔
-            /// </summary>
-            ShiraishiMInoru,
-            /// <summary>
-            /// 松元惠
-            /// </summary>
-            MatsumotoMegumi,
-            /// <summary>
-            /// 青木沙耶香
-            /// </summary>
-            AokiSayaka,
-            /// <summary>
-            /// 加藤英美里
-            /// </summary>
-            KatouEmiri,
-            /// <summary>
-            /// 福原香织
-            /// </summary>
-            HukuharaKaori,
-            /// <summary>
-            /// 古谷静佳
-            /// </summary>
-            HuruyaShizuka,
-            /// <summary>
-            /// 中村悠一
-            /// </summary>
-            NakamuraYuuichi,
-            /// <summary>
-            /// 佐藤聪美
-            /// </summary>
-            SatouSatomi,
-            /// <summary>
-            /// 阪口大助
-            /// </summary>
-            SakaguchiDaisuke,
-            /// <summary>
-            /// 茅野爱衣
-            /// </summary>
-            KayanoAi,
-            /// <summary>
-            /// 日笠阳子
-            /// </summary>
-            HikasaYouko,
-            /// <summary>
-            /// 早见沙织
-            /// </summary>
-            HayamiSaori,
-            /// <summary>
-            /// 小仓唯
-            /// </summary>
-            OguraYui,
-            /// <summary>
-            /// 悠木碧
-            /// </summary>
-            YuukiAoi,
-            /// <summary>
-            /// 竹达彩奈
-            /// </summary>
-            TaketatsuAyana,
-            /// <summary>
-            /// 寿美菜子
-            /// </summary>
-            KotobukiMinako,
-            /// <summary>
-            /// 福山润
-            /// </summary>
-            HukuyamaJun,
-            /// <summary>
-            /// 内田真礼
-            /// </summary>
-            UchitdaMaaya,
-            /// <summary>
-            /// 长妻树里
-            /// </summary>
-            NagatsumaJuri,
-            /// <summary>
-            /// 赤崎千夏
-            /// </summary>
-            AkasakiChinatsu,
-            /// <summary>
-            /// 保志总一朗
-            /// </summary>
-            HoshiSouichitou,
-            /// <summary>
-            /// 设乐麻美
-            /// </summary>
-            ShitaraMami,
-            /// <summary>
-            /// 浅仓杏美
-            /// </summary>
-            AsakuraAzumi,
-            /// <summary>
-            /// 上坂堇
-            /// </summary>
-            UesakaSumire,
-            /// <summary>
-            /// 仙台惠理
-            /// </summary>
-            SendaiEri,
-            /// <summary>
-            /// 洲崎绫
-            /// </summary>
-            SuzakiAya,
-            /// <summary>
-            /// 田丸笃志
-            /// </summary>
-            TamaruAtsushi,
-            /// <summary>
-            /// 金子有希
-            /// </summary>
-            KanekoYuuki,
-            /// <summary>
-            /// 黑泽朋世
-            /// </summary>
-            KurosawaTomoyo,
-            /// <summary>
-            /// 安济知佳
-            /// </summary>
-            AnzaiChika,
-            /// <summary>
-            /// 朝井彩加
-            /// </summary>
-            AsaiAyaka,
-            /// <summary>
-            /// 石谷春贵
-            /// </summary>
-            IshiyaHaruki,
-            /// <summary>
-            /// 藤村鼓乃美
-            /// </summary>
-            HujimuraKonomi,
-            /// <summary>
-            /// 种崎敦美
-            /// </summary>
-            TanezakiAtsumi,
-            /// <summary>
-            /// 东山奈央
-            /// </summary>
-            TouyamaNao,
-            /// <summary>
-            /// 樱井孝宏
-            /// </summary>
-            SakuraiTakahiro,
-            /// <summary>
-            /// 沼仓爱美
-            /// </summary>
-            NumakuraManami,
-            /// <summary>
-            /// 田村睦心
-            /// </summary>
-            TamuraMutsumi,
-            /// <summary>
-            /// 桑原由气
-            /// </summary>
-            KuwaharaYuuki,
-            /// <summary>
-            /// 长绳麻理亚
-            /// </summary>
-            NaganawaMaria,
-            /// <summary>
-            /// 高田忧希
-            /// </summary>
-            TakadaYuuki,
-            /// <summary>
-            /// 高桥未奈美
-            /// </summary>
-            TakahashiMinami,
-            /// <summary>
-            /// 岭内知美
-            /// </summary>
-            MineuchiTomomi,
-            /// <summary>
-            /// 石原夏织
-            /// </summary>
-            IshiharaKaori,
-            /// <summary>
-            /// 中原麻衣
-            /// </summary>
-            NakaharaMai,
-            /// <summary>
-            /// 野中蓝
-            /// </summary>
-            NonakaAi,
-            /// <summary>
-            /// 田所梓
-            /// </summary>
-            TadokoroAzusa,
-            /// <summary>
-            /// 金元寿子
-            /// </summary>
-            KanemotoHisako,
-            /// <summary>
-            /// 川上伦子
-            /// </summary>
-            KawakamiTomoko,
-            /// <summary>
-            /// 冈本麻见
-            /// </summary>
-            OkamotoAsami,
-            /// <summary>
-            /// 柚木凉香
-            /// </summary>
-            YuzukiRyouka,
-            /// <summary>
-            /// 久川绫
-            /// </summary>
-            HisakawaAya,
-            /// <summary>
-            /// 冬马由美
-            /// </summary>
-            TomaYumi,
-            /// <summary>
-            /// 田村由香里
-            /// </summary>
-            TamuraYukari,
-            /// <summary>
-            /// 西村千奈美
-            /// </summary>
-            NishimuraChinami,
-            /// <summary>
-            /// 斋藤千和
-            /// </summary>
-            SaitouChiwa,
-            /// <summary>
-            /// 兴梠里美
-            /// </summary>
-            KoorogiSatomi,
-            /// <summary>
-            /// 置鲇龙太郎
-            /// </summary>
-            OkiayuRyoutarou,
-            /// <summary>
-            /// 井上喜久子
-            /// </summary>
-            KumagaiKikuko,
-            /// <summary>
-            /// 广桥凉
-            /// </summary>
-            HirohashiRyou,
-            /// <summary>
-            /// 神田朱未
-            /// </summary>
-            KandaAkemi,
-            /// <summary>
-            /// 桑岛法子
-            /// </summary>
-            KuwashimaHoko,
-            /// <summary>
-            /// 雪野五月
-            /// </summary>
-            YukinoSatsuki,
-            /// <summary>
-            /// 榎本温子
-            /// </summary>
-            EnomotoAtsuko,
-            /// <summary>
-            /// 麻生美代子
-            /// </summary>
-            AsouMiyoko,
-            /// <summary>
-            /// 小伏伸之
-            /// </summary>
-            KobushiNobuyuk,
-            
-        }
+
+"不设置声优",
+"丰崎爱生",
+"茅原实里",
+"种田梨沙",
+"铃木达央",
+"进藤尚美",
+"山冈百合",
+"丰田萌绘",
+"渡边明乃",
+"川澄绫子",
+"今野宏美",
+"平野绫",
+"杉田智和",
+"后藤邑子",
+"小野大辅",
+"松冈由贵",
+"桑谷夏子",
+"白石稔",
+"松元惠",
+"青木沙耶香",
+"加藤英美里",
+"福原香织",
+"古谷静佳",
+"中村悠一",
+"佐藤聪美",
+"阪口大助",
+"茅野爱衣",
+"日笠阳子",
+"早见沙织",
+"小仓唯",
+"悠木碧",
+"竹达彩奈",
+"寿美菜子",
+"福山润",
+"内田真礼",
+"长妻树里",
+"赤崎千夏",
+"保志总一朗",
+"设乐麻美",
+"浅仓杏美",
+"上坂堇",
+"仙台惠理",
+"洲崎绫",
+"田丸笃志",
+"金子有希",
+"黑泽朋世",
+"安济知佳",
+"朝井彩加",
+"石谷春贵",
+"藤村鼓乃美",
+"种崎敦美",
+"东山奈央",
+"樱井孝宏",
+"沼仓爱美",
+"田村睦心",
+"桑原由气",
+"长绳麻理亚",
+"高田忧希",
+"高桥未奈美",
+"岭内知美",
+"石原夏织",
+"中原麻衣",
+"野中蓝",
+"田所梓",
+"金元寿子",
+"川上伦子",
+"冈本麻见",
+"柚木凉香",
+"久川绫",
+"冬马由美",
+"田村由香里",
+"西村千奈美",
+"斋藤千和",
+"兴梠里美",
+"置鲇龙太郎",
+"井上喜久子",
+"广桥凉",
+"神田朱未",
+"桑岛法子",
+"雪野五月",
+"榎本温子",
+"麻生美代子",
+"小伏伸之",
+
+
+
+        };
 
     }
 }

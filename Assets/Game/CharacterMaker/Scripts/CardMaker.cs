@@ -9,6 +9,7 @@ using TMPro;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Console = System.Console;
+using KitaujiGameDesignClub.GameFramework.Tools;
 
 /// <summary>
 /// 卡包/卡牌制作用
@@ -60,9 +61,10 @@ public class CardMaker : MonoBehaviour
 
     private void Awake()
     {
-      
-        
-        
+        Information.bundlesPath = $"{YamlReadWrite.UnityButNotAssets}/bundles";
+
+
+
         cardMaker = this;
 
         //加载游戏的事件
@@ -212,6 +214,7 @@ public class CardMaker : MonoBehaviour
     {
         CardReadWrite.ReadAnimeList();
         CardReadWrite.ReadTags();
+        CardReadWrite.ReadCV();
     }
 
 

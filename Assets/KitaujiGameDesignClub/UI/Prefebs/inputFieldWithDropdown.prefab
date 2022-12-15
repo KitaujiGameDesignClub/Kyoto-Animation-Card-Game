@@ -366,6 +366,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52de03e0330f5fe4fabeb7840a40272c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  supportSearch: 0
 --- !u!1 &3545486379416444135
 GameObject:
   m_ObjectHideFlags: 0
@@ -1255,14 +1256,14 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 4
+  m_ContentType: 0
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 1
+  m_KeyboardType: 0
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 4
+  m_CharacterValidation: 0
   m_RegexValue: 
   m_GlobalPointSize: 16
   m_CharacterLimit: 0
