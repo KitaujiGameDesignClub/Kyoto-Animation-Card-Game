@@ -75,9 +75,9 @@ namespace Core
         public int BasicPower = 2;
 
         /// <summary>
-        /// 此卡的能力类型
+        /// 此能力的触发类型
         /// </summary>
-        public Information.CardAbilityTypes AbilityType = Information.CardAbilityTypes.None;
+        public Information.CardAbilityTypes AbilityActivityType = Information.CardAbilityTypes.None;
 
         public AbilityLogicReason Reason;
 

@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Maker
+  serializedVersion: 2
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: c1e8cb1fac42e7845b8a14d4031f7817, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 4bb68df17f7f90440860e88f38f71895, type: 3}
+  - {fileID: 21300000, guid: 953cfb22f895d6a42afa49ce26dd509e, type: 3}
+  - {fileID: 21300000, guid: 2185b3928be36eb4f8ebcb94983b4877, type: 3}
+  - {fileID: 21300000, guid: bdbda6392698e4643b3564c7a231e5cd, type: 3}
+  - {fileID: 21300000, guid: 7a99f26a4510fd641977b496367f02ff, type: 3}
+  - {fileID: -565132480, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
+  - {fileID: 2007425521, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
+  - {fileID: 2065796195, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
+  - {fileID: 486623271, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
+  - {fileID: 1353145, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
+  - {fileID: 21300000, guid: 6502afffb6931754997104ac61805a0a, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - eupho
+  - button_white
+  - defaultBundleImage
+  - right arrow
+  - trumpet
+  - drums
+  - gituar_cat
+  - gituar_yui
+  - keyboard
+  - bass
+  - defaultCardImage
+  m_RenderDataMap: {}
+  m_Tag: Maker
+  m_IsVariant: 0
+  m_IsPlaceholder: 0

@@ -145,7 +145,7 @@ namespace Core
         /// </summary>
         public void OnDebut()
         {
-            if (profile.AbilityType == Information.CardAbilityTypes.Debut)
+            if (profile.AbilityActivityType == Information.CardAbilityTypes.Debut)
             {
                 AbilityReasonAnalyze(this);
             }
@@ -156,7 +156,7 @@ namespace Core
         /// </summary>
         public void Normal()
         {
-            if (profile.AbilityType == Information.CardAbilityTypes.Normal)
+            if (profile.AbilityActivityType == Information.CardAbilityTypes.Normal)
             {
                 AbilityReasonAnalyze(this);
             }
@@ -167,7 +167,7 @@ namespace Core
         /// </summary>
         public void Exit()
         {
-            if (profile.AbilityType == Information.CardAbilityTypes.Exit)
+            if (profile.AbilityActivityType == Information.CardAbilityTypes.Exit)
             {
                 AbilityReasonAnalyze(this);
             }
@@ -179,7 +179,7 @@ namespace Core
         /// <param name="activator">是谁触发了这个函数（谁打我了）</param>
         public void OnHurt(CharacterInGame activator)
         {
-            if (profile.AbilityType == Information.CardAbilityTypes.GetHurt)
+            if (profile.AbilityActivityType == Information.CardAbilityTypes.GetHurt)
             {
                 AbilityReasonAnalyze(activator);
             }
