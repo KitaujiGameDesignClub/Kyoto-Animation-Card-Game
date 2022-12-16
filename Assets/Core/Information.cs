@@ -263,7 +263,7 @@ namespace Core
         public enum Parameter
         {
             None,
-            
+            Anime,
             Tag,
             Power,
             HealthPoint,

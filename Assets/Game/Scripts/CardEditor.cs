@@ -43,14 +43,42 @@ public class CardEditor : MonoBehaviour
     public Lean.Gui.LeanToggle Clear;
     public TMP_InputField abilityDescription;
 
+    [Space()]
+    public CardPanel preview;
 
-    public void OpenCardEditorForCreation()
+    /// <summary>
+    /// 是否为仅仅创建卡牌而已
+    /// </summary>
+    private bool onlyCreateCard;
+
+    /// <summary>
+    /// 现在显示的 正在编辑的卡牌
+    /// </summary>
+    private CharacterCard nowEditingCard;
+
+    public void OpenCardEditorForCreation(bool onlyCreateCard)
     {
         //启用编辑器，并初始化显示界面
        gameObject.SetActive(true);
         editor.SetActive(true);
         abilityEditor.SetActive(true);
 
+        //把新创新的卡的信息填充进去显示
+        if (onlyCreateCard) CardMaker.cardMaker.nowEditingBundle = new();
+         CardMaker.cardMaker.nowEditingBundle.cards.Add(new CharacterCard());
+        nowEditingCard = CardMaker.cardMaker.nowEditingBundle.cards[CardMaker.cardMaker.nowEditingBundle.cards.Count - 1];
+        cardNameField.text = nowEditingCard.CardName;
+        friendlyNameField.text = nowEditingCard.FriendlyCardName;
+        AnimeField.text = onlyCreateCard ? nowEditingCard.Anime : CardMaker.cardMaker.nowEditingBundle.manifest.Anime;
+        CharacterNameField.text = nowEditingCard.CharacterName;
+        CVField.text = nowEditingCard.CV;
+        cardNumberField.text = nowEditingCard.CardCount.ToString();
+        genderField.value = nowEditingCard.gender;
+        basicHp.text = nowEditingCard.BasicHealthPoint.ToString();
+        basicPower.text = nowEditingCard.BasicPower.ToString();
+        abilityReasonType.value = (int)nowEditingCard.AbilityActivityType;
+        abilityReasonObjectAsTarget.TurnOff();
+        abilityDescription.text = nowEditingCard.AbilityDescription;
 
     }
 

@@ -138,7 +138,7 @@ public class CardMaker : MonoBehaviour
         //现在还没有改内容，关闭修改标记
         changeSignal.SetActive(false);
 
-        cardEditor.OpenCardEditorForCreation();
+        cardEditor.OpenCardEditorForCreation(onlyCard);
         nowEditingBundle = new();
     }
 

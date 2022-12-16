@@ -206,7 +206,7 @@ namespace Core
             }
             else
             {
-                //确定条件对象们
+                //确定条件对象们（条件对象可以是角色卡牌，也可以是部长卡牌）
                 ReasonObjects = GetNeededCards(profile.Reason.NeededObjects, activator); //确定范围内的条件对象
                 chief = GetNeededChief(profile.Reason.NeededObjects); //储存主持/部长的条件对象
             }
@@ -239,7 +239,7 @@ namespace Core
                     if (chief != null) parameterValues[0] = chief.coin.ToString();
                     else
                         throw new Exception(
-                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断部长金币数，但是能力原因的条件对象不是chief");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName})想要判断部长金币数，但是能力原因的条件对象不是chief");
                     break;
 
                 //角色卡的攻击力
@@ -253,7 +253,7 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断角色卡攻击力，但是能力原因的条件对象不是角色卡");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName})想要判断角色卡攻击力，但是能力原因的条件对象不是角色卡");
 
                     break;
 
@@ -268,7 +268,7 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断角色卡沉默回合数，但是能力原因的条件对象不是角色卡");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName})想要判断角色卡沉默回合数，但是能力原因的条件对象不是角色卡");
 
                     break;
                 
@@ -283,7 +283,7 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断角色卡炒粉回合数，但是能力原因的条件对象不是角色卡");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName})想要判断角色卡炒粉回合数，但是能力原因的条件对象不是角色卡");
 
                     break;
 
@@ -299,7 +299,7 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断角色卡状态，但是能力原因的条件对象不是角色卡");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName})想要判断角色卡状态，但是能力原因的条件对象不是角色卡");
 
                     break;
 
@@ -318,7 +318,7 @@ namespace Core
                     }
                     else
                         throw new Exception(
-                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断角色卡标签，但是能力原因的条件对象不是角色卡");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName})想要判断角色卡标签，但是能力原因的条件对象不是角色卡");
 
                     break;
 
@@ -349,7 +349,7 @@ namespace Core
                     else
                     {
                         throw new Exception(
-                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要判断部长{chief.ChiefName}的声优，但是这是禁止事项");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName})想要判断部长{chief.ChiefName}的声优，但是这是禁止事项");
                     }
 
                     break;
@@ -446,7 +446,7 @@ namespace Core
                             if (!int.TryParse(values[i], out fixedValues[i]))
                             {
                                 throw new Exception(
-                                    $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 隶属：{profile.BundleName})的能力出发原因中，{profile.Reason.ReasonParameter.ToString()}是int的，但是给定的阈值形式上不符合int类型");
+                                    $"{profile.FriendlyCardName}(内部名称：{profile.CardName})的能力出发原因中，{profile.Reason.ReasonParameter}是int的，但是给定的阈值形式上不符合int类型");
                             }
                             else
                             {
@@ -639,7 +639,7 @@ namespace Core
                 {
                     case Information.Parameter.Coin:
                         throw new Exception(
-                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
                     
                     case Information.Parameter.HealthPoint:
                         card.actualHealthPoint = ChangeIntValue(card.actualHealthPoint);
@@ -670,7 +670,7 @@ namespace Core
                                 break;
                             
                             default:
-                                throw new Exception($"{profile.FriendlyCardName}(内部名称：{profile.CardName} 所属：{profile.BundleName})想要用乘法修改tag");
+                                throw new Exception($"{profile.FriendlyCardName}(内部名称：{profile.CardName})想要用乘法修改tag");
                                                        }
                         break;
                     
@@ -873,6 +873,10 @@ namespace Core
                         parameter = neededCards[i].State.ToString();
                         break;
 
+                    case Information.Parameter.Anime:
+                        parameter = neededCards[i].profile.Anime;
+                        break;
+
                     case Information.Parameter.Tag:
                         foreach (var tag in profile.tags)
                         {
@@ -902,7 +906,7 @@ namespace Core
                         if (!int.TryParse(parameter, out fixedValue))
                         {
                             throw new Exception(
-                                $"{profile.FriendlyCardName}(内部名称：{profile.CardName} 隶属：{profile.BundleName})无法找到正确的对象，因为所找对象的参数是int型，但是给定的阈值形式上不符合int类型");
+                                $"{profile.FriendlyCardName}(内部名称：{profile.CardName})无法找到正确的对象，因为所找对象的参数是int型，但是给定的阈值形式上不符合int类型");
                         }
                         else
                         {

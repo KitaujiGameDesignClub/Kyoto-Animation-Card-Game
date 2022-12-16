@@ -25,9 +25,9 @@ namespace Core
         public string FriendlyCardName = "默认卡牌";
 
         /// <summary>
-        /// 所属卡包的名字（阵营）
+        /// 所属动画
         /// </summary>
-        public string BundleName = string.Empty;
+        public string Anime = string.Empty;
 
         /// <summary>
         /// 角色标签
@@ -42,7 +42,7 @@ namespace Core
         /// <summary>
         /// 图片名字（一般与角色配置文件同路径）
         /// </summary>
-        public string imageName;
+        public string imageName = "default";
 
         /// <summary>
         /// 角色名称（无则空）
@@ -57,7 +57,7 @@ namespace Core
         /// <summary>
         /// 性别 0 无性别或性别不重要 1男 2女
         /// </summary>
-        public int gender = -1;
+        public int gender = 0;
 
         /// <summary>
         /// 是否允许作为部长（主持，英雄）

@@ -97,7 +97,7 @@ public class BundleEditor : MonoBehaviour
         //更新一下卡包预览
         OnEndEdit();
     }
-
+     
 
     /// <summary>
     /// 想要回到标题界面
