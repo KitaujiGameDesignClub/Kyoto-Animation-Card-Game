@@ -10,6 +10,7 @@ using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Console = System.Console;
 using KitaujiGameDesignClub.GameFramework.Tools;
+using System.Collections.Generic;
 
 /// <summary>
 /// 卡包/卡牌制作用
@@ -209,22 +210,28 @@ public class CardMaker : MonoBehaviour
 
 
     /// <summary>
-    /// 刷新yaml资源（tag anime之类的）
+    /// 刷新yaml资源（tag anime cv列表，从本地文件中读取）
     /// </summary>
-    public void refreshYamlRes()
-    {
-        CardReadWrite.ReadAnimeList();
-        CardReadWrite.ReadTags();
-        CardReadWrite.ReadCV();
-    }
+    public void refreshYamlRes() => CardReadWrite.refreshYamlResFromDisk();
+
 
 
 #if UNITY_EDITOR
     [ContextMenu("各类测试")]
     public void test()
-    {   
-        Notify.notify.CreateBannerNotification(delegate {  banInput.SetActive(false); },"文件储存错误，详细信息请看控制台");
-        throw new Exception("114");
+    {
+
+        var s = new List<string>();
+        s.Add("dd");
+        s.Add("dd");
+        s.Add("dw");
+        s.Add("dd");
+        Debug.Log(s.Count);
+        s.RemoveAll(d => d == "dd");
+        Debug.Log(s.Count);//把dd都删掉了
+
+        
+
     }
 #endif
 }

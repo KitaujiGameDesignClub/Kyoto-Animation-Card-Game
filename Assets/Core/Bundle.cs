@@ -10,12 +10,12 @@ namespace Core
     public class Bundle
     {
         public CardBundlesManifest manifest;
-        public List<CharacterCard> cards = new List<CharacterCard>();
+        public CharacterCard[] cards = new CharacterCard[0];
 
         public Bundle()
         {
             manifest = new();
-            cards = null;
+            cards = new CharacterCard[0];
         }
     }
 }

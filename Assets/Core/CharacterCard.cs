@@ -27,7 +27,7 @@ namespace Core
         /// <summary>
         /// 所属动画
         /// </summary>
-        public string Anime = string.Empty;
+        public string Anime;
 
         /// <summary>
         /// 角色标签
@@ -52,7 +52,7 @@ namespace Core
         /// <summary>
         /// 所用声优
         /// </summary>
-        public string CV = Information.CV[0];
+        public string CV;
 
         /// <summary>
         /// 性别 0 无性别或性别不重要 1男 2女

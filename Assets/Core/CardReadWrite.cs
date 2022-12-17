@@ -17,7 +17,7 @@ public class CardReadWrite
 
 
 
-    #region 资源读写
+    #region 游戏特有的yaml资源读写
 
     /// <summary>
     /// 读取所有的Anime
@@ -37,6 +37,24 @@ public class CardReadWrite
     public static void ReadCV()
     {
         Information.CV = YamlReadWrite.Read(Information.cvIO, Information.CV);
+    }
+
+    public static void ReadCharacterNames()
+    {
+        Information.characterNamesList = YamlReadWrite.Read(Information.characterNameIO, Information.characterNamesList);
+
+    }
+
+
+    /// <summary> 
+    /// 刷新yaml资源（tag anime cv列表，从本地文件中读取）
+    /// </summary>
+    public static void refreshYamlResFromDisk()
+    {
+       ReadAnimeList();
+        ReadTags();
+        ReadCV();
+        ReadCharacterNames();
     }
 
 
@@ -113,7 +131,7 @@ public class CardReadWrite
 
                          //看看这个卡包内有多少卡牌文件
                          var allCardsFilesInThisBundle = Directory.GetFiles($"{allDirectories[i]}/cards", "*.kabcard");
-                         ArrayList allCards = new();
+                        ArrayList allCards = new();
                          //试试读取，合规的卡牌文件是有值的
                          for (int j = 0; j < allCardsFilesInThisBundle.Length; j++)
                          {

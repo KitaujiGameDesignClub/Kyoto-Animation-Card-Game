@@ -161,7 +161,8 @@ namespace Core
         
         public const string AnimeListVersion = "ver 1.0-京阿尼更新";
         public const string tagsVersion = "ver 1.0-京阿尼更新";
-
+        public const string cvVersion = "ver 1.0-京阿尼更新";
+        public const string characterVersion = "ver 1.0-京阿尼更新";
         #endregion
 
 
@@ -169,7 +170,7 @@ namespace Core
         public static string bundlesPath /*= $"{YamlReadWrite.UnityButNotAssets}/bundles"*/;//在这里直接初始化会报错
 
         public static readonly DescribeFileIO AnimeListIO = new DescribeFileIO("animeList.yml", "saves", "# 此文件包含了动漫列表，用于规范卡组中所属动画的文本" +
-    "\n# 此文件不会影响正常游戏，但是编辑器“所属动画”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
+    "\n# 此文件不会影响正常游戏，但是卡组编辑器“所属动画”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
     "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）。可以加入空行" +
     $"\n# 此文件的默认内容由本游戏的“{AnimeListVersion}”版本呈现");
 
@@ -183,7 +184,13 @@ namespace Core
         public static readonly DescribeFileIO cvIO = new DescribeFileIO("cv.yml", "saves", "# 此文件包含了角色卡牌可以使用的声优名称，用于规范声优翻译" +
             "\n# 此文件不会影响正常游戏，但是卡牌编辑器“角色声优”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
             "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）。可以加入空行" +
-            $"\n# 此文件的默认内容由本游戏的“{tagsVersion}”版本呈现");
+            $"\n# 此文件的默认内容由本游戏的“{cvVersion}”版本呈现");
+
+        public static readonly DescribeFileIO characterNameIO = new DescribeFileIO("characters.yml", "saves", "# 此文件包含了角色卡牌可以使用的角色名称，用于规范声优翻译" +
+           "\n# 此文件不会影响正常游戏，但是卡牌编辑器“角色名称”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
+           "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）。可以加入空行" +
+           "\n# 分类标记要用“%”开头，含有此标记的字符不会作为角色名称，分类标记可以相同，游戏会自动合并" +
+           $"\n# 此文件的默认内容由本游戏的“{characterVersion}”版本呈现");
         #endregion
 
         #region 角色能力设定
@@ -417,45 +424,12 @@ namespace Core
         #endregion
 
 
-        #region 角色基本属性（性别，角色
-
+        #region 角色名称
+      
         
 
         #endregion
-        
-        
-        /// <summary>
-        /// 角色名称
-        /// </summary>
-        public enum CharacterName
-        {
-            /// <summary>
-            /// 没有角色设定或不重要
-            /// </summary>
-            None,
-            
-            //冰菓
-            /// <summary>
-            /// 折木奉太郎
-            /// </summary>
-            OrekiHoutarou,
-            /// <summary>
-            /// 千反田爱馏
-            /// </summary>
-            ChitandaEru,
-            
-            //Kon
-            /// <summary>
-            /// 平泽唯
-            /// </summary>
-            HirasawaYui,
-            
-            //Hibike!Euphonium
-            
-            
-            //中二病
-            
-        }
+   
         
 
         /// <summary>
@@ -581,7 +555,51 @@ namespace Core
         #endregion
 
 
+  public static string[] characterNamesList =
+        {
+             "通用卡牌",
+            "%全金属狂潮第二季（校园篇）",
+            "%AIR",
+            "%凉宫春日的忧郁",
+            "凉宫春日",
 
+            "%Kanon",
+            "%幸运☆星",
+            "泉此方",
+
+            "%CLANNAD",
+
+            "%轻音少女",
+            "平泽唯",
+
+            "%冰菓",
+            "千反田爱瑠",
+
+            "%中二病也要谈恋爱！",
+            "小鸟游六花",
+
+            "%玉子市场",
+            "北白川玉子",
+
+            "%free!",
+            "%境界的彼方",
+            "栗山未来",
+
+            "%甘城光辉游乐园",
+
+            "%吹响吧!上低音号",
+            "黄前久美子",
+
+            "%无彩限的怪灵世界",
+
+            "%小林家的龙女仆",
+            "小林",
+
+            "%紫罗兰永恒花园",
+            "薇尔莉特·伊芙加登",
+            "%弦音 -风舞高中弓道部-",
+            "%巴加的工作室",
+        };
 
 
         /// <summary>
