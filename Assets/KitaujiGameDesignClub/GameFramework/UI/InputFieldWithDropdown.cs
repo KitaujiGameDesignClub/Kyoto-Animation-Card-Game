@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
@@ -25,18 +26,23 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 
         public List<TMP_Dropdown.OptionData> options => dropdown.options;
 
-        /// <summary>
-        /// 禁用内容。被禁用的内容不会被选择进入输入框内
-        /// </summary>
-        public List<string> ban = new();
+     
 
         //编辑器中会显示的：
 
         /// <summary>
-        /// 如果想要下拉栏的内容与输入栏内容相匹配，请改为true
+        /// 如果想要筛选功能，请改为true
         /// </summary>
-        public bool supportSearch = false;
-
+        [FormerlySerializedAs("supportSearch")] [Header("候选筛选功能")]
+        public bool supportFilter = false;
+        /// <summary>
+        /// 禁用内容。被禁用的内容不会被选择进入输入框内
+        /// </summary>
+        [Header("被禁用的内容不会被选择")]
+        public List<string> ban = new();
+        
+        
+        
         private void Awake()
         {
             inputField = GetComponentInChildren<TMP_InputField>();
@@ -55,6 +61,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                     //没展开value变化的话，保留之前的内容
                     text = dropdown.IsExpanded ? dropdown.captionText.text : text;
                 }
+                
 
 
               
@@ -65,7 +72,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                 dropdown.value = -1;
 
 
-                if (supportSearch) Search(inputField.text);
+                if (supportFilter) Search(inputField.text);
 
                 dropdown.Show();
             });

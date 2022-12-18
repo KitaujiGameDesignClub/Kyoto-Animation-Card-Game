@@ -178,7 +178,7 @@ namespace Core
         public static readonly DescribeFileIO TagsIO = new DescribeFileIO("tags.yml", "saves", "# 此文件包含了角色卡牌可以使用的tag，用于规范tag文本" +
             "\n# 此文件不会影响正常游戏，但是卡牌编辑器“角色标签”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
             "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）。可以加入空行" +
-            "\n# 分类标记要用“%”开头，含有此标记的字符不会作为角色tag，分类标记可以相同，游戏会自动合并" +
+            "\n# 分类标记要用“%”开头，含有此标记的字符不会作为角色tag" +
             $"\n# 此文件的默认内容由本游戏的“{tagsVersion}”版本呈现");
 
         public static readonly DescribeFileIO cvIO = new DescribeFileIO("cv.yml", "saves", "# 此文件包含了角色卡牌可以使用的声优名称，用于规范声优翻译" +
@@ -189,7 +189,7 @@ namespace Core
         public static readonly DescribeFileIO characterNameIO = new DescribeFileIO("characters.yml", "saves", "# 此文件包含了角色卡牌可以使用的角色名称，用于规范声优翻译" +
            "\n# 此文件不会影响正常游戏，但是卡牌编辑器“角色名称”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
            "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）。可以加入空行" +
-           "\n# 分类标记要用“%”开头，含有此标记的字符不会作为角色名称，分类标记可以相同，游戏会自动合并" +
+           "\n# 分类标记要用“%”开头，含有此标记的字符不会作为角色名称" +
            $"\n# 此文件的默认内容由本游戏的“{characterVersion}”版本呈现");
         #endregion
 

@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Core;
 using KitaujiGameDesignClub.GameFramework.UI;
+using NUnit.Framework;
 using TMPro;
 using UnityEngine;
 
@@ -143,48 +145,7 @@ public class CardEditor : MonoBehaviour
     #region 有分类标记的处理方法
 
     private class WithClassificationNote
-    {  /// <summary>
-        /// 储存分类标记，和相同分类标记的Index
-        /// </summary>
-        struct NoteIndexStorage
-        {
-            public  List<string> Classification;
-            public List< int> index;
-
-            public NoteIndexStorage(string s)
-            {
-                Classification = new();
-                index = new();
-            }
-
-         }
-
-        /// <summary>
-        /// 合并同类项
-        /// </summary>
-        /// <param name=""></param>
-        /// <returns></returns>
-        public static void Merge(string[] optionDatas)
-        { 
-            //找到所有的分类标记和他的index
-           var storages = new NoteIndexStorage();
-            for (int i = 0; i < optionDatas.Length; i++)
-            {
-                if (optionDatas[i].Substring(0, 1) == "%")
-                {
-                    storages.Classification.Add(optionDatas[i]);
-                    storages.index.Add(i);
-                }
-            }
-
-            //用于return的结果
-            var merged = new string[optionDatas.Length];
-
-            
-
-
-        }
-
+    {  
         /// <summary>
         /// 格式化
         /// </summary>
