@@ -6,7 +6,7 @@ using KitaujiGameDesignClub.GameFramework.UI;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 public class CardEditor : MonoBehaviour
 {
@@ -23,7 +23,20 @@ public class CardEditor : MonoBehaviour
     public TMP_Dropdown genderField;
     public TMP_InputField basicPower;
     public TMP_InputField basicHp;
+    [Header("标签侧")]
     public InputFieldWithDropdown tagField;
+    public Button confirm;
+    public Button addition;
+    public Button cancel;
+    public Button delete;
+    /// <summary>
+    /// tag list里所有的按钮的预设
+    /// </summary>
+    public Button tagListButton;
+    public RectTransform tagParent;
+    private TMP_Text[] tagListButtons;
+
+
     [Header("原因侧")]
     public TMP_Dropdown abilityReasonType;
     public TMP_Dropdown abilityReasonLargeScope;

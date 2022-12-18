@@ -81,7 +81,7 @@ public class BundleEditor : MonoBehaviour
         bundleName.text = manifest.BundleName;
         bundleFriendlyName.text = manifest.FriendlyBundleName;
         authorName.text = manifest.AuthorName;
-        Anime.text = Information.AnimeList[0];
+        Anime.text = manifest.Anime;
         description.text = manifest.Description;
         remark.text = manifest.Remarks;
         bundleVersion.text = manifest.BundleVersion;
