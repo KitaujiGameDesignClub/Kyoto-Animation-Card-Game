@@ -32,9 +32,13 @@ public class CardEditor : MonoBehaviour
     /// <summary>
     /// tag list里所有的按钮的预设
     /// </summary>
-    public Button tagListButton;
+    public tagListItem  tagListButtonPerfebs;
     public RectTransform tagParent;
-    private TMP_Text[] tagListButtons;
+
+    /// <summary>
+    /// 暂存tag
+    /// </summary>
+    private List<string> tagStorage = new();
 
 
     [Header("原因侧")]
@@ -187,17 +191,36 @@ public class CardEditor : MonoBehaviour
 
     }
 
+    #endregion
+    
+    #region 标签编辑那边的方法
+
+    private void TagAddition()
+    {
+        //储存增加一个
+    tagStorage.Add(tagField.text);
+    //显示出来
+    
+    }
+
+
+    /// <summary>
+    /// 在列表内添加一个
+    /// </summary>
+    /// <param name="text"></param>
+    private void addTagListItem(string text)
+    {
+        var item = Instantiate(tagListButtonPerfebs.gameObject, tagParent).GetComponent<tagListItem>();
+        item.Initialization(text);
+    }
+    #endregion
+
 
 }
 
   
 
-    
-    #endregion
 
-    #region 标签编辑那边的方法
-
-    #endregion
 
 
 
