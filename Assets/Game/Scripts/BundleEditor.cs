@@ -38,7 +38,7 @@ public class BundleEditor : MonoBehaviour
     /// <summary>
     /// 新图片的完整路径
     /// </summary>
-    string newImageFullPath = string.Empty;
+    string newImageFullPath { get; set; }
 
 
     private void Start()
@@ -222,7 +222,7 @@ public class BundleEditor : MonoBehaviour
         FileBrowser.SetFilters(false, new FileBrowser.Filter("图片", ".jpg", ".bmp", ".png", ".gif"));
 
 
-        await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, null, null, "选择卡包图片", "选择");
+        await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, null, null, "选择卡组图片", "选择");
 
 
         if (FileBrowser.Success)
@@ -230,7 +230,9 @@ public class BundleEditor : MonoBehaviour
             Debug.Log($"加载成功，图片文件{FileBrowser.Result[0]}");
             //加载图片
             await AsyncLoadImage(FileBrowser.Result[0]);
+            //显示已修改的印记
             CardMaker.cardMaker.changeSignal.SetActive(true);
+            //更新新的图片全路径
             newImageFullPath = FileBrowser.Result[0];
         }
     }

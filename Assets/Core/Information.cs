@@ -192,6 +192,7 @@ namespace Core
            "\n# 分类标记要用“%”开头，含有此标记的字符不会作为角色名称" +
            $"\n# 此文件的默认内容由本游戏的“{characterVersion}”版本呈现");
         #endregion
+        
 
         #region 角色能力设定
 

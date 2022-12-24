@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -8,7 +9,6 @@ using UnityEngine.UI;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {
-
     public class InputFieldWithDropdown : MonoBehaviour
     {
         private TMP_InputField inputField;
@@ -26,7 +26,6 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 
         public List<TMP_Dropdown.OptionData> options => dropdown.options;
 
-     
 
         //编辑器中会显示的：
 
@@ -35,51 +34,41 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         /// </summary>
         [FormerlySerializedAs("supportSearch")] [Header("候选筛选功能")]
         public bool supportFilter = false;
+
         /// <summary>
         /// 禁用内容。被禁用的内容不会被选择进入输入框内
         /// </summary>
-        [Header("被禁用的内容不会被选择")]
-        public List<string> ban = new();
-        
-        
-        
+        [Header("被禁用的内容不会被选择")] public List<string> ban = new();
+
         private void Awake()
         {
             inputField = GetComponentInChildren<TMP_InputField>();
             dropdown = GetComponentInChildren<TMP_Dropdown>();
             dropdownButton = GetComponentInChildren<Button>();
+            //占位符也加入禁选列表内
+            ban.Add("未搜索到结果，但仍可以使用");
+            ban.Add("以下为候选结果：");
+            ban.Add("以下为全部可用内容：");
 
 
-
-
-
-            dropdown.onValueChanged.AddListener(delegate (int arg0)
+            dropdown.onValueChanged.AddListener(delegate(int arg0)
             {
-                //不在禁用列表里，才执行后续的操作
+                //所选不在禁用列表里，才执行后续的操作
                 if (!ban.Contains(dropdown.captionText.text))
                 {
                     //没展开value变化的话，保留之前的内容
                     text = dropdown.IsExpanded ? dropdown.captionText.text : text;
+
+
+                    text = Regex.Replace(text, "<.*?>", string.Empty);
                 }
-                
-
-
-              
             });
-            dropdownButton.onClick.AddListener(delegate {
-
-                //改成-1，后面无论选什么都会触发dropdown.onValueChanged了
-                dropdown.value = -1;
-
-
+            dropdownButton.onClick.AddListener(delegate
+            {
                 if (supportFilter) Search(inputField.text);
-
+                dropdown.SetValueWithoutNotify(0);
                 dropdown.Show();
             });
-
-
-
-
         }
 
         /// <summary>
@@ -100,8 +89,9 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         /// </summary>
         /// <param name="optionDatas"></param>
         /// <param name="all">要作为此下拉列表的全部内容吗</param>
-        public void ChangeOptionDatas(string[] optionDatas, bool all = true) => ChangeOptionDatas(Tools.CommonTools.ListArrayConversion(optionDatas), all);
-    
+        public void ChangeOptionDatas(string[] optionDatas, bool all = true) =>
+            ChangeOptionDatas(Tools.CommonTools.ListArrayConversion(optionDatas), all);
+
 
         /// <summary>
         /// 编辑某一个候选的值
@@ -113,21 +103,24 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             allOptionDatas[index] = newText;
         }
 
-    /// <summary>
-    /// 搜索所有候选，并更新出符合关键词的下拉列表
-    /// </summary>
-    /// <param name="keyword"></param>
+        /// <summary>
+        /// 搜索所有候选，并更新出符合关键词的下拉列表
+        /// </summary>
+        /// <param name="keyword"></param>
         public void Search(string keyword)
         {
+            dropdown.Hide();
+
             //没有关键词（没输入内容），就正常显示所有的结果
             if (keyword == "")
             {
                 ChangeOptionDatas(allOptionDatas);
+                var head = new TMP_Dropdown.OptionData("以下为全部可用内容：");
+                dropdown.options.Insert(0, head);
                 return;
             }
 
 
-            dropdown.Hide();
             List<string> fitted = new();
 
             //将有这个关键词的内容作为适合的候选
@@ -135,25 +128,28 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             {
                 if (allOptionDatas[i].Contains(keyword))
                 {
-
                     fitted.Add(allOptionDatas[i]);
                 }
             }
 
             //如果没有候选，加一个占位符，表明真的没有可用的
-            if (fitted.Count == 0) fitted.Add("未搜索到结果，但仍可以使用");
+            if (fitted.Count == 0)
+            {
+                fitted.Add("未搜索到结果，但仍可以使用");
+            }
+            //如果有的话，加一个value=0的头，占位子
+            else
+            {
+                fitted.Insert(0, "以下为候选结果：");
+            }
 
             //提交上去
             ChangeOptionDatas(fitted, false);
-            fitted = null;
-
         }
 
         public override string ToString()
         {
             return text;
         }
-
     }
 }
-
