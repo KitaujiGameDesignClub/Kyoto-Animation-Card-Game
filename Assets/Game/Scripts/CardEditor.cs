@@ -8,17 +8,18 @@ using Lean.Gui;
 using NUnit.Framework;
 using SimpleFileBrowser;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 public class CardEditor : MonoBehaviour
 {
     public GameObject editor;
     public GameObject abilityEditor;
 
-    [Header("信息侧")]
-    public TMP_InputField cardNameField;
+    [Header("信息侧")] public TMP_InputField cardNameField;
     public TMP_InputField friendlyNameField;
     public InputFieldWithDropdown AnimeField;
     public InputFieldWithDropdown CharacterNameField;
@@ -29,17 +30,14 @@ public class CardEditor : MonoBehaviour
     public TMP_InputField basicHp;
     public Image imageOfCardField;
     public LeanToggle AsChiefToggle;
-    
-    [Header("标签侧")]
-    public InputFieldWithDropdown tagField;
-    public Button confirm;
-    public Button addition;
-    public Button cancel;
-    public Button delete;
+
+    [Header("标签侧")] public InputFieldWithDropdown tagField;
+
     /// <summary>
     /// tag list里所有的按钮的预设
     /// </summary>
-    public tagListItem  tagListButtonPerfebs;
+    public tagListItem tagListButtonPerfebs;
+
     public RectTransform tagParent;
 
     /// <summary>
@@ -48,14 +46,12 @@ public class CardEditor : MonoBehaviour
     private List<string> tagStorage = new();
 
 
-    [Header("原因侧")]
-    public TMP_Dropdown abilityReasonType;
+    [Header("原因侧")] public TMP_Dropdown abilityReasonType;
     public TMP_Dropdown abilityReasonLargeScope;
     public TMP_Dropdown abilityReasonParameter;
     public TMP_Dropdown abilityReasonLogic;
     public TMP_InputField abilityReasonThreshold;
-    [Header("效果侧")]
-    public Lean.Gui.LeanToggle abilityReasonObjectAsTarget;
+    [Header("效果侧")] public Lean.Gui.LeanToggle abilityReasonObjectAsTarget;
     public TMP_Dropdown abilityResultLargeScope;
     public TMP_Dropdown abilityResultParameter;
     public TMP_Dropdown abilityResultLogic;
@@ -65,13 +61,11 @@ public class CardEditor : MonoBehaviour
     public TMP_InputField abilityResultRidicule;
     public TMP_Dropdown abilityResultChangeMethod;
     public TMP_Dropdown abilityResultChangeValue;
-    [Header("描述侧")]
-    public Lean.Gui.LeanButton Auto;
+    [Header("描述侧")] public Lean.Gui.LeanButton Auto;
     public Lean.Gui.LeanButton Clear;
     public TMP_InputField abilityDescription;
 
-    [Space()]
-    public CardPanel preview;
+    [Space()] public CardPanel preview;
 
     /// <summary>
     /// 是否为仅仅创建卡牌而已
@@ -82,14 +76,14 @@ public class CardEditor : MonoBehaviour
     /// 现在显示的 正在编辑的卡牌
     /// </summary>
     private CharacterCard nowEditingCard { get; set; }
-    
+
     private string newImageFullPath { get; set; }
 
 
     public void OpenCardEditorForCreation(bool onlyCreateCard)
     {
         //启用编辑器，并初始化显示界面
-       gameObject.SetActive(true);
+        gameObject.SetActive(true);
         editor.SetActive(true);
         abilityEditor.SetActive(false);
 
@@ -100,7 +94,7 @@ public class CardEditor : MonoBehaviour
         CardMaker.cardMaker.nowEditingBundle.cards = new CharacterCard[cardsCache.Length + 1];
         for (int i = 0; i < CardMaker.cardMaker.nowEditingBundle.cards.Length; i++)
         {
-            if(i == CardMaker.cardMaker.nowEditingBundle.cards.Length - 1)
+            if (i == CardMaker.cardMaker.nowEditingBundle.cards.Length - 1)
             {
                 CardMaker.cardMaker.nowEditingBundle.cards[i] = new CharacterCard();
             }
@@ -108,12 +102,16 @@ public class CardEditor : MonoBehaviour
             {
                 CardMaker.cardMaker.nowEditingBundle.cards[i] = cardsCache[i];
             }
-          
         }
+
         cardsCache = null;
-       
+
         //信息显示到editor里
-        nowEditingCard = CardMaker.cardMaker.nowEditingBundle.cards[CardMaker.cardMaker.nowEditingBundle.cards.Length - 1];
+
+        #region 常规的信息编辑
+
+        nowEditingCard =
+            CardMaker.cardMaker.nowEditingBundle.cards[CardMaker.cardMaker.nowEditingBundle.cards.Length - 1];
         cardNameField.text = nowEditingCard.CardName;
         friendlyNameField.text = nowEditingCard.FriendlyCardName;
         AnimeField.text = onlyCreateCard ? nowEditingCard.Anime : CardMaker.cardMaker.nowEditingBundle.manifest.Anime;
@@ -127,10 +125,48 @@ public class CardEditor : MonoBehaviour
         abilityReasonObjectAsTarget.TurnOff();
         abilityDescription.text = nowEditingCard.AbilityDescription;
         AsChiefToggle.Set(nowEditingCard.allowAsChief);
-        //获取下拉列表内容
-        //可变下拉列表
+        //获取可变下拉列表内容
         RefreshVariableDropdownList(false);
 
+        #endregion
+
+        #region 能力编辑初始化
+
+        abilityReasonType.ClearOptions();
+        var length = Enum.GetNames(typeof(Information.CardAbilityTypes)).Length;
+        for (int i = 0; i < length; i++)
+        {
+            abilityReasonType.options.Add(
+                new TMP_Dropdown.OptionData(Information.AbilityChineseIntroduction((Information.CardAbilityTypes)i)));
+        }
+
+        abilityReasonLargeScope.ClearOptions();
+        abilityResultLargeScope.ClearOptions();
+        length = Enum.GetNames(typeof(Information.Objects)).Length;
+        for (int i = 0; i < length; i++)
+        {
+            abilityReasonLargeScope.options.Add(
+                new TMP_Dropdown.OptionData(
+                    Information.AbilityChineseIntroduction((Information.Objects)i)));
+        }
+
+        abilityResultLargeScope.options = abilityReasonLargeScope.options;
+
+        abilityReasonParameter.ClearOptions();
+        abilityResultParameter.ClearOptions();
+        abilityResultParameterToChange.ClearOptions();
+        length = Enum.GetNames(typeof(Information.Parameter)).Length;
+        for (int i = 0; i < length; i++)
+        {
+            abilityReasonParameter.options.Add(
+                new TMP_Dropdown.OptionData(
+                    Information.AbilityChineseIntroduction((Information.Parameter)i)));
+        }
+
+        abilityResultParameter.options = abilityReasonParameter.options;
+        abilityResultParameterToChange.options = abilityReasonParameter.options;
+
+        #endregion
     }
 
     /// <summary>
@@ -142,7 +178,7 @@ public class CardEditor : MonoBehaviour
 
     async UniTask AsyncSelectImage()
     {
-        FileBrowser.SetFilters(false,new FileBrowser.Filter("图片", ".jpg", ".bmp", ".png", ".gif"));
+        FileBrowser.SetFilters(false, new FileBrowser.Filter("图片", ".jpg", ".bmp", ".png", ".gif"));
 
         await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "选择卡牌图片", loadButtonText: "选择");
 
@@ -159,22 +195,20 @@ public class CardEditor : MonoBehaviour
     }
 
 
-
     async UniTask AsyncLoadImage(string imageFullPath)
     {
         var handler = new DownloadHandlerTexture();
-        UnityWebRequest unityWebRequest = new UnityWebRequest(imageFullPath, "GET", handler,null);
+        UnityWebRequest unityWebRequest = new UnityWebRequest(imageFullPath, "GET", handler, null);
         await unityWebRequest.SendWebRequest();
 
         if (unityWebRequest.isDone)
         {
             if (unityWebRequest.result == UnityWebRequest.Result.Success)
             {
-               
-                var sprite = Sprite.Create(handler.texture, new Rect(0f, 0f, handler.texture.width, handler.texture.height), Vector2.one/2);
+                var sprite = Sprite.Create(handler.texture,
+                    new Rect(0f, 0f, handler.texture.width, handler.texture.height), Vector2.one / 2);
                 imageOfCardField.sprite = sprite;
                 preview.image.sprite = sprite;
-
             }
             else
             {
@@ -182,15 +216,14 @@ public class CardEditor : MonoBehaviour
             }
         }
     }
-    
-   public void OnValueChanged()
+
+    public void OnValueChanged()
     {
         CardMaker.cardMaker.changeSignal.SetActive(true);
     }
 
     public void OnEditEnd()
     {
-
     }
 
     /// <summary>
@@ -212,16 +245,13 @@ public class CardEditor : MonoBehaviour
         //有分类标记的额外处理一下（处理分类标记和内容，加入禁用列表，合并同类项）
         WithClassificationNote.format(CharacterNameField);
         WithClassificationNote.format(tagField);
-
-
-
-
     }
+
 
     #region 有分类标记的处理方法
 
     private class WithClassificationNote
-    {  
+    {
         /// <summary>
         /// 格式化
         /// </summary>
@@ -246,26 +276,38 @@ public class CardEditor : MonoBehaviour
                 }
             }
         }
-
-
     }
 
     #endregion
-    
+
     #region 标签编辑那边的方法
 
     public void TagAddition()
     {
         if (tagStorage.Contains(tagField.text))
         {
-            Notify.notify.CreateBannerNotification(null,$"{tagField.text}已存在");
+            Notify.notify.CreateBannerNotification(null, $"标签“{tagField.text}”已存在");
             return;
         }
-        //储存增加一个
-    tagStorage.Add(tagField.text);
-    //显示出来
-    addTagListItem(tagField.text);
 
+        if (tagField.text.Contains(" "))
+        {
+            Notify.notify.CreateBannerNotification(null, $"标签“{tagField.text}”不能包含空格");
+            return;
+        }
+
+        if (tagField.text == "")
+        {
+            Notify.notify.CreateBannerNotification(null, $"标签不能为空");
+            return;
+        }
+
+        //储存增加一个
+        tagStorage.Add(tagField.text);
+        //显示出来
+        addTagListItem(tagField.text);
+        //清空输入框内容
+        tagField.text = "";
     }
 
 
@@ -278,14 +320,6 @@ public class CardEditor : MonoBehaviour
         var item = Instantiate(tagListButtonPerfebs.gameObject, tagParent).GetComponent<tagListItem>();
         item.Initialization(text);
     }
+
     #endregion
-
-
 }
-
-  
-
-
-
-
-

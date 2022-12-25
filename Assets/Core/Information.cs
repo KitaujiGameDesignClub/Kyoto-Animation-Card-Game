@@ -1,4 +1,5 @@
 
+using System;
 using KitaujiGameDesignClub.GameFramework.Tools;
 
 namespace Core
@@ -264,7 +265,8 @@ namespace Core
             /// </summary>
             OurChief,
         }
-
+        
+        
         /// <summary>
         /// 判断或修改的参数（Objects为Any时，忽视此类型）
         /// </summary>
@@ -356,11 +358,52 @@ namespace Core
             GetHurt,
         }
 
+        public static string AbilityChineseIntroduction<T>(T abilityEnum)
+        {
+             #region 对能力类型的判定
 
+            if (abilityEnum.GetType() == typeof(CardAbilityTypes))
+            {
+                var text = "触发判定";
+            
+                switch (abilityEnum)
+                {
+                    case CardAbilityTypes.Debut:
+                        return $"出场时{text}";
+                
+                    case CardAbilityTypes.Exit:
+                        return $"被击退时{text}";
+                
+                    case CardAbilityTypes.GetHurt:
+                        return $"受伤时{text}";
+                
+                    case CardAbilityTypes.None:
+                        return "不触发能力";
+                
+                    case CardAbilityTypes.Normal:
+                        return $"每回合{text}";
+                
+                    default:
+                        return "不触发能力";
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+
+            #endregion
+            
+           
+            
+            
+           
+        }
+        
         #endregion
 
 
-        #region 角色标签（默认值）
+        #region 角色标签（默认值 可以按照萌娘百科萌点来）
 
         public static string[] tags =
         {
@@ -396,7 +439,7 @@ namespace Core
 
             "%特长",
             "唱歌",
-             "乐器",
+            "乐器",
             "手眼通天",
             "知书达理",
             "无所不知",
@@ -404,7 +447,7 @@ namespace Core
            
 
             "%感情",
-            "有男友朋友",
+            "有男女朋友",
             "有挚友",
             "单身",
             "百合",
