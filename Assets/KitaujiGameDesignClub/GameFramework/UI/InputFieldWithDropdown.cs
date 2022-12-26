@@ -5,7 +5,8 @@ using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Button = UnityEngine.UI.Button;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {
@@ -63,6 +64,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                     text = Regex.Replace(text, "<.*?>", string.Empty);
                 }
             });
+            
             dropdownButton.onClick.AddListener(delegate
             {
                 if (supportFilter) Search(inputField.text);
@@ -76,21 +78,50 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         /// </summary>
         /// <param name="optionDatas"></param>
         /// <param name="all">要作为此下拉列表的全部内容吗</param>
+        public void ChangeOptionDatas(string[] optionDatas, bool all = true) =>
+            ChangeOptionDatas(Tools.CommonTools.ListArrayConversion(optionDatas), all);
+        
+        /// <summary>
+        /// 将下拉栏内容更换
+        /// </summary>
+        /// <param name="optionDatas"></param>
+        /// <param name="all">要作为此下拉列表的全部内容吗</param>
+        public void ChangeOptionDatas(List<TMP_Dropdown.OptionData> optionDatas, bool all = true)
+        {
+            List<string> s = new List<string>();
+            for (int i = 0; i < optionDatas.Count; i++)
+            {
+                s.Add(optionDatas[i].text);
+            }
+            ChangeOptionDatas(s, all);
+        }
+          
+        
+        /// <summary>
+        /// 将下拉栏内容更换
+        /// </summary>
+        /// <param name="optionDatas"></param>
+        /// <param name="all">要作为此下拉列表的全部内容吗</param>
         public void ChangeOptionDatas(List<string> optionDatas, bool all = true)
         {
+            dropdownButton.interactable = true;
             dropdown.ClearOptions();
             dropdown.AddOptions(optionDatas);
             dropdown.RefreshShownValue();
             if (all) allOptionDatas = optionDatas;
         }
 
-        /// <summary>
-        /// 将下拉栏内容更换
-        /// </summary>
-        /// <param name="optionDatas"></param>
-        /// <param name="all">要作为此下拉列表的全部内容吗</param>
-        public void ChangeOptionDatas(string[] optionDatas, bool all = true) =>
-            ChangeOptionDatas(Tools.CommonTools.ListArrayConversion(optionDatas), all);
+        public void Ban()
+        {
+            dropdown.Hide();
+            dropdownButton.interactable = false;
+            allOptionDatas = null;
+            supportFilter = false;
+            dropdown.ClearOptions();
+        }
+
+        public void ClearOptions() => dropdown.ClearOptions();
+       
 
 
         /// <summary>

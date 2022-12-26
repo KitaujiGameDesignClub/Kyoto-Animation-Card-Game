@@ -46,7 +46,7 @@ namespace Core
         /// <summary>
         /// 此卡状态
         /// </summary>
-        public Information.CardState State = Information.CardState.None;
+        public Information.CardState State;
 
         /// <summary>
         /// 羁绊被激活

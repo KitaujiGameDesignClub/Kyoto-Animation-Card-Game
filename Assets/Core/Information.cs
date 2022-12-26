@@ -514,6 +514,28 @@ namespace Core
             }
 
             #endregion
+
+            #region 卡牌状态
+
+            else if (abilityEnum.GetType() == typeof(CardState))
+            {
+                switch (abilityEnum)
+                {
+                    case CardState.Available:
+                        return "可招募";
+                    
+                    case CardState.Chief:
+                        return "担任部长";
+                    
+                    case CardState.Hand:
+                        return "待出场";
+
+                    case CardState.Present:
+                        return "已登场";
+                }
+            }
+
+            #endregion
       
                 return string.Empty;
             
@@ -666,8 +688,7 @@ namespace Core
         /// </summary>
         public enum CardState
         {
-            //默认的，没有在手牌、场上、部长位，可招募卡牌中出现
-            None,
+           
 
             /// <summary>
             /// 在可招募卡牌中出现

@@ -1,17 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Core;
 using Cysharp.Threading.Tasks;
 using KitaujiGameDesignClub.GameFramework.UI;
 using Lean.Gui;
-using NUnit.Framework;
 using SimpleFileBrowser;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 
 public class CardEditor : MonoBehaviour
@@ -59,12 +55,12 @@ public class CardEditor : MonoBehaviour
     public TMP_Dropdown abilityResultLargeScope;
     public TMP_Dropdown abilityResultParameter;
     public TMP_Dropdown abilityResultLogic;
-    public TMP_InputField abilityResultThreshold;
+    public InputFieldWithDropdown abilityResultThreshold;
     public TMP_Dropdown abilityResultParameterToChange;
     public InputFieldWithDropdown abilityResultSummon;
     public TMP_InputField abilityResultRidicule;
     public TMP_Dropdown abilityResultChangeMethod;
-    public TMP_InputField abilityResultChangeValue;
+    public InputFieldWithDropdown abilityResultChangeValue;
     [Header("描述侧")] public Lean.Gui.LeanButton Auto;
     public Lean.Gui.LeanButton Clear;
     public TMP_InputField abilityDescription;
@@ -83,57 +79,8 @@ public class CardEditor : MonoBehaviour
 
     private string newImageFullPath { get; set; }
 
-
-    public void OpenCardEditorForCreation(bool onlyCreateCard)
+    private void Awake()
     {
-        //启用编辑器，并初始化显示界面
-        gameObject.SetActive(true);
-        editor.SetActive(true);
-        abilityEditor.SetActive(false);
-
-        //把新创新的卡的信息填充进去显示
-        if (onlyCreateCard) CardMaker.cardMaker.nowEditingBundle = new();
-        //cards数组扩充一位
-        var cardsCache = CardMaker.cardMaker.nowEditingBundle.cards;
-        CardMaker.cardMaker.nowEditingBundle.cards = new CharacterCard[cardsCache.Length + 1];
-        for (int i = 0; i < CardMaker.cardMaker.nowEditingBundle.cards.Length; i++)
-        {
-            if (i == CardMaker.cardMaker.nowEditingBundle.cards.Length - 1)
-            {
-                CardMaker.cardMaker.nowEditingBundle.cards[i] = new CharacterCard();
-            }
-            else
-            {
-                CardMaker.cardMaker.nowEditingBundle.cards[i] = cardsCache[i];
-            }
-        }
-
-        cardsCache = null;
-
-        //信息显示到editor里
-
-        #region 常规的信息编辑
-
-        nowEditingCard =
-            CardMaker.cardMaker.nowEditingBundle.cards[CardMaker.cardMaker.nowEditingBundle.cards.Length - 1];
-        cardNameField.text = nowEditingCard.CardName;
-        friendlyNameField.text = nowEditingCard.FriendlyCardName;
-        AnimeField.text = onlyCreateCard ? nowEditingCard.Anime : CardMaker.cardMaker.nowEditingBundle.manifest.Anime;
-        CharacterNameField.text = nowEditingCard.CharacterName;
-        CVField.text = nowEditingCard.CV;
-        cardNumberField.text = nowEditingCard.CardCount.ToString();
-        genderField.value = nowEditingCard.gender;
-        basicHp.text = nowEditingCard.BasicHealthPoint.ToString();
-        basicPower.text = nowEditingCard.BasicPower.ToString();
-        abilityReasonType.value = (int)nowEditingCard.AbilityActivityType;
-        abilityReasonObjectAsTarget.TurnOff();
-        abilityDescription.text = nowEditingCard.AbilityDescription;
-        AsChiefToggle.Set(nowEditingCard.allowAsChief);
-        //获取可变下拉列表内容
-        RefreshVariableDropdownList(false);
-
-        #endregion
-
         #region 能力编辑初始化
 
         abilityReasonType.ClearOptions();
@@ -183,29 +130,133 @@ public class CardEditor : MonoBehaviour
         abilityReasonLogic.options.Add(new TMP_Dropdown.OptionData("大于"));
         abilityResultLogic.options = abilityReasonLogic.options;
         abilityReasonJudgeLogic.options = abilityReasonLogic.options;
-        
-abilityResultChangeMethod.ClearOptions();
-length = Enum.GetNames(typeof(Information.CalculationMethod)).Length;
-for (int i = 0; i < length; i++)
-{
-    abilityResultChangeMethod.options.Add(
-        new TMP_Dropdown.OptionData(
-            Information.AbilityChineseIntroduction((Information.CalculationMethod)i)));
-}
+
+        abilityResultChangeMethod.ClearOptions();
+        length = Enum.GetNames(typeof(Information.CalculationMethod)).Length;
+        for (int i = 0; i < length; i++)
+        {
+            abilityResultChangeMethod.options.Add(
+                new TMP_Dropdown.OptionData(
+                    Information.AbilityChineseIntroduction((Information.CalculationMethod)i)));
+        }
 
 
-abilityReasonJudgeMethod.ClearOptions();
-length = Enum.GetNames(typeof(Information.JudgeMethod)).Length;
-for (int i = 0; i < length; i++)
-{
-    abilityReasonJudgeMethod.options.Add(
-        new TMP_Dropdown.OptionData(
-            Information.AbilityChineseIntroduction((Information.JudgeMethod)i)));
-}
+        abilityReasonJudgeMethod.ClearOptions();
+        length = Enum.GetNames(typeof(Information.JudgeMethod)).Length;
+        for (int i = 0; i < length; i++)
+        {
+            abilityReasonJudgeMethod.options.Add(
+                new TMP_Dropdown.OptionData(
+                    Information.AbilityChineseIntroduction((Information.JudgeMethod)i)));
+        }
 
+        #endregion
 
+        #region 事件注册
 
+        //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
+        abilityResultParameter.onValueChanged.AddListener(delegate(int arg0)
+        {
+            switch (arg0)
+            {
+                //Anime
+                case 1:
+                    abilityResultThreshold.ChangeOptionDatas(AnimeField.options, true);
+                    abilityResultThreshold.ban = AnimeField.ban;
+                    abilityResultThreshold.supportFilter = true;
+                    break;
 
+                //tag
+                case 2:
+                    abilityResultThreshold.ChangeOptionDatas(tagField.options, true);
+                    abilityResultThreshold.ban = tagField.ban;
+                    abilityResultThreshold.supportFilter = true;
+                    break;
+
+                //state
+                case 7:
+                    abilityResultThreshold.ClearOptions();
+                    var length = Enum.GetNames(typeof(Information.CardState)).Length;
+                    for (int i = 0; i < length; i++)
+                    {
+                        abilityResultThreshold.options.Add(
+                            new TMP_Dropdown.OptionData(
+                                Information.AbilityChineseIntroduction((Information.CardState)i)));
+                    }
+
+                    abilityResultThreshold.supportFilter = true;
+                    break;
+
+                //cv
+                case 8:
+                    abilityResultThreshold.ChangeOptionDatas(CVField.options);
+                    abilityResultThreshold.ban = CVField.ban;
+                    abilityResultThreshold.supportFilter = true;
+                    break;
+
+                //characterName
+                case 9:
+                    abilityResultThreshold.ChangeOptionDatas(CharacterNameField.options);
+                    abilityResultThreshold.ban = CharacterNameField.ban;
+                    abilityResultThreshold.supportFilter = true;
+                    break;
+
+                default:
+                    abilityResultThreshold.Ban();
+                    break;
+            }
+        });
+
+        #endregion
+    }
+
+    public void OpenCardEditorForCreation(bool onlyCreateCard)
+    {
+        //启用编辑器，并初始化显示界面
+        gameObject.SetActive(true);
+        editor.SetActive(true);
+        abilityEditor.SetActive(false);
+
+        //把新创新的卡的信息填充进去显示
+        if (onlyCreateCard) CardMaker.cardMaker.nowEditingBundle = new();
+        //cards数组扩充一位
+        var cardsCache = CardMaker.cardMaker.nowEditingBundle.cards;
+        CardMaker.cardMaker.nowEditingBundle.cards = new CharacterCard[cardsCache.Length + 1];
+        for (int i = 0; i < CardMaker.cardMaker.nowEditingBundle.cards.Length; i++)
+        {
+            if (i == CardMaker.cardMaker.nowEditingBundle.cards.Length - 1)
+            {
+                CardMaker.cardMaker.nowEditingBundle.cards[i] = new CharacterCard();
+            }
+            else
+            {
+                CardMaker.cardMaker.nowEditingBundle.cards[i] = cardsCache[i];
+            }
+        }
+
+        cardsCache = null;
+
+        //信息显示到editor里
+
+        #region 常规的信息编辑
+
+        nowEditingCard =
+            CardMaker.cardMaker.nowEditingBundle.cards[CardMaker.cardMaker.nowEditingBundle.cards.Length - 1];
+        cardNameField.text = nowEditingCard.CardName;
+        friendlyNameField.text = nowEditingCard.FriendlyCardName;
+        AnimeField.text = onlyCreateCard ? nowEditingCard.Anime : CardMaker.cardMaker.nowEditingBundle.manifest.Anime;
+        CharacterNameField.text = nowEditingCard.CharacterName;
+        CVField.text = nowEditingCard.CV;
+        cardNumberField.text = nowEditingCard.CardCount.ToString();
+        genderField.value = nowEditingCard.gender;
+        basicHp.text = nowEditingCard.BasicHealthPoint.ToString();
+        basicPower.text = nowEditingCard.BasicPower.ToString();
+        abilityReasonType.value = (int)nowEditingCard.AbilityActivityType;
+        abilityReasonObjectAsTarget.TurnOff();
+        abilityDescription.text = nowEditingCard.AbilityDescription;
+        AsChiefToggle.Set(nowEditingCard.allowAsChief);
+        //获取可变下拉列表内容
+        RefreshVariableDropdownList(false);
 
         #endregion
     }
@@ -258,11 +309,13 @@ for (int i = 0; i < length; i++)
         }
     }
 
+    //同步变化
     public void OnValueChanged()
     {
         CardMaker.cardMaker.changeSignal.SetActive(true);
     }
 
+    //更新阈值（值）输入框下拉菜单内容
     public void OnEditEnd()
     {
     }
