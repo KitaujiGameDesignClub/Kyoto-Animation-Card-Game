@@ -51,6 +51,10 @@ public class CardEditor : MonoBehaviour
     public TMP_Dropdown abilityReasonParameter;
     public TMP_Dropdown abilityReasonLogic;
     public TMP_InputField abilityReasonThreshold;
+    public TMP_Dropdown abilityReasonJudgeParameter;
+    public TMP_Dropdown abilityReasonJudgeMethod;
+    public TMP_Dropdown abilityReasonJudgeLogic;
+    public TMP_InputField abilityReasonJudgeThreshold;
     [Header("效果侧")] public Lean.Gui.LeanToggle abilityReasonObjectAsTarget;
     public TMP_Dropdown abilityResultLargeScope;
     public TMP_Dropdown abilityResultParameter;
@@ -60,7 +64,7 @@ public class CardEditor : MonoBehaviour
     public InputFieldWithDropdown abilityResultSummon;
     public TMP_InputField abilityResultRidicule;
     public TMP_Dropdown abilityResultChangeMethod;
-    public TMP_Dropdown abilityResultChangeValue;
+    public TMP_InputField abilityResultChangeValue;
     [Header("描述侧")] public Lean.Gui.LeanButton Auto;
     public Lean.Gui.LeanButton Clear;
     public TMP_InputField abilityDescription;
@@ -155,6 +159,7 @@ public class CardEditor : MonoBehaviour
         abilityReasonParameter.ClearOptions();
         abilityResultParameter.ClearOptions();
         abilityResultParameterToChange.ClearOptions();
+        abilityReasonJudgeParameter.ClearOptions();
         length = Enum.GetNames(typeof(Information.Parameter)).Length;
         for (int i = 0; i < length; i++)
         {
@@ -163,8 +168,44 @@ public class CardEditor : MonoBehaviour
                     Information.AbilityChineseIntroduction((Information.Parameter)i)));
         }
 
+        abilityReasonJudgeParameter.options = abilityReasonParameter.options;
         abilityResultParameter.options = abilityReasonParameter.options;
         abilityResultParameterToChange.options = abilityReasonParameter.options;
+
+        abilityReasonLogic.ClearOptions();
+        abilityResultLogic.ClearOptions();
+        abilityReasonJudgeLogic.ClearOptions();
+        abilityReasonLogic.options.Add(new TMP_Dropdown.OptionData("不等于/不包含"));
+        abilityReasonLogic.options.Add(new TMP_Dropdown.OptionData("小于"));
+        abilityReasonLogic.options.Add(new TMP_Dropdown.OptionData("小于等于"));
+        abilityReasonLogic.options.Add(new TMP_Dropdown.OptionData("等于/包含"));
+        abilityReasonLogic.options.Add(new TMP_Dropdown.OptionData("大于等于"));
+        abilityReasonLogic.options.Add(new TMP_Dropdown.OptionData("大于"));
+        abilityResultLogic.options = abilityReasonLogic.options;
+        abilityReasonJudgeLogic.options = abilityReasonLogic.options;
+        
+abilityResultChangeMethod.ClearOptions();
+length = Enum.GetNames(typeof(Information.CalculationMethod)).Length;
+for (int i = 0; i < length; i++)
+{
+    abilityResultChangeMethod.options.Add(
+        new TMP_Dropdown.OptionData(
+            Information.AbilityChineseIntroduction((Information.CalculationMethod)i)));
+}
+
+
+abilityReasonJudgeMethod.ClearOptions();
+length = Enum.GetNames(typeof(Information.JudgeMethod)).Length;
+for (int i = 0; i < length; i++)
+{
+    abilityReasonJudgeMethod.options.Add(
+        new TMP_Dropdown.OptionData(
+            Information.AbilityChineseIntroduction((Information.JudgeMethod)i)));
+}
+
+
+
+
 
         #endregion
     }

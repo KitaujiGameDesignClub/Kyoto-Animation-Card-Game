@@ -387,15 +387,135 @@ namespace Core
                         return "不触发能力";
                 }
             }
-            else
+          
+            #endregion
+
+            #region 参数
+
+            else if (abilityEnum.GetType() == typeof(Parameter))
             {
-                return string.Empty;
+                switch (abilityEnum)
+                {
+                    case Parameter.Anime:
+                        return "所属动画";
+                    
+                    case Parameter.CharacterName:
+                        return "角色名称";
+                    
+                    case Parameter.Coin:
+                        return "硬币数量";
+                    
+                    case Parameter.CV:
+                        return "CV名称";
+                    
+                    case Parameter.HealthPoint:
+                        return "体力值";
+                    
+                    case Parameter.None:
+                        return "不涉及参数";
+                    
+                    case Parameter.Power:
+                        return "执行力";
+                    
+                    case Parameter.Ridicule:
+                        return "剩余嘲讽回合数";
+                    
+                    case Parameter.Silence:
+                        return "剩余沉默回合数";
+                    
+                    case Parameter.State:
+                        return "角色状态";
+                    
+                    case Parameter.Tag:
+                        return "标签";
+                }
+            }
+
+
+            #endregion
+
+            #region 对象检索范围（大范围）
+
+            else if (abilityEnum.GetType() == typeof(Objects))
+            {
+                switch (abilityEnum)
+                {
+                    case Objects.Activator:
+                        return "触发器";
+                    
+                    case Objects.AllInTeam:
+                        return "己方全部";
+                    
+                    case Objects.AllOfEnemy:
+                        return "敌方全部";
+                    
+                    case Objects.AllOnSpot:
+                        return "场上所有";
+                    
+                    case Objects.Any:
+                        return "任何情况下都可以";
+                    
+                    case Objects.ChiefOfEnemy:
+                        return "敌方部长";
+                    
+                    case Objects.Last:
+                        return "己方上位";
+                    
+                    case Objects.Next:
+                        return "己方下位";
+                    
+                    case Objects.None:
+                        return "不设定范围";
+                    
+                    case Objects.OurChief:
+                        return "己方部长";
+                    
+                    case Objects.RandomInTeam:
+                        return "己方随机一位";
+                    
+                    case Objects.RandomOfEnemy:
+                        return "敌方随机一位";
+                    
+                    case Objects.Self:
+                        return "卡牌自身";
+                    
+                }
             }
 
             #endregion
+
+            #region 判定方法
+
+           else if (abilityEnum.GetType() == typeof(JudgeMethod))
+            {
+                switch (abilityEnum)
+                {
+                    case JudgeMethod.Count:
+                        return "计数";
+                    
+                    case JudgeMethod.Value:
+                        return "取值";
+                }
+            }
             
-           
-            
+            else if (abilityEnum.GetType() == typeof(CalculationMethod))
+            {
+                switch (abilityEnum)
+                {
+                    case CalculationMethod.addition:
+                        return "加法运算";
+                    
+                    case CalculationMethod.multiplication:
+                        return "乘法运算";
+                    
+                    case CalculationMethod.ChangeTo:
+                        return "数值变更";
+                }
+            }
+
+            #endregion
+      
+                return string.Empty;
             
            
         }
