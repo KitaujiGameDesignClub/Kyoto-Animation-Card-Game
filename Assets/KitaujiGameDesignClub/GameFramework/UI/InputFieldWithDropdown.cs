@@ -12,7 +12,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 {
     public class InputFieldWithDropdown : MonoBehaviour
     {
-        private TMP_InputField inputField;
+      [HideInInspector]  public TMP_InputField inputField;
         private TMP_Dropdown dropdown;
         private Button dropdownButton;
 
@@ -23,6 +23,17 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         {
             get => inputField.text;
             set => inputField.text = value;
+            
+        }
+
+        public bool interactable
+        {
+            get => inputField.interactable;
+            set
+            {
+                inputField.interactable = value;
+                dropdownButton.interactable = value;
+            }
         }
 
         public List<TMP_Dropdown.OptionData> options => dropdown.options;
@@ -43,6 +54,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 
         private void Awake()
         {
+            
             inputField = GetComponentInChildren<TMP_InputField>();
             dropdown = GetComponentInChildren<TMP_Dropdown>();
             dropdownButton = GetComponentInChildren<Button>();

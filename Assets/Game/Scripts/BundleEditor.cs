@@ -78,13 +78,13 @@ public class BundleEditor : MonoBehaviour
 
         //直接把新的当作正在编辑的卡包，并获取信息
         var manifest = CardMaker.cardMaker.nowEditingBundle.manifest;
-        bundleName.text = manifest.BundleName;
-        bundleFriendlyName.text = manifest.FriendlyBundleName;
-        authorName.text = manifest.AuthorName;
-        Anime.text = manifest.Anime;
-        description.text = manifest.Description;
-        remark.text = manifest.Remarks;
-        bundleVersion.text = manifest.BundleVersion;
+        bundleName.SetTextWithoutNotify(manifest.BundleName);
+        bundleFriendlyName.SetTextWithoutNotify(manifest.FriendlyBundleName);
+        authorName.SetTextWithoutNotify(manifest.AuthorName);
+        Anime.inputField.SetTextWithoutNotify(manifest.Anime);
+        description.SetTextWithoutNotify(manifest.Description);
+        remark.SetTextWithoutNotify(manifest.Remarks);
+        bundleVersion.SetTextWithoutNotify(manifest.BundleVersion);
         //  shortDescription.text = CardMaker.cardMaker.nowEditingBundle.manifest.shortDescription;
         bundleImage.sprite = DefaultImage;
 

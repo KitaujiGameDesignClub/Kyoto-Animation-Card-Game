@@ -46,12 +46,13 @@ public class CardEditor : MonoBehaviour
     public TMP_Dropdown abilityReasonLargeScope;
     public TMP_Dropdown abilityReasonParameter;
     public TMP_Dropdown abilityReasonLogic;
-    public TMP_InputField abilityReasonThreshold;
+    public InputFieldWithDropdown abilityReasonThreshold;
     public TMP_Dropdown abilityReasonJudgeParameter;
     public TMP_Dropdown abilityReasonJudgeMethod;
     public TMP_Dropdown abilityReasonJudgeLogic;
-    public TMP_InputField abilityReasonJudgeThreshold;
+    public InputFieldWithDropdown abilityReasonJudgeThreshold;
     [Header("效果侧")] public Lean.Gui.LeanToggle abilityReasonObjectAsTarget;
+    private LeanButton abilityReasonObjectAsTargetButton;
     public TMP_Dropdown abilityResultLargeScope;
     public TMP_Dropdown abilityResultParameter;
     public TMP_Dropdown abilityResultLogic;
@@ -59,12 +60,14 @@ public class CardEditor : MonoBehaviour
     public TMP_Dropdown abilityResultParameterToChange;
     public InputFieldWithDropdown abilityResultSummon;
     public TMP_InputField abilityResultRidicule;
+    public TMP_InputField abilityResultSilence;
     public TMP_Dropdown abilityResultChangeMethod;
     public InputFieldWithDropdown abilityResultChangeValue;
     [Header("描述侧")] public Lean.Gui.LeanButton Auto;
     public Lean.Gui.LeanButton Clear;
     public TMP_InputField abilityDescription;
-
+    public LeanToggle autoGenerate;
+    
     [Space()] public CardPanel preview;
 
     /// <summary>
@@ -81,6 +84,8 @@ public class CardEditor : MonoBehaviour
 
     private void Awake()
     {
+        abilityReasonObjectAsTargetButton = abilityReasonObjectAsTarget.GetComponent<LeanButton>();
+        
         #region 能力编辑初始化
 
         abilityReasonType.ClearOptions();
@@ -155,59 +160,39 @@ public class CardEditor : MonoBehaviour
         #region 事件注册
 
         //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
+        
+       abilityReasonJudgeParameter.onValueChanged.AddListener(delegate(int arg0)
+        {
+            inputFieldHelperContent(abilityReasonJudgeThreshold, arg0);
+        });
+        //当“修范围数”变化时，同步更新“范围阈值”的辅助下拉框内容
+        abilityReasonParameter.onValueChanged.AddListener(delegate(int arg0)
+        {
+            inputFieldHelperContent(abilityReasonThreshold, arg0);
+        });
+        //当“修改参数”变化时，同步更新“值”的辅助下拉框内容
+       abilityResultParameterToChange.onValueChanged.AddListener(delegate(int arg0)
+        {
+            inputFieldHelperContent(abilityResultChangeValue, arg0);
+        });
+        //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
         abilityResultParameter.onValueChanged.AddListener(delegate(int arg0)
         {
-            switch (arg0)
-            {
-                //Anime
-                case 1:
-                    abilityResultThreshold.ChangeOptionDatas(AnimeField.options, true);
-                    abilityResultThreshold.ban = AnimeField.ban;
-                    abilityResultThreshold.supportFilter = true;
-                    break;
-
-                //tag
-                case 2:
-                    abilityResultThreshold.ChangeOptionDatas(tagField.options, true);
-                    abilityResultThreshold.ban = tagField.ban;
-                    abilityResultThreshold.supportFilter = true;
-                    break;
-
-                //state
-                case 7:
-                    abilityResultThreshold.ClearOptions();
-                    var length = Enum.GetNames(typeof(Information.CardState)).Length;
-                    for (int i = 0; i < length; i++)
-                    {
-                        abilityResultThreshold.options.Add(
-                            new TMP_Dropdown.OptionData(
-                                Information.AbilityChineseIntroduction((Information.CardState)i)));
-                    }
-
-                    abilityResultThreshold.supportFilter = true;
-                    break;
-
-                //cv
-                case 8:
-                    abilityResultThreshold.ChangeOptionDatas(CVField.options);
-                    abilityResultThreshold.ban = CVField.ban;
-                    abilityResultThreshold.supportFilter = true;
-                    break;
-
-                //characterName
-                case 9:
-                    abilityResultThreshold.ChangeOptionDatas(CharacterNameField.options);
-                    abilityResultThreshold.ban = CharacterNameField.ban;
-                    abilityResultThreshold.supportFilter = true;
-                    break;
-
-                default:
-                    abilityResultThreshold.Ban();
-                    break;
-            }
+            inputFieldHelperContent(abilityResultThreshold, arg0);
+        });
+        
+        //参数、能力类型可以选择类似于None的选项，如果选定了，则禁用一些输入内容
+        abilityReasonType.onValueChanged.AddListener(delegate(int arg0)
+        {
+            banAllInputFieldInteraction(arg0 != 0);
         });
 
         #endregion
+        
+       
+        
+      
+       
     }
 
     public void OpenCardEditorForCreation(bool onlyCreateCard)
@@ -259,6 +244,8 @@ public class CardEditor : MonoBehaviour
         RefreshVariableDropdownList(false);
 
         #endregion
+        
+        banAllInputFieldInteraction(false);
     }
 
     /// <summary>
@@ -313,11 +300,26 @@ public class CardEditor : MonoBehaviour
     public void OnValueChanged()
     {
         CardMaker.cardMaker.changeSignal.SetActive(true);
+        
+        //预览中，除了能力外所有的信息进行同步
+        preview.UpdateBasicInformation(cardNameField.text,CVField.text,preview.description.text,imageOfCardField.sprite);
     }
 
     //更新阈值（值）输入框下拉菜单内容
     public void OnEditEnd()
     {
+      
+        
+        
+        //自动生成能力描述
+        if (autoGenerate.On)
+        {
+            
+           // preview.description.text =$"当{abilityReasonLargeScope.captionText}存在{abilityReasonParameter.captionText}为{}时，"
+        }
+        
+        
+   
     }
 
     /// <summary>
@@ -341,7 +343,94 @@ public class CardEditor : MonoBehaviour
         WithClassificationNote.format(tagField);
     }
 
+/// <summary>
+/// 禁用所有输入框的交互
+/// </summary>
+/// <param name="ban"></param>
+    private void banAllInputFieldInteraction(bool ban)
+    {
+        abilityReasonLargeScope.interactable = ban;
+        abilityReasonParameter.interactable = ban;
+        abilityReasonLogic.interactable = ban;
+        abilityReasonThreshold.interactable = ban;
+        abilityReasonJudgeParameter.interactable = ban;
+        abilityReasonJudgeMethod.interactable = ban;
+        abilityReasonJudgeParameter.interactable = ban;
+        abilityReasonJudgeLogic.interactable = ban;
+        abilityReasonJudgeThreshold.interactable = ban;
+       abilityReasonObjectAsTargetButton.interactable = ban;
+        abilityResultLargeScope.interactable = ban;
+        abilityResultParameter.interactable = ban;
+        abilityResultLogic.interactable = ban;
+        abilityResultThreshold.interactable = ban;
+        abilityResultParameterToChange.interactable = ban;
+        abilityResultChangeMethod.interactable = ban;
+        abilityResultChangeValue.interactable = ban;
+        abilityResultSummon.interactable = ban;
+        abilityResultRidicule.interactable = ban;
+        abilityResultSilence.interactable = ban;
+    }
+    
+    /// <summary>
+    /// 为带有helper的输入框提供可变的下拉栏帮助（用于规范输入内容）
+    /// </summary>
+    /// <param name="inputFieldWithDropdown"></param>
+    /// <param name="index"></param>
+    private void inputFieldHelperContent(InputFieldWithDropdown inputFieldWithDropdown,int index)
+    {
+        switch (index)
+        {
+            //Anime
+            case 1:
+                inputFieldWithDropdown.ChangeOptionDatas(AnimeField.options, true);
+                inputFieldWithDropdown.ban = AnimeField.ban;
+                inputFieldWithDropdown.supportFilter = true;
+                break;
 
+            //tag
+            case 2:
+                inputFieldWithDropdown.ChangeOptionDatas(tagField.options, true);
+                inputFieldWithDropdown.ban = tagField.ban;
+                inputFieldWithDropdown.supportFilter = true;
+                break;
+
+            //state
+            case 7:
+                inputFieldWithDropdown.ClearOptions();
+                var length = Enum.GetNames(typeof(Information.CardState)).Length;
+                for (int i = 0; i < length; i++)
+                {
+                    inputFieldWithDropdown.options.Add(
+                        new TMP_Dropdown.OptionData(
+                            Information.AbilityChineseIntroduction((Information.CardState)i)));
+                }
+
+                inputFieldWithDropdown.supportFilter = true;
+                break;
+
+            //cv
+            case 8:
+                inputFieldWithDropdown.ChangeOptionDatas(CVField.options);
+                inputFieldWithDropdown.ban = CVField.ban;
+                inputFieldWithDropdown.supportFilter = true;
+                break;
+
+            //characterName
+            case 9:
+                inputFieldWithDropdown.ChangeOptionDatas(CharacterNameField.options);
+                inputFieldWithDropdown.ban = CharacterNameField.ban;
+                inputFieldWithDropdown.supportFilter = true;
+                break;
+
+            default:
+                inputFieldWithDropdown.Ban();
+                inputFieldWithDropdown.inputField.contentType = TMP_InputField.ContentType.IntegerNumber;
+                inputFieldWithDropdown.text = String.Empty;
+                break;
+        }
+    }
+    
+    
     #region 有分类标记的处理方法
 
     private class WithClassificationNote
