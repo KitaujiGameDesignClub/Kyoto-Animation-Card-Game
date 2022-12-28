@@ -65,9 +65,9 @@ namespace Core
         public string SummonCardName;
 
         /// <summary>
-        /// 嘲讽（回合数用下面的value和配套算法来计算）
+        /// 嘲讽回合数（>1时，就只会攻击嘲讽他的那位）
         /// </summary>
-        public bool Ridicule;
+        public int Ridicule;
         
         //新一轮的对象筛选（筛选出结果对象）
 

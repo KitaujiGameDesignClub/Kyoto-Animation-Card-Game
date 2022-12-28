@@ -37,6 +37,10 @@ public class CardReadWrite
     public static void ReadCV()
     {
         Information.CV = YamlReadWrite.Read(Information.cvIO, Information.CV);
+        if (Information.CV != null && Information.CV[0] != "不设置声优")
+        {
+            Information.CV[0] = "不设置声优";
+        }
     }
 
     public static void ReadCharacterNames()

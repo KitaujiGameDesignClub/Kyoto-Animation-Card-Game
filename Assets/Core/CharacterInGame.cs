@@ -603,11 +603,7 @@ namespace Core
                
             }
             
-            //嘲讽（自身）
-            if (profile.Result.Ridicule)
-            {
-                ridicule = ChangeIntValue(ridicule);
-            }
+          
             #region 获取能力发动的对象 能力发动到谁身上？
 
             //如果要召唤，那就直接不把激活能力的条件对象作为结果对象
@@ -650,6 +646,10 @@ namespace Core
                     
                     case Information.Parameter.Silence:
                         card.silence = ChangeIntValue(card.silence);
+                        break;
+                    
+                    case Information.Parameter.Ridicule:
+                        card.ridicule = ChangeIntValue(card.ridicule);
                         break;
                     
                     case Information.Parameter.Tag:

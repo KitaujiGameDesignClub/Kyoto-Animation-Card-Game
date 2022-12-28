@@ -18,7 +18,7 @@ public class CardPanel : MonoBehaviour
     public void UpdateBasicInformation(string cardName,string cv, string description,Sprite image)
     {
         this.cardName.text = cardName ?? throw new ArgumentNullException(nameof(cardName));
-        this.cv.text = cv ?? throw new ArgumentNullException(nameof(cv));
+        this.cv.text = cv == "不设置声优" ? string.Empty : $"cv:{cv}";
         this.description.text = description ?? throw new ArgumentNullException(nameof(description));
         this.image.sprite = image == null ? defaultImage : image;
     }

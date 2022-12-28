@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Core;
 using Cysharp.Threading.Tasks;
 using KitaujiGameDesignClub.GameFramework.UI;
@@ -14,7 +15,8 @@ public class CardEditor : MonoBehaviour
 {
     public GameObject editor;
     public GameObject abilityEditor;
-
+    
+    
     [Header("信息侧")] public TMP_InputField cardNameField;
     public TMP_InputField friendlyNameField;
     public InputFieldWithDropdown AnimeField;
@@ -28,14 +30,11 @@ public class CardEditor : MonoBehaviour
     public LeanToggle AsChiefToggle;
 
     [Header("标签侧")] public InputFieldWithDropdown tagField;
-
     /// <summary>
     /// tag list里所有的按钮的预设
     /// </summary>
     public tagListItem tagListButtonPerfebs;
-
     public RectTransform tagParent;
-
     /// <summary>
     /// 暂存tag
     /// </summary>
@@ -82,6 +81,11 @@ public class CardEditor : MonoBehaviour
 
     private string newImageFullPath { get; set; }
 
+    /// <summary>
+    /// 卡组内第几张卡？
+    /// </summary>
+    private int index = 0;
+    
     private void Awake()
     {
         abilityReasonObjectAsTargetButton = abilityReasonObjectAsTarget.GetComponent<LeanButton>();
@@ -184,8 +188,38 @@ public class CardEditor : MonoBehaviour
         //参数、能力类型可以选择类似于None的选项，如果选定了，则禁用一些输入内容
         abilityReasonType.onValueChanged.AddListener(delegate(int arg0)
         {
-            banAllInputFieldInteraction(arg0 != 0);
+            banAllInputFieldInteraction(arg0 != 0,0);
         });
+        
+        //当将触发器作为处理对象时，禁用部分结果输入
+        abilityReasonObjectAsTarget.OnOn.AddListener(delegate
+        {
+            abilityResultLargeScope.interactable = false;
+            abilityResultParameter.interactable = false;
+            abilityResultLogic.interactable = false;
+            abilityResultThreshold.interactable = false;
+            
+        });
+        abilityReasonObjectAsTarget.OnOff.AddListener(delegate
+        {
+            abilityResultLargeScope.interactable = true;
+            abilityResultParameter.interactable = true;
+            abilityResultLogic.interactable = true;
+            abilityResultThreshold.interactable = true;
+            
+        });
+        
+        //ability描述点击 清楚内容 按钮，成品预览那边同步更新
+      abilityDescription.onValueChanged.AddListener(delegate(string arg0)
+      {
+          var text = arg0.Replace("<rb>","<color=red><b>");
+          text = text.Replace("<g>", "<#00FF25>");
+          text = text.Replace("<bl>", "<#0158B7>");
+          text = text.Replace("</rb>", "</color>");
+          text = text.Replace("</g>", "</color>");
+          text = text.Replace("</bl>", "</color>");
+          preview.description.text = text;
+      });
 
         #endregion
         
@@ -211,10 +245,13 @@ public class CardEditor : MonoBehaviour
         {
             if (i == CardMaker.cardMaker.nowEditingBundle.cards.Length - 1)
             {
+                //新创建的，正在编辑的
+                index = i;
                 CardMaker.cardMaker.nowEditingBundle.cards[i] = new CharacterCard();
             }
             else
             {
+               
                 CardMaker.cardMaker.nowEditingBundle.cards[i] = cardsCache[i];
             }
         }
@@ -227,16 +264,18 @@ public class CardEditor : MonoBehaviour
 
         nowEditingCard =
             CardMaker.cardMaker.nowEditingBundle.cards[CardMaker.cardMaker.nowEditingBundle.cards.Length - 1];
-        cardNameField.text = nowEditingCard.CardName;
-        friendlyNameField.text = nowEditingCard.FriendlyCardName;
-        AnimeField.text = onlyCreateCard ? nowEditingCard.Anime : CardMaker.cardMaker.nowEditingBundle.manifest.Anime;
-        CharacterNameField.text = nowEditingCard.CharacterName;
-        CVField.text = nowEditingCard.CV;
-        cardNumberField.text = nowEditingCard.CardCount.ToString();
-        genderField.value = nowEditingCard.gender;
-        basicHp.text = nowEditingCard.BasicHealthPoint.ToString();
-        basicPower.text = nowEditingCard.BasicPower.ToString();
-        abilityReasonType.value = (int)nowEditingCard.AbilityActivityType;
+        cardNameField.SetTextWithoutNotify(nowEditingCard.CardName);
+        friendlyNameField.SetTextWithoutNotify(nowEditingCard.FriendlyCardName);
+        AnimeField.inputField.SetTextWithoutNotify(onlyCreateCard ? nowEditingCard.Anime : CardMaker.cardMaker.nowEditingBundle.manifest.Anime);
+        CharacterNameField.inputField.SetTextWithoutNotify(nowEditingCard.CharacterName);
+        CVField.inputField.SetTextWithoutNotify(nowEditingCard.CV);
+        cardNumberField.SetTextWithoutNotify(nowEditingCard.CardCount.ToString());
+        genderField.SetValueWithoutNotify(nowEditingCard.gender);
+        basicHp.SetTextWithoutNotify(nowEditingCard.BasicHealthPoint.ToString());
+        basicHp.contentType = TMP_InputField.ContentType.IntegerNumber;
+        basicPower.SetTextWithoutNotify(nowEditingCard.BasicPower.ToString());
+        basicHp.contentType = TMP_InputField.ContentType.IntegerNumber;
+        abilityReasonType.SetValueWithoutNotify((int)nowEditingCard.AbilityActivityType);
         abilityReasonObjectAsTarget.TurnOff();
         abilityDescription.text = nowEditingCard.AbilityDescription;
         AsChiefToggle.Set(nowEditingCard.allowAsChief);
@@ -245,7 +284,22 @@ public class CardEditor : MonoBehaviour
 
         #endregion
         
-        banAllInputFieldInteraction(false);
+        banAllInputFieldInteraction(false,0);
+        
+        OnValueChanged();
+        
+        CVField.inputField.SetTextWithoutNotify(String.Empty);
+        CardMaker.cardMaker.changeSignal.SetActive(false);
+        
+        
+        //召唤生成那边，是要获取该卡组内的所有卡牌
+        var card = new string[CardMaker.cardMaker.nowEditingBundle.cards.Length];
+        for (int i = 0; i <CardMaker.cardMaker.nowEditingBundle.cards.Length; i++)
+        {
+            card[i] = CardMaker.cardMaker.nowEditingBundle.cards[i].FriendlyCardName;
+        }
+        abilityResultSummon.ChangeOptionDatas(card);
+        abilityResultSummon.interactable = false;
     }
 
     /// <summary>
@@ -302,9 +356,54 @@ public class CardEditor : MonoBehaviour
         CardMaker.cardMaker.changeSignal.SetActive(true);
         
         //预览中，除了能力外所有的信息进行同步
-        preview.UpdateBasicInformation(cardNameField.text,CVField.text,preview.description.text,imageOfCardField.sprite);
+        preview.UpdateBasicInformation(friendlyNameField.text,CVField.text,preview.description.text,imageOfCardField.sprite);
+        
+       
+
+
     }
 
+    public async void Save()
+    {
+        //内存保存
+        var editing = CardMaker.cardMaker.nowEditingBundle.cards[index];
+        editing.CardName = cardNameField.text;
+        editing.gender = genderField.value;
+        editing.FriendlyCardName = friendlyNameField.text;
+        editing.Anime = AnimeField.text;
+        editing.tags = tagStorage;
+        editing.CardCount = int.Parse(cardNumberField.text);
+        editing.imageName = newImageFullPath == String.Empty ? editing.imageName : Path.GetFileName(newImageFullPath);
+        editing.CharacterName = CharacterNameField.text;
+        editing.CV = CVField.text;
+        editing.allowAsChief = AsChiefToggle.On;
+        editing.BasicPower = int.Parse(basicPower.text);
+        editing.BasicHealthPoint = int.Parse(basicHp.text);
+        editing.AbilityActivityType = (Information.CardAbilityTypes)abilityReasonType.value;
+        editing.Reason.NeededObjects.LargeScope = (Information.Objects)abilityReasonLargeScope.value;
+        editing.Reason.NeededObjects.ParameterToShrinkScope = (Information.Parameter)abilityReasonParameter.value;
+        editing.Reason.NeededObjects.Logic = abilityReasonLogic.value;
+        editing.Reason.NeededObjects.Threshold = abilityReasonThreshold.text;
+        editing.Reason.Logic = abilityReasonLogic.value;
+        editing.Reason.ReasonParameter = (Information.Parameter)abilityReasonJudgeParameter.value;
+        editing.Reason.ReasonJudgeMethod = (Information.JudgeMethod)abilityReasonJudgeMethod.value;
+        editing.Reason.Threshold = abilityReasonJudgeThreshold.text;
+        editing.Result.RegardActivatorAsResultObject = abilityReasonObjectAsTarget.On;
+        editing.Result.SummonCardName = abilityResultSummon.text;
+        editing.Result.Ridicule = int.Parse(abilityResultRidicule.text);
+        editing.Result.ResultObject.LargeScope = (Information.Objects)abilityResultLargeScope.value;
+        editing.Result.ResultObject.ParameterToShrinkScope = (Information.Parameter)abilityResultParameter.value;
+        editing.Result.ResultObject.Logic = abilityResultLogic.value;
+        editing.Result.ResultObject.Threshold = abilityResultThreshold.text;
+        editing.Result.ParameterToChange = (Information.Parameter)abilityResultParameterToChange.value;
+        editing.Result.CalculationMethod = (Information.CalculationMethod)abilityResultChangeMethod.value;
+        editing.Result.Value = abilityResultChangeValue.text;
+        
+        //音频
+        
+    }
+    
+    
     //更新阈值（值）输入框下拉菜单内容
     public void OnEditEnd()
     {
@@ -347,18 +446,23 @@ public class CardEditor : MonoBehaviour
 /// 禁用所有输入框的交互
 /// </summary>
 /// <param name="ban"></param>
-    private void banAllInputFieldInteraction(bool ban)
+    private void banAllInputFieldInteraction(bool ban,int level)
     {
-        abilityReasonLargeScope.interactable = ban;
+        //IF先暂时放着吧，以后补上
+
+        //0:触发类型选择“不”会触发
+        if (level == 0)
+        {
+            abilityReasonLargeScope.interactable = ban;
+        }
         abilityReasonParameter.interactable = ban;
         abilityReasonLogic.interactable = ban;
         abilityReasonThreshold.interactable = ban;
         abilityReasonJudgeParameter.interactable = ban;
         abilityReasonJudgeMethod.interactable = ban;
-        abilityReasonJudgeParameter.interactable = ban;
         abilityReasonJudgeLogic.interactable = ban;
         abilityReasonJudgeThreshold.interactable = ban;
-       abilityReasonObjectAsTargetButton.interactable = ban;
+        abilityReasonObjectAsTargetButton.interactable = ban;
         abilityResultLargeScope.interactable = ban;
         abilityResultParameter.interactable = ban;
         abilityResultLogic.interactable = ban;
@@ -491,6 +595,8 @@ public class CardEditor : MonoBehaviour
         addTagListItem(tagField.text);
         //清空输入框内容
         tagField.text = "";
+        //修改标记显示
+        CardMaker.cardMaker.changeSignal.SetActive(true);
     }
 
 

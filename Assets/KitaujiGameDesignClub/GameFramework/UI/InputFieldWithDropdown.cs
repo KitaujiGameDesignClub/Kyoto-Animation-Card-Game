@@ -16,7 +16,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         private TMP_Dropdown dropdown;
         private Button dropdownButton;
 
-        private List<string> allOptionDatas;
+        private List<string> allOptionDatas = new List<string>();
 
 
         public string text
@@ -79,9 +79,12 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             
             dropdownButton.onClick.AddListener(delegate
             {
-                if (supportFilter) Search(inputField.text);
-                dropdown.SetValueWithoutNotify(0);
-                dropdown.Show();
+               
+                    if (supportFilter) Search(inputField.text);
+                    dropdown.SetValueWithoutNotify(0);
+                    dropdown.Show();
+                
+              
             });
         }
 
@@ -118,17 +121,20 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         {
             dropdownButton.interactable = true;
             dropdown.ClearOptions();
-            dropdown.AddOptions(optionDatas);
+          if(optionDatas != null)   dropdown.AddOptions(optionDatas);
             dropdown.RefreshShownValue();
             if (all) allOptionDatas = optionDatas;
         }
 
+        
+        /// <summary>
+        /// 禁用下拉栏
+        /// </summary>
         public void Ban()
         {
             dropdown.Hide();
             dropdownButton.interactable = false;
             allOptionDatas = null;
-            supportFilter = false;
             dropdown.ClearOptions();
         }
 

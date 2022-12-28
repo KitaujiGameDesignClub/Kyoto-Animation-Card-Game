@@ -16,8 +16,10 @@ public class tagListItem : MonoBehaviour
     
     private void Awake()
     {
+        //消除此tag
        button.onClick.AddListener(delegate
        {
+           CardMaker.cardMaker.changeSignal.SetActive(true);
            onRemove.Invoke(text.text);
            Destroy(gameObject);
        });

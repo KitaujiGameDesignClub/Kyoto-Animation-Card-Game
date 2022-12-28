@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Core
 {
     /// <summary>
-    /// 完整的卡包（卡组），储存着卡组从本地文件读取的各类信息
+    /// 瀹屾暣鐨勫崱鍖咃紙鍗＄粍锛夛紝鍌ㄥ瓨鐫�鍗＄粍浠庢湰鍦版枃浠惰鍙栫殑鍚勭被淇℃伅
     /// </summary>
     /// 
     public class Bundle

@@ -172,6 +172,18 @@ public class BundleEditor : MonoBehaviour
     public async void Save()
     {
 
+        //更新暂存在内存中的清单
+        CardMaker.cardMaker.nowEditingBundle.manifest.BundleName = bundleName.text;
+        CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName = friendlyName.text;
+        CardMaker.cardMaker.nowEditingBundle.manifest.BundleVersion = bundleVersion.text;
+        CardMaker.cardMaker.nowEditingBundle.manifest.ImageName = newImageFullPath == string.Empty
+            ? CardMaker.cardMaker.nowEditingBundle.manifest.ImageName
+            : Path.GetFileName(newImageFullPath);
+        CardMaker.cardMaker.nowEditingBundle.manifest.AuthorName = authorName.text;
+        CardMaker.cardMaker.nowEditingBundle.manifest.Description = description.text;
+        CardMaker.cardMaker.nowEditingBundle.manifest.Remarks = remark.text;
+        CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.text;
+        
         //执行保存or另存为操作
         await CardMaker.cardMaker.AsyncSave(null, CardMaker.cardMaker.nowEditingBundle.manifest, newImageFullPath);
 
@@ -184,17 +196,7 @@ public class BundleEditor : MonoBehaviour
     /// </summary>
     public void OnEndEdit()
     {
-        //更新暂存在内存中的清单
-        CardMaker.cardMaker.nowEditingBundle.manifest.BundleName = bundleName.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName = friendlyName.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.BundleVersion = bundleVersion.text;
-             CardMaker.cardMaker.nowEditingBundle.manifest.ImageName = newImageFullPath == string.Empty
-            ? CardMaker.cardMaker.nowEditingBundle.manifest.ImageName
-            : Path.GetFileName(newImageFullPath);
-        CardMaker.cardMaker.nowEditingBundle.manifest.AuthorName = authorName.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.Description = description.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.Remarks = remark.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.text;
+      
         
         //更新预览
         friendlyName.text = bundleFriendlyName.text;

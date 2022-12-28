@@ -52,7 +52,7 @@ namespace Core
         /// <summary>
         /// 所用声优
         /// </summary>
-        public string CV;
+        public string CV = "不设置声优";
 
         /// <summary>
         /// 性别 0 无性别或性别不重要 1男 2女
@@ -108,7 +108,11 @@ namespace Core
         /// 能力触发音频 .ogg
         /// </summary>
         public string voiceAbility;
-        
+
+        /// <summary>
+        /// 击退音效 .ogg
+        /// </summary>
+        public string voiceKill;
 
 
 #if UNITY_EDITOR
