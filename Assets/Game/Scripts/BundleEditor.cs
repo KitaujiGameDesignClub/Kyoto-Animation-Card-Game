@@ -274,7 +274,7 @@ public class BundleEditor : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"{unityWebRequest.url}加载失败");
+                Debug.LogWarning($"{unityWebRequest.url}加载失败,错误原因{unityWebRequest.error}");
             }
         }
     }

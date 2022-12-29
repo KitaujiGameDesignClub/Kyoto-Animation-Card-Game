@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Core;
 using Cysharp.Threading.Tasks;
+using KitaujiGameDesignClub.GameFramework;
 using KitaujiGameDesignClub.GameFramework.UI;
 using Lean.Gui;
 using SimpleFileBrowser;
@@ -66,6 +67,11 @@ public class CardEditor : MonoBehaviour
     public Lean.Gui.LeanButton Clear;
     public TMP_InputField abilityDescription;
     public LeanToggle autoGenerate;
+    [Header("音频侧")] public audioSetting voiceDebut;
+    public audioSetting voiceKill;
+    public audioSetting voiceAbility;
+    public audioSetting voiceExit;
+    
     
     [Space()] public CardPanel preview;
 
@@ -90,7 +96,7 @@ public class CardEditor : MonoBehaviour
     {
         abilityReasonObjectAsTargetButton = abilityReasonObjectAsTarget.GetComponent<LeanButton>();
         
-        #region 能力编辑初始化
+        #region 能力编辑初始化（不可变下拉栏初始化)
 
         abilityReasonType.ClearOptions();
         var length = Enum.GetNames(typeof(Information.CardAbilityTypes)).Length;
@@ -220,7 +226,15 @@ public class CardEditor : MonoBehaviour
           text = text.Replace("</bl>", "</color>");
           preview.description.text = text;
       });
-
+      
+      //音频修改事件
+      voiceAbility.OnPrepareToSelectAudio.AddListener(SelectAudio);
+      voiceDebut.OnPrepareToSelectAudio.AddListener(SelectAudio);
+      voiceExit.OnPrepareToSelectAudio.AddListener(SelectAudio);
+      voiceKill.OnPrepareToSelectAudio.AddListener(SelectAudio);
+    
+      
+      
         #endregion
         
        
@@ -302,6 +316,8 @@ public class CardEditor : MonoBehaviour
         abilityResultSummon.interactable = false;
     }
 
+    #region 图片选择
+
     /// <summary>
     /// 玩家选择图片
     /// </summary>
@@ -345,10 +361,75 @@ public class CardEditor : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"{unityWebRequest.url}加载失败");
+                Debug.LogWarning($"{unityWebRequest.url}加载失败，错误原因{unityWebRequest.error}");
             }
         }
     }
+
+    #endregion
+
+    #region 音频选择
+
+    public void SelectAudio(audioSetting setting) => AsyncSelectAudio(setting);
+
+    private async UniTask AsyncSelectAudio(audioSetting audioSetting)
+    {
+        FileBrowser.SetFilters(false,new FileBrowser.Filter("卡牌音频",".mp3",".ogg",".wav",".aif"));
+
+        await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: $"选择{audioSetting.title}",
+            loadButtonText: "选择");
+
+        if (FileBrowser.Success)
+        {
+            if (Path.GetFileNameWithoutExtension(FileBrowser.Result[0]).Contains("："))
+            {
+                var warning = $"{FileBrowser.Result[0]}不应当含有中文引号";
+                Notify.notify.CreateBannerNotification(null,warning);
+                Debug.LogError(warning);
+                return;
+            }
+            
+            
+           var  handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.OGGVORBIS);
+            switch (Path.GetExtension(FileBrowser.Result[0]))
+            {
+                case ".ogg":
+                    handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.OGGVORBIS);
+                    break;
+                
+                case ".mp3":
+                    handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.MPEG);
+                    break;
+                
+                case ".aif":
+                    handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.AIFF);
+                    break;
+                
+                case ".wav":
+                    handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.WAV);
+                    break;
+            }
+
+            var uwr = new UnityWebRequest(FileBrowser.Result[0], "GET", handler, null);
+
+            await uwr.SendWebRequest();
+
+            if (uwr.isDone)
+            {
+                if (uwr.result == UnityWebRequest.Result.Success)
+                {
+                    audioSetting.AudioSelected(handler.audioClip,uwr.url);
+                }
+                else
+                {
+                    Debug.LogWarning($"{uwr.url}加载失败，错误原因{uwr.error}");
+                }
+            }
+        }
+    }
+
+    #endregion
+
 
     //同步变化
     public void OnValueChanged()
