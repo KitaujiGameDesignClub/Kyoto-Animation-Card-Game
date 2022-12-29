@@ -185,7 +185,7 @@ public class BundleEditor : MonoBehaviour
         CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.text;
         
         //执行保存or另存为操作
-        await CardMaker.cardMaker.AsyncSave(null, CardMaker.cardMaker.nowEditingBundle.manifest, newImageFullPath);
+        await CardMaker.cardMaker.AsyncSave(newImageFullPath);
 
     }
 

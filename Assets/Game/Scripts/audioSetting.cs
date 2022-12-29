@@ -60,7 +60,7 @@ public class audioSetting : MonoBehaviour
     public void clear()
     {
         audioSource.clip = null;
-        audioFullFileName = String.Empty;
+        audioFullFileName = string.Empty;
         text.text = $"{title}：无音频";
         Stop();
     }
@@ -76,6 +76,6 @@ public class audioSetting : MonoBehaviour
         audioSource.clip = audioClip;
         audioFullFileName = fileFullPath;
         text.text = $"{title}：{Path.GetFileName(audioFullFileName)}";
-        
+        CardMaker.cardMaker.changeSignal.SetActive(true);
     }
 }

@@ -94,8 +94,25 @@ public class CardReadWrite
     /// </summary>
     /// <param name="onlyCard"></param>
     /// <returns></returns>
-    public static async UniTask CreateCardFile(CharacterCard characterCard)
+    public static async UniTask CreateCardFile(string bundleName,CharacterCard characterCard,string fullPath,string imageFullPath,string[] voiceFileFullPath)
     {
+        //卡牌配置文件
+        var io = new DescribeFileIO($"{characterCard.CardName}.kabcard",
+            $"-{fullPath}/{bundleName}/cards/{characterCard.CardName}",
+            "# card bundle manifest.\n# It'll tell you the summary of the bundle.");
+        await YamlReadWrite.WriteAsync(io, characterCard);
+        
+        //复制封面图片
+        if (imageFullPath != String.Empty)
+        {
+            File.Copy(imageFullPath, $"{fullPath}/{bundleName}/cards/{characterCard.CardName}/{Path.GetFileName(imageFullPath)}", true);
+        }
+        //复制音频资源
+        for (int i = 0; i < voiceFileFullPath.Length; i++)
+        {
+            File.Copy(voiceFileFullPath[i], $"{fullPath}/{bundleName}/cards/{characterCard.CardName}/{Path.GetFileName(voiceFileFullPath[i])}", true);
+        }
+        
     }
 
 

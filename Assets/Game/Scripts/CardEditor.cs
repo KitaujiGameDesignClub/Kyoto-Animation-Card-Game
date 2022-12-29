@@ -391,7 +391,7 @@ public class CardEditor : MonoBehaviour
             
             
            var  handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.OGGVORBIS);
-            switch (Path.GetExtension(FileBrowser.Result[0]))
+            switch (Path.GetExtension(FileBrowser.Result[0]).ToLower())
             {
                 case ".ogg":
                     handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.OGGVORBIS);
@@ -481,8 +481,17 @@ public class CardEditor : MonoBehaviour
         editing.Result.Value = abilityResultChangeValue.text;
         
         //音频
+        editing.voiceAbility = Path.GetFileName(voiceAbility.audioFullFileName);
+        editing.voiceDebut = Path.GetFileName(voiceDebut.audioFullFileName);
+        editing.voiceExit = Path.GetFileName(voiceExit.audioFullFileName);
+        editing.voiceKill = Path.GetFileName(voiceKill.audioFullFileName);
         
+        
+        
+
     }
+    
+
     
     
     //更新阈值（值）输入框下拉菜单内容

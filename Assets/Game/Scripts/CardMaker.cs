@@ -153,17 +153,45 @@ public class CardMaker : MonoBehaviour
         ManifestEditorPlane.SetActive(false);
         title.SetActive(true);
     }
-    
 
-   /// <summary>
-   /// 保存或另存为（整套卡包）
-   /// </summary>
-   /// <param name="nowEditingCard"></param>
-   /// <param name="nowEditingBundle"></param>
-   /// <param name="manifestNewImageFullPath"></param>
-   /// <returns>保存成功了吗？</returns>
-    public async UniTask AsyncSave(CharacterCard nowEditingCard, CardBundlesManifest nowEditingBundle,
-        string manifestNewImageFullPath)
+/// <summary>
+/// 保存或另存为（整套卡包）
+/// </summary>
+/// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
+/// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
+/// <param name="cardNewImageFullPath">卡牌的新图片的全路径</param>
+/// <param name="saveManifest"></param>
+/// <param name="saveCard"></param>
+/// <returns>保存成功了吗？</returns>
+public async UniTask AsyncSave(string manifestNewImageFullPath)
+{
+  await   AsyncSave(manifestNewImageFullPath, 0, null, true, false, null);
+}
+
+/// <summary>
+/// 保存或另存为（整套卡包）
+/// </summary>
+/// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
+/// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
+/// <param name="cardNewImageFullPath">卡牌的新图片的全路径</param>
+/// <param name="saveManifest"></param>
+/// <param name="saveCard"></param>
+/// <returns>保存成功了吗？</returns>
+public async UniTask AsyncSave(int index,string cardNewImageFullPath,audioSetting[] cardAudioSettins)
+{
+    await   AsyncSave(null, index, cardNewImageFullPath, false, true, cardAudioSettins);
+}
+
+/// <summary>
+/// 保存或另存为（整套卡包）
+/// </summary>
+/// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
+/// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
+/// <param name="cardNewImageFullPath">卡牌的新图片的全路径</param>
+/// <param name="saveManifest"></param>
+/// <param name="saveCard"></param>
+/// <returns>保存成功了吗？</returns>
+public async UniTask AsyncSave(string manifestNewImageFullPath,int index,string cardNewImageFullPath,bool saveManifest,bool saveCard,audioSetting[] cardAudioSettins)
     {
         //还没有保存过/不是打开编辑卡包，打开选择文件的窗口，选择保存位置
         if (savePath == string.Empty)
@@ -178,13 +206,13 @@ public class CardMaker : MonoBehaviour
                 banInput.SetActive(true);
 
 
-                if (nowEditingBundle != null)
+                if (nowEditingBundle.manifest != null && saveManifest)
                 {
-                    saveStatus.text = "保存卡包配置文件...";
+                    saveStatus.text = "保存卡组清单文件...";
 
                     try
                     {
-                        await CardReadWrite.CreateBundleManifestFile(nowEditingBundle, FileBrowser.Result[0],
+                        await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest, FileBrowser.Result[0],
                             manifestNewImageFullPath);
                     }
                     catch (Exception e)
@@ -195,9 +223,28 @@ public class CardMaker : MonoBehaviour
                  
                 }
 
-                if (nowEditingCard != null)
+                if (nowEditingBundle.cards != null && saveCard)
                 {
-                    saveStatus.text = "保存卡牌配置文件...";
+                    saveStatus.text = "保存卡牌文件...";
+
+                    try
+                    {
+                        var audios = new string[cardAudioSettins.Length];
+                        for (int i = 0; i < audios.Length; i++)
+                        {
+                            audios[i] = cardAudioSettins[i].audioFullFileName;
+                        }
+                        
+                        
+                        await CardReadWrite.CreateCardFile(nowEditingBundle.manifest.BundleName,
+                            nowEditingBundle.cards[index], FileBrowser.Result[0],cardNewImageFullPath, audios);
+
+                    }
+                    catch (Exception e)
+                    {
+                        Notify.notify.CreateBannerNotification(delegate {  banInput.SetActive(false); },"文件储存错误，详细信息请看控制台");
+                        throw e;
+                    }
                 }
 
                 //关闭输入禁用层

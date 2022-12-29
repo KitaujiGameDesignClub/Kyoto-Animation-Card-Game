@@ -12,9 +12,9 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 {
     public class InputFieldWithDropdown : MonoBehaviour
     {
-      [HideInInspector]  public TMP_InputField inputField;
-        private TMP_Dropdown dropdown;
-        private Button dropdownButton;
+        public TMP_InputField inputField;
+       [SerializeField] private TMP_Dropdown dropdown;
+       [SerializeField] private Button dropdownButton;
 
         private List<string> allOptionDatas = new List<string>();
 
@@ -55,9 +55,9 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         private void Awake()
         {
             
-            inputField = GetComponentInChildren<TMP_InputField>();
-            dropdown = GetComponentInChildren<TMP_Dropdown>();
-            dropdownButton = GetComponentInChildren<Button>();
+          //  inputField = GetComponentInChildren<TMP_InputField>();
+          //  dropdown = GetComponentInChildren<TMP_Dropdown>();
+           // dropdownButton = GetComponentInChildren<Button>();
             //占位符也加入禁选列表内
             ban.Add("未搜索到结果，但仍可以使用");
             ban.Add("以下为候选结果：");

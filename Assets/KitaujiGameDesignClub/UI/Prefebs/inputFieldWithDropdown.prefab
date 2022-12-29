@@ -366,6 +366,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52de03e0330f5fe4fabeb7840a40272c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputField: {fileID: 3168079165024264353}
+  dropdown: {fileID: 6191173253664865346}
+  dropdownButton: {fileID: 6006093336338302968}
   supportFilter: 0
   ban: []
 --- !u!1 &3545486379416444135
