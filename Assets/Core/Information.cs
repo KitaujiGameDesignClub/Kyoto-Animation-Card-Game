@@ -273,6 +273,9 @@ namespace Core
         public enum Parameter
         {
             None,
+            CharacterName,
+            Gender,
+            CV,
             Anime,
             Tag,
             Power,
@@ -280,13 +283,11 @@ namespace Core
             Silence,
             Ridicule,
             State,
-            CV,
             /// <summary>
             /// 角色名字
             /// </summary>
-            CharacterName,
             Coin,
-            
+          
         }
 
         /// <summary>
@@ -428,6 +429,9 @@ namespace Core
                     
                     case Parameter.Tag:
                         return "标签";
+                    
+                    case Parameter.Gender:
+                        return "性别";
                 }
             }
 

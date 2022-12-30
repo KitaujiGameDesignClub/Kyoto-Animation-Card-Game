@@ -67,14 +67,23 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             dropdown.onValueChanged.AddListener(delegate(int arg0)
             {
                 //所选不在禁用列表里，才执行后续的操作
+                if (ban == null)
+                {
+                    //没展开value变化的话，保留之前的内容
+                    goto unbanned;
+                    
+                }
+                
                 if (!ban.Contains(dropdown.captionText.text))
                 {
                     //没展开value变化的话，保留之前的内容
-                    text = dropdown.IsExpanded ? dropdown.captionText.text : text;
-
-
-                    text = Regex.Replace(text, "<.*?>", string.Empty);
+                    goto unbanned;
                 }
+                
+                unbanned:
+                //没展开value变化的话，保留之前的内容
+                text = dropdown.IsExpanded ? dropdown.captionText.text : text;
+                text = Regex.Replace(text, "<.*?>", string.Empty);
             });
             
             dropdownButton.onClick.AddListener(delegate

@@ -148,7 +148,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: -565132480
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -242,7 +242,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -322,14 +322,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 0.8666992
-      y: 1864
+      x: 1117.8667
+      y: 592.00006
       width: 120
       height: 119
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -1117.0667, y: 1272.3}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 60, z: 53.333336, w: 1923.5}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 1177, z: 53.333336, w: 651.5}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1087493, y: 1.1156261}
@@ -6353,7 +6353,7 @@ Sprite:
     4d6a99baee23b654f9e4bb672ae0b438: 21300000
   m_AtlasTags:
   - Card
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 209f5f04dfce55b4cbb833162ff28d90, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 4d6a99baee23b654f9e4bb672ae0b438, type: 3}
@@ -6447,7 +6447,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -6527,14 +6527,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 684
-      y: 1955
+      x: 0
+      y: 0
       width: 394
       height: 109
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: 684, y: 1955}
-    settingsRaw: 65
-    uvTransform: {x: 100, y: 881, z: 100, w: 2009.5}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 100, y: 197, z: 100, w: 54.5}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: 1.9, y: 0.265}
@@ -8379,7 +8379,7 @@ Sprite:
     bdbda6392698e4643b3564c7a231e5cd: 21300000
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: bdbda6392698e4643b3564c7a231e5cd, type: 3}
@@ -8473,7 +8473,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -8553,14 +8553,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 0.0761261
-      y: 1408.0762
+      x: 142.07613
+      y: 30.07612
       width: 227.84776
       height: 451.91098
     textureRectOffset: {x: 142.07613, y: 30.07612}
-    atlasRectOffset: {x: -142, y: 1378}
-    settingsRaw: 67
-    uvTransform: {x: 100, y: 114, z: 100, w: 1634}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 100, y: 256, z: 100, w: 256}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.13, y: 2.23}
@@ -8706,7 +8706,7 @@ Sprite:
     7a99f26a4510fd641977b496367f02ff: 21300000
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 7a99f26a4510fd641977b496367f02ff, type: 3}
@@ -8800,7 +8800,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -8880,14 +8880,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 505.0761
-      y: 516
+      x: 11.07612
+      y: 0
       width: 500.9239
       height: 499.9239
     textureRectOffset: {x: 11.07612, y: 0}
-    atlasRectOffset: {x: 494, y: 516}
-    settingsRaw: 67
-    uvTransform: {x: 100, y: 750, z: 100, w: 772}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 100, y: 256, z: 100, w: 256}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -2.3899999, y: 2.3899999}
@@ -9968,7 +9968,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: 2065796195
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -10062,7 +10062,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -10142,14 +10142,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 232.26672
-      y: 1408.6001
+      x: 964.2667
+      y: 441.60004
       width: 119
       height: 120
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -731.96674, y: 967.1999}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 291.5, z: 53.333336, w: 1468}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 1023.5, z: 53.333336, w: 501}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1106238, y: 1.1362506}
@@ -11025,7 +11025,7 @@ Sprite:
     f0799c484b9fb914083037339993c720: 21300000
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: f0799c484b9fb914083037339993c720, type: 3}
@@ -11119,7 +11119,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -11199,14 +11199,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 516.02673
-      y: 1020.0762
+      x: 62.026752
+      y: 61.076122
       width: 387.9219
       height: 389.84778
     textureRectOffset: {x: 62.026752, y: 61.076122}
-    atlasRectOffset: {x: 454, y: 959}
-    settingsRaw: 67
-    uvTransform: {x: 100, y: 710, z: 100, w: 1215}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 100, y: 256, z: 100, w: 256}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.68, y: 0.17999999}
@@ -11661,7 +11661,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: 2007425521
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -11755,7 +11755,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -11835,14 +11835,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 356.33337
-      y: 1408.0667
+      x: 1117.3334
+      y: 441.06668
       width: 119
       height: 119
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -761.0334, y: 967.23334}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 415.5, z: 53.333336, w: 1467.5}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 1176.5, z: 53.333336, w: 500.5}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1093742, y: 1.1168752}
@@ -15484,7 +15484,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: 2065796195
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -15578,7 +15578,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -15658,14 +15658,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 232.26672
-      y: 1408.6001
+      x: 964.2667
+      y: 441.60004
       width: 119
       height: 120
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -731.96674, y: 967.1999}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 291.5, z: 53.333336, w: 1468}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 1023.5, z: 53.333336, w: 501}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1106238, y: 1.1362506}
@@ -17526,7 +17526,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: 1353145
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -17620,7 +17620,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -17700,14 +17700,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 357.1333
-      y: 1532.1333
+      x: 810.13336
+      y: 442.13336
       width: 119
       height: 119
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -452.83337, y: 1090.1667}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 416.5, z: 53.333336, w: 1591.5}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 869.5, z: 53.333336, w: 501.5}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1131244, y: 1.1181254}
@@ -18052,7 +18052,7 @@ Sprite:
     4bb68df17f7f90440860e88f38f71895: 21300000
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 4bb68df17f7f90440860e88f38f71895, type: 3}
@@ -18146,7 +18146,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -18226,14 +18226,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 0.07612038
-      y: 516
+      x: 11.07612
+      y: 0
       width: 500.9239
       height: 499.9239
     textureRectOffset: {x: 11.07612, y: 0}
-    atlasRectOffset: {x: -11, y: 516}
-    settingsRaw: 67
-    uvTransform: {x: 100, y: 245, z: 100, w: 772}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 100, y: 256, z: 100, w: 256}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -2.3899999, y: 2.3899999}
@@ -18267,7 +18267,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: 2007425521
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -18361,7 +18361,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -18441,14 +18441,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 356.33337
-      y: 1408.0667
+      x: 1117.3334
+      y: 441.06668
       width: 119
       height: 119
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -761.0334, y: 967.23334}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 415.5, z: 53.333336, w: 1467.5}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 1176.5, z: 53.333336, w: 500.5}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1093742, y: 1.1168752}
@@ -18818,7 +18818,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: 1353145
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -18912,7 +18912,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -18992,14 +18992,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 357.1333
-      y: 1532.1333
+      x: 810.13336
+      y: 442.13336
       width: 119
       height: 119
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -452.83337, y: 1090.1667}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 416.5, z: 53.333336, w: 1591.5}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 869.5, z: 53.333336, w: 501.5}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1131244, y: 1.1181254}
@@ -20272,9 +20272,9 @@ MonoBehaviour:
   onClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 980701911}
-        m_TargetAssemblyTypeName: BundleEditor, CharacterCardMaker
-        m_MethodName: 
+      - m_Target: {fileID: 980701914}
+        m_TargetAssemblyTypeName: CardEditor, Assembly-CSharp
+        m_MethodName: Save
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -26033,7 +26033,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: 1353145
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -26127,7 +26127,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -26207,14 +26207,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 357.1333
-      y: 1532.1333
+      x: 810.13336
+      y: 442.13336
       width: 119
       height: 119
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -452.83337, y: 1090.1667}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 416.5, z: 53.333336, w: 1591.5}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 869.5, z: 53.333336, w: 501.5}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1131244, y: 1.1181254}
@@ -28317,7 +28317,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: 486623271
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -28411,7 +28411,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -28491,14 +28491,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 232.66675
-      y: 1533.5334
+      x: 810.6667
+      y: 592.5334
       width: 120
       height: 119
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -577.8667, y: 940.7666}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 292, z: 53.333336, w: 1592.5}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 870, z: 53.333336, w: 651.5}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1124996, y: 1.125626}
@@ -29679,7 +29679,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: -565132480
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -29773,7 +29773,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -29853,14 +29853,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 0.8666992
-      y: 1864
+      x: 1117.8667
+      y: 592.00006
       width: 120
       height: 119
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -1117.0667, y: 1272.3}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 60, z: 53.333336, w: 1923.5}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 1177, z: 53.333336, w: 651.5}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1087493, y: 1.1156261}
@@ -31657,7 +31657,7 @@ Sprite:
     9827c61eeb2bc644d8a081c45525ed0f: 1353145
   m_AtlasTags:
   - Maker
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 7f13fe4f4bbe02643adb3b343dee39c1, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 9827c61eeb2bc644d8a081c45525ed0f, type: 3}
@@ -31751,7 +31751,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -31831,14 +31831,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 357.1333
-      y: 1532.1333
+      x: 810.13336
+      y: 442.13336
       width: 119
       height: 119
     textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -452.83337, y: 1090.1667}
-    settingsRaw: 67
-    uvTransform: {x: 53.333336, y: 416.5, z: 53.333336, w: 1591.5}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 53.333336, y: 869.5, z: 53.333336, w: 501.5}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.1131244, y: 1.1181254}

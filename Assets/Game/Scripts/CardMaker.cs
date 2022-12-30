@@ -11,6 +11,8 @@ using UnityEngine.Serialization;
 using Console = System.Console;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// 卡包/卡牌制作用
@@ -52,7 +54,7 @@ public class CardMaker : MonoBehaviour
     /// <summary>
     /// 现在正在编辑的卡包（卡组）（包含了清单和卡片配置）
     /// </summary>
-    [HideInInspector] public Bundle nowEditingBundle;
+    [HideInInspector] public BundleOfCreate nowEditingBundle;
 
     /// <summary>
     /// 游戏加载时的实践
@@ -223,7 +225,7 @@ public async UniTask AsyncSave(string manifestNewImageFullPath,int index,string 
                  
                 }
 
-                if (nowEditingBundle.cards != null && saveCard)
+                if (nowEditingBundle.card != null && saveCard)
                 {
                     saveStatus.text = "保存卡牌文件...";
 
@@ -232,12 +234,13 @@ public async UniTask AsyncSave(string manifestNewImageFullPath,int index,string 
                         var audios = new string[cardAudioSettins.Length];
                         for (int i = 0; i < audios.Length; i++)
                         {
-                            audios[i] = cardAudioSettins[i].audioFullFileName;
+                            audios[i] = cardAudioSettins[i].newAudioFullFileName;
                         }
                         
+                       
                         
                         await CardReadWrite.CreateCardFile(nowEditingBundle.manifest.BundleName,
-                            nowEditingBundle.cards[index], FileBrowser.Result[0],cardNewImageFullPath, audios);
+                            nowEditingBundle.card, FileBrowser.Result[0],cardNewImageFullPath, audios);
 
                     }
                     catch (Exception e)

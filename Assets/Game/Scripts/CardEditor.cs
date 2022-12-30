@@ -85,7 +85,7 @@ public class CardEditor : MonoBehaviour
     /// </summary>
     private CharacterCard nowEditingCard { get; set; }
 
-    private string newImageFullPath { get; set; }
+    private string newImageFullPath = string.Empty;
 
     /// <summary>
     /// 卡组内第几张卡？
@@ -252,32 +252,12 @@ public class CardEditor : MonoBehaviour
 
         //把新创新的卡的信息填充进去显示
         if (onlyCreateCard) CardMaker.cardMaker.nowEditingBundle = new();
-        //cards数组扩充一位
-        var cardsCache = CardMaker.cardMaker.nowEditingBundle.cards;
-        CardMaker.cardMaker.nowEditingBundle.cards = new CharacterCard[cardsCache.Length + 1];
-        for (int i = 0; i < CardMaker.cardMaker.nowEditingBundle.cards.Length; i++)
-        {
-            if (i == CardMaker.cardMaker.nowEditingBundle.cards.Length - 1)
-            {
-                //新创建的，正在编辑的
-                index = i;
-                CardMaker.cardMaker.nowEditingBundle.cards[i] = new CharacterCard();
-            }
-            else
-            {
-               
-                CardMaker.cardMaker.nowEditingBundle.cards[i] = cardsCache[i];
-            }
-        }
-
-        cardsCache = null;
-
+        
         //信息显示到editor里
 
         #region 常规的信息编辑
 
-        nowEditingCard =
-            CardMaker.cardMaker.nowEditingBundle.cards[CardMaker.cardMaker.nowEditingBundle.cards.Length - 1];
+        nowEditingCard = CardMaker.cardMaker.nowEditingBundle.card;
         cardNameField.SetTextWithoutNotify(nowEditingCard.CardName);
         friendlyNameField.SetTextWithoutNotify(nowEditingCard.FriendlyCardName);
         AnimeField.inputField.SetTextWithoutNotify(onlyCreateCard ? nowEditingCard.Anime : CardMaker.cardMaker.nowEditingBundle.manifest.Anime);
@@ -293,6 +273,9 @@ public class CardEditor : MonoBehaviour
         abilityReasonObjectAsTarget.TurnOff();
         abilityDescription.text = nowEditingCard.AbilityDescription;
         AsChiefToggle.Set(nowEditingCard.allowAsChief);
+        abilityResultRidicule.SetTextWithoutNotify("0");
+        abilityResultSilence.SetTextWithoutNotify("0");
+        
         //获取可变下拉列表内容
         RefreshVariableDropdownList(false);
 
@@ -307,13 +290,15 @@ public class CardEditor : MonoBehaviour
         
         
         //召唤生成那边，是要获取该卡组内的所有卡牌
-        var card = new string[CardMaker.cardMaker.nowEditingBundle.cards.Length];
-        for (int i = 0; i <CardMaker.cardMaker.nowEditingBundle.cards.Length; i++)
+        if (!onlyCreateCard)
         {
-            card[i] = CardMaker.cardMaker.nowEditingBundle.cards[i].FriendlyCardName;
+           
         }
-        abilityResultSummon.ChangeOptionDatas(card);
-        abilityResultSummon.interactable = false;
+        //仅仅创建卡牌的话，是不能得到卡组内所有卡牌友好名称的
+        else
+        {
+            abilityResultSummon.Ban();
+        }
     }
 
     #region 图片选择
@@ -418,7 +403,7 @@ public class CardEditor : MonoBehaviour
             {
                 if (uwr.result == UnityWebRequest.Result.Success)
                 {
-                    audioSetting.AudioSelected(handler.audioClip,uwr.url);
+                    audioSetting.AudioSelected(handler.audioClip,FileBrowser.Result[0]);
                 }
                 else
                 {
@@ -439,27 +424,28 @@ public class CardEditor : MonoBehaviour
         //预览中，除了能力外所有的信息进行同步
         preview.UpdateBasicInformation(friendlyNameField.text,CVField.text,preview.description.text,imageOfCardField.sprite);
         
-       
 
 
     }
 
     public async void Save()
     {
+      
         //内存保存
-        var editing = CardMaker.cardMaker.nowEditingBundle.cards[index];
+        var editing = CardMaker.cardMaker.nowEditingBundle.card;
         editing.CardName = cardNameField.text;
         editing.gender = genderField.value;
         editing.FriendlyCardName = friendlyNameField.text;
         editing.Anime = AnimeField.text;
         editing.tags = tagStorage;
         editing.CardCount = int.Parse(cardNumberField.text);
-        editing.imageName = newImageFullPath == String.Empty ? editing.imageName : Path.GetFileName(newImageFullPath);
+        editing.imageName = newImageFullPath == string.Empty ? editing.imageName : Path.GetFileName(newImageFullPath);
         editing.CharacterName = CharacterNameField.text;
         editing.CV = CVField.text;
         editing.allowAsChief = AsChiefToggle.On;
         editing.BasicPower = int.Parse(basicPower.text);
         editing.BasicHealthPoint = int.Parse(basicHp.text);
+        editing.AbilityDescription = abilityDescription.text;
         editing.AbilityActivityType = (Information.CardAbilityTypes)abilityReasonType.value;
         editing.Reason.NeededObjects.LargeScope = (Information.Objects)abilityReasonLargeScope.value;
         editing.Reason.NeededObjects.ParameterToShrinkScope = (Information.Parameter)abilityReasonParameter.value;
@@ -481,13 +467,19 @@ public class CardEditor : MonoBehaviour
         editing.Result.Value = abilityResultChangeValue.text;
         
         //音频
-        editing.voiceAbility = Path.GetFileName(voiceAbility.audioFullFileName);
-        editing.voiceDebut = Path.GetFileName(voiceDebut.audioFullFileName);
-        editing.voiceExit = Path.GetFileName(voiceExit.audioFullFileName);
-        editing.voiceKill = Path.GetFileName(voiceKill.audioFullFileName);
-        
-        
-        
+        editing.voiceAbility= voiceAbility.newAudioFullFileName == string.Empty ? editing.voiceAbility: Path.GetFileName(voiceAbility.newAudioFullFileName);
+        editing.voiceExit= voiceExit.newAudioFullFileName == string.Empty ? editing.voiceExit: Path.GetFileName(voiceExit.newAudioFullFileName);
+        editing.voiceDebut= voiceDebut.newAudioFullFileName == string.Empty ? editing.voiceDebut: Path.GetFileName(voiceDebut.newAudioFullFileName);
+        editing.voiceKill= voiceKill.newAudioFullFileName == string.Empty ? editing.voiceKill: Path.GetFileName(voiceKill.newAudioFullFileName);
+
+
+        var audios = new audioSetting[4];
+        audios[0] = voiceAbility;
+        audios[1] = voiceDebut;
+        audios[2] = voiceKill;
+        audios[3] = voiceExit;
+       await CardMaker.cardMaker.AsyncSave(index, newImageFullPath,audios);
+
 
     }
     
@@ -497,9 +489,6 @@ public class CardEditor : MonoBehaviour
     //更新阈值（值）输入框下拉菜单内容
     public void OnEditEnd()
     {
-      
-        
-        
         //自动生成能力描述
         if (autoGenerate.On)
         {
@@ -517,7 +506,7 @@ public class CardEditor : MonoBehaviour
     /// <param name="reReadFromDisk">重新从硬盘读一遍吗？</param>
     public void RefreshVariableDropdownList(bool reReadFromDisk)
     {
-        if (reReadFromDisk)
+       if (reReadFromDisk)
         {
             CardReadWrite.refreshYamlResFromDisk();
         }
@@ -538,7 +527,7 @@ public class CardEditor : MonoBehaviour
 /// <param name="ban"></param>
     private void banAllInputFieldInteraction(bool ban,int level)
     {
-        //IF先暂时放着吧，以后补上
+  //IF先暂时放着吧，以后补上
 
         //0:触发类型选择“不”会触发
         if (level == 0)
@@ -572,24 +561,24 @@ public class CardEditor : MonoBehaviour
     /// <param name="index"></param>
     private void inputFieldHelperContent(InputFieldWithDropdown inputFieldWithDropdown,int index)
     {
-        switch (index)
+  switch (index)
         {
             //Anime
-            case 1:
+            case (int)Information.Parameter.Anime:
                 inputFieldWithDropdown.ChangeOptionDatas(AnimeField.options, true);
                 inputFieldWithDropdown.ban = AnimeField.ban;
                 inputFieldWithDropdown.supportFilter = true;
                 break;
 
             //tag
-            case 2:
+            case (int) Information.Parameter.Tag:
                 inputFieldWithDropdown.ChangeOptionDatas(tagField.options, true);
                 inputFieldWithDropdown.ban = tagField.ban;
                 inputFieldWithDropdown.supportFilter = true;
                 break;
 
             //state
-            case 7:
+            case (int) Information.Parameter.State :
                 inputFieldWithDropdown.ClearOptions();
                 var length = Enum.GetNames(typeof(Information.CardState)).Length;
                 for (int i = 0; i < length; i++)
@@ -603,16 +592,22 @@ public class CardEditor : MonoBehaviour
                 break;
 
             //cv
-            case 8:
+            case (int) Information.Parameter.CV:
                 inputFieldWithDropdown.ChangeOptionDatas(CVField.options);
                 inputFieldWithDropdown.ban = CVField.ban;
                 inputFieldWithDropdown.supportFilter = true;
                 break;
 
             //characterName
-            case 9:
+            case (int) Information.Parameter.CharacterName:
                 inputFieldWithDropdown.ChangeOptionDatas(CharacterNameField.options);
                 inputFieldWithDropdown.ban = CharacterNameField.ban;
+                inputFieldWithDropdown.supportFilter = true;
+                break;
+            
+            case (int) Information.Parameter.Gender:
+                inputFieldWithDropdown.ChangeOptionDatas(genderField.options);
+                inputFieldWithDropdown.ban = null;
                 inputFieldWithDropdown.supportFilter = true;
                 break;
 

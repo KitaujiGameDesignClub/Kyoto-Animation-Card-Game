@@ -197,7 +197,7 @@ namespace Core
 
             #region 确定条件对象们
 
-            //如果是any情况下都能运行，那么直接运行结果逻辑，之后终止
+            //如果是any情况下都能运行，直接运行结果逻辑
             if (profile.Reason.NeededObjects.LargeScope == Information.Objects.Any)
             {
                 profile.Result.RegardActivatorAsResultObject = false;
@@ -302,6 +302,20 @@ namespace Core
                             $"{profile.FriendlyCardName}(内部名称：{profile.CardName})想要判断角色卡状态，但是能力原因的条件对象不是角色卡");
 
                     break;
+                
+                //角色卡性别
+                case Information.Parameter.Gender:
+                    if (chief == null)
+                    {
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            parameterValues[i] = ReasonObjects[i].profile.gender.ToString();
+                        }
+                    }
+                    else
+                        throw new Exception(
+                            $"{profile.FriendlyCardName}(内部名称：{profile.CardName})想要判断角色卡性别，但是能力原因的条件对象不是角色卡");
+                    break;
 
                 //tag对比
                 case Information.Parameter.Tag:
@@ -328,12 +342,12 @@ namespace Core
                     {
                         for (int i = 0; i < parameterValues.Length; i++)
                         {
-                            parameterValues[i] = ReasonObjects[i].profile.CharacterName.ToString();
+                            parameterValues[i] = ReasonObjects[i].profile.CharacterName;
                         }
                     }
                     else
                     {
-                        parameterValues[0] = chief.CharacterName.ToString();
+                        parameterValues[0] = chief.CharacterName;
                     }
 
                     break;
@@ -343,7 +357,7 @@ namespace Core
                     {
                         for (int i = 0; i < parameterValues.Length; i++)
                         {
-                            parameterValues[i] = ReasonObjects[i].profile.CV.ToString();
+                            parameterValues[i] = ReasonObjects[i].profile.CV;
                         }
                     }
                     else
@@ -434,7 +448,7 @@ namespace Core
                 {
                     //数据为Int
                     case Information.Parameter.Coin or Information.Parameter.Power or Information.Parameter.Silence
-                        or Information.Parameter.HealthPoint:
+                        or Information.Parameter.HealthPoint or Information.Parameter.Gender:
                         //将string转换为正规的类型（int）
                         int[] fixedValues = new int[values.Length];
                         int thresholdInt = int.Parse(profile.Reason.Threshold);
@@ -485,7 +499,7 @@ namespace Core
                                 }
                             }
 
-                            //如果有触发对象的参数符合要求，则记录以下，说明能力能正常被触发了
+                            //如果有参数符合要求，则记录以下，说明能力能正常被触发了
                             if (CheckedFixedValuesState[i]) AllowAbilityExection = true;
 
 
@@ -599,7 +613,7 @@ namespace Core
                 Manager.CardDebut(playerId,
                     GameState.AllAvailableCards[playerId]
                         .Find(new Predicate<CharacterCard>(game =>
-                            game.CardName.Equals(profile.Result.SummonCardName))));
+                            game.FriendlyCardName.Equals(profile.Result.SummonCardName))));
                
             }
             
@@ -642,6 +656,10 @@ namespace Core
                         break;
                     case Information.Parameter.Power:
                         card.actualPower = ChangeIntValue(card.actualPower);
+                        break;
+                    
+                    case Information.Parameter.Gender:
+                        card.profile.gender = ChangeIntValue(card.profile.gender);
                         break;
                     
                     case Information.Parameter.Silence:
@@ -876,6 +894,10 @@ namespace Core
                     case Information.Parameter.Anime:
                         parameter = neededCards[i].profile.Anime;
                         break;
+                    
+                    case Information.Parameter.Gender:
+                        parameter = neededCards[i].profile.gender.ToString();
+                        break;
 
                     case Information.Parameter.Tag:
                         foreach (var tag in profile.tags)
@@ -896,7 +918,7 @@ namespace Core
                 {
                     //数据为Int
                     case Information.Parameter.Coin or Information.Parameter.Power or Information.Parameter.Silence
-                        or Information.Parameter.HealthPoint or Information.Parameter.Ridicule:
+                        or Information.Parameter.HealthPoint or Information.Parameter.Ridicule or Information.Parameter.Gender:
                         //将string转换为正规的类型（int）
                         int fixedValue;
                         int thresholdInt = int.Parse(profile.Reason.Threshold);

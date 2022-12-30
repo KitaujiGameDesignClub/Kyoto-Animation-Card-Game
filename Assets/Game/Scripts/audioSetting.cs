@@ -5,12 +5,13 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 public class audioSetting : MonoBehaviour
 {
    private AudioSource audioSource;
     [SerializeField]private TMP_Text text;
-    [HideInInspector]public string audioFullFileName;
+    [FormerlySerializedAs("audioFullFileName")] [HideInInspector]public string newAudioFullFileName  = string.Empty;
 
 
     /// <summary>
@@ -60,7 +61,7 @@ public class audioSetting : MonoBehaviour
     public void clear()
     {
         audioSource.clip = null;
-        audioFullFileName = string.Empty;
+        newAudioFullFileName = string.Empty;
         text.text = $"{title}：无音频";
         Stop();
     }
@@ -74,8 +75,8 @@ public class audioSetting : MonoBehaviour
     public void AudioSelected(AudioClip audioClip,string fileFullPath)
     {
         audioSource.clip = audioClip;
-        audioFullFileName = fileFullPath;
-        text.text = $"{title}：{Path.GetFileName(audioFullFileName)}";
+        newAudioFullFileName = fileFullPath;
+        text.text = $"{title}：{Path.GetFileName(newAudioFullFileName)}";
         CardMaker.cardMaker.changeSignal.SetActive(true);
     }
 }
