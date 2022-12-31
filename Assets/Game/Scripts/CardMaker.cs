@@ -21,7 +21,7 @@ public class CardMaker : MonoBehaviour
 {
     public static CardMaker cardMaker;
 
-    public KitaujiGameDesignClub.GameFramework.Tools.BasicEvents basicEvents;
+    public BasicEvents basicEvents;
    
 
     [Header("界面切换")] public GameObject title;
@@ -54,7 +54,7 @@ public class CardMaker : MonoBehaviour
     /// <summary>
     /// 现在正在编辑的卡包（卡组）（包含了清单和卡片配置）
     /// </summary>
-    [HideInInspector] public BundleOfCreate nowEditingBundle;
+    public BundleOfCreate nowEditingBundle = new BundleOfCreate();
 
     /// <summary>
     /// 游戏加载时的实践
@@ -115,46 +115,58 @@ public class CardMaker : MonoBehaviour
     /// </summary>
     public void CreateBundle()
     {
-        
-        nowEditingBundle = new();
-        bundleEditor.OpenManifestEditorForCreation();
-        //现在还没有改内容，关闭修改标记
-        changeSignal.SetActive(false);
+
+        //创建新内容
+        nowEditingBundle.manifest = new CardBundlesManifest();
+        //然后打开编辑器
+        OpenBundleEditor();
     }
 
     /// <summary>
-    /// 编辑卡包
+    /// 编辑卡组
     /// </summary>
-    public void EditBundle()
+    public async UniTask EditBundle()
+    {
+        //得到文件内容
+        
+        //然后打开编辑器
+        OpenBundleEditor();
+    }
+    
+    /// <summary>
+    /// 打开卡组清单编辑器
+    /// </summary>
+    public void OpenBundleEditor()
     {
         //现在还没有改内容，关闭修改标记
         changeSignal.SetActive(false);
         bundleEditor.OpenManifestEditor();
     }
 
+    public void CreateNewCard()
+    {
+        //创建新内容
+        nowEditingBundle.card = new CharacterCard();
+        
+        //然后打开编辑器
+        openCardEditor();
+        
+    }
+    
     /// <summary> 
-    /// 创建新卡牌
+    /// 打开卡牌文件编辑器
     /// </summary>
     /// <param name="onlyCard">仅创建卡牌</param>
-    public void CreateCard(bool onlyCard)
+    public void openCardEditor()
     {
         //现在还没有改内容，关闭修改标记
         changeSignal.SetActive(false);
-
-        cardEditor.OpenCardEditorForCreation(onlyCard);
-        nowEditingBundle = new();
+        cardEditor.OpenCardEditor();
+   
     }
 
-/// <summary>
-/// 回到编辑器标题界面
-/// </summary>
-    public void ReturnToMakerTitle()
-    {
-        changeSignal.SetActive(false);
-        CardEditorPlane.SetActive(false);
-        ManifestEditorPlane.SetActive(false);
-        title.SetActive(true);
-    }
+
+
 
 /// <summary>
 /// 保存或另存为（整套卡包）
@@ -258,6 +270,135 @@ public async UniTask AsyncSave(string manifestNewImageFullPath,int index,string 
         }
     }
 
+
+public void switchManifestCardEditor(UnityAction save)
+{
+    //修改信息被激活，说明修改了，提示要不要保存后在返回
+    if (CardMaker.cardMaker.changeSignal.activeSelf)
+    {
+        
+        Notify.notify.CreateStrongNotification(null, null, "卡包清单尚未保存", "此卡包的清单文件尚未保存，要保存吗？", delegate()
+        {
+            
+            //保存，并切换到另外一个编辑器
+
+            //关闭通知
+            Notify.notify.TurnOffStrongNotification();
+            //弹出保存界面，保存后会弹到另外一个编辑器,不保存也会去
+           save.Invoke();
+        }, "保存", delegate
+        {
+            //不保存，直接到另外一个编辑器
+
+            //关闭通知
+            Notify.notify.TurnOffStrongNotification();
+            //切换编辑器
+            var bundleEditor = cardMaker.bundleEditor.gameObject;
+            var cardEditor = cardMaker.cardEditor.gameObject;
+            if(!cardEditor.activeSelf)
+            {
+                this.cardEditor.OpenCardEditor();
+            }
+            else
+            {
+                cardEditor.SetActive(false);
+            }
+           if(!bundleEditor.activeSelf)
+           {
+               this.bundleEditor.OpenManifestEditor();
+           }
+           else
+           {
+               bundleEditor.SetActive(false);
+           }
+                
+        }, "不保存", delegate
+        {
+            //不保存，但是停留在编辑器节界面
+
+            //关闭通知
+            Notify.notify.TurnOffStrongNotification();
+
+        });
+    }
+    //不存在任何修改的话
+    else
+    {
+        //切换编辑器
+//切换编辑器
+        var bundleEditor = cardMaker.bundleEditor.gameObject;
+        var cardEditor = cardMaker.cardEditor.gameObject;
+        if(!cardEditor.activeSelf)
+        {
+            this.cardEditor.OpenCardEditor();
+        }
+        else
+        {
+            cardEditor.SetActive(false);
+        }
+        if(!bundleEditor.activeSelf)
+        {
+            this.bundleEditor.OpenManifestEditor();
+        }
+        else
+        {
+            bundleEditor.SetActive(false);
+        }
+    }
+}
+
+/// <summary>
+/// 想要回到编辑器的标题界面
+/// </summary>
+public void ReturnToTitle(Action save)
+{
+
+    //修改信息被激活，说明修改了，提示要不要保存后在返回
+    if (CardMaker.cardMaker.changeSignal.activeSelf)
+    {
+        Notify.notify.CreateStrongNotification(null, null, "卡包清单尚未保存", "此卡包的清单文件尚未保存，要保存吗？", delegate
+        {
+            //保存，并停留在编辑器界面
+
+            //关闭通知
+            Notify.notify.TurnOffStrongNotification();
+            //弹出保存界面
+            save.Invoke();
+        }, "保存", delegate
+        {
+            //不保存，且回到Maker标题
+
+            //关闭通知
+            Notify.notify.TurnOffStrongNotification();
+            //回到标题节目（退出清单编辑器）
+            CardMaker.cardMaker.ReturnToMakerTitle();
+        }, "不保存", delegate
+        {
+            //不保存，但是停留在编辑器节界面
+
+            //关闭通知
+            Notify.notify.TurnOffStrongNotification();
+
+        });
+    }
+    //不存在任何修改的话
+    else
+    {
+        //回到标题节目（退出清单编辑器）
+        CardMaker.cardMaker.ReturnToMakerTitle();
+    }
+}
+
+/// <summary>
+/// 回到编辑器标题界面
+/// </summary>
+private void ReturnToMakerTitle()
+{
+    changeSignal.SetActive(false);
+    CardEditorPlane.SetActive(false);
+    ManifestEditorPlane.SetActive(false);
+    title.SetActive(true);
+}
 
     /// <summary>
     /// 刷新yaml资源（tag anime cv列表，从本地文件中读取）

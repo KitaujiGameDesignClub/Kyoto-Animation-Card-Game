@@ -102,6 +102,12 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         public static async UniTask<T> ReadAsync<T>(DescribeFileIO yaml, T content, bool createFileIfNotExit = true)
         {
             var fullPath = GetFullPath(yaml.Path);
+            var fileName = yaml.FileName;
+
+            if (fileName.Substring(0, 1) == "*")
+            {
+                fileName = FindOneMatchedFile(fileName.Substring(1), fullPath);
+            }
 
             Deserializer deserializer = new();
 
@@ -113,14 +119,14 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
             try
             {
                 streamReader =
-                    new StreamReader($"{fullPath}/{yaml.FileName}", Encoding.UTF8);
+                    new StreamReader($"{fullPath}/{fileName}", Encoding.UTF8);
 
 
                 var fileContent = deserializer.Deserialize<T>(await streamReader.ReadToEndAsync());
                 streamReader.Dispose();
                 streamReader.Close();
 
-                Debug.Log($"成功加载：{fullPath}/{yaml.FileName}");
+                Debug.Log($"成功加载：{fullPath}/{fileName}");
                 return fileContent;
             }
             catch (Exception e)
@@ -236,6 +242,29 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
 
 
             return actualPath;
+        }
+
+        /// <summary>
+        /// 找到一个拓展名匹配的文件
+        /// </summary>
+        /// <param name="extension">".拓展名"的形式</param>
+        /// <returns></returns>
+        private static string FindOneMatchedFile(string extension,string findPath)
+        {
+            // 获取查找路径下所有的文件
+            DirectoryInfo dirInfo = new DirectoryInfo(findPath);
+            FileInfo[] files = dirInfo.GetFiles();
+
+            foreach (var t in files)
+            {
+                if (t.Extension == extension)
+                {
+                    return t.Name;
+                }
+            }
+
+            return string.Empty;
+
         }
     }
 }

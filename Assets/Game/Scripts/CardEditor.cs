@@ -16,6 +16,8 @@ public class CardEditor : MonoBehaviour
 {
     public GameObject editor;
     public GameObject abilityEditor;
+    public GameObject abilityDescriptionEditor;
+    public GameObject voiceEditor;
     
     
     [Header("信息侧")] public TMP_InputField cardNameField;
@@ -72,13 +74,12 @@ public class CardEditor : MonoBehaviour
     public audioSetting voiceAbility;
     public audioSetting voiceExit;
     
+    [Header("交互控件")]
+    public LeanButton returnToTitle;
+
+    public LeanButton switchToBundleEditor;
     
     [Space()] public CardPanel preview;
-
-    /// <summary>
-    /// 是否为仅仅创建卡牌而已
-    /// </summary>
-    private bool onlyCreateCard { get; set; }
 
     /// <summary>
     /// 现在显示的 正在编辑的卡牌
@@ -238,29 +239,63 @@ public class CardEditor : MonoBehaviour
         #endregion
         
        
+    }
+    
+    private void Start()
+    {
+        //返回标题
+        returnToTitle.OnClick.AddListener(delegate { CardMaker.cardMaker.ReturnToTitle(UniTask.Action(async () =>
+        {
+            await Save();
+        } )); });
         
-      
+     //切换到清单编辑器
+     
+     
+     switchToBundleEditor.OnClick.AddListener(delegate { CardMaker.cardMaker.switchManifestCardEditor(UniTask.UnityAction(
+         async () =>
+         { 
+             //先检查保存
+             await Save();
+            
+             //切换到另外一个编辑器
+             CardMaker.cardMaker.bundleEditor.OpenManifestEditor();
+             this.gameObject.SetActive(false);
+             
+             
+         })); });
+ 
        
     }
 
-    public void OpenCardEditorForCreation(bool onlyCreateCard)
+
+    public void OpenCardEditor()
     {
+        nowEditingCard = CardMaker.cardMaker.nowEditingBundle.card;
+        if (nowEditingCard == null)
+        {
+            Notify.notify.CreateBannerNotification(null,"意外错误：没有创建卡牌实例，请重新创建或联系作者");
+            throw new Exception("意外错误：没有创建卡牌实例，请重新创建或联系作者");
+            
+        }
+        
         //启用编辑器，并初始化显示界面
         gameObject.SetActive(true);
+        //关闭能力和声音编辑器
         editor.SetActive(true);
+        voiceEditor.SetActive(false);
         abilityEditor.SetActive(false);
-
-        //把新创新的卡的信息填充进去显示
-        if (onlyCreateCard) CardMaker.cardMaker.nowEditingBundle = new();
+        abilityDescriptionEditor.SetActive(false);
+        
         
         //信息显示到editor里
 
         #region 常规的信息编辑
 
-        nowEditingCard = CardMaker.cardMaker.nowEditingBundle.card;
+      
         cardNameField.SetTextWithoutNotify(nowEditingCard.CardName);
         friendlyNameField.SetTextWithoutNotify(nowEditingCard.FriendlyCardName);
-        AnimeField.inputField.SetTextWithoutNotify(onlyCreateCard ? nowEditingCard.Anime : CardMaker.cardMaker.nowEditingBundle.manifest.Anime);
+        AnimeField.inputField.SetTextWithoutNotify(nowEditingCard.Anime);
         CharacterNameField.inputField.SetTextWithoutNotify(nowEditingCard.CharacterName);
         CVField.inputField.SetTextWithoutNotify(nowEditingCard.CV);
         cardNumberField.SetTextWithoutNotify(nowEditingCard.CardCount.ToString());
@@ -275,6 +310,8 @@ public class CardEditor : MonoBehaviour
         AsChiefToggle.Set(nowEditingCard.allowAsChief);
         abilityResultRidicule.SetTextWithoutNotify("0");
         abilityResultSilence.SetTextWithoutNotify("0");
+        CVField.inputField.SetTextWithoutNotify(String.Empty);
+        abilityResultSummon.ChangeOptionDatas(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
         
         //获取可变下拉列表内容
         RefreshVariableDropdownList(false);
@@ -285,20 +322,11 @@ public class CardEditor : MonoBehaviour
         
         OnValueChanged();
         
-        CVField.inputField.SetTextWithoutNotify(String.Empty);
+
         CardMaker.cardMaker.changeSignal.SetActive(false);
         
         
-        //召唤生成那边，是要获取该卡组内的所有卡牌
-        if (!onlyCreateCard)
-        {
-           
-        }
-        //仅仅创建卡牌的话，是不能得到卡组内所有卡牌友好名称的
-        else
-        {
-            abilityResultSummon.Ban();
-        }
+       
     }
 
     #region 图片选择
@@ -428,10 +456,17 @@ public class CardEditor : MonoBehaviour
 
     }
 
-    public async void Save()
+    public async void SaveButton()
     {
-      
-        //内存保存
+
+        await Save();
+
+
+    }
+
+    private async UniTask Save()
+    {
+         //内存保存
         var editing = CardMaker.cardMaker.nowEditingBundle.card;
         editing.CardName = cardNameField.text;
         editing.gender = genderField.value;
@@ -479,10 +514,7 @@ public class CardEditor : MonoBehaviour
         audios[2] = voiceKill;
         audios[3] = voiceExit;
        await CardMaker.cardMaker.AsyncSave(index, newImageFullPath,audios);
-
-
     }
-    
 
     
     

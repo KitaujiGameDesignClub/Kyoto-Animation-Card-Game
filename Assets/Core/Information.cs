@@ -168,7 +168,11 @@ namespace Core
 
 
         #region 内置路径
-        public static string bundlesPath /*= $"{YamlReadWrite.UnityButNotAssets}/bundles"*/;//在这里直接初始化会报错
+
+        public const string manifestExtension = ".kabmanifest";
+        public const string cardExtension = ".kabcard";
+        
+        public static string bundlesPath =  $"{YamlReadWrite.UnityButNotAssets}/bundles";
 
         public static readonly DescribeFileIO AnimeListIO = new DescribeFileIO("animeList.yml", "saves", "# 此文件包含了动漫列表，用于规范卡组中所属动画的文本" +
     "\n# 此文件不会影响正常游戏，但是卡组编辑器“所属动画”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
