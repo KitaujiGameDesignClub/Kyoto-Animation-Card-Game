@@ -10,6 +10,7 @@ using SimpleFileBrowser;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.PlayerLoop;
 using Image = UnityEngine.UI.Image;
 
 public class CardEditor : MonoBehaviour
@@ -31,6 +32,7 @@ public class CardEditor : MonoBehaviour
     public TMP_InputField basicHp;
     public Image imageOfCardField;
     public LeanToggle AsChiefToggle;
+    public Sprite defaultImage;
 
     [Header("标签侧")] public InputFieldWithDropdown tagField;
     /// <summary>
@@ -76,11 +78,13 @@ public class CardEditor : MonoBehaviour
     
     [Header("交互控件")]
     public LeanButton returnToTitle;
-
+    
     public LeanButton switchToBundleEditor;
     
     [Space()] public CardPanel preview;
 
+    
+    
     /// <summary>
     /// 现在显示的 正在编辑的卡牌
     /// </summary>
@@ -259,7 +263,7 @@ public class CardEditor : MonoBehaviour
              await Save();
             
              //切换到另外一个编辑器
-             CardMaker.cardMaker.bundleEditor.OpenManifestEditor();
+            CardMaker.cardMaker.bundleEditor.OpenManifestEditor();
              this.gameObject.SetActive(false);
              
              
@@ -269,18 +273,19 @@ public class CardEditor : MonoBehaviour
     }
 
 
-    public void OpenCardEditor()
+    public async UniTask OpenCardEditor()
     {
+        CardMaker.cardMaker.BanInputLayer(true, "卡牌配置加载中...");
+        
         nowEditingCard = CardMaker.cardMaker.nowEditingBundle.card;
+      
         if (nowEditingCard == null)
         {
             Notify.notify.CreateBannerNotification(null,"意外错误：没有创建卡牌实例，请重新创建或联系作者");
             throw new Exception("意外错误：没有创建卡牌实例，请重新创建或联系作者");
-            
         }
         
-        //启用编辑器，并初始化显示界面
-        gameObject.SetActive(true);
+      
         //关闭能力和声音编辑器
         editor.SetActive(true);
         voiceEditor.SetActive(false);
@@ -290,7 +295,7 @@ public class CardEditor : MonoBehaviour
         
         //信息显示到editor里
 
-        #region 常规的信息编辑
+        #region 常规的信息加载
 
       
         cardNameField.SetTextWithoutNotify(nowEditingCard.CardName);
@@ -315,17 +320,50 @@ public class CardEditor : MonoBehaviour
         
         //获取可变下拉列表内容
         RefreshVariableDropdownList(false);
-
+        
+        //图片，音频资源加载
+        if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath != string.Empty)
+        {
+            var cardRootPath =
+                $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/cards/{nowEditingCard.CardName}";
+            CardMaker.cardMaker.BanInputLayer(true, "图片资源加载中...");
+            if (nowEditingCard.imageName != "default")
+            {
+                await AsyncLoadImage($"{cardRootPath}/{nowEditingCard.imageName}");
+            }
+            else
+            {
+                imageOfCardField.sprite = defaultImage;
+            }
+        
+            //音频加载
+            CardMaker.cardMaker.BanInputLayer(true, "音频资源加载中...");
+            if (nowEditingCard.voiceAbility != string.Empty)
+                await AsyncLoadSelectedAudio(voiceAbility, $"{cardRootPath}/{nowEditingCard.voiceAbility}");
+            else AsyncLoadSelectedAudio(voiceAbility, string.Empty);
+            if (nowEditingCard.voiceDebut != string.Empty)
+                await AsyncLoadSelectedAudio(voiceDebut, $"{cardRootPath}/{nowEditingCard.voiceDebut}");
+            else AsyncLoadSelectedAudio(voiceDebut, string.Empty);
+            if (nowEditingCard.voiceExit != string.Empty)
+                await AsyncLoadSelectedAudio(voiceExit, $"{cardRootPath}/{nowEditingCard.voiceExit}");
+            else AsyncLoadSelectedAudio(voiceExit, string.Empty);
+            if (nowEditingCard.voiceKill != string.Empty)
+                await AsyncLoadSelectedAudio(voiceKill, $"{cardRootPath}/{nowEditingCard.voiceKill}");
+            else AsyncLoadSelectedAudio(voiceKill, string.Empty);
+        } 
+      
         #endregion
         
+     
+        
+        CardMaker.cardMaker.BanInputLayer(false, "卡牌加载中...");
+        //启用编辑器，并初始化显示界面
+        gameObject.SetActive(true);
         banAllInputFieldInteraction(false,0);
-        
+        //同步一下信息
         OnValueChanged();
-        
-
         CardMaker.cardMaker.changeSignal.SetActive(false);
-        
-        
+
        
     }
 
@@ -335,7 +373,7 @@ public class CardEditor : MonoBehaviour
     /// 玩家选择图片
     /// </summary>
 #pragma warning disable CS4014 // 没有等待的必要
-    public void selectImage() => AsyncSelectImage();
+    public void selectImageButton() => AsyncSelectImage();
 #pragma warning restore CS4014 // 没有等待的必要
 
     async UniTask AsyncSelectImage()
@@ -383,8 +421,16 @@ public class CardEditor : MonoBehaviour
 
     #region 音频选择
 
+    /// <summary>
+    /// 选择音频事件调用
+    /// </summary>
+    /// <param name="setting"></param>
     public void SelectAudio(audioSetting setting) => AsyncSelectAudio(setting);
 
+    /// <summary>
+    /// 弹出选择框进行选择
+    /// </summary>
+    /// <param name="audioSetting"></param>
     private async UniTask AsyncSelectAudio(audioSetting audioSetting)
     {
         FileBrowser.SetFilters(false,new FileBrowser.Filter("卡牌音频",".mp3",".ogg",".wav",".aif"));
@@ -394,53 +440,75 @@ public class CardEditor : MonoBehaviour
 
         if (FileBrowser.Success)
         {
-            if (Path.GetFileNameWithoutExtension(FileBrowser.Result[0]).Contains("："))
-            {
-                var warning = $"{FileBrowser.Result[0]}不应当含有中文引号";
-                Notify.notify.CreateBannerNotification(null,warning);
-                Debug.LogError(warning);
-                return;
-            }
-            
-            
-           var  handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.OGGVORBIS);
-            switch (Path.GetExtension(FileBrowser.Result[0]).ToLower())
-            {
-                case ".ogg":
-                    handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.OGGVORBIS);
-                    break;
-                
-                case ".mp3":
-                    handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.MPEG);
-                    break;
-                
-                case ".aif":
-                    handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.AIFF);
-                    break;
-                
-                case ".wav":
-                    handler = new DownloadHandlerAudioClip(FileBrowser.Result[0], AudioType.WAV);
-                    break;
-            }
-
-            var uwr = new UnityWebRequest(FileBrowser.Result[0], "GET", handler, null);
-
-            await uwr.SendWebRequest();
-
-            if (uwr.isDone)
-            {
-                if (uwr.result == UnityWebRequest.Result.Success)
-                {
-                    audioSetting.AudioSelected(handler.audioClip,FileBrowser.Result[0]);
-                }
-                else
-                {
-                    Debug.LogWarning($"{uwr.url}加载失败，错误原因{uwr.error}");
-                }
-            }
+            await AsyncLoadSelectedAudio(audioSetting, FileBrowser.Result[0]);
         }
     }
 
+    /// <summary>
+    /// 加载音频
+    /// </summary>
+    private async UniTask AsyncLoadSelectedAudio(audioSetting audioSetting, string audioFullPath)
+    {
+        if (audioFullPath == string.Empty)
+        {
+            audioSetting.clear();
+            return;
+        }
+        
+        if (Path.GetFileNameWithoutExtension(audioFullPath).Contains("："))
+        {
+            var warning = $"{audioFullPath}的文件名中，不应当含有中文引号";
+            Notify.notify.CreateBannerNotification(null,warning);
+            Debug.LogError(warning);
+            return;
+        }
+            
+            
+        var  handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.OGGVORBIS);
+        handler.streamAudio = true;
+        switch (Path.GetExtension(audioFullPath).ToLower())
+        {
+            case ".ogg":
+                handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.OGGVORBIS);
+                break;
+                
+            case ".mp3":
+                handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.MPEG);
+                break;
+                
+            case ".aif":
+                handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.AIFF);
+                break;
+                
+            case ".wav":
+                handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.WAV);
+                break;
+            
+            default:
+                throw new Exception($"{Path.GetExtension(audioFullPath).ToLower()}是不受支持的格式，只接受ogg/mp3/aif/wav");
+        }
+
+        var uwr = new UnityWebRequest(audioFullPath, "GET", handler, null);
+
+        await uwr.SendWebRequest();
+
+        if (uwr.isDone)
+        {
+            if (uwr.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log(uwr.url);
+                Debug.Log(handler.data.Length);
+                audioSetting.AudioSelected(handler.audioClip,audioFullPath);
+                
+            }
+            else
+            {
+                Debug.LogWarning($"{uwr.url}加载失败，错误原因{uwr.error}");
+                return;
+            }
+        }
+    }
+    
     #endregion
 
 

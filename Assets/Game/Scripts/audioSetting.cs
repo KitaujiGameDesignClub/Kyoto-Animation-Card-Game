@@ -9,7 +9,7 @@ using UnityEngine.Serialization;
 
 public class audioSetting : MonoBehaviour
 {
-   private AudioSource audioSource;
+    AudioSource audioSource;
     [SerializeField]private TMP_Text text;
     [FormerlySerializedAs("audioFullFileName")] [HideInInspector]public string newAudioFullFileName  = string.Empty;
 
@@ -26,9 +26,10 @@ public class audioSetting : MonoBehaviour
 
     public UnityEvent<audioSetting> OnPrepareToSelectAudio = new();
 
-    private void Awake()
+    private void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+       if(audioSource == null) audioSource = GetComponent<AudioSource>();
+       if (audioSource.clip == null) clear();
         Stop();
     }
 
@@ -62,7 +63,7 @@ public class audioSetting : MonoBehaviour
     {
         audioSource.clip = null;
         newAudioFullFileName = string.Empty;
-        text.text = $"{title}：无音频";
+        text.text = $"{title}：\n<size=80%>无音频</size>";
         Stop();
     }
 
@@ -72,11 +73,17 @@ public class audioSetting : MonoBehaviour
        OnPrepareToSelectAudio.Invoke(this);
     }
 
+    /// <summary>
+    /// 选择好音频了，加载进来
+    /// </summary>
+    /// <param name="audioClip"></param>
+    /// <param name="fileFullPath"></param>
     public void AudioSelected(AudioClip audioClip,string fileFullPath)
     {
+        if(audioSource == null) audioSource = GetComponent<AudioSource>();
         audioSource.clip = audioClip;
         newAudioFullFileName = fileFullPath;
-        text.text = $"{title}：{Path.GetFileName(newAudioFullFileName)}";
+        text.text = $"{title}：\n<size=80%>{Path.GetFileName(newAudioFullFileName)}</size>";
         CardMaker.cardMaker.changeSignal.SetActive(true);
     }
 }

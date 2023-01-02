@@ -150,8 +150,15 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
                 }
 
 
-                await WriteAsync(yaml, content);
+                if(createFileIfNotExit)
+                {
+                    await WriteAsync(yaml, content);
+                 
+                }
+             
                 return content;
+            
+               
             }
         }
 

@@ -48,22 +48,52 @@ public class BundleEditor : MonoBehaviour
 
     private void Start()
     {
+        #region 事件组
+
         //返回标题
         returnToTitle.OnClick.AddListener(delegate { CardMaker.cardMaker.ReturnToTitle(UniTask.Action(async () =>
         {
             await Save();
         })); });
-        //切换到card editor
-        switchToCardEditor.OnClick.AddListener(delegate { CardMaker.cardMaker.switchManifestCardEditor(UniTask.UnityAction(
-            async () =>
-            {
-                //先检查保存
-                await Save();
+        
+        //切换到card editor，事先把要编辑的卡牌创建好
+        switchToCardEditor.OnClick.AddListener(UniTask.UnityAction(async () =>
+        {
+            CardMaker.cardMaker.BanInputLayer(true, "切换中...");
             
-                //切换到另外一个编辑器
-                CardMaker.cardMaker.cardEditor.OpenCardEditor();
-                this.gameObject.SetActive(false);
-            })); });
+            var card = new CharacterCard();
+            if (cardsFriendlyNamesList.value >= 1)
+            {
+                var manifestPath = CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath;
+                var cardFileName = CardMaker.cardMaker.nowEditingBundle.allCardsName[cardsFriendlyNamesList.value - 1];
+                card = await YamlReadWrite.ReadAsync<CharacterCard>(
+                    new DescribeFileIO($"{cardFileName}{Information.cardExtension}",
+                        $"-{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}"), null, false);
+            }
+            CardMaker.cardMaker.nowEditingBundle.card = card;
+
+            //切换到零一个编辑器
+            CardMaker.cardMaker.switchManifestCardEditor(UniTask.UnityAction(
+                async () =>
+                {
+
+                    //先检查保存
+                    await Save();
+
+                    //切换到另外一个编辑器
+                 await CardMaker.cardMaker.cardEditor.OpenCardEditor();
+                    gameObject.SetActive(false);
+                }));
+            
+   
+        }));
+        
+
+        
+
+        #endregion
+        
+       
         
         //初始化Anime的下拉栏
         List<string> all = new();
@@ -97,14 +127,17 @@ public class BundleEditor : MonoBehaviour
         bundleImage.sprite = DefaultImage;
 
         //读取卡组内所有卡牌的友好名称
-        if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Length == 0)
+        if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Count == 0)
         {
             cardsFriendlyNamesList.gameObject.SetActive(false);
         }
         else
         {
             cardsFriendlyNamesList.ClearOptions();
-            cardsFriendlyNamesList.AddOptions(CommonTools.ListArrayConversion(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName));
+            cardsFriendlyNamesList.AddOptions(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
+            cardsFriendlyNamesList.options.Insert(0,new TMP_Dropdown.OptionData("<创建新卡牌>"));
+            cardsFriendlyNamesList.value = 0;
+            cardsFriendlyNamesList.RefreshShownValue();
         }
       
         
@@ -128,30 +161,6 @@ public class BundleEditor : MonoBehaviour
         CardMaker.cardMaker.changeSignal.SetActive(false);
     }
     
-
-
-    /// <summary>
-    /// 读取清单文件内容
-    /// </summary>
-    /// <param name="create"></param>
-    async UniTask ReadManifestContent()
-    {
-
-
-        FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组清单文件", ".kabmanifest"));
-        await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, false, title: "选择卡组", loadButtonText: "加载");
-
-        if (FileBrowser.Success)
-        {
-            await CardReadWrite.GetBundle(FileBrowser.Result[0]);
-        }
-
-
-        //更新一下卡包预览
-        OnEndEdit();
-        CardMaker.cardMaker.changeSignal.SetActive(false);
-
-    }
 
 
     /// <summary>

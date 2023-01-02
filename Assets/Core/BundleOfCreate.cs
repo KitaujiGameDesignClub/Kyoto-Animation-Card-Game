@@ -16,11 +16,11 @@ namespace Core
         /// <summary>
         /// 记录这个卡组内，所有卡牌的友好名称
         /// </summary>
-        public string[] allCardsFriendlyName;
+        public List<string> allCardsFriendlyName = new ();
         /// <summary>
         /// 记录这个卡组内，所有卡牌的识别名称（这两个名称数组是要相互对应的
         /// </summary>
-        public string[] allCardsName;
+        public List<string> allCardsName = new ();
 
         /// <summary>
         /// 尝试获取每个卡组的清单文件的路径
@@ -35,22 +35,27 @@ namespace Core
         {
             manifest = new();
             card = new CharacterCard();
-            allCardsFriendlyName = Array.Empty<string>();
-            allCardsName= Array.Empty<string>();
-            
+            allCardsFriendlyName = new ();
+            allCardsName = new ();
+            loadedManifestFullPath = string.Empty;
         }
     }
     
     public class Bundle
     {
-        public CardBundlesManifest manifest;
-        public CharacterCard[] cards;
-        
+        public CardBundlesManifest manifest= new();
+        public CharacterCard[] cards= new CharacterCard[0];
+
+        public Bundle(CardBundlesManifest manifest,CharacterCard[] cards)
+        {
+            this.manifest = manifest;
+            this.cards = cards;
+        }
 
         public Bundle()
         {
-            manifest = new();
-            cards = new CharacterCard[0];
+            CardBundlesManifest manifest= new();  
+            CharacterCard[] cards= new CharacterCard[0];
         }
     }
 }
