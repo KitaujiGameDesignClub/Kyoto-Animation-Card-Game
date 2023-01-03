@@ -53,7 +53,8 @@ public class BundleEditor : MonoBehaviour
         //返回标题
         returnToTitle.OnClick.AddListener(delegate { CardMaker.cardMaker.ReturnToTitle(UniTask.Action(async () =>
         {
-            await Save();
+            //检查保存
+            await SaveOrSaveTo();
         })); });
         
         //切换到card editor，事先把要编辑的卡牌创建好
@@ -69,6 +70,10 @@ public class BundleEditor : MonoBehaviour
                 card = await YamlReadWrite.ReadAsync<CharacterCard>(
                     new DescribeFileIO($"{cardFileName}{Information.cardExtension}",
                         $"-{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}"), null, false);
+                
+                //保存一下加载的卡牌的路径
+                CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath =
+                    $"{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}/{cardFileName}{Information.cardExtension}";
             }
             CardMaker.cardMaker.nowEditingBundle.card = card;
 
@@ -78,7 +83,7 @@ public class BundleEditor : MonoBehaviour
                 {
 
                     //先检查保存
-                    await Save();
+                    await SaveOrSaveTo();
 
                     //切换到另外一个编辑器
                  await CardMaker.cardMaker.cardEditor.OpenCardEditor();
@@ -138,6 +143,7 @@ public class BundleEditor : MonoBehaviour
             cardsFriendlyNamesList.options.Insert(0,new TMP_Dropdown.OptionData("<创建新卡牌>"));
             cardsFriendlyNamesList.value = 0;
             cardsFriendlyNamesList.RefreshShownValue();
+            cardsFriendlyNamesList.gameObject.SetActive(true);
         }
       
         
@@ -168,10 +174,11 @@ public class BundleEditor : MonoBehaviour
     /// </summary>
     public async void SaveButton()
     {
-       await Save();
+       
+       await SaveOrSaveTo();
     }
 
-    private async UniTask Save()
+    private async UniTask SaveOrSaveTo()
     {
         //更新暂存在内存中的清单
         CardMaker.cardMaker.nowEditingBundle.manifest.BundleName = bundleName.text;
@@ -185,8 +192,20 @@ public class BundleEditor : MonoBehaviour
         CardMaker.cardMaker.nowEditingBundle.manifest.Remarks = remark.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.text;
         
+        
+
+        /*保存和另存为，都是自己保存自己的
+         * 卡组清单就只保存清单（此脚本）
+         * 卡牌就仅保存正在编辑的那个卡牌
+         */
         //执行保存or另存为操作
-        await CardMaker.cardMaker.AsyncSave(newImageFullPath);
+        //没有预先加载卡包，则另存为
+        if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath == string.Empty)
+        {
+            await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath);
+        }
+        //有加载卡包，保存
+        else await CardMaker.cardMaker.AsyncSave(newImageFullPath, null, true, false, null);
     }
 
 

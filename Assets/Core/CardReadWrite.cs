@@ -64,56 +64,65 @@ public class CardReadWrite
     /// <summary>
     /// 创建卡包清单文件（编辑器创建用）
     /// </summary>
-    /// <param name="cardBundlesManifest"></param>
-    /// <param name="fullPathToSave">保存的完整路径</param>
+    /// <param name="cardBundlesManifest">保存的内容</param>
+    /// <param name="fullPathToSave">保存的完整路径（含文件和拓展名）</param>
     /// <param name="imageFullPath">新图片的完整路径，将图片复制到卡包目录下</param>
     /// <returns></returns>
     public static async UniTask CreateBundleManifestFile(CardBundlesManifest cardBundlesManifest, string fullPathToSave,
         string imageFullPath)
     {
+
+        var directory = Path.GetDirectoryName(fullPathToSave);//最终，应当形如“D:\Kyoto Animation Card game\bundles\test\test.kabmanifest”
+        var fileNameWithExtension = Path.GetFileName(fullPathToSave);
+        
         //清单文件
-        var io = new DescribeFileIO($"{cardBundlesManifest.BundleName}{Information.manifestExtension}",
-            $"-{fullPathToSave}/{cardBundlesManifest.BundleName}",
+        var io = new DescribeFileIO(fileNameWithExtension,
+            $"-{directory}",
             "# card bundle manifest.\n# It'll tell you the summary of the bundle.");
         await YamlReadWrite.WriteAsync(io, cardBundlesManifest);
         //复制封面图片
         if (imageFullPath != string.Empty)
         {
-            File.Copy(imageFullPath, $"{fullPathToSave}/{cardBundlesManifest.BundleName}/{Path.GetFileName(imageFullPath)}",
+            File.Copy(imageFullPath, $"{directory}/{Path.GetFileName(imageFullPath)}",
                 true);
         }
         //创建一个cards文件夹
-        Directory.CreateDirectory($"{fullPathToSave}/{cardBundlesManifest.BundleName}/cards");
+        Directory.CreateDirectory($"{directory}/cards");
         //创建readme文件
-        StreamWriter streamWriter = new($"{fullPathToSave}/{cardBundlesManifest.BundleName}/readme.txt", true, Encoding.UTF8);
+        StreamWriter streamWriter = new($"{directory}/readme.txt", true, Encoding.UTF8);
         await streamWriter.WriteAsync(
             $"此为卡组“{cardBundlesManifest.FriendlyBundleName}”（识别名称：“{cardBundlesManifest.BundleName}）”的卡组文件夹" +
             $"\ncards文件夹及其所有内容不应当修改文件名（文本文件txt除外）。cards文件夹内储存此卡组内所有的卡牌" +
             $"\n为避免不必要的错误，只有此文件夹、txt文件以及“{Information.manifestExtension}”文件允许修改名称");
         await streamWriter.DisposeAsync();
         streamWriter.Close();
+        
+        Debug.Log($"“{cardBundlesManifest.FriendlyBundleName}”已成功保存在{directory}");
     }
 
 
     /// <summary>
     /// 创建卡牌文件
     /// </summary>
-    /// <param name="onlyCard"></param>
-    /// <param name="fullPathToSave">保存的完整路径</param>
+    /// <param name="characterCard">保存的内容</param>
+    /// <param name="fullPathToSave">保存的完整路径（含文件和拓展名）</param>
     /// <returns></returns>
     public static async UniTask CreateCardFile( CharacterCard characterCard, string fullPathToSave,
         string imageFullPath, string[] voiceFileFullPath)
     {
+        var directory = Path.GetDirectoryName(fullPathToSave);//最终，应当形如“D:\Kyoto Animation Card game\bundles\test\cards\114514\114514.kbcard”
+        var fileNameWithExtension = Path.GetFileName(fullPathToSave);
+        
         //卡牌配置文件
-        var io = new DescribeFileIO($"{characterCard.CardName}{Information.cardExtension}",
-            $"-{fullPathToSave}/{characterCard.CardName}",
+        var io = new DescribeFileIO(fileNameWithExtension,
+            $"-{directory}",
             "# card detail.\n# It'll tell you all the information of the card,but it can't work independently.");
         await YamlReadWrite.WriteAsync(io, characterCard);
 
         //复制封面图片
         if (imageFullPath != string.Empty)
         {
-            File.Copy(imageFullPath, $"{fullPathToSave}/{characterCard.CardName}/{Path.GetFileName(imageFullPath)}", true);
+            File.Copy(imageFullPath, $"{directory}/{Path.GetFileName(imageFullPath)}", true);
         }
 
         //复制音频资源
@@ -122,15 +131,17 @@ public class CardReadWrite
             if (voiceFileFullPath[i] != string.Empty)
             {
                 File.Copy(voiceFileFullPath[i],
-                    $"{fullPathToSave}/{characterCard.CardName}/{Path.GetFileName(voiceFileFullPath[i])}", true);
+                    $"{directory}/{Path.GetFileName(voiceFileFullPath[i])}", true);
             }
         }
         
         //创建readme文件
-        StreamWriter streamWriter = new($"{fullPathToSave}/{characterCard.CardName}/readme.txt", true, Encoding.UTF8);
+        StreamWriter streamWriter = new($"{directory}/readme.txt", true, Encoding.UTF8);
         await streamWriter.WriteAsync("此文件夹内除了txt文件外，任何文件不能修改文件名");
         await streamWriter.DisposeAsync();
         streamWriter.Close();
+        
+        Debug.Log($"“{characterCard.FriendlyCardName}”已成功保存在{directory}");
     }
 
     /// <summary>

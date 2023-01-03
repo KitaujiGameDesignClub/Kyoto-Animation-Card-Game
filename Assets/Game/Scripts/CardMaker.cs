@@ -9,6 +9,7 @@ using UnityEngine.Events;
 using UnityEngine.Serialization;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using System.Collections.Generic;
+using System.IO;
 using Debug = UnityEngine.Debug;
 
 /// <summary>
@@ -133,6 +134,8 @@ public class CardMaker : MonoBehaviour
     /// </summary>
     private async UniTask EditBundle()
     {
+        nowEditingBundle = new();
+        
         //得到文件内容
         FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组清单文件", Information.manifestExtension));
         await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "加载卡组清单", loadButtonText: "选择");
@@ -189,22 +192,69 @@ public class CardMaker : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 保存或另存为（整套卡包）
-    /// </summary>
-    /// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
-    /// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
-    /// <param name="cardNewImageFullPath">卡牌的新图片的全路径</param>
-    /// <param name="saveManifest"></param>
-    /// <param name="saveCard"></param>
-    /// <returns>保存成功了吗？</returns>
-    public async UniTask AsyncSave(string manifestNewImageFullPath)
+    public async UniTask AsyncSave(string manifestNewImageFullPath,  string cardNewImageFullPath,
+        bool saveManifest, bool saveCard, audioSetting[] cardAudioSettins)
     {
-        await AsyncSave(manifestNewImageFullPath, 0, null, true, false, null);
+        if (saveManifest)
+        {
+            //文件存在，在这保存
+            if (File.Exists(nowEditingBundle.loadedManifestFullPath))
+            {
+                try
+                {
+                    await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest,
+                        nowEditingBundle.loadedManifestFullPath, manifestNewImageFullPath);
+                }
+                catch (Exception e)
+                {
+                    Notify.notify.CreateBannerNotification(delegate { banInput.SetActive(false); },
+                        "文件储存错误，详细信息请看控制台");
+                    throw e;
+                }
+            }
+            //如果原文件直接就不存在了，那就调用另存为
+            else
+            {
+                await AsyncSaveTo(manifestNewImageFullPath, cardNewImageFullPath, saveManifest, saveCard, cardAudioSettins);
+            }
+        }
+
+        if (saveCard)
+        {
+            //文件存在，在这保存
+            if (File.Exists(nowEditingBundle.loadedCardFullPath))
+            {
+                try
+                {
+                    var audios = new string[cardAudioSettins.Length];
+                    for (int i = 0; i < audios.Length; i++)
+                    {
+                        audios[i] = cardAudioSettins[i].newAudioFullFileName;
+                    }
+
+
+                    await CardReadWrite.CreateCardFile(nowEditingBundle.card, nowEditingBundle.loadedCardFullPath,
+                        cardNewImageFullPath, audios);
+                }
+                catch (Exception e)
+                {
+                    Notify.notify.CreateBannerNotification(delegate { banInput.SetActive(false); },
+                        "文件储存错误，详细信息请看控制台");
+                    throw e;
+                }
+            }
+            //如果原文件直接就不存在了，那就调用另存为
+            else
+            {
+                await AsyncSaveTo(manifestNewImageFullPath, cardNewImageFullPath, saveManifest, saveCard, cardAudioSettins);
+            }
+        }
+
+       
     }
 
     /// <summary>
-    /// 保存或另存为（整套卡包）
+    /// 卡组清单另存为
     /// </summary>
     /// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
     /// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
@@ -212,13 +262,13 @@ public class CardMaker : MonoBehaviour
     /// <param name="saveManifest"></param>
     /// <param name="saveCard"></param>
     /// <returns>保存成功了吗？</returns>
-    public async UniTask AsyncSave(int index, string cardNewImageFullPath, audioSetting[] cardAudioSettins)
+    public async UniTask AsyncSaveTo(string manifestNewImageFullPath)
     {
-        await AsyncSave(null, index, cardNewImageFullPath, false, true, cardAudioSettins);
+        await AsyncSaveTo(manifestNewImageFullPath, null, true, false, null);
     }
 
     /// <summary>
-    /// 保存或另存为（整套卡包）
+    /// 卡牌另存为
     /// </summary>
     /// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
     /// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
@@ -226,7 +276,21 @@ public class CardMaker : MonoBehaviour
     /// <param name="saveManifest"></param>
     /// <param name="saveCard"></param>
     /// <returns>保存成功了吗？</returns>
-    public async UniTask AsyncSave(string manifestNewImageFullPath, int index, string cardNewImageFullPath,
+    public async UniTask AsyncSaveTo( string cardNewImageFullPath, audioSetting[] cardAudioSettins)
+    {
+        await AsyncSaveTo(null,  cardNewImageFullPath, false, true, cardAudioSettins);
+    }
+
+    /// <summary>
+    /// 另存为（整套卡包）
+    /// </summary>
+    /// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
+    /// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
+    /// <param name="cardNewImageFullPath">卡牌的新图片的全路径</param>
+    /// <param name="saveManifest"></param>
+    /// <param name="saveCard"></param>
+    /// <returns>保存成功了吗？</returns>
+    public async UniTask AsyncSaveTo(string manifestNewImageFullPath,  string cardNewImageFullPath,
         bool saveManifest, bool saveCard, audioSetting[] cardAudioSettins)
     {
         //还没有保存过/不是打开编辑卡包，打开选择文件的窗口，选择保存位置
@@ -242,9 +306,14 @@ public class CardMaker : MonoBehaviour
                 {
                     saveStatus.text = "保存卡组清单文件...";
 
+                    //保存储存路径，之后的话就可以不用进行另存为了
+                    nowEditingBundle.loadedManifestFullPath = FileBrowser.Result[0];
+
                     try
                     {
-                        await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest, FileBrowser.Result[0],
+                        //FileBrowser.Result[0]：仅仅是选定的目录，得给一个专有文件夹和文件名
+                        await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest,
+                            $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.BundleName}/{nowEditingBundle.manifest.BundleName}{Information.manifestExtension}",
                             manifestNewImageFullPath);
                     }
                     catch (Exception e)
@@ -258,6 +327,9 @@ public class CardMaker : MonoBehaviour
                 if (nowEditingBundle.card != null && saveCard)
                 {
                     saveStatus.text = "保存卡牌文件...";
+                    
+                    //保存储存路径，之后的话就可以不用进行另存为了
+                    nowEditingBundle.loadedCardFullPath = FileBrowser.Result[0];
 
                     try
                     {

@@ -317,6 +317,27 @@ public class CardEditor : MonoBehaviour
         abilityResultSilence.SetTextWithoutNotify("0");
         CVField.inputField.SetTextWithoutNotify(String.Empty);
         abilityResultSummon.ChangeOptionDatas(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
+        //tag也同步一下
+        tagStorage = nowEditingCard.tags;
+        if (nowEditingCard.tags.Count > 0)
+        {
+            foreach (var tag in nowEditingCard.tags)
+            {
+                addTagListItem(tag);
+            }
+        }
+        else
+        {
+            //移出所有无用的tag对象
+            var UnusedTags = tagParent.GetComponentsInChildren<tagListItem>(false);
+            for (int i = 0; i < UnusedTags.Length; i++)
+            {
+                UnusedTags[i].button.onClick.Invoke();
+            }
+
+        }
+       
+        
         
         //获取可变下拉列表内容
         RefreshVariableDropdownList(false);
@@ -581,7 +602,7 @@ public class CardEditor : MonoBehaviour
         audios[1] = voiceDebut;
         audios[2] = voiceKill;
         audios[3] = voiceExit;
-       await CardMaker.cardMaker.AsyncSave(index, newImageFullPath,audios);
+       await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath,audios);
     }
 
     
@@ -792,7 +813,11 @@ public class CardEditor : MonoBehaviour
     private void addTagListItem(string text)
     {
         var item = Instantiate(tagListButtonPerfebs.gameObject, tagParent).GetComponent<tagListItem>();
+        //显示出来tag文本
         item.Initialization(text);
+        //注册删除tag功能
+        item.onRemove.AddListener(delegate(string arg0) { tagStorage.Remove(arg0); });
+        
     }
 
     #endregion

@@ -23,13 +23,13 @@ namespace Core
         public List<string> allCardsName = new ();
 
         /// <summary>
-        /// 尝试获取每个卡组的清单文件的路径
+        /// 上次加载的清单文件的完整路径
         /// </summary>
         public string loadedManifestFullPath = string.Empty;
         /// <summary>
-        /// 上次加载东西用的路径
+        /// 上次加载的卡牌文件的完整路径
         /// </summary>
-        public string lastFileBrowerFullPath = string.Empty;
+        public string loadedCardFullPath = string.Empty;
         
         public BundleOfCreate()
         {

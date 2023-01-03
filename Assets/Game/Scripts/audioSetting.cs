@@ -55,13 +55,13 @@ public class audioSetting : MonoBehaviour
 
     public void Stop()
     {
-        audioSource.Stop();
+        if(audioSource != null)  audioSource.Stop();
         playingSignal.SetActive(false);
     }
 
     public void clear()
     {
-        audioSource.clip = null;
+        if(audioSource != null)   audioSource.clip = null;
         newAudioFullFileName = string.Empty;
         text.text = $"{title}：\n<size=80%>无音频</size>";
         Stop();
