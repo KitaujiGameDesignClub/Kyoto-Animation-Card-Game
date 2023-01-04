@@ -68,12 +68,12 @@ public class BundleEditor : MonoBehaviour
                 var manifestPath = CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath;
                 var cardFileName = CardMaker.cardMaker.nowEditingBundle.allCardsName[cardsFriendlyNamesList.value - 1];
                 card = await YamlReadWrite.ReadAsync<CharacterCard>(
-                    new DescribeFileIO($"{cardFileName}{Information.cardExtension}",
+                    new DescribeFileIO($"{cardFileName}{Information.CardExtension}",
                         $"-{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}"), null, false);
                 
                 //保存一下加载的卡牌的路径
                 CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath =
-                    $"{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}/{cardFileName}{Information.cardExtension}";
+                    $"{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}/{cardFileName}{Information.CardExtension}";
             }
             CardMaker.cardMaker.nowEditingBundle.card = card;
 
@@ -111,14 +111,12 @@ public class BundleEditor : MonoBehaviour
     }
 
     /// <summary>
-    /// 打开manifest editor（适用于编辑已有的卡组清单文件）
+    /// 打开manifest editor（同步方法中，一定要放到最后一步）
     /// </summary>
-    /// <param name="create">是新创建的吗</param>
-    public void OpenManifestEditor()
+    public async UniTask OpenManifestEditor()
     {
-     
-        //启用编辑器
-        gameObject.SetActive(true);
+        CardMaker.cardMaker.BanInputLayer(true, "卡组配置加载中...");
+       
         //获取卡组清单信息
         var manifest = CardMaker.cardMaker.nowEditingBundle.manifest;
         bundleName.SetTextWithoutNotify(manifest.BundleName);
@@ -129,8 +127,35 @@ public class BundleEditor : MonoBehaviour
         remark.SetTextWithoutNotify(manifest.Remarks);
         bundleVersion.SetTextWithoutNotify(manifest.BundleVersion);
         //  shortDescription.text = CardMaker.cardMaker.nowEditingBundle.manifest.shortDescription;
-        bundleImage.sprite = DefaultImage;
+       
+        
+        CardMaker.cardMaker.BanInputLayer(true, "卡组封面加载中...");
+        //封面图片加载
+        //先设置成默认的
+        image.sprite = DefaultImage;
+        //如果是加载的已有卡组，则读取现成的cover图片
+        if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath != string.Empty)
+        {
+            //缓存卡组清单文件的根目录（文件夹）
+            string rootPath = Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath);
+            foreach (var format in Information.SupportedImageExtension)
+            {
+                //找一下根目录下有没有卡组用的封面
 
+                //有的话，就尝试读取一下
+                if (File.Exists($"{rootPath}/cover{format}"))
+                {
+                    AsyncLoadImage(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath);
+                    break;
+                }
+            }
+            
+            ////没有的话，就保持刚刚设置的默认图片
+        }
+      
+        
+
+      
         //读取卡组内所有卡牌的友好名称
         if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Count == 0)
         {
@@ -138,6 +163,7 @@ public class BundleEditor : MonoBehaviour
         }
         else
         {
+            CardMaker.cardMaker.BanInputLayer(true, "所含卡牌缓存中...");
             cardsFriendlyNamesList.ClearOptions();
             cardsFriendlyNamesList.AddOptions(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
             cardsFriendlyNamesList.options.Insert(0,new TMP_Dropdown.OptionData("<创建新卡牌>"));
@@ -165,6 +191,10 @@ public class BundleEditor : MonoBehaviour
         //更新一下卡包预览
         OnEndEdit();
         CardMaker.cardMaker.changeSignal.SetActive(false);
+        CardMaker.cardMaker.BanInputLayer(false, "所含卡牌缓存中...");
+        
+        //启用编辑器
+        gameObject.SetActive(true);
     }
     
 
@@ -184,9 +214,6 @@ public class BundleEditor : MonoBehaviour
         CardMaker.cardMaker.nowEditingBundle.manifest.BundleName = bundleName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName = friendlyName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.BundleVersion = bundleVersion.text;
-        CardMaker.cardMaker.nowEditingBundle.manifest.ImageName = newImageFullPath == string.Empty
-            ? CardMaker.cardMaker.nowEditingBundle.manifest.ImageName
-            : Path.GetFileName(newImageFullPath);
         CardMaker.cardMaker.nowEditingBundle.manifest.AuthorName = authorName.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.Description = description.text;
         CardMaker.cardMaker.nowEditingBundle.manifest.Remarks = remark.text;
@@ -206,6 +233,9 @@ public class BundleEditor : MonoBehaviour
         }
         //有加载卡包，保存
         else await CardMaker.cardMaker.AsyncSave(newImageFullPath, null, true, false, null);
+        
+        //取消已修改标记
+        CardMaker.cardMaker.changeSignal.SetActive(false);
     }
 
 
@@ -240,7 +270,7 @@ public class BundleEditor : MonoBehaviour
 
     async UniTask AsyncSelectImage()
     {
-        FileBrowser.SetFilters(false, new FileBrowser.Filter("图片", ".jpg", ".bmp", ".png", ".gif"));
+        FileBrowser.SetFilters(false, new FileBrowser.Filter("图片", Information.SupportedImageExtension));
 
 
         await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, null, null, "选择卡组图片", "选择");
@@ -259,8 +289,20 @@ public class BundleEditor : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// 加载指定路径的图片
+    /// </summary>
+    /// <param name="imageFullPath">如果为string.empty，则设置为图片</param>
+    /// <returns></returns>
     async UniTask AsyncLoadImage(string imageFullPath)
     {
+        
+        if(imageFullPath == string.Empty)
+        {
+            image.sprite = DefaultImage;
+            return;
+        }
+        
         //下载（加载）图片
         var hander = new DownloadHandlerTexture();
         UnityWebRequest unityWebRequest = new UnityWebRequest(imageFullPath, "GET", hander, null);
@@ -290,11 +332,12 @@ public class BundleEditor : MonoBehaviour
                 //更新预览图片和编辑器内图片
                 bundleImage.sprite = sprite;
                 image.sprite = sprite;
+                return;
             }
-            else
-            {
-                Debug.LogWarning($"{unityWebRequest.url}加载失败,错误原因{unityWebRequest.error}");
-            }
+
+            Debug.LogWarning($"{unityWebRequest.url}加载失败,错误原因{unityWebRequest.error}，已设置为默认图片");
+            image.sprite = DefaultImage;
+
         }
     }
 

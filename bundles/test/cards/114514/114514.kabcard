@@ -9,7 +9,6 @@ Anime: ''
 tags:
 - SOS团
 CardCount: 1
-imageName: Snipaste_2022-10-25_22-33-25.png
 CharacterName: ''
 CV: ''
 gender: 0
@@ -36,7 +35,3 @@ Result:
   CalculationMethod: addition
   Value: ''
 AbilityDescription: 我很好奇能力是什么
-voiceDebut: Blanter Matvej Isaakovich - カチューシャ(off vocal).mp3
-voiceExit: ''
-voiceAbility: ''
-voiceKill: ''

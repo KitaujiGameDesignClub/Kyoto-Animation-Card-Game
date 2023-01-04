@@ -137,7 +137,7 @@ public class CardMaker : MonoBehaviour
         nowEditingBundle = new();
         
         //得到文件内容
-        FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组清单文件", Information.manifestExtension));
+        FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组清单文件", Information.ManifestExtension));
         await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "加载卡组清单", loadButtonText: "选择");
 
         if (FileBrowser.Success)
@@ -195,8 +195,13 @@ public class CardMaker : MonoBehaviour
     public async UniTask AsyncSave(string manifestNewImageFullPath,  string cardNewImageFullPath,
         bool saveManifest, bool saveCard, audioSetting[] cardAudioSettins)
     {
+        
+        BanInputLayer(true,"保存中...");
+        
         if (saveManifest)
         {
+            saveStatus.text = "卡组清单保存中...";
+            
             //文件存在，在这保存
             if (File.Exists(nowEditingBundle.loadedManifestFullPath))
             {
@@ -211,6 +216,10 @@ public class CardMaker : MonoBehaviour
                         "文件储存错误，详细信息请看控制台");
                     throw e;
                 }
+                
+                //将废弃的图片文件删除
+                
+                
             }
             //如果原文件直接就不存在了，那就调用另存为
             else
@@ -221,6 +230,8 @@ public class CardMaker : MonoBehaviour
 
         if (saveCard)
         {
+            saveStatus.text = "卡牌保存中...";
+            
             //文件存在，在这保存
             if (File.Exists(nowEditingBundle.loadedCardFullPath))
             {
@@ -248,6 +259,10 @@ public class CardMaker : MonoBehaviour
             {
                 await AsyncSaveTo(manifestNewImageFullPath, cardNewImageFullPath, saveManifest, saveCard, cardAudioSettins);
             }
+            
+            //关闭输入禁用层
+            banInput.SetActive(false);
+            cardMaker.changeSignal.SetActive(false);
         }
 
        
@@ -293,6 +308,9 @@ public class CardMaker : MonoBehaviour
     public async UniTask AsyncSaveTo(string manifestNewImageFullPath,  string cardNewImageFullPath,
         bool saveManifest, bool saveCard, audioSetting[] cardAudioSettins)
     {
+        //开启输入禁用层
+        BanInputLayer(true,"另存为中...");
+        
         //还没有保存过/不是打开编辑卡包，打开选择文件的窗口，选择保存位置
         if (savePath == string.Empty)
         {
@@ -313,7 +331,7 @@ public class CardMaker : MonoBehaviour
                     {
                         //FileBrowser.Result[0]：仅仅是选定的目录，得给一个专有文件夹和文件名
                         await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest,
-                            $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.BundleName}/{nowEditingBundle.manifest.BundleName}{Information.manifestExtension}",
+                            $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.BundleName}/{nowEditingBundle.manifest.BundleName}{Information.ManifestExtension}",
                             manifestNewImageFullPath);
                     }
                     catch (Exception e)
@@ -353,7 +371,7 @@ public class CardMaker : MonoBehaviour
 
                 //关闭输入禁用层
                 banInput.SetActive(false);
-                CardMaker.cardMaker.changeSignal.SetActive(false);
+                cardMaker.changeSignal.SetActive(false);
             }
         }
     }
@@ -397,20 +415,17 @@ public class CardMaker : MonoBehaviour
                 if (!cardEditor.activeSelf)
                 {
                     this.cardEditor.OpenCardEditor();
+                    return;;
                 }
-                else
-                {
-                    cardEditor.SetActive(false);
-                }
+                cardEditor.SetActive(false);
 
                 if (!bundleEditor.activeSelf)
                 {
                     this.bundleEditor.OpenManifestEditor();
+                    return;
                 }
-                else
-                {
-                    bundleEditor.SetActive(false);
-                }
+                bundleEditor.SetActive(false);
+                
             }, "不保存", delegate
             {
                 //不保存，但是停留在编辑器节界面
@@ -429,20 +444,16 @@ public class CardMaker : MonoBehaviour
             if (!cardEditor.activeSelf)
             {
                 this.cardEditor.OpenCardEditor();
+                return;
             }
-            else
-            {
-                cardEditor.SetActive(false);
-            }
+            cardEditor.SetActive(false);
 
             if (!bundleEditor.activeSelf)
             {
                 this.bundleEditor.OpenManifestEditor();
+                return;
             }
-            else
-            {
-                bundleEditor.SetActive(false);
-            }
+            bundleEditor.SetActive(false);
         }
     }
 

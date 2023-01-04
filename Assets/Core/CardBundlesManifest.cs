@@ -36,13 +36,6 @@ namespace  Core
         /// 卡包版本。用于玩家和作者进行区分
         /// </summary>
         public string BundleVersion = "v1.0";
-        
-        
-        
-        /// <summary>
-        /// 图片名字
-        /// </summary>
-        public string ImageName ="default";
 
         /// <summary>
         /// 此卡包作者名称

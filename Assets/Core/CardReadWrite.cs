@@ -92,8 +92,8 @@ public class CardReadWrite
         StreamWriter streamWriter = new($"{directory}/readme.txt", true, Encoding.UTF8);
         await streamWriter.WriteAsync(
             $"此为卡组“{cardBundlesManifest.FriendlyBundleName}”（识别名称：“{cardBundlesManifest.BundleName}）”的卡组文件夹" +
-            $"\ncards文件夹及其所有内容不应当修改文件名（文本文件txt除外）。cards文件夹内储存此卡组内所有的卡牌" +
-            $"\n为避免不必要的错误，只有此文件夹、txt文件以及“{Information.manifestExtension}”文件允许修改名称");
+            $"\ncards文件夹内储存此卡组内所有的卡牌。cards文件夹及其所有内容不应当修改文件名（文本文件txt可以任意修改）" +
+            $"\n为避免不必要的错误，只有此文件夹、txt文件以及“{Information.ManifestExtension}”文件允许修改名称");
         await streamWriter.DisposeAsync();
         streamWriter.Close();
         
@@ -197,7 +197,7 @@ public class CardReadWrite
             for (int i = 0; i < allDirectories.Length; i++)
             {
                 var card = await YamlReadWrite.ReadAsync<CharacterCard>(
-                    new DescribeFileIO($"*{Information.cardExtension}", $"-{allDirectories[i]}"), null, false);
+                    new DescribeFileIO($"*{Information.CardExtension}", $"-{allDirectories[i]}"), null, false);
 
                 if (card != null) allCards.Add(card);
 
@@ -260,7 +260,7 @@ public class CardReadWrite
                     //试试读取，合规的清单文件是有值的
                     var manifest =
                         await YamlReadWrite.ReadAsync<CardBundlesManifest>(
-                            new DescribeFileIO($"*{Information.manifestExtension}", $"-{allDirectories[i]}"), null, false);
+                            new DescribeFileIO($"*{Information.ManifestExtension}", $"-{allDirectories[i]}"), null, false);
                     
                     //检查是不是与要求的name相符
                     if (manifest.BundleName == bundleName)
@@ -327,7 +327,7 @@ public class CardReadWrite
                     //试试读取，合规的清单文件是有值的
                     var manifest =
                         await YamlReadWrite.ReadAsync<CardBundlesManifest>(
-                            new DescribeFileIO($"*{Information.manifestExtension}", $"-{allDirectories[i]}"), null, false);
+                            new DescribeFileIO($"*{Information.ManifestExtension}", $"-{allDirectories[i]}"), null, false);
 
                     //是合规的清单文件，就把他加进来
                     //并对后续卡牌进行获取

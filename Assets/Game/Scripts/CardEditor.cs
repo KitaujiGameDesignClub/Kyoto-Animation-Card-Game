@@ -263,7 +263,7 @@ public class CardEditor : MonoBehaviour
              await Save();
             
              //切换到另外一个编辑器
-            CardMaker.cardMaker.bundleEditor.OpenManifestEditor();
+            await CardMaker.cardMaker.bundleEditor.OpenManifestEditor();
              this.gameObject.SetActive(false);
              
              
@@ -399,7 +399,7 @@ public class CardEditor : MonoBehaviour
 
     async UniTask AsyncSelectImage()
     {
-        FileBrowser.SetFilters(false, new FileBrowser.Filter("图片", ".jpg", ".bmp", ".png", ".gif"));
+        FileBrowser.SetFilters(false, new FileBrowser.Filter("图片", Information.SupportedImageExtension));
 
         await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "选择卡牌图片", loadButtonText: "选择");
 
@@ -454,7 +454,7 @@ public class CardEditor : MonoBehaviour
     /// <param name="audioSetting"></param>
     private async UniTask AsyncSelectAudio(audioSetting audioSetting)
     {
-        FileBrowser.SetFilters(false,new FileBrowser.Filter("卡牌音频",".mp3",".ogg",".wav",".aif"));
+        FileBrowser.SetFilters(false,new FileBrowser.Filter("卡牌音频",Information.SupportedAudioExtension));
 
         await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: $"选择{audioSetting.title}",
             loadButtonText: "选择");
@@ -506,7 +506,12 @@ public class CardEditor : MonoBehaviour
                 break;
             
             default:
-                throw new Exception($"{Path.GetExtension(audioFullPath).ToLower()}是不受支持的格式，只接受ogg/mp3/aif/wav");
+                var allSupportedFormat = Information.SupportedAudioExtension[0].Substring(1);
+                for (int i = 1; i < Information.SupportedAudioExtension.Length; i++)
+                {
+                    allSupportedFormat = $"{allSupportedFormat}、{Information.SupportedAudioExtension[i].Substring(1)}";//ogg、wav、aif、mp3
+                }
+                throw new Exception($"{Path.GetExtension(audioFullPath).ToLower()}是不受支持的格式，只接受以下格式：{allSupportedFormat}");
         }
 
         var uwr = new UnityWebRequest(audioFullPath, "GET", handler, null);

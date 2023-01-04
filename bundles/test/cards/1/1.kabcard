@@ -8,7 +8,6 @@ FriendlyCardName: 默认卡牌
 Anime: ''
 tags: []
 CardCount: 1
-imageName: default
 CharacterName: ''
 CV: ''
 gender: 0
@@ -35,7 +34,3 @@ Result:
   CalculationMethod: addition
   Value: ''
 AbilityDescription: 我很好奇能力是什么
-voiceDebut: ''
-voiceExit: ''
-voiceAbility: ''
-voiceKill: ''
