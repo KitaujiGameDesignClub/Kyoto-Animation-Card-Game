@@ -96,10 +96,10 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         /// </summary>
         /// <param name="yaml">IO</param>
         /// <param name="content">读取文件的内容（作为默认值）</param>
-        /// <param name="createFileIfNotExit">如果文件不存在，则在返回默认值的时候顺便创建一个文件。文件内容为默认值</param>
+        /// <param name="createIfFileNotExit">如果文件不存在，则在返回默认值的时候顺便创建一个文件。文件内容为默认值</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static async UniTask<T> ReadAsync<T>(DescribeFileIO yaml, T content, bool createFileIfNotExit = true)
+        public static async UniTask<T> ReadAsync<T>(DescribeFileIO yaml, T content, bool createIfFileNotExit = true)
         {
             var fullPath = GetFullPath(yaml.Path);
             var fileName = yaml.FileName;
@@ -150,7 +150,7 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
                 }
 
 
-                if(createFileIfNotExit)
+                if(createIfFileNotExit)
                 {
                     await WriteAsync(yaml, content);
                  

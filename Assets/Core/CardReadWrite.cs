@@ -8,6 +8,8 @@ using Cysharp.Threading.Tasks;
 using System.IO;
 using System.Text;
 using KitaujiGameDesignClub.GameFramework.UI;
+using UnityEngine;
+using UnityEngine.Networking;
 using Debug = UnityEngine.Debug;
 
 /// <summary>
@@ -61,8 +63,10 @@ public class CardReadWrite
 
     #endregion
 
+    #region 保存/另存为用
+
     /// <summary>
-    /// 创建卡包清单文件（编辑器创建用）
+    /// 创建卡包清单文件
     /// </summary>
     /// <param name="cardBundlesManifest">保存的内容</param>
     /// <param name="fullPathToSave">保存的完整路径（含文件和拓展名）</param>
@@ -71,32 +75,38 @@ public class CardReadWrite
     public static async UniTask CreateBundleManifestFile(CardBundlesManifest cardBundlesManifest, string fullPathToSave,
         string imageFullPath)
     {
-
-        var directory = Path.GetDirectoryName(fullPathToSave);//最终，应当形如“D:\Kyoto Animation Card game\bundles\test\test.kabmanifest”
+        var directory =
+            Path.GetDirectoryName(fullPathToSave); //最终，应当形如“D:\Kyoto Animation Card game\bundles\test\test.kabmanifest”
         var fileNameWithExtension = Path.GetFileName(fullPathToSave);
-        
+
         //清单文件
         var io = new DescribeFileIO(fileNameWithExtension,
             $"-{directory}",
             "# card bundle manifest.\n# It'll tell you the summary of the bundle.");
         await YamlReadWrite.WriteAsync(io, cardBundlesManifest);
         //复制封面图片
-        if (imageFullPath != string.Empty)
+        if (!string.IsNullOrEmpty(imageFullPath))
         {
-            File.Copy(imageFullPath, $"{directory}/{Path.GetFileName(imageFullPath)}",
+            Debug.Log(imageFullPath);
+            Debug.Log($"{directory}/cover{Path.GetExtension(imageFullPath)}");
+            
+            File.Copy(imageFullPath, $"{directory}/cover{Path.GetExtension(imageFullPath)}",
                 true);
+            
         }
+
         //创建一个cards文件夹
         Directory.CreateDirectory($"{directory}/cards");
         //创建readme文件
-        StreamWriter streamWriter = new($"{directory}/readme.txt", true, Encoding.UTF8);
+        StreamWriter streamWriter = new($"{directory}/readme.txt", false, Encoding.UTF8);
         await streamWriter.WriteAsync(
             $"此为卡组“{cardBundlesManifest.FriendlyBundleName}”（识别名称：“{cardBundlesManifest.BundleName}）”的卡组文件夹" +
             $"\ncards文件夹内储存此卡组内所有的卡牌。cards文件夹及其所有内容不应当修改文件名（文本文件txt可以任意修改）" +
+            $"\ncover图片文件是此卡组的封面图片文件" +
             $"\n为避免不必要的错误，只有此文件夹、txt文件以及“{Information.ManifestExtension}”文件允许修改名称");
         await streamWriter.DisposeAsync();
         streamWriter.Close();
-        
+
         Debug.Log($"“{cardBundlesManifest.FriendlyBundleName}”已成功保存在{directory}");
     }
 
@@ -106,13 +116,18 @@ public class CardReadWrite
     /// </summary>
     /// <param name="characterCard">保存的内容</param>
     /// <param name="fullPathToSave">保存的完整路径（含文件和拓展名）</param>
+    /// <param name="imageFullPath">新的封面图片的路径</param>
+    /// <param name="voiceFileFullPath">新的音频文件的路径</param>
+    /// <param name="voiceNamesWithoutExtension">语音文件的名字（不含拓展名）</param>
     /// <returns></returns>
-    public static async UniTask CreateCardFile( CharacterCard characterCard, string fullPathToSave,
-        string imageFullPath, string[] voiceFileFullPath)
+    public static async UniTask CreateCardFile(CharacterCard characterCard, string fullPathToSave,
+        string imageFullPath, string[] voiceFileFullPath, string[] voiceNamesWithoutExtension)
     {
-        var directory = Path.GetDirectoryName(fullPathToSave);//最终，应当形如“D:\Kyoto Animation Card game\bundles\test\cards\114514\114514.kbcard”
+        var directory =
+            Path.GetDirectoryName(
+                fullPathToSave); //最终，应当形如“D:\Kyoto Animation Card game\bundles\test\cards\114514\114514.kbcard”
         var fileNameWithExtension = Path.GetFileName(fullPathToSave);
-        
+
         //卡牌配置文件
         var io = new DescribeFileIO(fileNameWithExtension,
             $"-{directory}",
@@ -120,29 +135,33 @@ public class CardReadWrite
         await YamlReadWrite.WriteAsync(io, characterCard);
 
         //复制封面图片
-        if (imageFullPath != string.Empty)
+        if (string.IsNullOrEmpty(imageFullPath))
         {
-            File.Copy(imageFullPath, $"{directory}/{Path.GetFileName(imageFullPath)}", true);
+            File.Copy(imageFullPath, $"{directory}/cover{Path.GetExtension(imageFullPath)}", true);
         }
 
         //复制音频资源
         for (int i = 0; i < voiceFileFullPath.Length; i++)
         {
-            if (voiceFileFullPath[i] != string.Empty)
+            if (string.IsNullOrEmpty(voiceFileFullPath[i]))
             {
                 File.Copy(voiceFileFullPath[i],
-                    $"{directory}/{Path.GetFileName(voiceFileFullPath[i])}", true);
+                    $"{directory}/{voiceNamesWithoutExtension[i]}{Path.GetExtension(voiceFileFullPath[i])}", true);
             }
         }
-        
+
         //创建readme文件
-        StreamWriter streamWriter = new($"{directory}/readme.txt", true, Encoding.UTF8);
+        StreamWriter streamWriter = new($"{directory}/readme.txt", false, Encoding.UTF8);
         await streamWriter.WriteAsync("此文件夹内除了txt文件外，任何文件不能修改文件名");
         await streamWriter.DisposeAsync();
         streamWriter.Close();
-        
+
         Debug.Log($"“{characterCard.FriendlyCardName}”已成功保存在{directory}");
     }
+
+    #endregion
+
+    #region 读取配置文件
 
     /// <summary>
     /// 获取此卡包下所有卡牌的友好名称
@@ -151,18 +170,18 @@ public class CardReadWrite
     /// <returns></returns>
     public static async UniTask<string[]> GetThisBundleAllCardsFriendlyNames(string bundleName)
     {
-       var bundle =  await GetOneBundleFromDesignatedDir(bundleName);
+        var bundle = await GetOneBundleFromDesignatedDir(bundleName);
 
-       string[] names = new string[bundle.cards.Length];
+        string[] names = new string[bundle.cards.Length];
 
-       for (int i = 0; i < bundle.cards.Length; i++)
-       {
-           names[i] = bundle.cards[i].FriendlyCardName;
-       }
+        for (int i = 0; i < bundle.cards.Length; i++)
+        {
+            names[i] = bundle.cards[i].FriendlyCardName;
+        }
 
-       return names;
+        return names;
     }
-    
+
     /// <summary>
     /// 获取规定目录下此卡组内所有卡牌的识别名称
     /// </summary>
@@ -170,7 +189,7 @@ public class CardReadWrite
     /// <returns></returns>
     public static async UniTask<string[]> GetThisBundleAllCardsNames(string bundleName)
     {
-        var bundle =  await GetOneBundleFromDesignatedDir(bundleName);
+        var bundle = await GetOneBundleFromDesignatedDir(bundleName);
 
         string[] names = new string[bundle.cards.Length];
 
@@ -183,15 +202,20 @@ public class CardReadWrite
     }
 
 
+    /// <summary>
+    /// 获取某一个指定清单文件所属的卡组内所有的卡牌配置
+    /// </summary>
+    /// <param name="manifestFullPath"></param>
+    /// <returns></returns>
     public static async UniTask<CharacterCard[]> GetAllCardsOfOneBundle(string manifestFullPath)
     {
         var directoryName = Path.GetDirectoryName(manifestFullPath);
         if (Directory.Exists($"{directoryName}/cards"))
-        { 
+        {
             //此卡组内所有的卡牌
             ArrayList allCards = new();
             //此卡组文件夹的卡牌子文件夹
-           var allDirectories =
+            var allDirectories =
                 Directory.GetDirectories($"{directoryName}/cards", "*", SearchOption.TopDirectoryOnly);
 
             for (int i = 0; i < allDirectories.Length; i++)
@@ -200,10 +224,9 @@ public class CardReadWrite
                     new DescribeFileIO($"*{Information.CardExtension}", $"-{allDirectories[i]}"), null, false);
 
                 if (card != null) allCards.Add(card);
-
             }
 
-            return  (CharacterCard[])allCards.ToArray(typeof(CharacterCard));
+            return (CharacterCard[])allCards.ToArray(typeof(CharacterCard));
         }
         else
         {
@@ -213,7 +236,7 @@ public class CardReadWrite
     }
 
     /// <summary>
-    /// 获取某一个卡组，包含其清单文件和卡牌文件
+    /// 根据清单文件路径获取某一个卡组，包含其清单文件和卡牌文件
     /// </summary>
     /// <param name="manifestFullPath">清单文件的完整路径</param>
     /// <returns></returns>
@@ -222,14 +245,15 @@ public class CardReadWrite
         //读取清单文件
         var manifest =
             await YamlReadWrite.ReadAsync<CardBundlesManifest>(
-                new DescribeFileIO(Path.GetFileName(manifestFullPath), $"-{Path.GetDirectoryName(manifestFullPath)}"), null, false);
+                new DescribeFileIO(Path.GetFileName(manifestFullPath), $"-{Path.GetDirectoryName(manifestFullPath)}"),
+                null, false);
 
-       var cards= await GetAllCardsOfOneBundle(manifestFullPath);
-       
-       return new Bundle(manifest, cards);
+        var cards = await GetAllCardsOfOneBundle(manifestFullPath);
+
+        return new Bundle(manifest, cards);
     }
-    
-    
+
+
     /// <summary>
     /// 从指定目录中获取某一个卡组，包含其清单文件和卡牌文件
     /// </summary>
@@ -239,29 +263,29 @@ public class CardReadWrite
     {
         CardBundlesManifest manifestToLoad = null;
         CharacterCard[] cards = null;
-        Bundle bundle = new(manifestToLoad,cards);
-        
+        Bundle bundle = new(manifestToLoad, cards);
+
         await UniTask.RunOnThreadPool(UniTask.Action(async () =>
         {
             //有规定的文件夹吗
             //有的话，尝试读取所有的卡组
             if (Directory.Exists(Information.bundlesPath))
             {
-
                 //卡组文件夹的子文件夹
                 var allDirectories =
                     Directory.GetDirectories(Information.bundlesPath, "*", SearchOption.TopDirectoryOnly);
 
                 //记录中选的卡组路径
                 string selectedPath = string.Empty;
-                
+
                 for (int i = 0; i < allDirectories.Length; i++)
                 {
                     //试试读取，合规的清单文件是有值的
                     var manifest =
                         await YamlReadWrite.ReadAsync<CardBundlesManifest>(
-                            new DescribeFileIO($"*{Information.ManifestExtension}", $"-{allDirectories[i]}"), null, false);
-                    
+                            new DescribeFileIO($"*{Information.ManifestExtension}", $"-{allDirectories[i]}"), null,
+                            false);
+
                     //检查是不是与要求的name相符
                     if (manifest.BundleName == bundleName)
                     {
@@ -273,7 +297,7 @@ public class CardReadWrite
 
                 if (selectedPath == string.Empty)
                 {
-                    Notify.notify.CreateBannerNotification(null,$"找不到卡组{bundleName}");
+                    Notify.notify.CreateBannerNotification(null, $"找不到卡组{bundleName}");
                 }
                 else
                 {
@@ -299,7 +323,7 @@ public class CardReadWrite
 
         return bundle;
     }
-    
+
 
     /// <summary>
     /// 在规定的游戏目录下获取所有的卡包
@@ -320,14 +344,15 @@ public class CardReadWrite
                 //卡组文件夹的子文件夹
                 var allDirectories =
                     Directory.GetDirectories(Information.bundlesPath, "*", SearchOption.TopDirectoryOnly);
-                
+
 
                 for (int i = 0; i < allDirectories.Length; i++)
                 {
                     //试试读取，合规的清单文件是有值的
                     var manifest =
                         await YamlReadWrite.ReadAsync<CardBundlesManifest>(
-                            new DescribeFileIO($"*{Information.ManifestExtension}", $"-{allDirectories[i]}"), null, false);
+                            new DescribeFileIO($"*{Information.ManifestExtension}", $"-{allDirectories[i]}"), null,
+                            false);
 
                     //是合规的清单文件，就把他加进来
                     //并对后续卡牌进行获取
@@ -373,7 +398,62 @@ public class CardReadWrite
 
         return bundles;
     }
-    
+
+    #endregion
+
+
+    #region 资源文件加载
+
+    /// <summary>
+    /// （卡组清单用）加载指定路径的图片
+    /// </summary>
+    /// <param name="imageFullPath">string.Empty时返回空</param>
+    /// <returns></returns>
+    public static async UniTask<Sprite> ManifestLoadImageAsync(string imageFullPath)
+    {
+        if (imageFullPath == string.Empty)
+        {
+            return null;
+        }
+
+        //下载（加载）图片
+        var hander = new DownloadHandlerTexture();
+        UnityWebRequest unityWebRequest = new UnityWebRequest(imageFullPath, "GET", hander, null);
+        var sendWebRequest = await unityWebRequest.SendWebRequest();
+
+
+        if (sendWebRequest.isDone)
+        {
+            if (sendWebRequest.result == UnityWebRequest.Result.Success)
+            {
+                int size;
+                //正方形图片就随便取一个边作为图片大小
+                if (hander.texture.width == hander.texture.height)
+                {
+                    size = hander.texture.width;
+                }
+                //非正方形则取最短边
+                else
+                {
+                    size = hander.texture.width > hander.texture.height
+                        ? hander.texture.height
+                        : hander.texture.width;
+                }
+
+                var sprite = Sprite.Create(hander.texture, new Rect(0f, 0f, size, size), Vector2.one / 2f);
+                return sprite;
+            }
+            
+            Debug.LogWarning($"{unityWebRequest.url}加载失败,错误原因{unityWebRequest.error}");
+            return null;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    #endregion
 
     /// <summary>
     /// yaml文件修复（对于清单文件和卡牌文件）

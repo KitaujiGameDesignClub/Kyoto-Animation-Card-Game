@@ -11,6 +11,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.PlayerLoop;
+using UnityEngine.Serialization;
 using Image = UnityEngine.UI.Image;
 
 public class CardEditor : MonoBehaviour
@@ -72,7 +73,7 @@ public class CardEditor : MonoBehaviour
     public TMP_InputField abilityDescription;
     public LeanToggle autoGenerate;
     [Header("音频侧")] public audioSetting voiceDebut;
-    public audioSetting voiceKill;
+    [FormerlySerializedAs("voiceKill")] public audioSetting voiceDefeat;
     public audioSetting voiceAbility;
     public audioSetting voiceExit;
     
@@ -236,7 +237,7 @@ public class CardEditor : MonoBehaviour
       voiceAbility.OnPrepareToSelectAudio.AddListener(SelectAudio);
       voiceDebut.OnPrepareToSelectAudio.AddListener(SelectAudio);
       voiceExit.OnPrepareToSelectAudio.AddListener(SelectAudio);
-      voiceKill.OnPrepareToSelectAudio.AddListener(SelectAudio);
+      voiceDefeat.OnPrepareToSelectAudio.AddListener(SelectAudio);
     
       
       
@@ -250,24 +251,18 @@ public class CardEditor : MonoBehaviour
         //返回标题
         returnToTitle.OnClick.AddListener(delegate { CardMaker.cardMaker.ReturnToTitle(UniTask.Action(async () =>
         {
-            await Save();
+            await SaveOrSaveTo();
         } )); });
         
      //切换到清单编辑器
+     switchToBundleEditor.OnClick.AddListener(delegate
+     {
+       //  if()
+         
+         CardMaker.cardMaker.switchManifestCardEditor();
+     });
      
-     
-     switchToBundleEditor.OnClick.AddListener(delegate { CardMaker.cardMaker.switchManifestCardEditor(UniTask.UnityAction(
-         async () =>
-         { 
-             //先检查保存
-             await Save();
-            
-             //切换到另外一个编辑器
-            await CardMaker.cardMaker.bundleEditor.OpenManifestEditor();
-             this.gameObject.SetActive(false);
-             
-             
-         })); });
+    
  
        
     }
@@ -369,8 +364,8 @@ public class CardEditor : MonoBehaviour
                 await AsyncLoadSelectedAudio(voiceExit, $"{cardRootPath}/{nowEditingCard.voiceExit}");
             else AsyncLoadSelectedAudio(voiceExit, string.Empty);
             if (nowEditingCard.voiceKill != string.Empty)
-                await AsyncLoadSelectedAudio(voiceKill, $"{cardRootPath}/{nowEditingCard.voiceKill}");
-            else AsyncLoadSelectedAudio(voiceKill, string.Empty);
+                await AsyncLoadSelectedAudio(voiceDefeat, $"{cardRootPath}/{nowEditingCard.voiceKill}");
+            else AsyncLoadSelectedAudio(voiceDefeat, string.Empty);
         } 
       
         #endregion
@@ -553,12 +548,12 @@ public class CardEditor : MonoBehaviour
     public async void SaveButton()
     {
 
-        await Save();
+        await SaveOrSaveTo();
 
 
     }
 
-    private async UniTask Save()
+    private async UniTask SaveOrSaveTo()
     {
          //内存保存
         var editing = CardMaker.cardMaker.nowEditingBundle.card;
@@ -599,13 +594,13 @@ public class CardEditor : MonoBehaviour
         editing.voiceAbility= voiceAbility.newAudioFullFileName == string.Empty ? editing.voiceAbility: Path.GetFileName(voiceAbility.newAudioFullFileName);
         editing.voiceExit= voiceExit.newAudioFullFileName == string.Empty ? editing.voiceExit: Path.GetFileName(voiceExit.newAudioFullFileName);
         editing.voiceDebut= voiceDebut.newAudioFullFileName == string.Empty ? editing.voiceDebut: Path.GetFileName(voiceDebut.newAudioFullFileName);
-        editing.voiceKill= voiceKill.newAudioFullFileName == string.Empty ? editing.voiceKill: Path.GetFileName(voiceKill.newAudioFullFileName);
+        editing.voiceKill= voiceDefeat.newAudioFullFileName == string.Empty ? editing.voiceKill: Path.GetFileName(voiceDefeat.newAudioFullFileName);
 
 
         var audios = new audioSetting[4];
         audios[0] = voiceAbility;
         audios[1] = voiceDebut;
-        audios[2] = voiceKill;
+        audios[2] = voiceDefeat;
         audios[3] = voiceExit;
        await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath,audios);
     }

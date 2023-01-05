@@ -11,6 +11,7 @@ public class audioSetting : MonoBehaviour
 {
     AudioSource audioSource;
     [SerializeField]private TMP_Text text;
+    public string VoiceName;
     [FormerlySerializedAs("audioFullFileName")] [HideInInspector]public string newAudioFullFileName  = string.Empty;
 
 

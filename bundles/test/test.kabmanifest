@@ -6,7 +6,7 @@ CodeVersion: 1
 BundleName: test
 FriendlyBundleName: 测试卡组
 Anime: 通用卡牌
-BundleVersion: v1.1
+BundleVersion: v1.5
 AuthorName: PureAmaya
 shortDescription: 卡包简短介绍
 Description: 测试用

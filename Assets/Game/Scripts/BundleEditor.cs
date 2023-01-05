@@ -53,20 +53,24 @@ public class BundleEditor : MonoBehaviour
         //返回标题
         returnToTitle.OnClick.AddListener(delegate { CardMaker.cardMaker.ReturnToTitle(UniTask.Action(async () =>
         {
-            //检查保存
+            //检查保存（仅限在这个事件中）
             await SaveOrSaveTo();
         })); });
         
         //切换到card editor，事先把要编辑的卡牌创建好
         switchToCardEditor.OnClick.AddListener(UniTask.UnityAction(async () =>
         {
+           
+            
             CardMaker.cardMaker.BanInputLayer(true, "切换中...");
             
+            //按照选定的卡牌进行资源加载
             var card = new CharacterCard();
             if (cardsFriendlyNamesList.value >= 1)
             {
                 var manifestPath = CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath;
                 var cardFileName = CardMaker.cardMaker.nowEditingBundle.allCardsName[cardsFriendlyNamesList.value - 1];
+                CardMaker.cardMaker.BanInputLayer(true, "读取卡牌配置...");
                 card = await YamlReadWrite.ReadAsync<CharacterCard>(
                     new DescribeFileIO($"{cardFileName}{Information.CardExtension}",
                         $"-{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}"), null, false);
@@ -78,18 +82,7 @@ public class BundleEditor : MonoBehaviour
             CardMaker.cardMaker.nowEditingBundle.card = card;
 
             //切换到零一个编辑器
-            CardMaker.cardMaker.switchManifestCardEditor(UniTask.UnityAction(
-                async () =>
-                {
-
-                    //先检查保存
-                    await SaveOrSaveTo();
-
-                    //切换到另外一个编辑器
-                 await CardMaker.cardMaker.cardEditor.OpenCardEditor();
-                    gameObject.SetActive(false);
-                }));
-            
+         
    
         }));
         
@@ -132,7 +125,7 @@ public class BundleEditor : MonoBehaviour
         CardMaker.cardMaker.BanInputLayer(true, "卡组封面加载中...");
         //封面图片加载
         //先设置成默认的
-        image.sprite = DefaultImage;
+        bundleImage.sprite = DefaultImage;
         //如果是加载的已有卡组，则读取现成的cover图片
         if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath != string.Empty)
         {
@@ -145,7 +138,10 @@ public class BundleEditor : MonoBehaviour
                 //有的话，就尝试读取一下
                 if (File.Exists($"{rootPath}/cover{format}"))
                 {
-                    AsyncLoadImage(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath);
+                    //加载图片
+                    var sprite = await CardReadWrite.ManifestLoadImageAsync($"{rootPath}/cover{format}");
+                    sprite = sprite == null ? DefaultImage : sprite;
+                    bundleImage.sprite = sprite;
                     break;
                 }
             }
@@ -226,16 +222,20 @@ public class BundleEditor : MonoBehaviour
          * 卡牌就仅保存正在编辑的那个卡牌
          */
         //执行保存or另存为操作
-        //没有预先加载卡包，则另存为
-        if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath == string.Empty)
+        //没有预先加载卡包，或者原加载的清单文件不存在了，则另存为
+        if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath == string.Empty || !File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath))
         {
             await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath);
         }
         //有加载卡包，保存
-        else await CardMaker.cardMaker.AsyncSave(newImageFullPath, null, true, false, null);
-        
-        //取消已修改标记
-        CardMaker.cardMaker.changeSignal.SetActive(false);
+        else
+        {
+            await CardMaker.cardMaker.AsyncSave(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath,newImageFullPath, null,null, true, false, null);
+
+        } 
+            
+            
+           
     }
 
 
@@ -280,66 +280,20 @@ public class BundleEditor : MonoBehaviour
         {
             Debug.Log($"加载成功，图片文件{FileBrowser.Result[0]}");
             //加载图片
-            await AsyncLoadImage(FileBrowser.Result[0]);
+            var sprite = await CardReadWrite.ManifestLoadImageAsync(FileBrowser.Result[0]);
+            sprite = sprite == null ? DefaultImage : sprite;
+            bundleImage.sprite = sprite;
+            image.sprite = sprite;
+            
             //显示已修改的印记
             CardMaker.cardMaker.changeSignal.SetActive(true);
-            //更新新的图片全路径
+            //更新新的图片全路径，用于保存
             newImageFullPath = FileBrowser.Result[0];
         }
     }
 
 
-    /// <summary>
-    /// 加载指定路径的图片
-    /// </summary>
-    /// <param name="imageFullPath">如果为string.empty，则设置为图片</param>
-    /// <returns></returns>
-    async UniTask AsyncLoadImage(string imageFullPath)
-    {
-        
-        if(imageFullPath == string.Empty)
-        {
-            image.sprite = DefaultImage;
-            return;
-        }
-        
-        //下载（加载）图片
-        var hander = new DownloadHandlerTexture();
-        UnityWebRequest unityWebRequest = new UnityWebRequest(imageFullPath, "GET", hander, null);
-        var sendWebRequest = await unityWebRequest.SendWebRequest();
-
-
-        if (sendWebRequest.isDone)
-        {
-            if (sendWebRequest.result == UnityWebRequest.Result.Success)
-            {
-
-                int size;
-                //正方形图片就随便取一个边作为图片大小
-                if (hander.texture.width == hander.texture.height)
-                {
-                    size = hander.texture.width;
-                }
-                //非正方形则取最短边
-                else
-                {
-                    size = hander.texture.width > hander.texture.height
-                        ? hander.texture.height
-                        : hander.texture.width;
-                }
-                var sprite = Sprite.Create(hander.texture, new Rect(0f, 0f, size, size), Vector2.one / 2f);
-
-                //更新预览图片和编辑器内图片
-                bundleImage.sprite = sprite;
-                image.sprite = sprite;
-                return;
-            }
-
-            Debug.LogWarning($"{unityWebRequest.url}加载失败,错误原因{unityWebRequest.error}，已设置为默认图片");
-            image.sprite = DefaultImage;
-
-        }
-    }
+   
 
 #if UNITY_EDITOR
 

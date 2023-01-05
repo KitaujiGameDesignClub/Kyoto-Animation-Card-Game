@@ -49,11 +49,7 @@ public class CardMaker : MonoBehaviour
     /// 保存的状态
     /// </summary>
     public TMP_Text saveStatus;
-
-    /// <summary>
-    /// 储存路径
-    /// </summary>
-    string savePath = string.Empty;
+    
 
     /// <summary>
     /// 现在正在编辑的卡包（卡组）（包含了清单和卡片配置）
@@ -121,11 +117,14 @@ public class CardMaker : MonoBehaviour
         //创建新内容
         nowEditingBundle = new();
         //然后打开编辑器
-        OpenBundleEditor();
+        bundleEditor.OpenManifestEditor();
     }
 
     public async void EditBundleButton()
     {
+        nowEditingBundle = new();
+        //现在还没有改内容，关闭修改标记
+         changeSignal.SetActive(false);
         await EditBundle();
     }
 
@@ -134,8 +133,6 @@ public class CardMaker : MonoBehaviour
     /// </summary>
     private async UniTask EditBundle()
     {
-        nowEditingBundle = new();
-        
         //得到文件内容
         FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组清单文件", Information.ManifestExtension));
         await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "加载卡组清单", loadButtonText: "选择");
@@ -144,10 +141,12 @@ public class CardMaker : MonoBehaviour
         {
             nowEditingBundle.loadedManifestFullPath = FileBrowser.Result[0];
 
+            BanInputLayer(true,"读取卡组配置...");
             var bundle = await CardReadWrite.GetOneBundle(FileBrowser.Result[0]);
 
             nowEditingBundle.manifest = bundle.manifest;
 
+            //缓存所有卡牌的友好和识别名称
             foreach (var variable in bundle.cards)
             {
                 nowEditingBundle.allCardsFriendlyName.Add(variable.FriendlyCardName);
@@ -157,19 +156,10 @@ public class CardMaker : MonoBehaviour
             Debug.Log($"成功加载卡组“{bundle.manifest.FriendlyBundleName}”，内含{bundle.cards.Length}张卡牌");
 
             //然后打开编辑器
-            OpenBundleEditor();
+         await bundleEditor.OpenManifestEditor();
         }
     }
-
-    /// <summary>
-    /// 打开卡组清单编辑器
-    /// </summary>
-    public void OpenBundleEditor()
-    {
-        //现在还没有改内容，关闭修改标记
-        changeSignal.SetActive(false);
-        bundleEditor.OpenManifestEditor();
-    }
+    
 
     public void CreateNewCard()
     {
@@ -177,95 +167,113 @@ public class CardMaker : MonoBehaviour
         //创建新内容
         nowEditingBundle = new();
         //然后打开编辑器
-        openCardEditor();
-    }
-
-    /// <summary> 
-    /// 打开卡牌文件编辑器
-    /// </summary>
-    /// <param name="onlyCard">仅创建卡牌</param>
-    public void openCardEditor()
-    {
-        //现在还没有改内容，关闭修改标记
-        changeSignal.SetActive(false);
         cardEditor.OpenCardEditor();
     }
 
+    public async void EditCardButton()
+    {
+        nowEditingBundle = new();
+        //现在还没有改内容，关闭修改标记
+        changeSignal.SetActive(false);
+        CardMaker.cardMaker.BanInputLayer(true, "卡牌配置加载中...");
+        await EditCard();
+    }
 
-    public async UniTask AsyncSave(string manifestNewImageFullPath,  string cardNewImageFullPath,
-        bool saveManifest, bool saveCard, audioSetting[] cardAudioSettins)
+    private async UniTask EditCard()
+    {
+        //得到配置文件
+        FileBrowser.SetFilters(false, new FileBrowser.Filter("卡牌配置文件", Information.CardExtension));
+        await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "加载卡牌配置", loadButtonText: "选择");
+
+        if (FileBrowser.Success)
+        {
+            nowEditingBundle.loadedCardFullPath = FileBrowser.Result[0];
+
+            var card = await YamlReadWrite.ReadAsync(
+                new DescribeFileIO($"{Path.GetFileName(FileBrowser.Result[0])}",
+                    $"-{Path.GetDirectoryName(FileBrowser.Result[0])}"), new CharacterCard(), false);
+
+            nowEditingBundle.card = card;
+            
+            Debug.Log($"成功加载卡牌“{nowEditingBundle.card.FriendlyCardName}”");
+
+            //然后打开编辑器
+            await cardEditor.OpenCardEditor();
+        }
+        else
+        {
+            
+        }
+
+    }
+
+
+/// <summary>
+/// 异步保存
+/// </summary>
+/// <param name="manifestSaveFullPath">manifest储存的路径（含文件名和拓展名）</param>
+/// <param name="manifestNewImageFullPath"></param>
+/// <param name="cardSaveFullPath"></param>
+/// <param name="cardNewImageFullPath">卡牌储存的路径（含文件名和拓展名）</param>
+/// <param name="saveManifest"></param>
+/// <param name="saveCard"></param>
+/// <param name="cardAudioSettings"></param>
+/// <exception cref="Exception"></exception>
+    public async UniTask AsyncSave(string manifestSaveFullPath, string manifestNewImageFullPath,string cardSaveFullPath , string cardNewImageFullPath,
+        bool saveManifest, bool saveCard, audioSetting[] cardAudioSettings)
     {
         
         BanInputLayer(true,"保存中...");
-        
+
         if (saveManifest)
         {
             saveStatus.text = "卡组清单保存中...";
             
-            //文件存在，在这保存
-            if (File.Exists(nowEditingBundle.loadedManifestFullPath))
+            try
             {
-                try
-                {
-                    await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest,
-                        nowEditingBundle.loadedManifestFullPath, manifestNewImageFullPath);
-                }
-                catch (Exception e)
-                {
-                    Notify.notify.CreateBannerNotification(delegate { banInput.SetActive(false); },
-                        "文件储存错误，详细信息请看控制台");
-                    throw e;
-                }
-                
-                //将废弃的图片文件删除
-                
-                
+                Debug.Log( manifestSaveFullPath);
+                await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest,
+                    manifestSaveFullPath, manifestNewImageFullPath);
             }
-            //如果原文件直接就不存在了，那就调用另存为
-            else
+            catch (Exception e)
             {
-                await AsyncSaveTo(manifestNewImageFullPath, cardNewImageFullPath, saveManifest, saveCard, cardAudioSettins);
+                Notify.notify.CreateBannerNotification(delegate { banInput.SetActive(false); },
+                    "文件储存错误，详细信息请看控制台");
+                banInput.SetActive(false);
+                throw e;
             }
         }
 
         if (saveCard)
         {
             saveStatus.text = "卡牌保存中...";
-            
-            //文件存在，在这保存
-            if (File.Exists(nowEditingBundle.loadedCardFullPath))
-            {
-                try
-                {
-                    var audios = new string[cardAudioSettins.Length];
-                    for (int i = 0; i < audios.Length; i++)
-                    {
-                        audios[i] = cardAudioSettins[i].newAudioFullFileName;
-                    }
 
-
-                    await CardReadWrite.CreateCardFile(nowEditingBundle.card, nowEditingBundle.loadedCardFullPath,
-                        cardNewImageFullPath, audios);
-                }
-                catch (Exception e)
-                {
-                    Notify.notify.CreateBannerNotification(delegate { banInput.SetActive(false); },
-                        "文件储存错误，详细信息请看控制台");
-                    throw e;
-                }
-            }
-            //如果原文件直接就不存在了，那就调用另存为
-            else
+            try
             {
-                await AsyncSaveTo(manifestNewImageFullPath, cardNewImageFullPath, saveManifest, saveCard, cardAudioSettins);
+                //音频路径与文件名获取
+                var audios = new string[cardAudioSettings.Length];
+                var audioNamesWithoutExtension = new string[cardAudioSettings.Length];
+                for (int i = 0; i < audios.Length; i++)
+                {
+                    audios[i] = cardAudioSettings[i].newAudioFullFileName;
+                    audioNamesWithoutExtension[i] = cardAudioSettings[i].VoiceName;
+                }
+
+                await CardReadWrite.CreateCardFile(nowEditingBundle.card, nowEditingBundle.loadedCardFullPath,
+                    cardNewImageFullPath, audios, audioNamesWithoutExtension);
             }
-            
-            //关闭输入禁用层
-            banInput.SetActive(false);
-            cardMaker.changeSignal.SetActive(false);
+            catch (Exception e)
+            {
+                Notify.notify.CreateBannerNotification(delegate { banInput.SetActive(false); },
+                    "文件储存错误，详细信息请看控制台");
+                banInput.SetActive(false);
+                throw e;
+            }
         }
 
-       
+        //关闭输入禁用层
+        banInput.SetActive(false);
+        cardMaker.changeSignal.SetActive(false);
     }
 
     /// <summary>
@@ -305,74 +313,29 @@ public class CardMaker : MonoBehaviour
     /// <param name="saveManifest"></param>
     /// <param name="saveCard"></param>
     /// <returns>保存成功了吗？</returns>
-    public async UniTask AsyncSaveTo(string manifestNewImageFullPath,  string cardNewImageFullPath,
-        bool saveManifest, bool saveCard, audioSetting[] cardAudioSettins)
+    public async UniTask AsyncSaveTo(string manifestNewImageFullPath, string cardNewImageFullPath,
+        bool saveManifest, bool saveCard, audioSetting[] cardAudioSettings)
     {
-        //开启输入禁用层
-        BanInputLayer(true,"另存为中...");
-        
         //还没有保存过/不是打开编辑卡包，打开选择文件的窗口，选择保存位置
-        if (savePath == string.Empty)
+
+        await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, false, title: "保存卡包",
+            saveButtonText: "选择文件夹");
+
+        //开启输入禁用层
+        BanInputLayer(true, "另存为中...");
+
+
+        if (FileBrowser.Success)
         {
-            await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, false, title: "保存卡包",
-                saveButtonText: "选择文件夹");
-
-
-            if (FileBrowser.Success)
-            {
-                if (nowEditingBundle.manifest != null && saveManifest)
-                {
-                    saveStatus.text = "保存卡组清单文件...";
-
-                    //保存储存路径，之后的话就可以不用进行另存为了
-                    nowEditingBundle.loadedManifestFullPath = FileBrowser.Result[0];
-
-                    try
-                    {
-                        //FileBrowser.Result[0]：仅仅是选定的目录，得给一个专有文件夹和文件名
-                        await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest,
-                            $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.BundleName}/{nowEditingBundle.manifest.BundleName}{Information.ManifestExtension}",
-                            manifestNewImageFullPath);
-                    }
-                    catch (Exception e)
-                    {
-                        Notify.notify.CreateBannerNotification(delegate { banInput.SetActive(false); },
-                            "文件储存错误，详细信息请看控制台");
-                        throw e;
-                    }
-                }
-
-                if (nowEditingBundle.card != null && saveCard)
-                {
-                    saveStatus.text = "保存卡牌文件...";
-                    
-                    //保存储存路径，之后的话就可以不用进行另存为了
-                    nowEditingBundle.loadedCardFullPath = FileBrowser.Result[0];
-
-                    try
-                    {
-                        var audios = new string[cardAudioSettins.Length];
-                        for (int i = 0; i < audios.Length; i++)
-                        {
-                            audios[i] = cardAudioSettins[i].newAudioFullFileName;
-                        }
-
-
-                        await CardReadWrite.CreateCardFile(nowEditingBundle.card, FileBrowser.Result[0],
-                            cardNewImageFullPath, audios);
-                    }
-                    catch (Exception e)
-                    {
-                        Notify.notify.CreateBannerNotification(delegate { banInput.SetActive(false); },
-                            "文件储存错误，详细信息请看控制台");
-                        throw e;
-                    }
-                }
-
-                //关闭输入禁用层
-                banInput.SetActive(false);
-                cardMaker.changeSignal.SetActive(false);
-            }
+            //保存
+            await AsyncSave($"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.BundleName}/{nowEditingBundle.manifest.BundleName}{Information.ManifestExtension}", manifestNewImageFullPath, FileBrowser.Result[0],
+                cardNewImageFullPath, saveManifest, saveCard,
+                cardAudioSettings);
+        }
+        else
+        {
+            //关闭禁用曾
+            banInput.SetActive(false);
         }
     }
 
@@ -390,71 +353,30 @@ public class CardMaker : MonoBehaviour
     }
 
 
-    public void switchManifestCardEditor(UnityAction save)
+    /// <summary>
+    /// 切换两个编辑器
+    /// </summary>
+    public void switchManifestCardEditor()
     {
-        //修改信息被激活，说明修改了，提示要不要保存后在返回
-        if (CardMaker.cardMaker.changeSignal.activeSelf)
-        {
-            Notify.notify.CreateStrongNotification(null, null, "卡包清单尚未保存", "此卡包的清单文件尚未保存，要保存吗？", delegate()
-            {
-                //保存，并切换到另外一个编辑器
-
-                //关闭通知
-                Notify.notify.TurnOffStrongNotification();
-                //弹出保存界面，保存后会弹到另外一个编辑器,不保存也会去
-                save.Invoke();
-            }, "保存", delegate
-            {
-                //不保存，直接到另外一个编辑器
-
-                //关闭通知
-                Notify.notify.TurnOffStrongNotification();
-                //切换编辑器
-                var bundleEditor = cardMaker.bundleEditor.gameObject;
-                var cardEditor = cardMaker.cardEditor.gameObject;
-                if (!cardEditor.activeSelf)
-                {
-                    this.cardEditor.OpenCardEditor();
-                    return;;
-                }
-                cardEditor.SetActive(false);
-
-                if (!bundleEditor.activeSelf)
-                {
-                    this.bundleEditor.OpenManifestEditor();
-                    return;
-                }
-                bundleEditor.SetActive(false);
-                
-            }, "不保存", delegate
-            {
-                //不保存，但是停留在编辑器节界面
-
-                //关闭通知
-                Notify.notify.TurnOffStrongNotification();
-            });
-        }
-        //不存在任何修改的话
-        else
-        {
-            //切换编辑器
+        //切换编辑器
 //切换编辑器
-            var bundleEditor = cardMaker.bundleEditor.gameObject;
-            var cardEditor = cardMaker.cardEditor.gameObject;
-            if (!cardEditor.activeSelf)
-            {
-                this.cardEditor.OpenCardEditor();
-                return;
-            }
-            cardEditor.SetActive(false);
-
-            if (!bundleEditor.activeSelf)
-            {
-                this.bundleEditor.OpenManifestEditor();
-                return;
-            }
-            bundleEditor.SetActive(false);
+        var bundleEditor = cardMaker.bundleEditor.gameObject;
+        var cardEditor = cardMaker.cardEditor.gameObject;
+        if (!cardEditor.activeSelf)
+        {
+            this.cardEditor.OpenCardEditor();
+            return;
         }
+
+        cardEditor.SetActive(false);
+
+        if (!bundleEditor.activeSelf)
+        {
+            this.bundleEditor.OpenManifestEditor();
+            return;
+        }
+
+        bundleEditor.SetActive(false);
     }
 
     /// <summary>
