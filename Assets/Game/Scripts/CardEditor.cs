@@ -249,17 +249,34 @@ public class CardEditor : MonoBehaviour
     private void Start()
     {
         //返回标题
-        returnToTitle.OnClick.AddListener(delegate { CardMaker.cardMaker.ReturnToTitle(UniTask.Action(async () =>
+        returnToTitle.OnClick.AddListener(delegate
         {
-            await SaveOrSaveTo();
-        } )); });
+            CardMaker.cardMaker.SwitchPanel(UniTask.Action(async () =>
+            {
+                //检查保存（仅限在这个事件中）
+                await SaveOrSaveTo();
+            }), delegate { CardMaker.cardMaker.ReturnToMakerTitle(); });
+        });
+
         
      //切换到清单编辑器
      switchToBundleEditor.OnClick.AddListener(delegate
      {
-       //  if()
-         
-         CardMaker.cardMaker.switchManifestCardEditor();
+          
+         CardMaker.cardMaker.SwitchPanel(UniTask.Action(async () =>
+             {
+                 //检查保存（仅限在这个事件中）
+                 await SaveOrSaveTo();
+             }), 
+             UniTask.Action(async () =>
+             {
+                 //切换界面
+
+                 //然后切换
+                 await CardMaker.cardMaker.bundleEditor.OpenManifestEditor();
+                 gameObject.SetActive(false);
+             }));
+          
      });
      
     

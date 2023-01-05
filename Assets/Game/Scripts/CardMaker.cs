@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Core;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -159,7 +160,7 @@ public class CardMaker : MonoBehaviour
          await bundleEditor.OpenManifestEditor();
         }
     }
-    
+
 
     public void CreateNewCard()
     {
@@ -206,6 +207,8 @@ public class CardMaker : MonoBehaviour
         }
 
     }
+
+   
 
 
 /// <summary>
@@ -353,56 +356,35 @@ public class CardMaker : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 切换两个编辑器
-    /// </summary>
-    public void switchManifestCardEditor()
-    {
-        //切换编辑器
-//切换编辑器
-        var bundleEditor = cardMaker.bundleEditor.gameObject;
-        var cardEditor = cardMaker.cardEditor.gameObject;
-        if (!cardEditor.activeSelf)
-        {
-            this.cardEditor.OpenCardEditor();
-            return;
-        }
+    
 
-        cardEditor.SetActive(false);
+    #region 界面切换（返回，编辑器间切换）
 
-        if (!bundleEditor.activeSelf)
-        {
-            this.bundleEditor.OpenManifestEditor();
-            return;
-        }
-
-        bundleEditor.SetActive(false);
-    }
-
-    /// <summary>
-    /// 想要回到编辑器的标题界面
-    /// </summary>
-    public void ReturnToTitle(Action save)
+    public void SwitchPanel(Action saveOrSaveTo, Action doWhat)
     {
         //修改信息被激活，说明修改了，提示要不要保存后在返回
         if (CardMaker.cardMaker.changeSignal.activeSelf)
         {
-            Notify.notify.CreateStrongNotification(null, null, "卡包清单尚未保存", "此卡包的清单文件尚未保存，要保存吗？", delegate
+            Notify.notify.CreateStrongNotification(null, null, "修改尚未保存", "对此卡配置文件的修改尚未保存，要保存吗？", delegate
             {
                 //保存，并停留在编辑器界面
 
                 //关闭通知
                 Notify.notify.TurnOffStrongNotification();
                 //弹出保存界面
-                save.Invoke();
+                saveOrSaveTo.Invoke();
+               //执行该做的事情
+               doWhat.Invoke();
+               
             }, "保存", delegate
             {
                 //不保存，且回到Maker标题
 
                 //关闭通知
                 Notify.notify.TurnOffStrongNotification();
-                //回到标题节目（退出清单编辑器）
-                CardMaker.cardMaker.ReturnToMakerTitle();
+                //执行该做的事情
+                doWhat.Invoke();
+                
             }, "不保存", delegate
             {
                 //不保存，但是停留在编辑器节界面
@@ -414,15 +396,15 @@ public class CardMaker : MonoBehaviour
         //不存在任何修改的话
         else
         {
-            //回到标题节目（退出清单编辑器）
-            CardMaker.cardMaker.ReturnToMakerTitle();
+            //执行该做的事情
+            doWhat.Invoke();
         }
     }
-
+    
     /// <summary>
     /// 回到编辑器标题界面
     /// </summary>
-    private void ReturnToMakerTitle()
+    public void ReturnToMakerTitle()
     {
         changeSignal.SetActive(false);
         CardEditorPlane.SetActive(false);
@@ -430,6 +412,11 @@ public class CardMaker : MonoBehaviour
         title.SetActive(true);
     }
 
+    
+
+    #endregion
+    
+   
     /// <summary>
     /// 刷新yaml资源（tag anime cv列表，从本地文件中读取）
     /// </summary>
