@@ -196,7 +196,7 @@ public class BundleEditor : MonoBehaviour
          */
         //执行保存or另存为操作
         //没有预先加载卡包，或者原加载的清单文件不存在了，则另存为
-        if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath == string.Empty ||
+        if ( string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath) ||
             !File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath))
         {
             await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath);

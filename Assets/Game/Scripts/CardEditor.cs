@@ -278,10 +278,16 @@ public class CardEditor : MonoBehaviour
              }));
           
      });
-     
-    
- 
-       
+
+        //音频英文标准名称设定
+        voiceExit.VoiceName = nameof(voiceExit);
+        voiceDefeat.VoiceName = nameof(voiceDefeat);
+        voiceAbility.VoiceName = nameof(voiceAbility);
+        voiceDebut.VoiceName = nameof(voiceDebut);
+
+
+
+
     }
 
 
@@ -358,12 +364,11 @@ public class CardEditor : MonoBehaviour
         
         //获取可变下拉列表内容
         RefreshVariableDropdownList(false);
-        
+
         //图片，音频资源加载
-        if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath != string.Empty)
+        if (CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath != string.Empty)
         {
-            var cardRootPath =
-                $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/cards/{nowEditingCard.CardName}";
+            var cardRootPath = Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath);
             CardMaker.cardMaker.BanInputLayer(true, "图片资源加载中...");
             if (nowEditingCard.imageName != "default")
             {
@@ -376,18 +381,29 @@ public class CardEditor : MonoBehaviour
         
             //音频加载
             CardMaker.cardMaker.BanInputLayer(true, "音频资源加载中...");
-            if (nowEditingCard.voiceAbility != string.Empty)
-                await AsyncLoadSelectedAudio(voiceAbility, $"{cardRootPath}/{nowEditingCard.voiceAbility}");
-            else AsyncLoadSelectedAudio(voiceAbility, string.Empty);
-            if (nowEditingCard.voiceDebut != string.Empty)
-                await AsyncLoadSelectedAudio(voiceDebut, $"{cardRootPath}/{nowEditingCard.voiceDebut}");
-            else AsyncLoadSelectedAudio(voiceDebut, string.Empty);
-            if (nowEditingCard.voiceExit != string.Empty)
-                await AsyncLoadSelectedAudio(voiceExit, $"{cardRootPath}/{nowEditingCard.voiceExit}");
-            else AsyncLoadSelectedAudio(voiceExit, string.Empty);
-            if (nowEditingCard.voiceDefeat != string.Empty)
-                await AsyncLoadSelectedAudio(voiceDefeat, $"{cardRootPath}/{nowEditingCard.voiceDefeat}");
-            else AsyncLoadSelectedAudio(voiceDefeat, string.Empty);
+            //先清除音频
+            voiceAbility.clear();
+            voiceDebut.clear();
+            voiceDefeat.clear();
+            voiceExit.clear();
+            var audioPath = string.Empty;
+            //然后逐个拓展名搜索，加载音频，没加载上的就保持clear状态了
+            foreach (var extension in Information.SupportedAudioExtension)
+            {
+                audioPath = $"{cardRootPath}/{nameof(voiceAbility)}{extension}";
+                if (File.Exists(audioPath)) await AsyncLoadSelectedAudio(voiceAbility, audioPath);
+                audioPath = $"{cardRootPath}/{nameof(voiceExit)}{extension}";
+                if (File.Exists(audioPath)) await AsyncLoadSelectedAudio(voiceExit, audioPath);
+                audioPath = $"{cardRootPath}/{nameof(voiceDebut)}{extension}";
+                if (File.Exists(audioPath)) await AsyncLoadSelectedAudio(voiceDebut, audioPath);
+                audioPath = $"{cardRootPath}/{nameof(voiceDefeat)}{extension}";
+                if (File.Exists(audioPath)) await AsyncLoadSelectedAudio(voiceDefeat, audioPath);
+
+            }
+
+
+         
+          
         } 
       
         #endregion
@@ -487,10 +503,9 @@ public class CardEditor : MonoBehaviour
     /// </summary>
     private async UniTask AsyncLoadSelectedAudio(audioSetting audioSetting, string audioFullPath)
     {
-        if (audioFullPath == string.Empty)
+        if (string.IsNullOrEmpty(audioFullPath) || audioSetting == null)
         {
-            audioSetting.clear();
-            return;
+            throw new Exception("音频加载参数值不能为空");         
         }
         
         if (Path.GetFileNameWithoutExtension(audioFullPath).Contains("："))
@@ -613,18 +628,33 @@ public class CardEditor : MonoBehaviour
         editing.Result.Value = abilityResultChangeValue.text;
         
         //音频
-        editing.voiceAbility= voiceAbility.newAudioFullFileName == string.Empty ? editing.voiceAbility: Path.GetFileName(voiceAbility.newAudioFullFileName);
-        editing.voiceExit= voiceExit.newAudioFullFileName == string.Empty ? editing.voiceExit: Path.GetFileName(voiceExit.newAudioFullFileName);
-        editing.voiceDebut= voiceDebut.newAudioFullFileName == string.Empty ? editing.voiceDebut: Path.GetFileName(voiceDebut.newAudioFullFileName);
-        editing.voiceDefeat= voiceDefeat.newAudioFullFileName == string.Empty ? editing.voiceDefeat: Path.GetFileName(voiceDefeat.newAudioFullFileName);
-
-
         var audios = new audioSetting[4];
         audios[0] = voiceAbility;
         audios[1] = voiceDebut;
         audios[2] = voiceDefeat;
         audios[3] = voiceExit;
-       await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath,audios);
+
+        //检查是用保存还是另存为
+        var hasLoadedCardFile = !string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath);
+        var FileExistNow = File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath);
+        var d = Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath).Split("/");
+        var cardRootDirectory = d[^1];
+        var cardNameNotChanged = editing.CardName.Equals(cardRootDirectory) && editing.CardName.Equals(Path.GetFileNameWithoutExtension(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath));
+        //满足这三个条件（是加载的现有文件，此文件存在，并且卡牌的识别名称没有修改），执行保存操作
+        if (hasLoadedCardFile && FileExistNow && cardNameNotChanged)
+        {
+
+            await CardMaker.cardMaker.AsyncSave(null, null, CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath, newImageFullPath, false, true, audios);
+        }
+        //任何一点不满足，都是另存为
+        else
+        {
+            await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath, audios);
+        }
+
+
+
+        await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath,audios);
     }
 
     

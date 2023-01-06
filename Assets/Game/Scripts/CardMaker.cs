@@ -98,6 +98,13 @@ public class CardMaker : MonoBehaviour
 
         //android储存权限申请
         AndroidRequestPermeission();
+
+#if UNITY_STANDALONE
+        //禁止全屏
+        Screen.fullScreen = false;
+        Screen.SetResolution(1280, 720, false, 30);
+      
+#endif
     }
 
     public void AndroidRequestPermeission()
@@ -215,7 +222,7 @@ public class CardMaker : MonoBehaviour
 
 
 /// <summary>
-/// 异步保存
+/// 异步保存（清单和卡牌自己保存自己的）
 /// </summary>
 /// <param name="manifestSaveFullPath">manifest储存的路径（含文件名和拓展名）</param>
 /// <param name="manifestNewImageFullPath"></param>
@@ -257,16 +264,16 @@ public class CardMaker : MonoBehaviour
             try
             {
                 //音频路径与文件名获取
-                var audios = new string[cardAudioSettings.Length];
+                var newAudiosFullPath = new string[cardAudioSettings.Length];
                 var audioNamesWithoutExtension = new string[cardAudioSettings.Length];
-                for (int i = 0; i < audios.Length; i++)
+                for (int i = 0; i < newAudiosFullPath.Length; i++)
                 {
-                    audios[i] = cardAudioSettings[i].newAudioFullFileName;
+                    newAudiosFullPath[i] = cardAudioSettings[i].newAudioFullFileName;
                     audioNamesWithoutExtension[i] = cardAudioSettings[i].VoiceName;
                 }
 
                 await CardReadWrite.CreateCardFile(nowEditingBundle.card, nowEditingBundle.loadedCardFullPath,
-                    cardNewImageFullPath, audios, audioNamesWithoutExtension);
+                    cardNewImageFullPath, newAudiosFullPath, audioNamesWithoutExtension);
             }
             catch (Exception e)
             {
@@ -324,7 +331,7 @@ public class CardMaker : MonoBehaviour
     {
         //还没有保存过/不是打开编辑卡包，打开选择文件的窗口，选择保存位置
 
-        await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, false, title: "保存卡包",
+        await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, false, title: "另存为",
             saveButtonText: "选择文件夹");
 
         //开启输入禁用层

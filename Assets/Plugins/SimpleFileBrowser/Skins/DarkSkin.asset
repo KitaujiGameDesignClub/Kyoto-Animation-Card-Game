@@ -66,8 +66,12 @@ MonoBehaviour:
     icon: {fileID: 21300000, guid: 726332a321616c34cbdcf8192018538c, type: 3}
   - extension: .xml
     icon: {fileID: 21300000, guid: 726332a321616c34cbdcf8192018538c, type: 3}
+  - extension: .yml
+    icon: {fileID: 21300000, guid: 9263b8a918d4d1f4587535878f451a16, type: 3}
+  - extension: .yaml
+    icon: {fileID: 21300000, guid: 9263b8a918d4d1f4587535878f451a16, type: 3}
   - extension: .json
-    icon: {fileID: 21300000, guid: 726332a321616c34cbdcf8192018538c, type: 3}
+    icon: {fileID: 21300000, guid: 9263b8a918d4d1f4587535878f451a16, type: 3}
   - extension: .jpg
     icon: {fileID: 21300000, guid: dd7aece776b5b524580808087358239f, type: 3}
   - extension: .jpeg
@@ -92,6 +96,8 @@ MonoBehaviour:
     icon: {fileID: 21300000, guid: cdefb68ced934d143b14dfbd72195661, type: 3}
   - extension: .mp3
     icon: {fileID: 21300000, guid: 13e3a435204c5d54dae5dd7622ebff62, type: 3}
+  - extension: .aif
+    icon: {fileID: 21300000, guid: 13e3a435204c5d54dae5dd7622ebff62, type: 3}
   - extension: .wav
     icon: {fileID: 21300000, guid: 13e3a435204c5d54dae5dd7622ebff62, type: 3}
   - extension: .aac
@@ -113,7 +119,7 @@ MonoBehaviour:
   - extension: .gz
     icon: {fileID: 21300000, guid: 05c118f614dd2e9458d9bb2bf84ff4e8, type: 3}
   - extension: .exe
-    icon: {fileID: 21300000, guid: 12119eecacb90714a83fdadaf0a8450c, type: 3}
+    icon: {fileID: 21300000, guid: be530c60cc7f08f468ac67dac9c5268a, type: 3}
   m_fileMultiSelectionToggleOffIcon: {fileID: 21300000, guid: d6beaeac8de2af749a48581db778df3e, type: 3}
   m_fileMultiSelectionToggleOnIcon: {fileID: 21300000, guid: 30a2566f94f937b4998542121050e68b, type: 3}
   m_contextMenuBackgroundColor: {r: 0.11372549, g: 0.11372549, b: 0.11372549, a: 1}

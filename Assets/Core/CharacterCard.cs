@@ -94,26 +94,5 @@ namespace Core
         /// </summary>
         public CharactersConnect[] Connects;
 */
-        /// <summary>
-        /// 登场音频.ogg（仅限主持/部长/chief）
-        /// </summary>
-        public string voiceDebut = string.Empty;
-
-        /// <summary>
-        /// 退场音频 .ogg
-        /// </summary>
-        public string voiceExit = string.Empty;
-
-        /// <summary>
-        /// 能力触发音频 .ogg
-        /// </summary>
-        public string voiceAbility = string.Empty;
-
-        /// <summary>
-        /// 击退音效 .ogg
-        /// </summary>
-        public string voiceDefeat = string.Empty;
-
-
     }
 }

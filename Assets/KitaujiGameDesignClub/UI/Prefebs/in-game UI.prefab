@@ -2950,7 +2950,7 @@ MonoBehaviour:
   topSearchbarMinWidth: 360
   receiveLogsWhileInactive: 0
   receiveInfoLogs: 1
-  receiveWarningLogs: 0
+  receiveWarningLogs: 1
   receiveErrorLogs: 1
   receiveExceptionLogs: 1
   captureLogTimestamps: 1

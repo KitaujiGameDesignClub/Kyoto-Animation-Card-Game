@@ -11,6 +11,9 @@ public class audioSetting : MonoBehaviour
 {
     AudioSource audioSource;
     [SerializeField]private TMP_Text text;
+    /// <summary>
+    /// 英文标准名称（不含拓展名）
+    /// </summary>
     public string VoiceName;
     [FormerlySerializedAs("audioFullFileName")] [HideInInspector]public string newAudioFullFileName  = string.Empty;
 

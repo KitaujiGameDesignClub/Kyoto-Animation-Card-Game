@@ -115,11 +115,11 @@ public class CardReadWrite
     /// <param name="characterCard">保存的内容</param>
     /// <param name="fullPathToSave">保存的完整路径（含文件和拓展名）</param>
     /// <param name="imageFullPath">新的封面图片的路径</param>
-    /// <param name="voiceFileFullPath">新的音频文件的路径</param>
+    /// <param name="newVoiceFileFullPath">新的音频文件的路径</param>
     /// <param name="voiceNamesWithoutExtension">语音文件的名字（不含拓展名）</param>
     /// <returns></returns>
     public static async UniTask CreateCardFile(CharacterCard characterCard, string fullPathToSave,
-        string imageFullPath, string[] voiceFileFullPath, string[] voiceNamesWithoutExtension)
+        string imageFullPath, string[] newVoiceFileFullPath, string[] voiceNamesWithoutExtension)
     {
         var directory =
             Path.GetDirectoryName(
@@ -139,12 +139,12 @@ public class CardReadWrite
         }
 
         //复制音频资源
-        for (int i = 0; i < voiceFileFullPath.Length; i++)
+        for (int i = 0; i < newVoiceFileFullPath.Length; i++)
         {
-            if (string.IsNullOrEmpty(voiceFileFullPath[i]))
+            if (string.IsNullOrEmpty(newVoiceFileFullPath[i]))
             {
-                File.Copy(voiceFileFullPath[i],
-                    $"{directory}/{voiceNamesWithoutExtension[i]}{Path.GetExtension(voiceFileFullPath[i])}", true);
+                File.Copy(newVoiceFileFullPath[i],
+                    $"{directory}/{voiceNamesWithoutExtension[i]}{Path.GetExtension(newVoiceFileFullPath[i])}", true);
             }
         }
 
