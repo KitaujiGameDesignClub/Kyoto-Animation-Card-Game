@@ -112,32 +112,8 @@ namespace Core
         /// <summary>
         /// 击退音效 .ogg
         /// </summary>
-        public string voiceKill = string.Empty;
+        public string voiceDefeat = string.Empty;
 
 
-#if UNITY_EDITOR
-        /// <summary>
-        /// 在这里存一些例子
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public static CharacterCard Examples(int index)
-        {
-            switch (index)
-            {
-                //节能折木，每回合降低自身攻击力，除非千反田在场
-                case 0:
-                    return new CharacterCard()
-                    {
-                       
-                    };
-                    break;
-
-                default:
-                    return new CharacterCard();
-                    break;
-            }
-        }
-#endif
     }
 }

@@ -175,7 +175,9 @@ namespace Core
         public static readonly string[] SupportedImageExtension = { ".jpg", ".bmp", ".png", ".gif" };
         public static readonly string[] SupportedAudioExtension = { ".mp3",".ogg",".wav",".aif" };
 
-        
+        /// <summary>
+        /// 游戏会在这里读取卡组
+        /// </summary>
         public static string bundlesPath =  $"{YamlReadWrite.UnityButNotAssets}/bundles";
 
         public static readonly DescribeFileIO AnimeListIO = new DescribeFileIO("animeList.yml", "saves", "# 此文件包含了动漫列表，用于规范卡组中所属动画的文本" +

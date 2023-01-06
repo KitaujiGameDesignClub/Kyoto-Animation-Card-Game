@@ -6,7 +6,7 @@ CodeVersion: 1
 BundleName: BundleManifest
 FriendlyBundleName: 默认卡包
 Anime: ''
-BundleVersion: v1.2
+BundleVersion: v1.0
 AuthorName: 作者名称
 shortDescription: 卡包简短介绍
 Description: 卡包介绍

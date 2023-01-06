@@ -287,6 +287,11 @@ public class CardEditor : MonoBehaviour
 
     public async UniTask OpenCardEditor()
     {
+        //如果没有加载了的manifest，则禁用“切换到manifest editor”功能
+        switchToBundleEditor.gameObject.SetActive(!string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath));
+        
+
+
         CardMaker.cardMaker.BanInputLayer(true, "卡牌配置加载中...");
         
         nowEditingCard = CardMaker.cardMaker.nowEditingBundle.card;
@@ -380,8 +385,8 @@ public class CardEditor : MonoBehaviour
             if (nowEditingCard.voiceExit != string.Empty)
                 await AsyncLoadSelectedAudio(voiceExit, $"{cardRootPath}/{nowEditingCard.voiceExit}");
             else AsyncLoadSelectedAudio(voiceExit, string.Empty);
-            if (nowEditingCard.voiceKill != string.Empty)
-                await AsyncLoadSelectedAudio(voiceDefeat, $"{cardRootPath}/{nowEditingCard.voiceKill}");
+            if (nowEditingCard.voiceDefeat != string.Empty)
+                await AsyncLoadSelectedAudio(voiceDefeat, $"{cardRootPath}/{nowEditingCard.voiceDefeat}");
             else AsyncLoadSelectedAudio(voiceDefeat, string.Empty);
         } 
       
@@ -611,7 +616,7 @@ public class CardEditor : MonoBehaviour
         editing.voiceAbility= voiceAbility.newAudioFullFileName == string.Empty ? editing.voiceAbility: Path.GetFileName(voiceAbility.newAudioFullFileName);
         editing.voiceExit= voiceExit.newAudioFullFileName == string.Empty ? editing.voiceExit: Path.GetFileName(voiceExit.newAudioFullFileName);
         editing.voiceDebut= voiceDebut.newAudioFullFileName == string.Empty ? editing.voiceDebut: Path.GetFileName(voiceDebut.newAudioFullFileName);
-        editing.voiceKill= voiceDefeat.newAudioFullFileName == string.Empty ? editing.voiceKill: Path.GetFileName(voiceDefeat.newAudioFullFileName);
+        editing.voiceDefeat= voiceDefeat.newAudioFullFileName == string.Empty ? editing.voiceDefeat: Path.GetFileName(voiceDefeat.newAudioFullFileName);
 
 
         var audios = new audioSetting[4];

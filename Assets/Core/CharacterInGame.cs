@@ -947,7 +947,7 @@ namespace Core
                                 1 => fixedValue >= thresholdInt,
                                 //大于
                                 2 => fixedValue > thresholdInt,
-                                
+                                _ => throw new NotImplementedException(),
                             };
                         }
 

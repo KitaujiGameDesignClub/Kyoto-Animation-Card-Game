@@ -70,20 +70,20 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                 if (ban == null)
                 {
                     //没展开value变化的话，保留之前的内容
-                    goto unbanned;
-                    
+                    text = dropdown.IsExpanded ? dropdown.captionText.text : text;
+                    text = Regex.Replace(text, "<.*?>", string.Empty);//去除富文本
+
                 }
                 
                 if (!ban.Contains(dropdown.captionText.text))
                 {
                     //没展开value变化的话，保留之前的内容
-                    goto unbanned;
+                    text = dropdown.IsExpanded ? dropdown.captionText.text : text;
+                    text = Regex.Replace(text, "<.*?>", string.Empty);//去除富文本
                 }
-                
-                unbanned:
-                //没展开value变化的话，保留之前的内容
-                text = dropdown.IsExpanded ? dropdown.captionText.text : text;
-                text = Regex.Replace(text, "<.*?>", string.Empty);
+
+
+              
             });
             
             dropdownButton.onClick.AddListener(delegate

@@ -1,7 +1,5 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
-using Codice.Client.Common.Threading;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using Core;
 using Cysharp.Threading.Tasks;

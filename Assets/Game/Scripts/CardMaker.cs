@@ -22,18 +22,17 @@ public class CardMaker : MonoBehaviour
 
     public BasicEvents basicEvents;
 
+    /// <summary>
+    /// 内置卡组路径的图标
+    /// </summary>
+    public Sprite bundlePathIco;
+
 
     [Header("界面切换")] public GameObject title;
-
-    [FormerlySerializedAs("ManifestEditor")]
-    public GameObject ManifestEditorPlane;
-
+    [FormerlySerializedAs("ManifestEditor")] public GameObject ManifestEditorPlane;
     [FormerlySerializedAs("CardEditor")] public GameObject CardEditorPlane;
-
-
-    [Header("bundle editor")] public BundleEditor bundleEditor;
-
-    [Header("card editor")] public CardEditor cardEditor;
+ public BundleEditor bundleEditor;
+ public CardEditor cardEditor;
 
 
     /// <summary>
@@ -94,6 +93,9 @@ public class CardMaker : MonoBehaviour
         //允许玩家输入
         banInput.SetActive(false);
 
+        //加入一个quickLink
+        FileBrowser.AddQuickLink("游戏卡组", $"{Information.bundlesPath}", bundlePathIco);
+
         //android储存权限申请
         AndroidRequestPermeission();
     }
@@ -123,10 +125,7 @@ public class CardMaker : MonoBehaviour
 
     public async void EditBundleButton()
     {
-        nowEditingBundle = new();
-        //现在还没有改内容，关闭修改标记
-         changeSignal.SetActive(false);
-        await EditBundle();
+              await EditBundle();
     }
 
     /// <summary>
@@ -140,6 +139,9 @@ public class CardMaker : MonoBehaviour
 
         if (FileBrowser.Success)
         {
+            nowEditingBundle = new();
+            //现在还没有改内容，关闭修改标记
+            changeSignal.SetActive(false);
             nowEditingBundle.loadedManifestFullPath = FileBrowser.Result[0];
 
             BanInputLayer(true,"读取卡组配置...");
@@ -173,11 +175,7 @@ public class CardMaker : MonoBehaviour
 
     public async void EditCardButton()
     {
-        nowEditingBundle = new();
-        //现在还没有改内容，关闭修改标记
-        changeSignal.SetActive(false);
-        CardMaker.cardMaker.BanInputLayer(true, "卡牌配置加载中...");
-        await EditCard();
+                await EditCard();
     }
 
     private async UniTask EditCard()
@@ -188,6 +186,11 @@ public class CardMaker : MonoBehaviour
 
         if (FileBrowser.Success)
         {
+            nowEditingBundle = new();
+            //现在还没有改内容，关闭修改标记
+            changeSignal.SetActive(false);
+
+            cardMaker.BanInputLayer(true, "卡牌配置加载中...");
             nowEditingBundle.loadedCardFullPath = FileBrowser.Result[0];
 
             var card = await YamlReadWrite.ReadAsync(
