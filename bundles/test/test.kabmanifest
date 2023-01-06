@@ -6,6 +6,7 @@ CodeVersion: 1
 BundleName: test
 FriendlyBundleName: 测试卡组
 Anime: 通用卡牌
+ImageName: cover.png
 BundleVersion: v我50
 AuthorName: PureAmaya
 shortDescription: 卡包简短介绍

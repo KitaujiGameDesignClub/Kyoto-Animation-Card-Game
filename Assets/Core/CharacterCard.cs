@@ -40,9 +40,9 @@ namespace Core
         public int CardCount = 1;
 
         /// <summary>
-        /// 图片名字（一般与角色配置文件同路径）
+        /// 图片名字（含拓展名）
         /// </summary>
-        public string imageName = "default";
+        public string ImageName = "cover.png";
 
         /// <summary>
         /// 角色名称（无则空）
@@ -88,11 +88,30 @@ namespace Core
         /// </summary>
         public string AbilityDescription = "我很好奇能力是什么";
 
-/*
+        /*
+                /// <summary>
+                /// 角色间羁绊
+                /// </summary>
+                public CharactersConnect[] Connects;
+        */
+
         /// <summary>
-        /// 角色间羁绊
+        /// 退场音频的文件名（含拓展名）
         /// </summary>
-        public CharactersConnect[] Connects;
-*/
+        public string voiceExitFileName = "voiceExit.ogg";
+        /// <summary>
+        /// 击败音频的文件名（含拓展名）
+        /// </summary>
+        public string voiceDefeatFileName = "voiceDefeat.ogg";
+        /// <summary>
+        /// 登场音频的文件名（仅部长）（含拓展名）
+        /// </summary>
+        public string voiceDebutFileName = "voiceDebut.ogg";
+        /// <summary>
+        /// 能力发动音频的文件名（含拓展名）
+        /// </summary>
+        public string voiceAbilityFileName = "voiceAbility.ogg";
+
+
     }
 }

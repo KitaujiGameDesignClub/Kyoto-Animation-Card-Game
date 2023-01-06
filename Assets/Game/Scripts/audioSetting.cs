@@ -74,7 +74,11 @@ public class audioSetting : MonoBehaviour
     public void select()
     {
         Stop();
-       OnPrepareToSelectAudio.Invoke(this);
+        foreach (var item in groups)
+        {
+            item.Stop();
+        }
+        OnPrepareToSelectAudio.Invoke(this);
     }
 
     /// <summary>

@@ -36,6 +36,11 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
             Path = path;
             Note = note;
         }
+
+        public string pathWithFile()
+        {
+            return $"{Path}/{FileName}";
+        }
     }
 
     /// <summary>

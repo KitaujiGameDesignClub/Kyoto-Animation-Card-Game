@@ -1,0 +1,47 @@
+﻿# Only for Kyoto Animation Card game with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+CodeVersion: 1
+CardName: 56546
+FriendlyCardName: 'DFRE '
+Anime: AIR
+tags:
+- EWREWR
+- 神山高校
+CardCount: 1
+ImageName: cover.jpg
+CharacterName: 泉此方
+CV: ''
+gender: 0
+allowAsChief: true
+BasicHealthPoint: 3
+BasicPower: 2
+AbilityActivityType: GetHurt
+Reason:
+  NeededObjects:
+    LargeScope: None
+    ParameterToShrinkScope: CharacterName
+    Logic: 0
+    Threshold: 通用卡牌
+  ReasonParameter: None
+  ReasonJudgeMethod: Value
+  Logic: 0
+  Threshold: 44
+Result:
+  RegardActivatorAsResultObject: false
+  SummonCardName: ''
+  Ridicule: 0
+  ResultObject:
+    LargeScope: None
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  ParameterToChange: None
+  CalculationMethod: addition
+  Value: QWE
+AbilityDescription: 我很好奇能力是什么
+voiceExitFileName: voiceExit.mp3
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut.ogg
+voiceAbilityFileName: voiceAbility

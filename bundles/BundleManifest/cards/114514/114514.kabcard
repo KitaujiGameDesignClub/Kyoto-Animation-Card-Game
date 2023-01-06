@@ -3,19 +3,19 @@
 # It'll tell you all the information of the card,but it can't work independently.
 
 CodeVersion: 1
-CardName: 114514
-FriendlyCardName: 野兽先辈
+CardName: takina
+FriendlyCardName: 默认卡牌
 Anime: ''
-tags:
-- SOS团
+tags: []
 CardCount: 1
+imageName: FY3aiotXwAMSRwV.jpg
 CharacterName: ''
 CV: ''
 gender: 0
 allowAsChief: true
 BasicHealthPoint: 3
 BasicPower: 2
-AbilityActivityType: Exit
+AbilityActivityType: None
 Reason:
   NeededObjects: &o0
     LargeScope: None
@@ -27,7 +27,7 @@ Reason:
   Logic: 0
   Threshold: 																								
 Result:
-  RegardActivatorAsResultObject: true
+  RegardActivatorAsResultObject: false
   SummonCardName: ''
   Ridicule: 0
   ResultObject: *o0

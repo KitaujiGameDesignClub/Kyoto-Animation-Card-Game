@@ -67,15 +67,15 @@ public class CardReadWrite
     /// 创建卡包清单文件
     /// </summary>
     /// <param name="cardBundlesManifest">保存的内容</param>
-    /// <param name="fullPathToSave">保存的完整路径（含文件和拓展名）</param>
-    /// <param name="imageFullPath">新图片的完整路径，将图片复制到卡包目录下</param>
+    /// <param name="manifestFullPathToSave">清单保存的完整路径（含文件和拓展名）</param>
+    /// <param name="newImageFullPath">新图片的完整路径，将图片复制到卡包目录下</param>
     /// <returns></returns>
-    public static async UniTask CreateBundleManifestFile(CardBundlesManifest cardBundlesManifest, string fullPathToSave,
-        string imageFullPath)
+    public static async UniTask CreateBundleManifestFile(CardBundlesManifest cardBundlesManifest, string manifestFullPathToSave,
+        string newImageFullPath)
     {
         var directory =
-            Path.GetDirectoryName(fullPathToSave); //最终，应当形如“D:\Kyoto Animation Card game\bundles\test\test.kabmanifest”
-        var fileNameWithExtension = Path.GetFileName(fullPathToSave);
+            Path.GetDirectoryName(manifestFullPathToSave); //最终，应当形如“D:\Kyoto Animation Card game\bundles\test\test.kabmanifest”
+        var fileNameWithExtension = Path.GetFileName(manifestFullPathToSave);
 
         //清单文件
         var io = new DescribeFileIO(fileNameWithExtension,
@@ -83,13 +83,10 @@ public class CardReadWrite
             "# card bundle manifest.\n# It'll tell you the summary of the bundle.");
         await YamlReadWrite.WriteAsync(io, cardBundlesManifest);
         //复制封面图片
-        if (!string.IsNullOrEmpty(imageFullPath))
+        if (!string.IsNullOrEmpty(newImageFullPath) && newImageFullPath != $"{directory}/{cardBundlesManifest.ImageName}")
         {
-            Debug.Log(imageFullPath);
-            Debug.Log($"{directory}/cover{Path.GetExtension(imageFullPath)}");
-            
-            File.Copy(imageFullPath, $"{directory}/cover{Path.GetExtension(imageFullPath)}",
-                true);
+          
+            File.Copy(newImageFullPath, $"{directory}/{cardBundlesManifest.ImageName}", true);
             
         }
 
@@ -113,38 +110,42 @@ public class CardReadWrite
     /// 创建卡牌文件
     /// </summary>
     /// <param name="characterCard">保存的内容</param>
-    /// <param name="fullPathToSave">保存的完整路径（含文件和拓展名）</param>
+    /// <param name="cardFullPathToSave">卡牌配置文件保存的完整路径（含文件和拓展名）</param>
     /// <param name="imageFullPath">新的封面图片的路径</param>
     /// <param name="newVoiceFileFullPath">新的音频文件的路径</param>
     /// <param name="voiceNamesWithoutExtension">语音文件的名字（不含拓展名）</param>
     /// <returns></returns>
-    public static async UniTask CreateCardFile(CharacterCard characterCard, string fullPathToSave,
+    public static async UniTask CreateCardFile(CharacterCard characterCard, string cardFullPathToSave,
         string imageFullPath, string[] newVoiceFileFullPath, string[] voiceNamesWithoutExtension)
     {
-        var directory =
-            Path.GetDirectoryName(
-                fullPathToSave); //最终，应当形如“D:\Kyoto Animation Card game\bundles\test\cards\114514\114514.kbcard”
-        var fileNameWithExtension = Path.GetFileName(fullPathToSave);
+        var directory = Path.GetDirectoryName(cardFullPathToSave); 
+        var fileNameWithExtension = Path.GetFileName(cardFullPathToSave);
+        //上面二者最终应当形如“D:\Kyoto Animation Card game\bundles\test\cards\114514\114514.kbcard”
 
         //卡牌配置文件
         var io = new DescribeFileIO(fileNameWithExtension,
             $"-{directory}",
             "# card detail.\n# It'll tell you all the information of the card,but it can't work independently.");
+        Debug.Log(io.pathWithFile());
         await YamlReadWrite.WriteAsync(io, characterCard);
 
+
         //复制封面图片
-        if (string.IsNullOrEmpty(imageFullPath))
+        if (!string.IsNullOrEmpty(imageFullPath) && imageFullPath != $"{directory}/{characterCard.ImageName}")
         {
-            File.Copy(imageFullPath, $"{directory}/cover{Path.GetExtension(imageFullPath)}", true);
+            File.Copy(imageFullPath, $"{directory}/{characterCard.ImageName}", true);
         }
 
         //复制音频资源
         for (int i = 0; i < newVoiceFileFullPath.Length; i++)
         {
-            if (string.IsNullOrEmpty(newVoiceFileFullPath[i]))
+            //这个音频文件的目标路径
+            var audioTargetPath = $"{directory}/{voiceNamesWithoutExtension[i]}{Path.GetExtension(newVoiceFileFullPath[i])}";
+
+            if (!string.IsNullOrEmpty(newVoiceFileFullPath[i]) && audioTargetPath != newVoiceFileFullPath[i])
             {
-                File.Copy(newVoiceFileFullPath[i],
-                    $"{directory}/{voiceNamesWithoutExtension[i]}{Path.GetExtension(newVoiceFileFullPath[i])}", true);
+
+                File.Copy(newVoiceFileFullPath[i],audioTargetPath, true);
             }
         }
 
@@ -156,6 +157,7 @@ public class CardReadWrite
 
         Debug.Log($"“{characterCard.FriendlyCardName}”已成功保存在{directory}");
     }
+
 
     #endregion
 
@@ -402,54 +404,7 @@ public class CardReadWrite
 
     #region 资源文件加载
 
-    /// <summary>
-    /// （卡组清单用）加载指定路径的图片
-    /// </summary>
-    /// <param name="imageFullPath">string.Empty时返回空</param>
-    /// <returns></returns>
-    public static async UniTask<Sprite> ManifestLoadImageAsync(string imageFullPath)
-    {
-        if (imageFullPath == string.Empty)
-        {
-            return null;
-        }
-
-        //下载（加载）图片
-        var hander = new DownloadHandlerTexture();
-        UnityWebRequest unityWebRequest = new UnityWebRequest(imageFullPath, "GET", hander, null);
-        var sendWebRequest = await unityWebRequest.SendWebRequest();
-
-
-        if (sendWebRequest.isDone)
-        {
-            if (sendWebRequest.result == UnityWebRequest.Result.Success)
-            {
-                int size;
-                //正方形图片就随便取一个边作为图片大小
-                if (hander.texture.width == hander.texture.height)
-                {
-                    size = hander.texture.width;
-                }
-                //非正方形则取最短边
-                else
-                {
-                    size = hander.texture.width > hander.texture.height
-                        ? hander.texture.height
-                        : hander.texture.width;
-                }
-
-                var sprite = Sprite.Create(hander.texture, new Rect(0f, 0f, size, size), Vector2.one / 2f);
-                return sprite;
-            }
-            
-            Debug.LogWarning($"{unityWebRequest.url}加载失败,错误原因{unityWebRequest.error}");
-            return null;
-        }
-        else
-        {
-            return null;
-        }
-    }
+   
 
     #endregion
 
