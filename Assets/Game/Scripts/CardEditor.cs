@@ -693,7 +693,14 @@ public class CardEditor : MonoBehaviour
             {
                 var saveFullPath = $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/cards/{cardNameField.text}/{cardNameField.text}{Information.CardExtension}";
                 await CardMaker.cardMaker.AsyncSave(null, null, saveFullPath, newImageFullPath, false, true, audios);
+
+                //注册此卡牌，使其能在manifest编辑器那边的切换器中显示出来
+                var card = CardMaker.cardMaker.nowEditingBundle.card;
+                CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Add(card.FriendlyCardName);
+                CardMaker.cardMaker.nowEditingBundle.allCardsName.Add(card.CardName);
+
                 Debug.Log($"此卡牌“{CardMaker.cardMaker.nowEditingBundle.card.FriendlyCardName}”属于卡组“{CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName}”，已自动保存到该卡组中");
+          
             }
             //卡组清单文件不存在
             else

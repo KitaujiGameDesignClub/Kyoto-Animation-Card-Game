@@ -3,15 +3,16 @@
 # It'll tell you all the information of the card,but it can't work independently.
 
 CodeVersion: 1
-CardName: addedBySwitcher
-FriendlyCardName: 由清单编辑器创建的卡牌
-Anime: 通用卡牌
+CardName: addFromSwither
+FriendlyCardName: 由切换器呈现
+Anime: 全金属狂潮第二季（校园篇）
 tags:
-- HTT
-- 樱丘高中
+- SOS团
+- 156
+- 丸山彩
 CardCount: 1
-ImageName: cover.jpg
-CharacterName: 平泽唯
+ImageName: cover.png
+CharacterName: 凉宫春日
 CV: 丰崎爱生
 gender: 0
 allowAsChief: true
@@ -39,5 +40,5 @@ Result:
 AbilityDescription: 我很好奇能力是什么
 voiceExitFileName: voiceExit
 voiceDefeatFileName: voiceDefeat
-voiceDebutFileName: voiceDebut.ogg
+voiceDebutFileName: voiceDebut
 voiceAbilityFileName: voiceAbility
