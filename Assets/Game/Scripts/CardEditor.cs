@@ -369,10 +369,11 @@ public class CardEditor : MonoBehaviour
         //图片，音频资源加载
         if (CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath != string.Empty)
         {
+          
             var cardRootPath = Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath);
+          
+            //图片加载
             CardMaker.cardMaker.BanInputLayer(true, "图片资源加载中...");
-
-
             await AsyncLoadImage($"{cardRootPath}/{nowEditingCard.ImageName}");
       
             //音频加载
@@ -643,7 +644,7 @@ public class CardEditor : MonoBehaviour
         var audios = new audioSetting[4];
         audios[0] = voiceAbility;
         audios[1] = voiceDebut;
-        audios[2] = voiceDefeat;
+        audios[2] = voiceDefeat; 
         audios[3] = voiceExit;
         //文件名保存在内存中
         editing.voiceExitFileName = $"{audios[3].VoiceName}{Path.GetExtension(audios[3].newAudioFullFileName)}";
@@ -664,19 +665,19 @@ public class CardEditor : MonoBehaviour
             else
             {
                 //检查是用保存还是另存为
-                var hasLoadedCardFile = !string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath);
                 var FileExistNow = File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath);
                 var d = Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath).Split("\\");
                 var cardRootDirectory = d[^1];
                 var cardNameNotChanged = editing.CardName.Equals(cardRootDirectory) && editing.CardName.Equals(Path.GetFileNameWithoutExtension(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath));
-                //满足这三个条件（是加载的现有文件，此文件存在，并且卡牌的识别名称没有修改），执行保存操作
-                if (hasLoadedCardFile && FileExistNow && cardNameNotChanged)
+                //额外满足这2个条件（此文件存在，并且卡牌的识别名称没有修改），执行保存操作
+                if (FileExistNow && cardNameNotChanged)
                 {
                     await CardMaker.cardMaker.AsyncSave(null, null, CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath, newImageFullPath, false, true, audios);
                 }
                 //任何一点不满足，都是另存为
                 else
                 {
+                    Notify.notify.CreateBannerNotification(null, "原始文件损坏或遗失，执行另存为");
                     await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath, audios);
                 }
             }
@@ -687,17 +688,19 @@ public class CardEditor : MonoBehaviour
         //隶属于某个卡组
         else
         {
+            //卡组清单文件存在
             if (File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath))
             {
                 var saveFullPath = $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/cards/{cardNameField.text}/{cardNameField.text}{Information.CardExtension}";
                 await CardMaker.cardMaker.AsyncSave(null, null, saveFullPath, newImageFullPath, false, true, audios);
-                Debug.Log($"此卡牌属于{CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName}，已自动保存到该卡组中");
+                Debug.Log($"此卡牌“{CardMaker.cardMaker.nowEditingBundle.card.FriendlyCardName}”属于卡组“{CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName}”，已自动保存到该卡组中");
             }
+            //卡组清单文件不存在
             else
             {
                 Debug.Log($"卡组{CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName}丢失，在{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}中找不到");
                 await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath, audios);
-                //消除之前保存的清单文件
+                //认定此卡牌不属于任何卡组
                 CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath = string.Empty;
                 switchToBundleEditor.gameObject.SetActive(!string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath));
 

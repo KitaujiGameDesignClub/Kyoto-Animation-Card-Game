@@ -65,7 +65,15 @@ public class audioSetting : MonoBehaviour
 
     public void clear()
     {
-        if(audioSource != null)   audioSource.clip = null;
+        if(audioSource != null)
+        {
+            if(audioSource.clip != null)
+            {
+                //打开修改标记
+                CardMaker.cardMaker.changeSignal.SetActive(true);
+            }
+         
+        }
         newAudioFullFileName = string.Empty;
         text.text = $"{title}：\n<size=80%>无音频</size>";
         Stop();

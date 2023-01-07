@@ -19,29 +19,25 @@ BasicHealthPoint: 3
 BasicPower: 2
 AbilityActivityType: GetHurt
 Reason:
-  NeededObjects:
-    LargeScope: None
-    ParameterToShrinkScope: CharacterName
-    Logic: 0
-    Threshold: 通用卡牌
-  ReasonParameter: None
-  ReasonJudgeMethod: Value
-  Logic: 0
-  Threshold: 44
-Result:
-  RegardActivatorAsResultObject: false
-  SummonCardName: ''
-  Ridicule: 0
-  ResultObject:
+  NeededObjects: &o0
     LargeScope: None
     ParameterToShrinkScope: None
     Logic: 0
     Threshold: ''
+  ReasonParameter: None
+  ReasonJudgeMethod: Value
+  Logic: 0
+  Threshold: 																								
+Result:
+  RegardActivatorAsResultObject: false
+  SummonCardName: ''
+  Ridicule: 0
+  ResultObject: *o0
   ParameterToChange: None
   CalculationMethod: addition
-  Value: QWE
+  Value: ''
 AbilityDescription: 我很好奇能力是什么
-voiceExitFileName: voiceExit.mp3
-voiceDefeatFileName: voiceDefeat
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat.mp3
 voiceDebutFileName: voiceDebut.ogg
 voiceAbilityFileName: voiceAbility
