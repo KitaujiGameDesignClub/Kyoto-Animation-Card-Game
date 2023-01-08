@@ -365,9 +365,11 @@ public class CardMaker : MonoBehaviour
     }
 
 
-    
+
 
     #region 界面切换（返回，编辑器间切换）
+
+    public void ExitGame() => basicEvents.ExitGame();
 
     public void SwitchPanel(Action saveOrSaveTo, Action doWhat)
     {

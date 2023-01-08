@@ -9,6 +9,9 @@ using UnityEngine.UI;
 public class tagListItem : MonoBehaviour
 {
     public TMP_Text text;
+    /// <summary>
+    /// 移除按钮（仅移除显示）
+    /// </summary>
     public Button button;
     
     public UnityEvent<string> onRemove = new();

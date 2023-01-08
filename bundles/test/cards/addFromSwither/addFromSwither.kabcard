@@ -10,10 +10,11 @@ tags:
 - SOS团
 - 156
 - 丸山彩
+- 吹奏乐部
 CardCount: 1
 ImageName: cover.png
 CharacterName: 凉宫春日
-CV: 丰崎爱生
+CV: ''
 gender: 0
 allowAsChief: true
 BasicHealthPoint: 3

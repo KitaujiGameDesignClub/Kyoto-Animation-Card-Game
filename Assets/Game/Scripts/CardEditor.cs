@@ -342,6 +342,12 @@ public class CardEditor : MonoBehaviour
         CVField.inputField.SetTextWithoutNotify(String.Empty);
         abilityResultSummon.ChangeOptionDatas(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
         //tag也同步一下
+        //移出所有无用(残留）的tag对象
+        var UnusedTags = tagParent.GetComponentsInChildren<tagListItem>(false);
+        for (int i = 0; i < UnusedTags.Length; i++)
+        {
+            UnusedTags[i].button.onClick.Invoke();
+        }
         tagStorage = nowEditingCard.tags;
         if (nowEditingCard.tags.Count > 0)
         {
@@ -350,17 +356,7 @@ public class CardEditor : MonoBehaviour
                 addTagListItem(tag);
             }
         }
-        else
-        {
-            //移出所有无用的tag对象
-            var UnusedTags = tagParent.GetComponentsInChildren<tagListItem>(false);
-            for (int i = 0; i < UnusedTags.Length; i++)
-            {
-                UnusedTags[i].button.onClick.Invoke();
-            }
-
-        }
-       
+   
         
         
         //获取可变下拉列表内容
