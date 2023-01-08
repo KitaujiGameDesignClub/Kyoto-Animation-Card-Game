@@ -1651,7 +1651,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000030517578}
+  m_AnchoredPosition: {x: 0, y: 0.00012207031}
   m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1943891308260036873
@@ -2096,7 +2096,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1943891308266877177
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4976,7 +4976,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 74.900024, y: -30.600037}
+  m_AnchoredPosition: {x: 73.8, y: -30.600037}
   m_SizeDelta: {x: 140.58, y: 52.34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3610711147900019150
@@ -7161,7 +7161,7 @@ MonoBehaviour:
   - {fileID: 3970873988262164920}
   - {fileID: 1943891308253007939}
   fpsShow: {fileID: 3610711147900019137}
-  basicEvents: {fileID: 0}
+  basicEvents: {fileID: 11400000, guid: ebeea849238d44143b617e81b216ea90, type: 2}
   OnEscapeClick:
     m_PersistentCalls:
       m_Calls:

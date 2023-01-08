@@ -53,8 +53,9 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 
         private void Awake()
         {
+            //对设置应用
             Settings.ApplySettings();
-
+            //显示控制台吗？
             if (!Settings.BasicSettingsContent.showConsole)
             {
                 for (int i = 0; i < DebugMode.Length; i++)
@@ -62,7 +63,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                     Destroy(DebugMode[i]);
                 }
             }
-            
+            //显示帧数吗？
             if (!Settings.BasicSettingsContent.showFps)
             {
                Destroy(fpsShow);
@@ -78,8 +79,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
     
         public void FastUpdate()
         {
-      
-        
+              
             //响应玩家的按键
             if (Input.GetKeyDown(KeyCode.Escape) && Time.timeScale > 0.5f  && !IngameDebugConsole.DebugLogManager.ShowDebugLogManager)
             {

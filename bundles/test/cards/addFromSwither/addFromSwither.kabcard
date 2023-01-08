@@ -42,4 +42,4 @@ AbilityDescription: 我很好奇能力是什么
 voiceExitFileName: voiceExit
 voiceDefeatFileName: voiceDefeat
 voiceDebutFileName: voiceDebut
-voiceAbilityFileName: voiceAbility
+voiceAbilityFileName: voiceAbility.wav
