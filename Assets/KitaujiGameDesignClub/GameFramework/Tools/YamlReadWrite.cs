@@ -228,7 +228,7 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         static string GetFullPath(string path)
         {
             //实际路径（绝对路径）
-            string actualPath = String.Empty;
+            string actualPath;
             //给的路径有个-  说明是绝对路径
             if (path.Substring(0, 1).Equals("-"))
             {

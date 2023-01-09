@@ -909,10 +909,10 @@ namespace Core
                         break;
                 }
 
-              
+
                 //是否是符合要求的对象
                 bool allowed = false;
-                
+
                 //与阈值对比，判断此对象是否符合要求
                 switch (objectsScope.ParameterToShrinkScope)
                 {
@@ -995,7 +995,7 @@ namespace Core
                 }
                 
                 //如果符合要求，加入到之前的缓存中
-                cache.Add(neededCards[i]);
+                if(allowed) cache.Add(neededCards[i]);
                 
             }
             
