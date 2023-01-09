@@ -7,8 +7,6 @@ using System.IO;
 using System.Text;
 using KitaujiGameDesignClub.GameFramework.UI;
 using UnityEngine;
-using UnityEngine.Networking;
-using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// 卡牌读写，卡牌资源读写
@@ -359,8 +357,10 @@ public class CardReadWrite
                     if (manifest != null)
                     {
                         //清单加进来了（加入到对应的卡包中）
-                        var bundle = new Bundle();
-                        bundle.manifest = manifest;
+                        var bundle = new Bundle
+                        {
+                            manifest = manifest
+                        };
 
                         //看看这个卡包内有多少卡牌文件
                         var allCardsFilesInThisBundle = Directory.GetFiles($"{allDirectories[i]}/cards", "*.kabcard");
@@ -389,7 +389,7 @@ public class CardReadWrite
             else
             {
                 Directory.CreateDirectory(Information.bundlesPath);
-                StreamWriter streamWriter = new StreamWriter($"{Information.bundlesPath}/readme.txt", true,
+                StreamWriter streamWriter = new($"{Information.bundlesPath}/readme.txt", true,
                     System.Text.Encoding.UTF8);
                 await streamWriter.WriteAsync("将卡组放在此文件夹中。使用编辑器创建的卡组基本上均可以。以后如果存在不兼容的情况，会有自动修复机制尝试修复（挖了个坑）");
             }

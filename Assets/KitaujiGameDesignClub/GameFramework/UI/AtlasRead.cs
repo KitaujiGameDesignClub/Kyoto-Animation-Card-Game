@@ -4,16 +4,15 @@ using UnityEngine.UI;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {
+    [RequireComponent(typeof(Image))]
     public class AtlasRead : MonoBehaviour
     {
         private Image imageRender;
-        [HideInInspector]public SpriteRenderer spriteRenderer;
         public SpriteAtlas spriteAtlas;
         public string spriteName;
 
         public bool destroyWhenGetSprite = true;
         private bool isimageRenderNotNull;
-        private bool isspriteRendererNotNull;
 
         private void Start()
         {
@@ -25,10 +24,8 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         {
        
             imageRender = GetComponent<Image>();
-            spriteRenderer = GetComponent<SpriteRenderer>();
         
             isimageRenderNotNull = imageRender != null;
-            isspriteRendererNotNull = spriteRenderer != null;
             GetSpriteFromAtlas(spriteName); 
         
        
@@ -49,10 +46,6 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                 imageRender.sprite = spriteAtlas.GetSprite(nameOfSprite);
             }
 
-            if (isspriteRendererNotNull)
-            {
-                spriteRenderer.sprite = spriteAtlas.GetSprite(nameOfSprite);
-            }
         }
     
     
