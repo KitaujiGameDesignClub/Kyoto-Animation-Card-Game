@@ -225,32 +225,27 @@ public class BundleEditor : MonoBehaviour
 
         //按照选定的卡牌进行资源加载
         var card = new CharacterCard();
-        if (cardsFriendlyNamesList.value >= 1)
+
+        //选择的value=0，即在此卡组内新建卡牌
+        if (cardsFriendlyNamesList.value == 0)
+        {
+            //但是把新卡牌的Anime设置成与卡组一致（可以在card editor内修改）
+            card.Anime = CardMaker.cardMaker.nowEditingBundle.manifest.Anime;
+            Debug.Log($"{card.Anime}   {CardMaker.cardMaker.nowEditingBundle.manifest.Anime}");
+        }
+        else
         {
             var manifestPath = CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath;
+            var cardFileName = CardMaker.cardMaker.nowEditingBundle.allCardsName[cardsFriendlyNamesList.value - 1];
 
-            var cardFileName = string.Empty;
-            //选择的value=0，即在此卡组内新建卡牌
-            if (cardsFriendlyNamesList.value == 0)
-            {
-               
-            }
-            else
-            {
-                cardFileName = CardMaker.cardMaker.nowEditingBundle.allCardsName[cardsFriendlyNamesList.value - 1];
-                var cardPath = $"-{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}/{cardFileName}{Information.CardExtension}";
+            CardMaker.cardMaker.BanInputLayer(true, "读取卡牌配置...");
+            card = await YamlReadWrite.ReadAsync<CharacterCard>(
+                new DescribeFileIO($"{cardFileName}{Information.CardExtension}",
+                    $"-{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}"), null, false);
 
-                CardMaker.cardMaker.BanInputLayer(true, "读取卡牌配置...");
-                card = await YamlReadWrite.ReadAsync<CharacterCard>(
-                    new DescribeFileIO($"{cardFileName}{Information.CardExtension}",
-                        $"-{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}"), null, false);
-
-                //保存一下加载的卡牌的路径
-                CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath =
-                    $"{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}/{cardFileName}{Information.CardExtension}";
-            }
-           
-          
+            //保存一下加载的卡牌的路径
+            CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath =
+                $"{Path.GetDirectoryName(manifestPath)}/cards/{cardFileName}/{cardFileName}{Information.CardExtension}";
         }
 
         CardMaker.cardMaker.nowEditingBundle.card = card;
