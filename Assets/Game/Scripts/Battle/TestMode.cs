@@ -6,6 +6,7 @@ using Lean.Gui;
 using Core;
 using Cysharp.Threading.Tasks;
 using TMPro;
+using KitaujiGameDesignClub.GameFramework.UI;
 
 public class TestMode : MonoBehaviour
 {
@@ -17,10 +18,14 @@ public class TestMode : MonoBehaviour
     private bool isExpanded;
     public LeanButton CardSelectorCloseButton;
     public LeanButton CardSelectorConfirmButton;
-    public Button BundleListItem;
-    public RectTransform BundleListParent;
-    private CardBundlesManifest selectedBundle;
-    public Button CardListItem;
+    /// <summary>
+    /// “卡牌选择器"的卡组列表
+    /// </summary>
+    public InputFieldWithDropdown BundleList;
+    /// <summary>
+    /// “卡牌选择器"的卡牌列表
+    /// </summary>
+    public InputFieldWithDropdown CardList;
     private Bundle[] allBundles;
 
 
@@ -54,19 +59,26 @@ public class TestMode : MonoBehaviour
             animator.SetBool("expanded", isExpanded);
         });
         //读取所有的卡组
+        GameUI.gameUI.SetBanInputLayer(true, "卡组读取中...");
         allBundles = await CardReadWrite.GetAllBundles();
         //把卡组清单的内容映射到“卡组列表”中（卡牌选择器左侧的东西）
+        List<string> bundlesName = new();
+       // bundlesName.Add("<align=\"center\"><alpha=#CC>以下为可用卡组");
         foreach (var item in allBundles)
         {
-            var manifest = Instantiate(BundleListItem, BundleListParent);
-            manifest.gameObject.SetActive(true);
-          //  manifest
-
+            bundlesName.Add($"【{item.manifest.Anime}】{item.manifest.FriendlyBundleName}");
         }
+        BundleList.ChangeOptionDatas(bundlesName);
+      //  BundleList.ban.Add("<align=\"center\"><alpha=#CC>以下为可用卡组");
       
 
         CardSelectorConfirmButton.OnClick.AddListener(delegate { });
         #endregion
+
+
+
+        //关闭输入遮罩
+        GameUI.gameUI.SetBanInputLayer(false, "测试模式载入中...");
     }
 
     // Update is called once per frame

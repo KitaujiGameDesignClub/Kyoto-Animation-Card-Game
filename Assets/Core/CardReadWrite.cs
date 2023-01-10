@@ -331,17 +331,20 @@ public class CardReadWrite
     {
         Bundle[] bundles = null;
 
+        //不提前缓存一下，会提示getpath只能在main thread上运行，而且也有要求在awake start中调用之类的错误
+        var bundlesPath = Information.bundlesPath;
+
         await UniTask.RunOnThreadPool(UniTask.Action(async () =>
         {
             //有规定的文件夹吗
             //有的话，尝试读取所有的卡组
-            if (Directory.Exists(Information.bundlesPath))
+            if (Directory.Exists(bundlesPath))
             {
                 ArrayList allBundles = new();
 
                 //卡组文件夹的子文件夹
                 var allDirectories =
-                    Directory.GetDirectories(Information.bundlesPath, "*", SearchOption.TopDirectoryOnly);
+                    Directory.GetDirectories(bundlesPath, "*", SearchOption.TopDirectoryOnly);
 
 
                 for (int i = 0; i < allDirectories.Length; i++)
@@ -388,8 +391,8 @@ public class CardReadWrite
             //没有这个路径，初始化，并返回空值
             else
             {
-                Directory.CreateDirectory(Information.bundlesPath);
-                StreamWriter streamWriter = new($"{Information.bundlesPath}/readme.txt", true,
+                Directory.CreateDirectory(bundlesPath);
+                StreamWriter streamWriter = new($"{bundlesPath}/readme.txt", true,
                     System.Text.Encoding.UTF8);
                 await streamWriter.WriteAsync("将卡组放在此文件夹中。使用编辑器创建的卡组基本上均可以。以后如果存在不兼容的情况，会有自动修复机制尝试修复（挖了个坑）");
             }
