@@ -25,12 +25,12 @@ namespace Core
 
 
         /// <summary>
-        /// 哪一队在攻击 0=A 1=B
+        /// 哪一队在攻击 0=A 1=B -1还没开始
         /// </summary>
-        public static int whichTeamIsAttacking;
+        public static int whichTeamIsAttacking = -1;
 
         /// <summary>
-        /// 哪一张卡正在执行攻击等有关逻辑（1-6）
+        /// 哪一张卡正在执行攻击等有关逻辑（1-6）  A,B队
         /// </summary>
         public static int[] whichCardPerforming = { 1, 1 };
 
@@ -38,6 +38,20 @@ namespace Core
         /// 双方的部长
         /// </summary>
         public static Chief[] chiefs = new Chief[2];
+
+        /// <summary>
+        /// 创建新游戏
+        /// </summary>
+        public static void CreateNewGame()
+        {
+            AllAvailableCards = new List<CharacterCard>[2];
+            CardOnSpot = new List<CharacterInGame>[2];
+            CardInHand = new List<CharacterInGame>[2];
+            whichTeamIsAttacking = -1;
+            whichCardPerforming[0] = 1; whichCardPerforming[1] = 1;
+            chiefs = new Chief[2];
+
+        }
     }
 }
 
