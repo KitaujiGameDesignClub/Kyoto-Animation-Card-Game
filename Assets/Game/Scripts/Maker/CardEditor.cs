@@ -541,6 +541,8 @@ public class CardEditor : MonoBehaviour
 
         var uwr = new UnityWebRequest(audioFullPath, "GET", handler, null);
 
+        await UniTask.SwitchToThreadPool();
+
         await uwr.SendWebRequest();
 
         if (uwr.isDone)

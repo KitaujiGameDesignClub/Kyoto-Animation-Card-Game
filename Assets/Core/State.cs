@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 
 namespace Core
 {
@@ -50,7 +51,6 @@ namespace Core
             whichTeamIsAttacking = -1;
             whichCardPerforming[0] = 1; whichCardPerforming[1] = 1;
             chiefs = new Chief[2];
-
         }
     }
 }

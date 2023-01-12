@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 using Button = UnityEngine.UI.Button;
@@ -39,6 +40,12 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         public List<TMP_Dropdown.OptionData> options => dropdown.options;
 
 
+        public TMP_Dropdown.DropdownEvent  onDropdownValueChanged => dropdown.onValueChanged;
+
+        public UnityEvent onDropdownValueChangedWithoutInt = new();
+
+        public int DropdownValue => dropdown.value;
+
         //编辑器中会显示的：
 
         /// <summary>
@@ -63,7 +70,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             ban.Add("以下为候选结果：");
             ban.Add("以下为全部可用内容：");
 
-
+            //选定某一项
             dropdown.onValueChanged.AddListener(delegate(int arg0)
             {
                 //所选不在禁用列表里，才执行后续的操作
@@ -82,17 +89,16 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                     text = Regex.Replace(text, "<.*?>", string.Empty);//去除富文本
                 }
 
-
+                onDropdownValueChangedWithoutInt.Invoke();
               
             });
             
+            //打开下拉框，并按需进行搜索
             dropdownButton.onClick.AddListener(delegate
-            {
-               
+            {               
                     if (supportFilter) Search(inputField.text);
-                    dropdown.SetValueWithoutNotify(0);
-                    dropdown.Show();
-                
+                    dropdown.SetValueWithoutNotify(0);//便于调用onValueChanged
+                    dropdown.Show();              
               
             });
         }

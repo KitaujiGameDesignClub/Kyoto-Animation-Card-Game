@@ -8,7 +8,7 @@ using Screen = UnityEngine.Device.Screen;
 namespace KitaujiGameDesignClub.GameFramework.UI
 {
     /// <summary>
-    /// 负责读取并应用基础设置（UI部分）
+    ///  游戏设置页
     /// </summary>
     public class ApplyUISettings : MonoBehaviour
     {
@@ -49,7 +49,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 
 
         /// <summary>
-        /// 从内存中读取并应用设置，并修改设置界面
+        /// 从内存中读取设置，并修改设置界面
         /// </summary>
         [ContextMenu("从内存中读取设置，并修改设置界面")]
         public void ReadSettingsFromMemoryAndApplyToSettingsPage()
@@ -59,9 +59,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
              fullScreenMode.interactable = false;
             resolution.interactable = false;
 #endif
-           
-            
-            
+                             
             //视频设置
             fullScreenMode.value = (int)Settings.BasicSettingsContent.fullscreenMode == 1 ? 0:1;
 
@@ -123,6 +121,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         [ContextMenu("写入文件并应用设置")]
         public void WriteAndApplySettings()
         {
+            //内存记录
             Settings.BasicSettingsContent.dithering = dithering;
             if (fullScreenMode.value == 0)
             {
@@ -146,9 +145,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             }
 
             Settings.BasicSettingsContent.sync = sync.On;
-            Settings.BasicSettingsContent.antiAliasing = antiAliasing.value; //其他场景相机自动读取
-            //相机一起修改了
-            
+            Settings.BasicSettingsContent.antiAliasing = antiAliasing.value; //其他场景相机自动读取                    
             Settings.BasicSettingsContent.showConsole = showConsole.On; //此设置适用于游戏场景。进入游戏场景时自动读取此设置，并应用
             Settings.BasicSettingsContent.showFps = showFps.On; //此设置适用于游戏场景。进入游戏场景时自动读取此设置，并应用
             Settings.BasicSettingsContent.MusicVolume = MusicVolSlider.value; //此设置有onValueChanged事件直接修改音量。其他场景会自动读取

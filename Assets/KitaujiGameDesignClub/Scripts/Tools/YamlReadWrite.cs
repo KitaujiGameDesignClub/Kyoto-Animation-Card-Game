@@ -59,7 +59,7 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
                 $"# Only for {Application.productName} with utf-8\n{profile.Note}\n\n{serializer.Serialize(content)}";
 
             StreamWriter streamWriter =
-                new($"{GetFullPath(profile.Path)}/{profile.FileName}", false, Encoding.UTF8);
+                new($"{GetFullDirectory(profile.Path)}/{profile.FileName}", false, Encoding.UTF8);
 
             await streamWriter.WriteAsync(authenticContent);
             await streamWriter.DisposeAsync();
@@ -84,7 +84,7 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
 
 
             StreamWriter streamWriter =
-                new StreamWriter($"{GetFullPath(profile.Path)}/{profile.FileName}", false, Encoding.UTF8);
+                new StreamWriter($"{GetFullDirectory(profile.Path)}/{profile.FileName}", false, Encoding.UTF8);
 
             streamWriter.Write(authenticContent);
             streamWriter.Dispose();
@@ -101,12 +101,12 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         /// <returns></returns>
         public static async UniTask<T> ReadAsync<T>(DescribeFileIO yaml, T content, bool createIfFileNotExit = true)
         {
-            var fullPath = GetFullPath(yaml.Path);
+            var directory = GetFullDirectory(yaml.Path);
             var fileName = yaml.FileName;
 
             if (fileName.Substring(0, 1) == "*")
             {
-                fileName = FindOneMatchedFile(fileName.Substring(1), fullPath);
+                fileName = FindOneMatchedFile(fileName.Substring(1), directory);            
             }
 
             Deserializer deserializer = new();
@@ -119,14 +119,14 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
             try
             {
                 streamReader =
-                    new StreamReader($"{fullPath}/{fileName}", Encoding.UTF8);
+                    new StreamReader($"{directory}/{fileName}", Encoding.UTF8);
 
 
                 var fileContent = deserializer.Deserialize<T>(await streamReader.ReadToEndAsync());
                 streamReader.Dispose();
                 streamReader.Close();
 
-                Debug.Log($"成功加载：{fullPath}/{fileName}");
+                Debug.Log($"成功加载：{directory}/{fileName}");
                 return fileContent;
             }
             catch (Exception e)
@@ -136,17 +136,18 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
                 streamReader.Close();
 
 
-                if (File.Exists($"{fullPath}/{yaml.FileName}"))
+                if (File.Exists($"{directory}/{yaml.FileName}"))
                 {
                     //文件损坏，备份原文件先，然后弄个新的
-                    File.Move($"{fullPath}/{yaml.FileName}",
-                        $"{fullPath}/{yaml.FileName} - {System.DateTime.Now:yyyy-MM-dd-HH-mm-ss}.bak");
-                    Debug.Log($"{yaml.Path}中的{yaml.FileName}已损坏，此文件已备份，并创建了新文件。损坏原因：{e}");
+                    File.Move($"{directory}/{yaml.FileName}",
+                        $"{directory}/{yaml.FileName} - {System.DateTime.Now:yyyy-MM-dd-HH-mm-ss}.bak");
+                    Debug.LogWarning($"{directory}中的“{yaml.FileName}”已损坏，此文件已备份，并创建了新文件。损坏原因：{e}");
                 }
                 else
                 {
                     //不存在的话，初始化一个
-                    Debug.Log($"{yaml.Path}中不存在的{yaml.FileName}，已创建此文件。");
+                  if(createIfFileNotExit)  Debug.LogWarning($"{directory}中不存在“{yaml.FileName}”，已创建此文件。");
+                    else Debug.LogWarning($"{directory}中不存在“{yaml.FileName}”");
                 }
 
 
@@ -172,7 +173,7 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         /// <returns></returns>
         public static T Read<T>(DescribeFileIO yaml, T content)
         {
-            var fullPath = GetFullPath(yaml.Path);
+            var fullPath = GetFullDirectory(yaml.Path);
 
             Deserializer deserializer = new();
 
@@ -205,12 +206,12 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
                     //文件损坏，备份原文件先，然后弄个新的
                     File.Move($"{fullPath}/{yaml.FileName}",
                         $"{fullPath}/{yaml.FileName} - {System.DateTime.Now:yyyy-MM-dd-HH-mm-ss}.bak");
-                    Debug.Log($"{yaml.Path}中的{yaml.FileName}已损坏，此文件已备份，并创建了新文件。损坏原因：{e}");
+                    Debug.LogWarning($"{yaml.Path}中的“{yaml.FileName}”已损坏，此文件已备份，并创建了新文件。损坏原因：{e}");
                 }
                 else
                 {
                     //不存在的话，初始化一个
-                    Debug.Log($"{yaml.Path}中不存在的{yaml.FileName}，已创建此文件。");
+                    Debug.LogWarning($"{yaml.Path}中不存在“{yaml.FileName}”，已创建此文件。");
                 }
 
 
@@ -225,7 +226,7 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         /// </summary>
         /// <param name="path">开头有-的话，就是绝对路径；反之就是从游戏根目录开始的相对路径</param>
         /// <returns></returns>
-        static string GetFullPath(string path)
+        static string GetFullDirectory(string path)
         {
             //实际路径（绝对路径）
             string actualPath;

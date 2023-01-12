@@ -218,10 +218,16 @@ public class CardReadWrite
 
             for (int i = 0; i < allDirectories.Length; i++)
             {
-                var card = await YamlReadWrite.ReadAsync<CharacterCard>(
-                    new DescribeFileIO($"*{Information.CardExtension}", $"-{allDirectories[i]}"), null, false);
+                //此卡存在且目录合法，则加进去
+                if (File.Exists($"{allDirectories[i]}/{allDirectories[i].Split("\\")[^1]}{Information.CardExtension}"))
+                {
+                    var card = await YamlReadWrite.ReadAsync<CharacterCard>(
+                   new DescribeFileIO($"*{Information.CardExtension}", $"-{allDirectories[i]}"), null, false);
 
-                if (card != null) allCards.Add(card);
+                    if (card != null) allCards.Add(card);
+                }
+
+               
             }
 
             return (CharacterCard[])allCards.ToArray(typeof(CharacterCard));
@@ -247,6 +253,8 @@ public class CardReadWrite
                 null, false);
 
         var cards = await GetAllCardsOfOneBundle(manifestFullPath);
+
+        Debug.Log($"{manifest.BundleName}  {cards.Length}");
 
         return new Bundle(manifest, cards);
     }
@@ -334,82 +342,108 @@ public class CardReadWrite
         //不提前缓存一下，会提示getpath只能在main thread上运行，而且也有要求在awake start中调用之类的错误
         var bundlesPath = Information.bundlesPath;
 
-        await UniTask.RunOnThreadPool(UniTask.Action(async () =>
+
+
+        //根据平台兼容性，切换到线程池和单线程
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+        await UniTask.SwitchToThreadPool();
+#else
+ await UniTask.SwitchToMainThread();
+#endif
+
+        //查询所有的manifest文件
+        DirectoryInfo directoryInfo = new(bundlesPath);
+            FileInfo[] fileInfos = directoryInfo.GetFiles($"*{Information.ManifestExtension}", SearchOption.AllDirectories);
+            Debug.Log(fileInfos[0].FullName);
+            bundles = new Bundle[fileInfos.Length];
+            //读取清单文件
+            for (int i = 0; i < fileInfos.Length; i++)
+            {
+              
+               bundles[i] = await GetOneBundle(fileInfos[i].FullName);
+                Debug.Log($"{ bundles[i].manifest.BundleName}  { bundles[i].cards.Length}");
+            }
+
+
+        #region 废弃
+        /*
+         *  //有规定的文件夹吗
+        //有的话，尝试读取所有的卡组
+        if (Directory.Exists(bundlesPath))
         {
-            //有规定的文件夹吗
-            //有的话，尝试读取所有的卡组
-            if (Directory.Exists(bundlesPath))
+            ArrayList allBundles = new();
+
+            //卡组文件夹的子文件夹
+            var allDirectories =
+                Directory.GetDirectories(bundlesPath, "*", SearchOption.TopDirectoryOnly);
+
+
+            for (int i = 0; i < allDirectories.Length; i++)
             {
-                ArrayList allBundles = new();
+                //试试读取，合规的清单文件是有值的
+                var manifest =
+                    await YamlReadWrite.ReadAsync<CardBundlesManifest>(
+                        new DescribeFileIO($"*{Information.ManifestExtension}", $"-{allDirectories[i]}"), null,
+                        false);
 
-                //卡组文件夹的子文件夹
-                var allDirectories =
-                    Directory.GetDirectories(bundlesPath, "*", SearchOption.TopDirectoryOnly);
-
-
-                for (int i = 0; i < allDirectories.Length; i++)
+                //是合规的清单文件，就把他加进来
+                //并对后续卡牌进行获取
+                if (manifest != null)
                 {
-                    //试试读取，合规的清单文件是有值的
-                    var manifest =
-                        await YamlReadWrite.ReadAsync<CardBundlesManifest>(
-                            new DescribeFileIO($"*{Information.ManifestExtension}", $"-{allDirectories[i]}"), null,
-                            false);
-
-                    //是合规的清单文件，就把他加进来
-                    //并对后续卡牌进行获取
-                    if (manifest != null)
+                    //清单加进来了（加入到对应的卡包中）
+                    var bundle = new Bundle
                     {
-                        //清单加进来了（加入到对应的卡包中）
-                        var bundle = new Bundle
-                        {
-                            manifest = manifest
-                        };
+                        manifest = manifest
+                    };
 
-                        //看看这个卡包内有多少卡牌文件
-                        var allCardsFilesInThisBundle = Directory.GetFiles($"{allDirectories[i]}/cards", "*.kabcard");
-                        ArrayList allCards = new();
-                        //试试读取，合规的卡牌文件是有值的
-                        for (int j = 0; j < allCardsFilesInThisBundle.Length; j++)
-                        {
-                            var card = await YamlReadWrite.ReadAsync<CharacterInGame>(
-                                new DescribeFileIO(Path.GetFileName(allCardsFilesInThisBundle[j]),
-                                    $"-{allDirectories[i]}/cards"), null, false);
-                            //是合规的卡牌文件，把他加进来
-                            allCards.Add(card);
-                        }
-
-                        //把所有合规的卡牌文件，加入到对应的卡包中
-                        bundle.cards = (CharacterCard[])allCards.ToArray(typeof(CharacterCard));
-
-                        //把读取好卡牌和清单的卡组（bundle）传递出去
-                        allBundles.Add(bundle);
+                    //看看这个卡包内有多少卡牌文件
+                    var allCardsFilesInThisBundle = Directory.GetFiles($"{allDirectories[i]}/cards", "*.kabcard");
+                    ArrayList allCards = new();
+                    //试试读取，合规的卡牌文件是有值的
+                    for (int j = 0; j < allCardsFilesInThisBundle.Length; j++)
+                    {
+                        var card = await YamlReadWrite.ReadAsync<CharacterInGame>(
+                            new DescribeFileIO(Path.GetFileName(allCardsFilesInThisBundle[j]),
+                                $"-{allDirectories[i]}/cards"), null, false);
+                        //是合规的卡牌文件，把他加进来
+                        allCards.Add(card);
                     }
+
+                    //把所有合规的卡牌文件，加入到对应的卡包中
+                    bundle.cards = (CharacterCard[])allCards.ToArray(typeof(CharacterCard));
+
+                    //把读取好卡牌和清单的卡组（bundle）传递出去
+                    allBundles.Add(bundle);
                 }
-
-                bundles = (Bundle[])allBundles.ToArray(typeof(Bundle));
             }
-            //没有这个路径，初始化，并返回空值
-            else
-            {
-                Directory.CreateDirectory(bundlesPath);
-                StreamWriter streamWriter = new($"{bundlesPath}/readme.txt", true,
-                    System.Text.Encoding.UTF8);
-                await streamWriter.WriteAsync("将卡组放在此文件夹中。使用编辑器创建的卡组基本上均可以。以后如果存在不兼容的情况，会有自动修复机制尝试修复（挖了个坑）");
-            }
-        }));
+
+            bundles = (Bundle[])allBundles.ToArray(typeof(Bundle));
+        }
+        //没有这个路径，初始化，并返回空值
+        else
+        {
+            Directory.CreateDirectory(bundlesPath);
+            StreamWriter streamWriter = new($"{bundlesPath}/readme.txt", true,
+                System.Text.Encoding.UTF8);
+            await streamWriter.WriteAsync("将卡组放在此文件夹中。使用编辑器创建的卡组基本上均可以。以后如果存在不兼容的情况，会有自动修复机制尝试修复（挖了个坑）");
+        }
+         */
+        #endregion
 
 
+        //保证正常运行，回到主线程
+        await UniTask.SwitchToMainThread();
         return bundles;
     }
 
-    #endregion
+#endregion
 
 
-    #region 资源文件加载
+#region 资源文件加载
 
    
 
-    #endregion
+#endregion
 
     /// <summary>
     /// yaml文件修复（对于清单文件和卡牌文件）

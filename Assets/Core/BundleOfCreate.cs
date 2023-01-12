@@ -50,6 +50,7 @@ namespace Core
         {
             this.manifest = manifest;
             this.cards = cards;
+
         }
 
         public Bundle()

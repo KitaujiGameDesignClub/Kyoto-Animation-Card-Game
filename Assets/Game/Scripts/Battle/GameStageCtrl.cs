@@ -9,6 +9,7 @@ public class GameStageCtrl : MonoBehaviour
     {
         //初始化一个新游戏
         GameState.CreateNewGame();
+
     }
 
     // Start is called before the first frame update
@@ -17,7 +18,7 @@ public class GameStageCtrl : MonoBehaviour
         
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
         

@@ -53,7 +53,7 @@ namespace KitaujiGameDesignClub.GameFramework
 
 
         /// <summary>
-        /// 应用设置（从内存中读取设置）
+        /// 应用设置（从内存中读取设置，并应用）
         /// </summary>
         public static void ApplySettings()
         {

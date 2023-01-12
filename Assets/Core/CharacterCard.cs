@@ -86,7 +86,7 @@ namespace Core
         /// <summary>
         /// 能力描述
         /// </summary>
-        public string AbilityDescription = "我很好奇能力是什么";
+        public string AbilityDescription = "甚至可以写一点简短的小骚话\n我很好奇能力是什么";
 
         /*
                 /// <summary>
