@@ -1,6 +1,7 @@
 using KitaujiGameDesignClub.GameFramework.@interface;
 using UnityEngine;
 using UnityEngine.Events;
+using KitaujiGameDesignClub.GameFramework.Tools;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {
@@ -9,7 +10,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         [Header("调试内容")] public GameObject[] DebugMode;
       [Header("展示fps的框框")]
         public GameObject fpsShow;
-        public  KitaujiGameDesignClub.GameFramework.Tools.BasicEvents basicEvents;
+        public  KitaujiGameDesignClub.GameFramework.UI.BasicEvents basicEvents;
 
         [Header("按下ｅｓｃ键")]
         public UnityEvent OnEscapeClick;

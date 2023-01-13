@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using KitaujiGameDesignClub.GameFramework.Tools;
+using KitaujiGameDesignClub.GameFramework;
 using Core;
 using Cysharp.Threading.Tasks;
 using System.IO;

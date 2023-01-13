@@ -8,7 +8,7 @@ using KitaujiGameDesignClub.GameFramework.UI;
 using TMPro;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
-using KitaujiGameDesignClub.GameFramework.Tools;
+using KitaujiGameDesignClub.GameFramework;
 using System.Collections.Generic;
 using System.IO;
 using Debug = UnityEngine.Debug;

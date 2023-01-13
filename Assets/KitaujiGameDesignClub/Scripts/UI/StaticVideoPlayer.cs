@@ -2,6 +2,7 @@ using KitaujiGameDesignClub.GameFramework.@interface;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Video;
+using KitaujiGameDesignClub.GameFramework.Tools;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {

@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
+using KitaujiGameDesignClub.GameFramework.Tools;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {

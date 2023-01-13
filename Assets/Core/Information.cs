@@ -1,6 +1,6 @@
 
 using System;
-using KitaujiGameDesignClub.GameFramework.Tools;
+using KitaujiGameDesignClub.GameFramework;
 
 namespace Core
 {

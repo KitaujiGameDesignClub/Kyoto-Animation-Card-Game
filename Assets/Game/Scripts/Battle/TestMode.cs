@@ -48,6 +48,7 @@ public class TestMode : MonoBehaviour
     public TMP_Text cardCharacterVoiceName;
     public TMP_Text cardAnime;
     public TMP_Text cardBasicInf;//攻击力和生命值
+    public TMP_Text cardTag;
     public TMP_Text cardDescription;
     /// <summary>
     /// 缓存的所有卡组
@@ -197,11 +198,11 @@ public class TestMode : MonoBehaviour
     /// <param name="manifestContent"></param>
     void UpdateSelectorBundleInformation(CardBundlesManifest manifestContent)
     {
-        manifestFriendlyName.text = $"友好名称：\n<margin-left=1em><size=80%>{manifestContent.FriendlyBundleName}";
-        manifestName.text =  $"识别名称：\n<margin-left=1em><size=80%>{manifestContent.BundleName}";
-        manifestAnime.text = $"所属动画：\n<margin-left=1em><size=80%>{manifestContent.Anime}";
-        manifestAuthorName.text = $"作者名称：\n<margin-left=1em><size=80%>{manifestContent.AuthorName}";
-        manifestDescription.text = $"卡组介绍：\n<margin-left=1em><size=80%>{manifestContent.Description}";
+        manifestFriendlyName.text = $"<b>友好名称：</b>\n<margin-left=1em><size=80%>{manifestContent.FriendlyBundleName}";
+        manifestName.text =  $"<b>识别名称：</b>\n<margin-left=1em><size=80%>{manifestContent.BundleName}";
+        manifestAnime.text = $"<b>所属动画：</b>\n<margin-left=1em><size=80%>{manifestContent.Anime}";
+        manifestAuthorName.text = $"<b>作者名称：</b>\n<margin-left=1em><size=80%>{manifestContent.AuthorName}";
+        manifestDescription.text = $"<b>卡组介绍：</b>\n<margin-left=1em><size=80%>{manifestContent.Description}";
     }
 
     /// <summary>
@@ -210,12 +211,19 @@ public class TestMode : MonoBehaviour
     /// <param name="manifestContent"></param>
     void UpdateSelectorCardInformation(CharacterCard cardContent)
     {
-        cardFriendlyName.text = $"友好名称：\n<margin-left=1em><size=80%>{cardContent.FriendlyCardName}";
-        cardCharacterName.text = $"角色名称：\n<margin-left=1em><size=80%>{cardContent.CharacterName}";
-        cardCharacterVoiceName.text = $"声优名称：\n<margin-left=1em><size=80%>{cardContent.CV}";
-        cardAnime.text = $"所属动画：\n<margin-left=1em><size=80%>{cardContent.Anime}";
-        cardBasicInf.text = $"执行力/体力值：{cardContent.BasicPower}/{cardContent.BasicHealthPoint}";
-        cardDescription.text = $"能力介绍：\n<margin-left=1em><size=80%>{cardContent.AbilityDescription}";
+        cardFriendlyName.text = $"<b>友好名称：</b>\n<margin-left=1em><size=80%>{cardContent.FriendlyCardName}";
+        cardCharacterName.text = $"<b>角色名称：</b>\n<margin-left=1em><size=80%>{cardContent.CharacterName}";
+        cardCharacterVoiceName.text = $"<b>声优名称：</b>\n<margin-left=1em><size=80%>{cardContent.CV}";
+        cardAnime.text = $"<b>所属动画：</b>\n<margin-left=1em><size=80%>{cardContent.Anime}";
+        cardBasicInf.text = $"<b>执行力/体力值：</b>{cardContent.BasicPower}/{cardContent.BasicHealthPoint}";
+        //标签展示
+        cardTag.text = string.Empty;
+        foreach (var item in cardContent.tags)
+        {
+            cardTag.text = $"{cardTag.text}、{item}";
+        }
+        cardTag.text = $"<b>标签：</b>{cardTag.text.Substring(1)}";
+        cardDescription.text = $"<b>能力介绍：</b>\n<margin-left=1em><size=80%>{cardContent.AbilityDescription}";
     }
 
     #endregion
