@@ -47,10 +47,41 @@ namespace Core
         {
             AllAvailableCards = new List<CharacterCard>[2];
             CardOnSpot = new List<CharacterInGame>[2];
+            CardOnSpot[0] = new();
+            CardOnSpot[1] = new();
             CardInHand = new List<CharacterInGame>[2];
+            CardInHand[0] = new();
+            CardInHand[1] = new();
             whichTeamIsAttacking = -1;
             whichCardPerforming[0] = 1; whichCardPerforming[1] = 1;
             chiefs = new Chief[2];
+        }
+
+        /// <summary>
+        /// 添加出场卡牌
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="teamId">0=A 1=B</param>
+        public static CharacterInGame AddCard(CharacterCard profile, int teamId)
+        {
+            //此队伍的出场卡牌够多了（指到达上限6个）
+            if (CardOnSpot[teamId].Count >= Information.TeamMaxCardOnSpotCount)
+            {
+                return null;
+            }
+            //还能加
+            else
+            {
+                var card = new CharacterInGame(profile, teamId);
+                GameState.CardOnSpot[teamId].Add(card);
+                return card;
+            }
+        }
+
+
+        public static async UniTask LoadResourceInBackground()
+        {
+
         }
     }
 }

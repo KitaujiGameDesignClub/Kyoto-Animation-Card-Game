@@ -310,7 +310,10 @@ MonoBehaviour:
   cv: {fileID: 1473377463773761570}
   description: {fileID: 1473377463489886724}
   image: {fileID: 1473377463791509646}
-  defaultImage: {fileID: 21300000, guid: 6502afffb6931754997104ac61805a0a, type: 3}
+  tr: {fileID: 1473377463497736699}
+  othersToDestroy:
+  - {fileID: 1473377463422260829}
+  - {fileID: 1473377463668070821}
 --- !u!1 &1473377463668070821
 GameObject:
   m_ObjectHideFlags: 0

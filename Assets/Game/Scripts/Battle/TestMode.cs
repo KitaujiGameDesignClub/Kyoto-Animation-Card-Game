@@ -7,6 +7,8 @@ using Core;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using KitaujiGameDesignClub.GameFramework.UI;
+using UnityEngine.Events;
+using System.IO;
 
 public class TestMode : MonoBehaviour
 {
@@ -14,6 +16,10 @@ public class TestMode : MonoBehaviour
 
     [Header("通用")]
     public TMP_Text title;
+    /// <summary>
+    /// 切换到游戏场景之前，需要执行的事件
+    /// </summary>
+    private List<UnityAction> eventBeforeSwitchToGame = new();
 
     [Header("卡牌选择器")]
     public CanvasGroup CardSelector;
@@ -22,6 +28,7 @@ public class TestMode : MonoBehaviour
     public LeanButton CardSelectorCloseButton;
     public LeanButton CardSelectorOpenByFileExplorerButton;
     public LeanButton CardSelectorConfirmButton;
+    public TMP_Text loadState;
     /// <summary>
     /// “卡牌选择器"的卡组列表
     /// </summary>
@@ -54,8 +61,10 @@ public class TestMode : MonoBehaviour
     /// 缓存的所有卡组
     /// </summary>
     private Bundle[] allBundles;
-
-
+    /// <summary>
+    /// 选定的要上场的卡牌
+    /// </summary>
+    private CharacterCard selectedCardToPerform;
 
     private Animator animator;
 
@@ -90,14 +99,19 @@ public class TestMode : MonoBehaviour
 
     }
 
-
+    /// <summary>
+    /// 加载 初始化测试模式
+    /// </summary>
+    /// <returns></returns>
     private async UniTask LoadTestMode()
     {
         animator = GetComponent<Animator>();
         GameUI.gameUI.SetBanInputLayer(true, "测试模式载入中...");
+        backgroundActivity();
 
         #region 卡牌选择器
-
+        //初始化加载状态
+        loadState.text = string.Empty;
 
         //读取所有的卡组
         GameUI.gameUI.SetBanInputLayer(true, "卡组读取中...");
@@ -118,9 +132,14 @@ public class TestMode : MonoBehaviour
         //展开和关闭
         CardSelectorToggle.onClick.AddListener(delegate
         {
-            //切换开关状态
-            isExpanded = !isExpanded;
-            animator.SetBool("expanded", isExpanded);
+            //全都加载完了，才能切换开关
+            if (string.IsNullOrEmpty(loadState.text))
+            {
+                //切换开关状态
+                isExpanded = !isExpanded;
+                animator.SetBool("expanded", isExpanded);
+            }
+         
         });
         CardSelectorCloseButton.OnClick.AddListener(delegate
         {
@@ -135,7 +154,6 @@ public class TestMode : MonoBehaviour
         // bundlesName.Add("<align=\"center\"><alpha=#CC>以下为可用卡组");
         foreach (var item in allBundles)
         {
-            Debug.Log(item);
             if (string.IsNullOrEmpty(item.manifest.Anime)) bundlesName.Add($"{item.manifest.FriendlyBundleName}");
             else bundlesName.Add($"【{item.manifest.Anime}】{item.manifest.FriendlyBundleName}");
         }
@@ -178,9 +196,26 @@ public class TestMode : MonoBehaviour
             CardInformationDisplay.SetActive(true);
         });
 
-        CardSelectorConfirmButton.OnClick.AddListener(delegate { });
-        #endregion
+        //确认此卡牌上场，并添加加载资源的事件
+        CardSelectorConfirmButton.OnClick.AddListener(delegate 
+        {
+         
 
+            //添加加载资源的事件
+            eventBeforeSwitchToGame.Add(UniTask.UnityAction(async () =>
+            {
+                var card = allBundles[BundleList.DropdownValue - 1].cards[CardList.DropdownValue - 1];
+                loadState.text = $"正在加载“{card.FriendlyCardName}”，请等待...";
+               
+                //图片加载              
+               var image = await LoadCoverImage($"{Path.GetDirectoryName(allBundles[BundleList.DropdownValue - 1].manifestFullPath)}/cards/{card.CardName}/{card.ImageName}");               
+                //音频加载
+                //   await panel.cardStateInGame.loadAudioResource();
+                var panel = GameStageCtrl.stageCtrl.AddCardAndDisplayInStage(selectedCardToPerform, 0,image, null, null, null, null);
+                loadState.text = string.Empty;
+            }));
+        });
+        #endregion
 
 
         //关闭输入遮罩
@@ -188,6 +223,20 @@ public class TestMode : MonoBehaviour
     }
 
 
+    private async UniTask backgroundActivity()
+    {
+        while (true)
+        {
+            await UniTask.Yield(PlayerLoopTiming.Update);
+
+            if(eventBeforeSwitchToGame.Count > 0)
+            {
+              eventBeforeSwitchToGame[0].Invoke();
+                //即使被remove掉，这个事件仍会继续运行
+              eventBeforeSwitchToGame.RemoveAt(0);
+            }
+        }
+    }
 
 
 #region 卡牌选择器配套方法
@@ -211,21 +260,35 @@ public class TestMode : MonoBehaviour
     /// <param name="manifestContent"></param>
     void UpdateSelectorCardInformation(CharacterCard cardContent)
     {
+        //记录选择了哪个卡牌
+        selectedCardToPerform = cardContent;
         cardFriendlyName.text = $"<b>友好名称：</b>\n<margin-left=1em><size=80%>{cardContent.FriendlyCardName}";
         cardCharacterName.text = $"<b>角色名称：</b>\n<margin-left=1em><size=80%>{cardContent.CharacterName}";
         cardCharacterVoiceName.text = $"<b>声优名称：</b>\n<margin-left=1em><size=80%>{cardContent.CV}";
         cardAnime.text = $"<b>所属动画：</b>\n<margin-left=1em><size=80%>{cardContent.Anime}";
         cardBasicInf.text = $"<b>执行力/体力值：</b>{cardContent.BasicPower}/{cardContent.BasicHealthPoint}";
         //标签展示
-        cardTag.text = string.Empty;
-        foreach (var item in cardContent.tags)
+        cardTag.text = $"<b>标签：</b>";
+        for (int i = 0; i < cardContent.tags.Count; i++)
         {
+            string item = cardContent.tags[i];
+            if (i == 0) cardTag.text = $"{cardTag.text}{item}";           
             cardTag.text = $"{cardTag.text}、{item}";
         }
-        cardTag.text = $"<b>标签：</b>{cardTag.text.Substring(1)}";
         cardDescription.text = $"<b>能力介绍：</b>\n<margin-left=1em><size=80%>{cardContent.AbilityDescription}";
     }
 
+    async UniTask<Sprite> LoadCoverImage(string inmageFullPath)
+    {
+        //加载图片，如果加载失败的话，就用预设自带的默认图片了
+        var texture = await CardReadWrite.CoverImageLoader(inmageFullPath);
+        if (texture != null)
+        {
+            return Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.one / 2);
+        }
+        else return null;
+
+    }
     #endregion
 
 

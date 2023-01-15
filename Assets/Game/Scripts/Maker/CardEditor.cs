@@ -434,35 +434,28 @@ public class CardEditor : MonoBehaviour
     {
         if (!File.Exists(imageFullPath))
         {
-            Debug.LogError($"图片文件“{imageFullPath}”不存在，已应用默认图片");
+            Debug.LogWarning($"图片文件“{imageFullPath}”不存在，已应用默认图片");
             imageOfCardField.sprite = defaultImage;
             preview.image.sprite = defaultImage;
             return;
         }
 
-        newImageFullPath = imageFullPath;
-        var handler = new DownloadHandlerTexture();
-        UnityWebRequest unityWebRequest = new(imageFullPath, "GET", handler, null);
-        await unityWebRequest.SendWebRequest();
+        //加载图片
+      Texture2D image = await CardReadWrite.CoverImageLoader(imageFullPath);
 
-        if (unityWebRequest.isDone)
+        //加载到了
+        if (image != null)
         {
-            if (unityWebRequest.result == UnityWebRequest.Result.Success)
-            {
-                var sprite = Sprite.Create(handler.texture,
-                    new Rect(0f, 0f, handler.texture.width, handler.texture.height), Vector2.one / 2);
-                imageOfCardField.sprite = sprite;
-                preview.image.sprite = sprite;
-            }
-            //不存在或加载失败，应用默认图片
-            else
-            {
-                imageOfCardField.sprite = defaultImage;
-                preview.image.sprite = defaultImage;
-            }
+            var sprite = Sprite.Create(image,new Rect(0f, 0f, image.width, image.height), Vector2.one / 2);
+            imageOfCardField.sprite = sprite;
+            preview.image.sprite = sprite;
+        }
+        //因为各种原因加载不出来，用默认图片
+        else
+        {
+            imageOfCardField.sprite = defaultImage;
+            preview.image.sprite = defaultImage;
 
-            handler.Dispose();
-            unityWebRequest.Dispose();
         }
     }
 
@@ -540,8 +533,6 @@ public class CardEditor : MonoBehaviour
         }
 
         var uwr = new UnityWebRequest(audioFullPath, "GET", handler, null);
-
-        await UniTask.SwitchToThreadPool();
 
         await uwr.SendWebRequest();
 

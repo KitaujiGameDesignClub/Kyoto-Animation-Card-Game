@@ -9,7 +9,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using KitaujiGameDesignClub.GameFramework.UI;
 using Lean.Gui;
-using UnityEngine.Events;
 using UnityEngine.Networking;
 
 public class BundleEditor : MonoBehaviour
@@ -256,10 +255,7 @@ public class BundleEditor : MonoBehaviour
     /// <summary>
     /// 玩家选择图片
     /// </summary>
-#pragma warning disable CS4014 // 没有等待的必要
     public void selectImage() => AsyncSelectImage();
-#pragma warning restore CS4014 // 没有等待的必要
-
 
     async UniTask AsyncSelectImage()
     {
@@ -299,52 +295,36 @@ public class BundleEditor : MonoBehaviour
 
         if (!File.Exists(imageFullPath))
         {
-           Debug.LogError($"图片文件“{imageFullPath}”不存在，已应用默认图片");
+            Debug.LogError($"图片文件“{imageFullPath}”不存在，已应用默认图片");
             return null;
         }
 
         newImageFullPath = imageFullPath;
 
-
         //下载（加载）图片
-        var hander = new DownloadHandlerTexture();
-        UnityWebRequest unityWebRequest = new UnityWebRequest(imageFullPath, "GET", hander, null);
-       
-        var sendWebRequest = await unityWebRequest.SendWebRequest();
+        var hander = await CardReadWrite.CoverImageLoader(imageFullPath);
 
-
-        if (sendWebRequest.isDone)
-        {
-            if (sendWebRequest.result == UnityWebRequest.Result.Success)
-            {
-                int size;
-                //正方形图片就随便取一个边作为图片大小
-                if (hander.texture.width == hander.texture.height)
-                {
-                    size = hander.texture.width;
-                }
-                //非正方形则取最短边
-                else
-                {
-                    size = hander.texture.width > hander.texture.height
-                        ? hander.texture.height
-                        : hander.texture.width;
-                }
-
-                var sprite = Sprite.Create(hander.texture, new Rect(0f, 0f, size, size), Vector2.one / 2f);
-                hander.Dispose();
-                unityWebRequest.Dispose();
-                return sprite;
-            }
-
-            Debug.LogWarning($"{unityWebRequest.url}加载失败,错误原因{unityWebRequest.error}");
-            hander.Dispose();
-            unityWebRequest.Dispose();
-            return null;
-        }
+        //图片不存在或者读取失败，返回null
+        if (hander == null) return null;
         else
         {
-            return null;
+            //毕竟是正方形，进行大小调整
+            int size;
+            //正方形图片就随便取一个边作为图片大小
+            if (hander.width == hander.height)
+            {
+                size = hander.width;
+            }
+            //非正方形则取最短边
+            else
+            {
+                size = hander.width > hander.height
+                    ? hander.height
+                    : hander.width;
+            }
+
+            var sprite = Sprite.Create(hander, new Rect(0f, 0f, size, size), Vector2.one / 2f);
+            return sprite;
         }
     }
     #endregion

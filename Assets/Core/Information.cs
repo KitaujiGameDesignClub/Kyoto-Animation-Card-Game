@@ -153,6 +153,11 @@ namespace Core
 
     public class Information
     {
+        /// <summary>
+        /// 每一组最大的卡牌数（上场的）
+        /// </summary>
+        public const int  TeamMaxCardOnSpotCount = 6;
+
         #region 各种版本号信息
 
         //a.b:a修改后，说明不兼容之前的旧版本，需要升级旧版文件

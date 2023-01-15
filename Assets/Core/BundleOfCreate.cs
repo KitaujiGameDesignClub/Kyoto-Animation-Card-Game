@@ -45,18 +45,26 @@ namespace Core
     {
         public CardBundlesManifest manifest= new();
         public CharacterCard[] cards= new CharacterCard[0];
+        public string manifestFullPath;
 
         public Bundle(CardBundlesManifest manifest,CharacterCard[] cards)
         {
             this.manifest = manifest;
             this.cards = cards;
-
+            manifestFullPath = null;
+        }
+        public Bundle(CardBundlesManifest manifest, CharacterCard[] cards,string manifestFullPath)
+        {
+            this.manifest = manifest;
+            this.cards = cards;
+            this.manifestFullPath = manifestFullPath;
         }
 
         public Bundle()
         {
             CardBundlesManifest manifest= new();  
             CharacterCard[] cards= new CharacterCard[0];
+            manifestFullPath = null;
         }
     }
 }
