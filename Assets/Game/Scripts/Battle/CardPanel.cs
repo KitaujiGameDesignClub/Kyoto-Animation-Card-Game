@@ -58,6 +58,9 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
 
         //修复莫名其妙的图片变大的（显示不完全）的bug
         image.size = Vector2.one * 0.6228073f;
+
+        //将图片放到panel中间
+        image.transform.localPosition = Vector3.zero;
     }
 
   

@@ -79,10 +79,6 @@ namespace Core
         }
 
 
-        public static async UniTask LoadResourceInBackground()
-        {
-
-        }
     }
 }
 
