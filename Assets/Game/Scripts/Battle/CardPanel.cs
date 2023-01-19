@@ -48,7 +48,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
 
         foreach (var item in othersToDestroy)
         {
-            DestroyImmediate(item.gameObject);
+            DestroyImmediate(item);
         }
 
        // cardName.gameObject.SetActive(false);

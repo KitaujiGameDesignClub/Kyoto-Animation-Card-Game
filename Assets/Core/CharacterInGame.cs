@@ -61,7 +61,7 @@ namespace Core
         //图片资源
         public Sprite CoverImage;
 
-        /*羁绊暂时取消了
+        /*羁绊暂时取消了，以后采取另外一种形式实现
         /// <summary>
         /// 羁绊被激活
         /// </summary>

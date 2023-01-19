@@ -28,7 +28,7 @@ public class GameStageCtrl : MonoBehaviour
     /// <summary>
     /// 添加卡牌，并在舞台上显示（正式游戏中要求提前加载好所需的资源）
     /// </summary>
-    public CardPanel AddCardAndDisplayInStage(CharacterCard profile,int teamId,Sprite coverImage,AudioClip Debut,AudioClip Defeat,AudioClip Exit,AudioClip ability)
+    public CardPanel AddCardAndDisplayInStage(CharacterCard profile,int teamId,Sprite coverImage,AudioClip Debut, AudioClip ability, AudioClip Defeat,AudioClip Exit)
     {
         var card = GameState.AddCard(profile, teamId);
 
@@ -65,7 +65,7 @@ public class GameStageCtrl : MonoBehaviour
     {
         // TeamParent(teamId).GetChild(CardPrePoint[teamId].PrePoint.Length) 相当于获取这一组卡牌中的第一张卡牌
 
-        //缓存一下，每一组有多少子对象
+        //缓存一下，这一组有多少子对象
         var totalChildCount = TeamParent(teamId).childCount;
         //卡牌数量 总子对象数目 - 定位用对象数目
         var cardCount = totalChildCount - CardPrePoint[teamId].PrePoint.Length;
@@ -87,16 +87,16 @@ public class GameStageCtrl : MonoBehaviour
             //奇数个卡牌，直接计算移动距离就行（中间那个卡牌当作middle）
             distance = pointMiddle - TeamParent(teamId).GetChild(cardCount / 2 + 1).position.x;
         }
-        //最后，把卡牌左对齐，并在定位点上，在进行缩进，将所有卡牌定位到中间位置
+        //（对每一张卡牌的变换组件进行操作）最后，把卡牌左对齐，并在定位点上，在进行缩进，将所有卡牌定位到中间位置
         for (int i = CardPrePoint[teamId].PrePoint.Length; i < totalChildCount; i++)
         {
             //TeamA(Player)的第 CardPrePoint[teamId].PrePoint.Length 个子对象（从0开始数）就是第一张卡牌
 
+            //卡牌的变换组件
             var card = TeamParent(teamId).GetChild(i);
             //左对齐放置
             //i - Information.TeamMaxCardOnSpotCount：第 1 2 3 4 5 6个定位点
             card.position = CardPrePoint[teamId].PrePoint[i - Information.TeamMaxCardOnSpotCount].position;
-            Debug.Log($"{i} {CardPrePoint[teamId].PrePoint[i - Information.TeamMaxCardOnSpotCount].name} ");
             //缩进移动
             //计算缩进量（卡牌全满了就不用缩进了，这里先默认卡牌左对齐，并在定位点上）
             if (cardCount < Information.TeamMaxCardOnSpotCount)
@@ -106,8 +106,9 @@ public class GameStageCtrl : MonoBehaviour
         }
 
     }
+  
     /// <summary>
-    /// 每一个卡牌点位分组的父对象
+    /// 每一个卡牌点位分组的父对象（就是那个TeamA(Player))
     /// </summary>
     /// <param name="teamId"></param>
     /// <returns></returns>
@@ -115,6 +116,28 @@ public class GameStageCtrl : MonoBehaviour
     {
         return CardPrePoint[teamId].PrePoint[0].parent;
     }
+
+    /// <summary>
+    /// 获取场上的所有卡牌
+    /// </summary>
+    /// <returns></returns>
+    public CardPanel[] GetAllCardOnStage(int teamId)
+    {
+        //缓存一下，这一组有多少子对象
+        var totalChildCount = TeamParent(teamId).childCount;
+        //卡牌数量 总子对象数目 - 定位用对象数目
+        var cardCount = totalChildCount - CardPrePoint[teamId].PrePoint.Length;
+        var cardPanels = new CardPanel[cardCount];
+        //获取每一个卡牌的panel组件
+        for (int i = CardPrePoint[teamId].PrePoint.Length; i < totalChildCount; i++)
+        {
+            //卡牌的变换组件
+            var card = TeamParent(teamId).GetChild(i);
+            cardPanels[i - CardPrePoint[teamId].PrePoint.Length] = card.GetComponent<CardPanel>();
+        }
+        return cardPanels;
+    }
+    
 
     [System.Serializable]
     private class Team

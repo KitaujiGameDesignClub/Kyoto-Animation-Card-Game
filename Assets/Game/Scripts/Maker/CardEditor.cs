@@ -491,67 +491,11 @@ public class CardEditor : MonoBehaviour
     /// </summary>
     private async UniTask AsyncLoadSelectedAudio(audioSetting audioSetting, string audioFullPath)
     {
-        if (string.IsNullOrEmpty(audioFullPath) || audioSetting == null)
-        {
-            throw new Exception("音频加载参数值不能为空");         
-        }
-        
-        if (Path.GetFileNameWithoutExtension(audioFullPath).Contains("："))
-        {
-            var warning = $"{audioFullPath}的文件名中，不应当含有中文引号";
-            Notify.notify.CreateBannerNotification(null,warning);
-            Debug.LogError(warning);
-            return;
-        }
+        var audioClip = await CardReadWrite.CardVoiceLoader(audioFullPath);
 
-        DownloadHandlerAudioClip handler;
-        switch (Path.GetExtension(audioFullPath).ToLower())
-        {
-            case ".ogg":
-                handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.OGGVORBIS);
-                break;
 
-            case ".mp3":
-                handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.MPEG);
-                break;
+           if(audioClip != null)  audioSetting.AudioSelected(audioClip,audioFullPath);
 
-            case ".aif":
-                handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.AIFF);
-                break;
-
-            case ".wav":
-                handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.WAV);
-                break;
-
-            default:
-                var allSupportedFormat = Information.SupportedAudioExtension[0].Substring(1);
-                for (int i = 1; i < Information.SupportedAudioExtension.Length; i++)
-                {
-                    allSupportedFormat = $"{allSupportedFormat}、{Information.SupportedAudioExtension[i].Substring(1)}";//ogg、wav、aif、mp3
-                }
-                throw new Exception($"{Path.GetExtension(audioFullPath).ToLower()}是不受支持的格式，只接受以下格式：{allSupportedFormat}");
-        }
-
-        var uwr = new UnityWebRequest(audioFullPath, "GET", handler, null);
-
-        await uwr.SendWebRequest();
-
-        if (uwr.isDone)
-        {
-            if (uwr.result == UnityWebRequest.Result.Success)
-            {
-                audioSetting.AudioSelected(handler.audioClip,audioFullPath);
-                
-            }
-            else
-            {
-                Debug.LogWarning($"{uwr.url}加载失败，错误原因{uwr.error}");
-            }
-
-            handler.Dispose();
-            uwr.Dispose();
-           
-        }
     }
     
     #endregion

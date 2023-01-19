@@ -20,15 +20,14 @@ public class TestMode : MonoBehaviour
     /// 切换到游戏场景之前，需要执行的事件
     /// </summary>
     private List<UnityAction> eventBeforeSwitchToGame = new();
-
-    [Header("卡牌选择器")]
-    public CanvasGroup CardSelector;
-    public Button CardSelectorToggle;
-    private bool isExpanded;
-    public LeanButton CardSelectorCloseButton;
-    public LeanButton CardSelectorOpenByFileExplorerButton;
-    public LeanButton CardSelectorConfirmButton;
+    public CanvasGroup panel;
     public TMP_Text loadState;
+    public LeanButton panelCloseButton;
+    public LeanButton CardSelectorOpenByFileExplorerButton;
+    [Header("卡牌选择器")]
+    public Toggle CardSelectorToggle;
+    public GameObject cardSelector;
+    public LeanButton CardSelectorConfirmButton;   
     /// <summary>
     /// “卡牌选择器"的卡组列表
     /// </summary>
@@ -61,10 +60,13 @@ public class TestMode : MonoBehaviour
     /// 缓存的所有卡组
     /// </summary>
     private Bundle[] allBundles;
+    [Header("语音测试器")]
+    public GameObject voiceTestor;
+    public Toggle voiceTestorToggle;
     /// <summary>
-    /// 选定的要上场的卡牌
+    /// 6个音频测试器
     /// </summary>
-    private CharacterCard selectedCardToPerform;
+    public TMAudioTestor[] tMAudioTestors = new TMAudioTestor[6];
 
     private Animator animator;
 
@@ -72,30 +74,35 @@ public class TestMode : MonoBehaviour
     {
         //如果没有开启测试模式，就销毁这个物体
 
-        //面板初始化
-        title.text = $"目前处于测试模式\nDevice:{SystemInfo.deviceType}  CPU:{SystemInfo.processorType}  OS:{SystemInfo.operatingSystem}  RAM:{SystemInfo.systemMemorySize}MiB  Screen:{Screen.currentResolution}";
 
-        #region 卡牌选择器
-        //透明度调整
-        CardSelector.alpha = 0f;
-        CardSelector.blocksRaycasts = false;
-        //调整卡牌选择器板块的激活状态
-        CardSelector.gameObject.SetActive(true);
-        BundleList.gameObject.SetActive(true);
-        BundleInformationDisplay.SetActive(false);
-        CardList.gameObject.SetActive(false);
-        CardInformationDisplay.SetActive(false);
-
-        #endregion
     }
 
     /// <summary>
     /// 加载测试模式
     /// </summary>
     async void Start()
-    {
-       //加载测试模式
-       await  LoadTestMode();
+    {        
+        //面板初始化
+        title.text = $"目前处于测试模式\nDevice:{SystemInfo.deviceType}  CPU:{SystemInfo.processorType}  OS:{SystemInfo.operatingSystem}  RAM:{SystemInfo.systemMemorySize}MiB  Screen:{Screen.currentResolution}";
+
+
+        #region 调整卡牌选择器板块的激活状态
+        BundleList.gameObject.SetActive(true);
+        BundleInformationDisplay.SetActive(false);
+        CardList.gameObject.SetActive(false);
+        CardInformationDisplay.SetActive(false);
+        #endregion
+
+        #region 调整音频测试器板块的激活状态
+        foreach (var item in tMAudioTestors)
+        {
+            item.gameObject.SetActive(false);
+        }
+        #endregion
+
+
+        //加载测试模式
+        await LoadTestMode();
 
     }
 
@@ -106,12 +113,15 @@ public class TestMode : MonoBehaviour
     private async UniTask LoadTestMode()
     {
         animator = GetComponent<Animator>();
+        //初始化额外加载状态
+        loadState.text = string.Empty;
         GameUI.gameUI.SetBanInputLayer(true, "测试模式载入中...");
         backgroundActivity();
 
+
         #region 卡牌选择器
-        //初始化加载状态
-        loadState.text = string.Empty;
+        //卡牌选择器 展开和关闭
+        Toggle(CardSelectorToggle,cardSelector);
 
         //读取所有的卡组
         GameUI.gameUI.SetBanInputLayer(true, "卡组读取中...");
@@ -128,27 +138,6 @@ public class TestMode : MonoBehaviour
   Destroy(CardSelectorOpenByFileExplorerButton.gameObject);
 #endif
 
-
-        //展开和关闭
-        CardSelectorToggle.onClick.AddListener(delegate
-        {
-            //全都加载完了，才能切换开关
-            if (string.IsNullOrEmpty(loadState.text))
-            {
-                //切换开关状态
-                isExpanded = !isExpanded;
-                animator.SetBool("expanded", isExpanded);
-            }
-         
-        });
-        CardSelectorCloseButton.OnClick.AddListener(delegate
-        {
-            //保存关闭状态
-            isExpanded = false;
-            animator.SetBool("expanded", isExpanded);
-        });
-
-
         //把卡组清单的内容映射到“卡组列表”中（卡牌选择器左侧的东西）
         List<string> bundlesName = new();
         // bundlesName.Add("<align=\"center\"><alpha=#CC>以下为可用卡组");
@@ -164,6 +153,8 @@ public class TestMode : MonoBehaviour
         //选定的卡组信息同步
         BundleList.onDropdownValueChangedWithoutInt.AddListener(delegate
         {
+            //allBundles[BundleList.DropdownValue - 1]：所选卡组
+
             //卡组有选择，信息同步与卡牌列表激活
             if (BundleList.DropdownValue != 0)
             {
@@ -197,26 +188,63 @@ public class TestMode : MonoBehaviour
         });
 
         //确认此卡牌上场，并添加加载资源的事件
-        CardSelectorConfirmButton.OnClick.AddListener(delegate 
+        CardSelectorConfirmButton.OnClick.AddListener(delegate
         {
-         
+            //allBundles[BundleList.DropdownValue - 1]：所选卡组
 
-            //添加加载资源的事件
-            eventBeforeSwitchToGame.Add(UniTask.UnityAction(async () =>
+            //不选择卡牌，不允许执行确认操作
+            if (CardList.DropdownValue > 0)
             {
-                var card = allBundles[BundleList.DropdownValue - 1].cards[CardList.DropdownValue - 1];
-                loadState.text = $"正在加载“{card.FriendlyCardName}”，请等待...";
-               
-                //图片加载              
-               var image = await LoadCoverImage($"{Path.GetDirectoryName(allBundles[BundleList.DropdownValue - 1].manifestFullPath)}/cards/{card.CardName}/{card.ImageName}");               
-                //音频加载
-                //   await panel.cardStateInGame.loadAudioResource();
-                var panel = GameStageCtrl.stageCtrl.AddCardAndDisplayInStage(selectedCardToPerform, 0,image, null, null, null, null);
-                loadState.text = string.Empty;
-            }));
+                //添加加载资源的事件
+                eventBeforeSwitchToGame.Add(UniTask.UnityAction(async () =>
+                {
+                    //所选卡牌
+                    var card = allBundles[BundleList.DropdownValue - 1].cards[CardList.DropdownValue - 1];
+                    loadState.text = $"正在加载“{card.FriendlyCardName}”，请等待...";
+                    //所选卡牌的文件夹路径
+                    var cardDiectoryPath = $"{Path.GetDirectoryName(allBundles[BundleList.DropdownValue - 1].manifestFullPath)}/cards/{card.CardName}";
+
+                    //图片加载              
+                    var image = await LoadCoverImage($"{cardDiectoryPath}/{card.ImageName}");
+                    //音频加载
+                    var audios = await LoadAllAudioOfOneCard(card, cardDiectoryPath);
+                    GameStageCtrl.stageCtrl.AddCardAndDisplayInStage(card, 0, image, audios[0], audios[1], audios[2], audios[3]);
+                    loadState.text = string.Empty;
+                    image = null;
+                    audios = null;
+                }));
+            }
         });
         #endregion
 
+        #region 语音测试器
+        Toggle(voiceTestorToggle,voiceTestor);
+        //打开音频测试器之后，读取场上存在的卡牌，用于测试音频
+        voiceTestorToggle.onValueChanged.AddListener(delegate
+        {
+            //当然是得激活才读取
+            if (voiceTestorToggle.isOn)
+            {
+                var allCardPanels = GameStageCtrl.stageCtrl.GetAllCardOnStage(0);
+                //激活测试器，然后配置相应的资源
+                for (int i = 0; i < allCardPanels.Length; i++)
+                {
+                    tMAudioTestors[i].EnableAudioTestor(allCardPanels[i]);
+                }
+               
+            }
+            //关闭测试器界面，就把所有的测试器禁用了
+            else
+            {
+                foreach (var item in tMAudioTestors)
+                {
+                    item.gameObject.SetActive(false);
+                }
+            }
+          
+        });
+
+        #endregion
 
         //关闭输入遮罩
         GameUI.gameUI.SetBanInputLayer(false, "测试模式载入中...");
@@ -238,8 +266,37 @@ public class TestMode : MonoBehaviour
         }
     }
 
+    #region 通用
+    void Toggle(Toggle toggle,GameObject panelObject)
+    {
+        //上方的切换器
+        toggle.onValueChanged.AddListener(delegate
+        {
+            //全都加载完了，才能切换开关
+            if (string.IsNullOrEmpty(loadState.text))
+            {
+                //切换开关状态                
+                animator.SetBool("Expanded", toggle.isOn);
+                panelObject.SetActive(toggle.isOn);
+            }
 
-#region 卡牌选择器配套方法
+        });
+
+        //每个panel内部的关闭按钮
+        panelCloseButton.OnClick.AddListener(delegate
+        {
+            //保存关闭状态
+            toggle.isOn = false;
+
+        });
+
+        //关闭这个工具的界面
+        panelObject.SetActive(false);
+    }
+    #endregion
+
+
+    #region 卡牌选择器配套方法
 
     /// <summary>
     /// 在卡牌选择器中同步卡组清单信息
@@ -260,8 +317,6 @@ public class TestMode : MonoBehaviour
     /// <param name="manifestContent"></param>
     void UpdateSelectorCardInformation(CharacterCard cardContent)
     {
-        //记录选择了哪个卡牌
-        selectedCardToPerform = cardContent;
         cardFriendlyName.text = $"<b>友好名称：</b>\n<margin-left=1em><size=80%>{cardContent.FriendlyCardName}";
         cardCharacterName.text = $"<b>角色名称：</b>\n<margin-left=1em><size=80%>{cardContent.CharacterName}";
         cardCharacterVoiceName.text = $"<b>声优名称：</b>\n<margin-left=1em><size=80%>{cardContent.CV}";
@@ -289,8 +344,27 @@ public class TestMode : MonoBehaviour
         else return null;
 
     }
+
+    /// <summary>
+    /// 按照debut ability defeat exit的顺序读取某个卡牌所有的音频
+    /// </summary>
+    /// <param name="cardContent"></param>
+    /// <param name="cardDirectoryPath"></param>
+    /// <returns></returns>
+    async UniTask<AudioClip[]> LoadAllAudioOfOneCard(CharacterCard cardContent,string cardDirectoryPath)
+    {
+        var (debut, ability, defeat, exit) = await UniTask.WhenAll(CardReadWrite.CardVoiceLoader($"{cardDirectoryPath}/{cardContent.voiceDebutFileName}"),
+                                             CardReadWrite.CardVoiceLoader($"{cardDirectoryPath}/{cardContent.voiceAbilityFileName}"),
+                                             CardReadWrite.CardVoiceLoader($"{cardDirectoryPath}/{cardContent.voiceDefeatFileName}"),
+                                             CardReadWrite.CardVoiceLoader($"{cardDirectoryPath}/{cardContent.voiceExitFileName}"));
+
+        AudioClip[] clips =  {debut,ability,defeat,exit};
+        return clips;
+
+
+    }
     #endregion
 
-
-
 }
+
+

@@ -37,7 +37,7 @@ Result:
   CalculationMethod: addition
   Value: ''
 AbilityDescription: 我很好奇能力是什么
-voiceExitFileName: voiceExit
+voiceExitFileName: voiceExit.mp3
 voiceDefeatFileName: voiceDefeat.mp3
 voiceDebutFileName: voiceDebut.ogg
 voiceAbilityFileName: voiceAbility

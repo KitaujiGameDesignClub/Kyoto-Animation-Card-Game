@@ -46,18 +46,24 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 
         public int DropdownValue => dropdown.value;
 
-        //编辑器中会显示的：
-
+        //
+        #region 编辑器中会显示的：
         /// <summary>
         /// 如果想要筛选功能，请改为true
         /// </summary>
-        [FormerlySerializedAs("supportSearch")] [Header("候选筛选功能")]
+        [FormerlySerializedAs("supportSearch")]
+        [Header("候选筛选功能")]
         public bool supportFilter = false;
 
         /// <summary>
         /// 禁用内容。被禁用的内容不会被选择进入输入框内
         /// </summary>
         [Header("被禁用的内容不会被选择")] public List<string> ban = new();
+
+        #endregion
+
+
+
 
         private void Awake()
         {

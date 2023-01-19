@@ -33,7 +33,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Alpha
-    path: card selector
+    path: panel
     classID: 225
     script: {fileID: 0}
   - curve:
@@ -52,7 +52,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Interactable
-    path: card selector
+    path: panel
     classID: 225
     script: {fileID: 0}
   - curve:
@@ -71,7 +71,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_BlocksRaycasts
-    path: card selector
+    path: panel
     classID: 225
     script: {fileID: 0}
   m_PPtrCurves: []
@@ -83,21 +83,21 @@ AnimationClip:
   m_ClipBindingConstant:
     genericBindings:
     - serializedVersion: 2
-      path: 12132570
+      path: 2729300751
       attribute: 4287062452
       script: {fileID: 0}
       typeID: 225
       customType: 0
       isPPtrCurve: 0
     - serializedVersion: 2
-      path: 12132570
+      path: 2729300751
       attribute: 3739863151
       script: {fileID: 0}
       typeID: 225
       customType: 0
       isPPtrCurve: 0
     - serializedVersion: 2
-      path: 12132570
+      path: 2729300751
       attribute: 1574349066
       script: {fileID: 0}
       typeID: 225
@@ -141,7 +141,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Alpha
-    path: card selector
+    path: panel
     classID: 225
     script: {fileID: 0}
   - curve:
@@ -160,7 +160,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_Interactable
-    path: card selector
+    path: panel
     classID: 225
     script: {fileID: 0}
   - curve:
@@ -179,7 +179,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_BlocksRaycasts
-    path: card selector
+    path: panel
     classID: 225
     script: {fileID: 0}
   m_EulerEditorCurves: []

@@ -7,6 +7,7 @@ using System.Text;
 using KitaujiGameDesignClub.GameFramework.UI;
 using UnityEngine;
 using UnityEngine.Networking;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Core
 {
@@ -439,6 +440,65 @@ namespace Core
 
 
         #region 资源文件加载
+
+        /// <summary>
+        /// 加载卡牌音频（加载失败返回null）
+        /// </summary>
+        /// <param name="audioFullPath"></param>
+        /// <returns></returns>
+        public static async UniTask<AudioClip> CardVoiceLoader(string audioFullPath)
+        {
+            if (!File.Exists(audioFullPath))
+            {
+                return null;
+            }
+
+            if (Path.GetFileNameWithoutExtension(audioFullPath).Contains("："))
+            {
+                var warning = $"{audioFullPath}的文件名中，不应当含有中文引号";
+                Debug.LogError(warning);
+                return null;
+            }
+
+            DownloadHandlerAudioClip handler = null;
+            switch (Path.GetExtension(audioFullPath).ToLower())
+            {
+                case ".ogg":
+                    handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.OGGVORBIS);
+                    break;
+
+                case ".mp3":
+                    handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.MPEG);
+                    break;
+
+                case ".aif":
+                    handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.AIFF);
+                    break;
+
+                case ".wav":
+                    handler = new DownloadHandlerAudioClip(audioFullPath, AudioType.WAV);
+                    break;
+
+                default:
+                    //提示所选音频是不受支持的格式
+                    var allSupportedFormat = Information.SupportedAudioExtension[0].Substring(1);
+                    for (int i = 1; i < Information.SupportedAudioExtension.Length; i++)
+                    {
+                        allSupportedFormat = $"{allSupportedFormat}、{Information.SupportedAudioExtension[i].Substring(1)}";//ogg、wav、aif、mp3
+                    }
+                    Debug.LogError($"{Path.GetExtension(audioFullPath).ToLower()}是不受支持的格式，只接受以下格式：{allSupportedFormat}");
+                    return null;
+            }
+
+             var uwr = new UnityWebRequest(audioFullPath, "GET", handler, null);
+
+            await uwr.SendWebRequest();
+
+            var clip = handler.audioClip;
+            handler.Dispose();
+            uwr.Dispose();
+            return clip;
+        }
 
         /// <summary>
         /// 封面图片加载（加载不到返回null）
