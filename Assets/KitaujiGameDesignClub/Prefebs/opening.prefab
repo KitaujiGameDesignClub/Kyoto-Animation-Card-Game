@@ -10591,7 +10591,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 4580048114669619464}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: KitaujiGameDesignClub.GameFramework.UI.basicEvents,
           KitaujiGD.GameFramework
         m_MethodName: clickSound
@@ -11256,7 +11256,6 @@ GameObject:
   - component: {fileID: 4580048114669619467}
   - component: {fileID: 4580048114669619468}
   - component: {fileID: 4580048114669619469}
-  - component: {fileID: 4580048114669619464}
   - component: {fileID: 4580048114669619465}
   m_Layer: 5
   m_Name: opening
@@ -11351,24 +11350,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &4580048114669619464
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4580048114669619470}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ac44ec94724c994f836979ea40041b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameScene: 0
-  LoadScene: 0
-  OpeningScene: 0
-  OnEscapeClick:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &4580048114669619465
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12010,7 +11991,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4580048114669619464}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: basicEvents, KitaujiGD.GameFramework
         m_MethodName: OpenWeb
         m_Mode: 1
@@ -12882,7 +12863,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 4580048114669619464}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: basicEvents, KitaujiGD.GameFramework
         m_MethodName: clickSound
         m_Mode: 1
@@ -14181,7 +14162,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4580048114669619464}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: basicEvents, KitaujiGD.GameFramework
         m_MethodName: ExitGame
         m_Mode: 1
@@ -14606,7 +14587,7 @@ MonoBehaviour:
   onClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4580048114669619464}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: KitaujiGameDesignClub.GameFramework.UI.basicEvents,
           KitaujiGD.GameFramework
         m_MethodName: clickSound
@@ -15192,7 +15173,7 @@ PrefabInstance:
     - target: {fileID: 2851016513710521775, guid: ed8769eac1bb38e428b54a418434acf5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 4580048114669619464}
+      objectReference: {fileID: 0}
     - target: {fileID: 2851016513710521775, guid: ed8769eac1bb38e428b54a418434acf5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -15330,7 +15311,7 @@ PrefabInstance:
     - target: {fileID: 2851016513710521775, guid: ed8769eac1bb38e428b54a418434acf5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 4580048114669619464}
+      objectReference: {fileID: 0}
     - target: {fileID: 2851016513710521775, guid: ed8769eac1bb38e428b54a418434acf5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -15480,7 +15461,7 @@ PrefabInstance:
     - target: {fileID: 2851016513710521775, guid: ed8769eac1bb38e428b54a418434acf5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 4580048114669619464}
+      objectReference: {fileID: 0}
     - target: {fileID: 2851016513710521775, guid: ed8769eac1bb38e428b54a418434acf5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -15694,7 +15675,7 @@ PrefabInstance:
     - target: {fileID: 2851016513710521775, guid: ed8769eac1bb38e428b54a418434acf5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 4580048114669619464}
+      objectReference: {fileID: 0}
     - target: {fileID: 2851016513710521775, guid: ed8769eac1bb38e428b54a418434acf5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -15884,7 +15865,7 @@ PrefabInstance:
     - target: {fileID: 2851016513710521775, guid: ed8769eac1bb38e428b54a418434acf5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 4580048114669619464}
+      objectReference: {fileID: 0}
     - target: {fileID: 2851016513710521775, guid: ed8769eac1bb38e428b54a418434acf5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
