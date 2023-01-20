@@ -1,12 +1,9 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
-using UnityEngine.UIElements;
 using Button = UnityEngine.UI.Button;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
@@ -54,6 +51,8 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         [FormerlySerializedAs("supportSearch")]
         [Header("候选筛选功能")]
         public bool supportFilter = false;
+        [Header("自动去除富文本")]
+        public bool autoRemoveRichText = true;
 
         /// <summary>
         /// 禁用内容。被禁用的内容不会被选择进入输入框内
@@ -84,7 +83,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                 {
                     //没展开value变化的话，保留之前的内容
                     text = dropdown.IsExpanded ? dropdown.captionText.text : text;
-                    text = Regex.Replace(text, "<.*?>", string.Empty);//去除富文本
+                 if(autoRemoveRichText)  text = Regex.Replace(text, "<.*?>", string.Empty);//去除富文本
 
                 }
                 
@@ -92,7 +91,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                 {
                     //没展开value变化的话，保留之前的内容
                     text = dropdown.IsExpanded ? dropdown.captionText.text : text;
-                    text = Regex.Replace(text, "<.*?>", string.Empty);//去除富文本
+                    if (autoRemoveRichText) text = Regex.Replace(text, "<.*?>", string.Empty);//去除富文本
                 }
 
                 onDropdownValueChangedWithoutInt.Invoke();

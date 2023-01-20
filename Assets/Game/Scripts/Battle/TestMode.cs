@@ -60,9 +60,20 @@ public class TestMode : MonoBehaviour
     /// 缓存的所有卡组
     /// </summary>
     private Bundle[] allBundles;
+    /// <summary>
+    /// 选择的卡组的id
+    /// </summary>
+    int selectedBundleId = -1;
+    /// <summary>
+    /// 选择的卡牌的id（选定卡组内的）
+    /// </summary>
+    int selectedCardId = -1;
+
     [Header("语音测试器")]
     public GameObject voiceTestor;
     public Toggle voiceTestorToggle;
+    public AudioSource voiceTestPlayer;
+    public Slider voiceTestVolume;
     /// <summary>
     /// 6个音频测试器
     /// </summary>
@@ -141,10 +152,12 @@ public class TestMode : MonoBehaviour
         //把卡组清单的内容映射到“卡组列表”中（卡牌选择器左侧的东西）
         List<string> bundlesName = new();
         // bundlesName.Add("<align=\"center\"><alpha=#CC>以下为可用卡组");
-        foreach (var item in allBundles)
+        for (int i = 0; i < allBundles.Length; i++)
         {
-            if (string.IsNullOrEmpty(item.manifest.Anime)) bundlesName.Add($"{item.manifest.FriendlyBundleName}");
-            else bundlesName.Add($"【{item.manifest.Anime}】{item.manifest.FriendlyBundleName}");
+            Bundle bundle = allBundles[i];
+            if (string.IsNullOrEmpty(bundle.manifest.Anime)) bundlesName.Add($"{bundle.manifest.FriendlyBundleName}<alpha=#00>{i}");
+            else bundlesName.Add($"【{bundle.manifest.Anime}】{bundle.manifest.FriendlyBundleName}<alpha=#00>{i}");
+            //透明度为0的隐藏字符：<alpha=#00>{i}，用来记录这些卡组的序号，便于搜索后选择
         }
         BundleList.ChangeOptionDatas(bundlesName);
         bundlesName = null;
@@ -153,21 +166,27 @@ public class TestMode : MonoBehaviour
         //选定的卡组信息同步
         BundleList.onDropdownValueChangedWithoutInt.AddListener(delegate
         {
-            //allBundles[BundleList.DropdownValue - 1]：所选卡组
+            //allBundles[selectedBundleId]：所选卡组
+
+            //获取所选bundle的序号
+            Debug.Log(BundleList.text.Split("<alpha=#00>")[1]);
+            selectedBundleId = BundleList.text.Contains("<alpha=#00>") ? int.Parse(BundleList.text.Split("<alpha=#00>")[1]) : -1;
 
             //卡组有选择，信息同步与卡牌列表激活
             if (BundleList.DropdownValue != 0)
             {
-                UpdateSelectorBundleInformation(allBundles[BundleList.DropdownValue - 1].manifest);
+                UpdateSelectorBundleInformation(allBundles[selectedBundleId].manifest);
                 //显示此卡组信息，并允许选择卡牌
                 BundleInformationDisplay.SetActive(true);
                 CardList.gameObject.SetActive(true);
                 //可用卡组也放到列表中
                 List<string> cardsName = new();
-                foreach (var item in allBundles[BundleList.DropdownValue - 1].cards)
+                for (int i = 0; i < allBundles[selectedBundleId].cards.Length; i++)
                 {
-                    if (string.IsNullOrEmpty(item.CharacterName)) cardsName.Add($"{item.FriendlyCardName}");
-                    else cardsName.Add($"【{item.CharacterName}】{item.FriendlyCardName}");
+                    CharacterCard card = allBundles[selectedBundleId].cards[i];
+                    if (string.IsNullOrEmpty(card.CharacterName)) cardsName.Add($"{card.FriendlyCardName}<alpha=#00>{i}");
+                    else cardsName.Add($"【{card.CharacterName}】{card.FriendlyCardName}<alpha=#00>{i}");
+                    //透明度为0的隐藏字符：<alpha=#00>{i}，用来记录这些卡组的序号，便于搜索后选择
                 }
                 CardList.ChangeOptionDatas(cardsName);
             }
@@ -177,20 +196,26 @@ public class TestMode : MonoBehaviour
                 BundleInformationDisplay.SetActive(false);
                 CardList.gameObject.SetActive(false);
                 CardInformationDisplay.SetActive(false);
+                CardList.text = string.Empty;
+                CardList.ClearOptions();
             }
 
         });
         //选定的卡牌信息同步
         CardList.onDropdownValueChangedWithoutInt.AddListener(delegate 
         {
-            UpdateSelectorCardInformation(allBundles[BundleList.DropdownValue - 1].cards[CardList.DropdownValue - 1]);
+            //获取所选card的序号
+            Debug.Log(CardList.text.Split("<alpha=#00>")[1]);
+            selectedCardId = CardList.text.Contains("<alpha=#00>") ? int.Parse(CardList.text.Split("<alpha=#00>")[1]) : -1;
+
+            UpdateSelectorCardInformation(allBundles[selectedBundleId].cards[selectedCardId]);
             CardInformationDisplay.SetActive(true);
         });
 
         //确认此卡牌上场，并添加加载资源的事件
         CardSelectorConfirmButton.OnClick.AddListener(delegate
         {
-            //allBundles[BundleList.DropdownValue - 1]：所选卡组
+            //allBundles[selectedBundleId]：所选卡组
 
             //不选择卡牌，不允许执行确认操作
             if (CardList.DropdownValue > 0)
@@ -199,10 +224,10 @@ public class TestMode : MonoBehaviour
                 eventBeforeSwitchToGame.Add(UniTask.UnityAction(async () =>
                 {
                     //所选卡牌
-                    var card = allBundles[BundleList.DropdownValue - 1].cards[CardList.DropdownValue - 1];
+                    var card = allBundles[selectedBundleId].cards[selectedCardId];
                     loadState.text = $"正在加载“{card.FriendlyCardName}”，请等待...";
                     //所选卡牌的文件夹路径
-                    var cardDiectoryPath = $"{Path.GetDirectoryName(allBundles[BundleList.DropdownValue - 1].manifestFullPath)}/cards/{card.CardName}";
+                    var cardDiectoryPath = $"{Path.GetDirectoryName(allBundles[selectedBundleId].manifestFullPath)}/cards/{card.CardName}";
 
                     //图片加载              
                     var image = await LoadCoverImage($"{cardDiectoryPath}/{card.ImageName}");
@@ -242,6 +267,12 @@ public class TestMode : MonoBehaviour
                 }
             }
           
+        });
+
+        //音量调整
+        voiceTestVolume.onValueChanged.AddListener(delegate (float arg0)
+        {
+            voiceTestPlayer.volume = arg0;
         });
 
         #endregion

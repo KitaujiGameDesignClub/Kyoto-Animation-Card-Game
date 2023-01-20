@@ -369,6 +369,9 @@ MonoBehaviour:
   inputField: {fileID: 3168079165024264353}
   dropdown: {fileID: 6191173253664865346}
   dropdownButton: {fileID: 6006093336338302968}
+  onDropdownValueChangedWithoutInt:
+    m_PersistentCalls:
+      m_Calls: []
   supportFilter: 0
   ban: []
 --- !u!1 &3545486379416444135
@@ -431,7 +434,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -488,7 +491,7 @@ MonoBehaviour:
   m_enableKerning: 1
   m_enableExtraPadding: 1
   checkPaddingRequired: 0
-  m_isRichText: 0
+  m_isRichText: 1
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0
@@ -837,7 +840,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1130,7 +1133,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a01b7836a6fff274696c0d418bc3b928, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spriteRenderer: {fileID: 0}
   spriteAtlas: {fileID: 4343727234628468602, guid: edf1342dd9295a24dae5c162214a46a0, type: 2}
   spriteName: right arrow
   destroyWhenGetSprite: 1
