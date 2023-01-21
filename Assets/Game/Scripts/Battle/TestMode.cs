@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,28 +13,28 @@ using System.IO;
 
 public class TestMode : MonoBehaviour
 {
-    //±¸×¢£º½øÈë²âÊÔÄ£Ê½Ö®Ç°£¬Ó¦µ±ĞŞ¸ÄÄÚ´æÖĞµÄÉèÖÃ£¬Ê¹²âÊÔÄ£Ê½ÓÀÔ¶¿ªÆô¿ØÖÆÌ¨ºÍÖ¡ÂÊÏÔÊ¾
+    //å¤‡æ³¨ï¼šè¿›å…¥æµ‹è¯•æ¨¡å¼ä¹‹å‰ï¼Œåº”å½“ä¿®æ”¹å†…å­˜ä¸­çš„è®¾ç½®ï¼Œä½¿æµ‹è¯•æ¨¡å¼æ°¸è¿œå¼€å¯æ§åˆ¶å°å’Œå¸§ç‡æ˜¾ç¤º
 
-    [Header("Í¨ÓÃ")]
+    [Header("é€šç”¨")]
     public TMP_Text title;
     /// <summary>
-    /// ÇĞ»»µ½ÓÎÏ·³¡¾°Ö®Ç°£¬ĞèÒªÖ´ĞĞµÄÊÂ¼ş
+    /// åˆ‡æ¢åˆ°æ¸¸æˆåœºæ™¯ä¹‹å‰ï¼Œéœ€è¦æ‰§è¡Œçš„äº‹ä»¶
     /// </summary>
     private List<UnityAction> eventBeforeSwitchToGame = new();
     public CanvasGroup panel;
     public TMP_Text loadState;
     public LeanButton panelCloseButton;
     public LeanButton CardSelectorOpenByFileExplorerButton;
-    [Header("¿¨ÅÆÑ¡ÔñÆ÷")]
+    [Header("å¡ç‰Œé€‰æ‹©å™¨")]
     public Toggle CardSelectorToggle;
     public GameObject cardSelector;
     public LeanButton CardSelectorConfirmButton;   
     /// <summary>
-    /// ¡°¿¨ÅÆÑ¡ÔñÆ÷"µÄ¿¨×éÁĞ±í
+    /// â€œå¡ç‰Œé€‰æ‹©å™¨"çš„å¡ç»„åˆ—è¡¨
     /// </summary>
     public InputFieldWithDropdown BundleList;
     /// <summary>
-    /// ¿¨ÅÆÑ¡ÔñÆ÷×ó²àµÄ¿¨×éĞÅÏ¢Õ¹Ê¾
+    /// å¡ç‰Œé€‰æ‹©å™¨å·¦ä¾§çš„å¡ç»„ä¿¡æ¯å±•ç¤º
     /// </summary>
     public GameObject BundleInformationDisplay;
     public TMP_Text manifestFriendlyName;
@@ -42,69 +43,74 @@ public class TestMode : MonoBehaviour
     public TMP_Text manifestAuthorName;
     public TMP_Text manifestDescription;
     /// <summary>
-    /// ¡°¿¨ÅÆÑ¡ÔñÆ÷"µÄ¿¨ÅÆÁĞ±í
+    /// â€œå¡ç‰Œé€‰æ‹©å™¨"çš„å¡ç‰Œåˆ—è¡¨
     /// </summary>
     public InputFieldWithDropdown CardList;
     /// <summary>
-    /// ¿¨ÅÆÑ¡ÔñÆ÷ÓÒ²àµÄ¿¨ÅÆĞÅÏ¢Õ¹Ê¾
+    /// å¡ç‰Œé€‰æ‹©å™¨å³ä¾§çš„å¡ç‰Œä¿¡æ¯å±•ç¤º
     /// </summary>
     public GameObject CardInformationDisplay;
     public TMP_Text cardFriendlyName;
     public TMP_Text cardCharacterName;
     public TMP_Text cardCharacterVoiceName;
     public TMP_Text cardAnime;
-    public TMP_Text cardBasicInf;//¹¥»÷Á¦ºÍÉúÃüÖµ
+    public TMP_Text cardBasicInf;//æ”»å‡»åŠ›å’Œç”Ÿå‘½å€¼
     public TMP_Text cardTag;
     public TMP_Text cardDescription;
     /// <summary>
-    /// »º´æµÄËùÓĞ¿¨×é
+    /// ç¼“å­˜çš„æ‰€æœ‰å¡ç»„
     /// </summary>
     private Bundle[] allBundles;
     /// <summary>
-    /// Ñ¡ÔñµÄ¿¨×éµÄid
+    /// é€‰æ‹©çš„å¡ç»„çš„id
     /// </summary>
     int selectedBundleId = -1;
     /// <summary>
-    /// Ñ¡ÔñµÄ¿¨ÅÆµÄid£¨Ñ¡¶¨¿¨×éÄÚµÄ£©
+    /// é€‰æ‹©çš„å¡ç‰Œçš„idï¼ˆé€‰å®šå¡ç»„å†…çš„ï¼‰
     /// </summary>
     int selectedCardId = -1;
 
-    [Header("ÓïÒô²âÊÔÆ÷")]
+    [Header("è¯­éŸ³æµ‹è¯•å™¨")]
     public GameObject voiceTestor;
     public Toggle voiceTestorToggle;
     public AudioSource voiceTestPlayer;
     public Slider voiceTestVolume;
     /// <summary>
-    /// 6¸öÒôÆµ²âÊÔÆ÷
+    /// 6ä¸ªéŸ³é¢‘æµ‹è¯•å™¨
     /// </summary>
     public TMAudioTestor[] tMAudioTestors = new TMAudioTestor[6];
 
+    [Header("æ‰“æ¶æ¨¡æ‹Ÿå™¨")]
+    public GameObject battleEmulator;
+    public Toggle battleEmulatorToggle;
+    public CharacterCard[] enemy = new CharacterCard[0];
+    
     private Animator animator;
 
     private void Awake()
     {
-        //Èç¹ûÃ»ÓĞ¿ªÆô²âÊÔÄ£Ê½£¬¾ÍÏú»ÙÕâ¸öÎïÌå
+        //å¦‚æœæ²¡æœ‰å¼€å¯æµ‹è¯•æ¨¡å¼ï¼Œå°±é”€æ¯è¿™ä¸ªç‰©ä½“
 
 
     }
 
     /// <summary>
-    /// ¼ÓÔØ²âÊÔÄ£Ê½
+    /// åŠ è½½æµ‹è¯•æ¨¡å¼
     /// </summary>
     async void Start()
     {        
-        //Ãæ°å³õÊ¼»¯
-        title.text = $"Ä¿Ç°´¦ÓÚ²âÊÔÄ£Ê½\nDevice:{SystemInfo.deviceType}  CPU:{SystemInfo.processorType}  OS:{SystemInfo.operatingSystem}  RAM:{SystemInfo.systemMemorySize}MiB  Screen:{Screen.currentResolution}";
+        //é¢æ¿åˆå§‹åŒ–
+        title.text = $"ç›®å‰å¤„äºæµ‹è¯•æ¨¡å¼\nDevice:{SystemInfo.deviceType}  CPU:{SystemInfo.processorType}  OS:{SystemInfo.operatingSystem}  RAM:{SystemInfo.systemMemorySize}MiB  Screen:{Screen.currentResolution}";
 
 
-        #region µ÷Õû¿¨ÅÆÑ¡ÔñÆ÷°å¿éµÄ¼¤»î×´Ì¬
+        #region è°ƒæ•´å¡ç‰Œé€‰æ‹©å™¨æ¿å—çš„æ¿€æ´»çŠ¶æ€
         BundleList.gameObject.SetActive(true);
         BundleInformationDisplay.SetActive(false);
         CardList.gameObject.SetActive(false);
         CardInformationDisplay.SetActive(false);
         #endregion
 
-        #region µ÷ÕûÒôÆµ²âÊÔÆ÷°å¿éµÄ¼¤»î×´Ì¬
+        #region è°ƒæ•´éŸ³é¢‘æµ‹è¯•å™¨æ¿å—çš„æ¿€æ´»çŠ¶æ€
         foreach (var item in tMAudioTestors)
         {
             item.gameObject.SetActive(false);
@@ -112,34 +118,34 @@ public class TestMode : MonoBehaviour
         #endregion
 
 
-        //¼ÓÔØ²âÊÔÄ£Ê½
+        //åŠ è½½æµ‹è¯•æ¨¡å¼
         await LoadTestMode();
 
     }
 
     /// <summary>
-    /// ¼ÓÔØ ³õÊ¼»¯²âÊÔÄ£Ê½
+    /// åŠ è½½ åˆå§‹åŒ–æµ‹è¯•æ¨¡å¼
     /// </summary>
     /// <returns></returns>
     private async UniTask LoadTestMode()
     {
         animator = GetComponent<Animator>();
-        //³õÊ¼»¯¶îÍâ¼ÓÔØ×´Ì¬
+        //åˆå§‹åŒ–é¢å¤–åŠ è½½çŠ¶æ€
         loadState.text = string.Empty;
-        GameUI.gameUI.SetBanInputLayer(true, "²âÊÔÄ£Ê½ÔØÈëÖĞ...");
+        GameUI.gameUI.SetBanInputLayer(true, "æµ‹è¯•æ¨¡å¼è½½å…¥ä¸­...");
         backgroundActivity();
 
 
-        #region ¿¨ÅÆÑ¡ÔñÆ÷
-        //¿¨ÅÆÑ¡ÔñÆ÷ Õ¹¿ªºÍ¹Ø±Õ
+        #region å¡ç‰Œé€‰æ‹©å™¨
+        //å¡ç‰Œé€‰æ‹©å™¨ å±•å¼€å’Œå…³é—­
         Toggle(CardSelectorToggle,cardSelector);
 
-        //¶ÁÈ¡ËùÓĞµÄ¿¨×é
-        GameUI.gameUI.SetBanInputLayer(true, "¿¨×é¶ÁÈ¡ÖĞ...");
+        //è¯»å–æ‰€æœ‰çš„å¡ç»„
+        GameUI.gameUI.SetBanInputLayer(true, "å¡ç»„è¯»å–ä¸­...");
         allBundles = await CardReadWrite.GetAllBundles();
 
 #if UNITY_EDITOR || UNITY_STANDALONE
-        //ÓÃ×ÊÔ´¹ÜÀíÆ÷´ò¿ª¹æ¶¨µÄÄ¿Â¼
+        //ç”¨èµ„æºç®¡ç†å™¨æ‰“å¼€è§„å®šçš„ç›®å½•
         CardSelectorOpenByFileExplorerButton.OnClick.AddListener(delegate
         {
             Application.OpenURL($"file://{Information.bundlesPath}");
@@ -149,48 +155,48 @@ public class TestMode : MonoBehaviour
   Destroy(CardSelectorOpenByFileExplorerButton.gameObject);
 #endif
 
-        //°Ñ¿¨×éÇåµ¥µÄÄÚÈİÓ³Éäµ½¡°¿¨×éÁĞ±í¡±ÖĞ£¨¿¨ÅÆÑ¡ÔñÆ÷×ó²àµÄ¶«Î÷£©
+        //æŠŠå¡ç»„æ¸…å•çš„å†…å®¹æ˜ å°„åˆ°â€œå¡ç»„åˆ—è¡¨â€ä¸­ï¼ˆå¡ç‰Œé€‰æ‹©å™¨å·¦ä¾§çš„ä¸œè¥¿ï¼‰
         List<string> bundlesName = new();
-        // bundlesName.Add("<align=\"center\"><alpha=#CC>ÒÔÏÂÎª¿ÉÓÃ¿¨×é");
+        // bundlesName.Add("<align=\"center\"><alpha=#CC>ä»¥ä¸‹ä¸ºå¯ç”¨å¡ç»„");
         for (int i = 0; i < allBundles.Length; i++)
         {
             Bundle bundle = allBundles[i];
             if (string.IsNullOrEmpty(bundle.manifest.Anime)) bundlesName.Add($"{bundle.manifest.FriendlyBundleName}<alpha=#00>{i}");
-            else bundlesName.Add($"¡¾{bundle.manifest.Anime}¡¿{bundle.manifest.FriendlyBundleName}<alpha=#00>{i}");
-            //Í¸Ã÷¶ÈÎª0µÄÒş²Ø×Ö·û£º<alpha=#00>{i}£¬ÓÃÀ´¼ÇÂ¼ÕâĞ©¿¨×éµÄĞòºÅ£¬±ãÓÚËÑË÷ºóÑ¡Ôñ
+            else bundlesName.Add($"ã€{bundle.manifest.Anime}ã€‘{bundle.manifest.FriendlyBundleName}<alpha=#00>{i}");
+            //é€æ˜åº¦ä¸º0çš„éšè—å­—ç¬¦ï¼š<alpha=#00>{i}ï¼Œç”¨æ¥è®°å½•è¿™äº›å¡ç»„çš„åºå·ï¼Œä¾¿äºæœç´¢åé€‰æ‹©
         }
         BundleList.ChangeOptionDatas(bundlesName);
         bundlesName = null;
-        //  BundleList.ban.Add("<align=\"center\"><alpha=#CC>ÒÔÏÂÎª¿ÉÓÃ¿¨×é");
+        //  BundleList.ban.Add("<align=\"center\"><alpha=#CC>ä»¥ä¸‹ä¸ºå¯ç”¨å¡ç»„");
 
-        //Ñ¡¶¨µÄ¿¨×éĞÅÏ¢Í¬²½
+        //é€‰å®šçš„å¡ç»„ä¿¡æ¯åŒæ­¥
         BundleList.onDropdownValueChangedWithoutInt.AddListener(delegate
         {
-            //allBundles[selectedBundleId]£ºËùÑ¡¿¨×é
+            //allBundles[selectedBundleId]ï¼šæ‰€é€‰å¡ç»„
 
-            //»ñÈ¡ËùÑ¡bundleµÄĞòºÅ
+            //è·å–æ‰€é€‰bundleçš„åºå·
             Debug.Log(BundleList.text.Split("<alpha=#00>")[1]);
             selectedBundleId = BundleList.text.Contains("<alpha=#00>") ? int.Parse(BundleList.text.Split("<alpha=#00>")[1]) : -1;
 
-            //¿¨×éÓĞÑ¡Ôñ£¬ĞÅÏ¢Í¬²½Óë¿¨ÅÆÁĞ±í¼¤»î
+            //å¡ç»„æœ‰é€‰æ‹©ï¼Œä¿¡æ¯åŒæ­¥ä¸å¡ç‰Œåˆ—è¡¨æ¿€æ´»
             if (BundleList.DropdownValue != 0)
             {
                 UpdateSelectorBundleInformation(allBundles[selectedBundleId].manifest);
-                //ÏÔÊ¾´Ë¿¨×éĞÅÏ¢£¬²¢ÔÊĞíÑ¡Ôñ¿¨ÅÆ
+                //æ˜¾ç¤ºæ­¤å¡ç»„ä¿¡æ¯ï¼Œå¹¶å…è®¸é€‰æ‹©å¡ç‰Œ
                 BundleInformationDisplay.SetActive(true);
                 CardList.gameObject.SetActive(true);
-                //¿ÉÓÃ¿¨×éÒ²·Åµ½ÁĞ±íÖĞ
+                //å¯ç”¨å¡ç»„ä¹Ÿæ”¾åˆ°åˆ—è¡¨ä¸­
                 List<string> cardsName = new();
                 for (int i = 0; i < allBundles[selectedBundleId].cards.Length; i++)
                 {
                     CharacterCard card = allBundles[selectedBundleId].cards[i];
                     if (string.IsNullOrEmpty(card.CharacterName)) cardsName.Add($"{card.FriendlyCardName}<alpha=#00>{i}");
-                    else cardsName.Add($"¡¾{card.CharacterName}¡¿{card.FriendlyCardName}<alpha=#00>{i}");
-                    //Í¸Ã÷¶ÈÎª0µÄÒş²Ø×Ö·û£º<alpha=#00>{i}£¬ÓÃÀ´¼ÇÂ¼ÕâĞ©¿¨×éµÄĞòºÅ£¬±ãÓÚËÑË÷ºóÑ¡Ôñ
+                    else cardsName.Add($"ã€{card.CharacterName}ã€‘{card.FriendlyCardName}<alpha=#00>{i}");
+                    //é€æ˜åº¦ä¸º0çš„éšè—å­—ç¬¦ï¼š<alpha=#00>{i}ï¼Œç”¨æ¥è®°å½•è¿™äº›å¡ç»„çš„åºå·ï¼Œä¾¿äºæœç´¢åé€‰æ‹©
                 }
                 CardList.ChangeOptionDatas(cardsName);
             }
-            //value = 0£¬Ã»ÓĞÑ¡Ôñ¿¨×é£¬½«²»±ØÒªµÄ°å¿é½ûÓÃ
+            //value = 0ï¼Œæ²¡æœ‰é€‰æ‹©å¡ç»„ï¼Œå°†ä¸å¿…è¦çš„æ¿å—ç¦ç”¨
             else
             {
                 BundleInformationDisplay.SetActive(false);
@@ -201,10 +207,10 @@ public class TestMode : MonoBehaviour
             }
 
         });
-        //Ñ¡¶¨µÄ¿¨ÅÆĞÅÏ¢Í¬²½
+        //é€‰å®šçš„å¡ç‰Œä¿¡æ¯åŒæ­¥
         CardList.onDropdownValueChangedWithoutInt.AddListener(delegate 
         {
-            //»ñÈ¡ËùÑ¡cardµÄĞòºÅ
+            //è·å–æ‰€é€‰cardçš„åºå·
             Debug.Log(CardList.text.Split("<alpha=#00>")[1]);
             selectedCardId = CardList.text.Contains("<alpha=#00>") ? int.Parse(CardList.text.Split("<alpha=#00>")[1]) : -1;
 
@@ -212,26 +218,26 @@ public class TestMode : MonoBehaviour
             CardInformationDisplay.SetActive(true);
         });
 
-        //È·ÈÏ´Ë¿¨ÅÆÉÏ³¡£¬²¢Ìí¼Ó¼ÓÔØ×ÊÔ´µÄÊÂ¼ş
+        //ç¡®è®¤æ­¤å¡ç‰Œä¸Šåœºï¼Œå¹¶æ·»åŠ åŠ è½½èµ„æºçš„äº‹ä»¶
         CardSelectorConfirmButton.OnClick.AddListener(delegate
         {
-            //allBundles[selectedBundleId]£ºËùÑ¡¿¨×é
+            //allBundles[selectedBundleId]ï¼šæ‰€é€‰å¡ç»„
 
-            //²»Ñ¡Ôñ¿¨ÅÆ£¬²»ÔÊĞíÖ´ĞĞÈ·ÈÏ²Ù×÷
+            //ä¸é€‰æ‹©å¡ç‰Œï¼Œä¸å…è®¸æ‰§è¡Œç¡®è®¤æ“ä½œ
             if (CardList.DropdownValue > 0)
             {
-                //Ìí¼Ó¼ÓÔØ×ÊÔ´µÄÊÂ¼ş
+                //æ·»åŠ åŠ è½½èµ„æºçš„äº‹ä»¶
                 eventBeforeSwitchToGame.Add(UniTask.UnityAction(async () =>
                 {
-                    //ËùÑ¡¿¨ÅÆ
+                    //æ‰€é€‰å¡ç‰Œ
                     var card = allBundles[selectedBundleId].cards[selectedCardId];
-                    loadState.text = $"ÕıÔÚ¼ÓÔØ¡°{card.FriendlyCardName}¡±£¬ÇëµÈ´ı...";
-                    //ËùÑ¡¿¨ÅÆµÄÎÄ¼ş¼ĞÂ·¾¶
+                    loadState.text = $"æ­£åœ¨åŠ è½½â€œ{card.FriendlyCardName}â€ï¼Œè¯·ç­‰å¾…...";
+                    //æ‰€é€‰å¡ç‰Œçš„æ–‡ä»¶å¤¹è·¯å¾„
                     var cardDiectoryPath = $"{Path.GetDirectoryName(allBundles[selectedBundleId].manifestFullPath)}/cards/{card.CardName}";
 
-                    //Í¼Æ¬¼ÓÔØ              
+                    //å›¾ç‰‡åŠ è½½              
                     var image = await LoadCoverImage($"{cardDiectoryPath}/{card.ImageName}");
-                    //ÒôÆµ¼ÓÔØ
+                    //éŸ³é¢‘åŠ è½½
                     var audios = await LoadAllAudioOfOneCard(card, cardDiectoryPath);
                     GameStageCtrl.stageCtrl.AddCardAndDisplayInStage(card, 0, image, audios[0], audios[1], audios[2], audios[3]);
                     loadState.text = string.Empty;
@@ -242,23 +248,23 @@ public class TestMode : MonoBehaviour
         });
         #endregion
 
-        #region ÓïÒô²âÊÔÆ÷
+        #region è¯­éŸ³æµ‹è¯•å™¨
         Toggle(voiceTestorToggle,voiceTestor);
-        //´ò¿ªÒôÆµ²âÊÔÆ÷Ö®ºó£¬¶ÁÈ¡³¡ÉÏ´æÔÚµÄ¿¨ÅÆ£¬ÓÃÓÚ²âÊÔÒôÆµ
+        //æ‰“å¼€éŸ³é¢‘æµ‹è¯•å™¨ä¹‹åï¼Œè¯»å–åœºä¸Šå­˜åœ¨çš„å¡ç‰Œï¼Œç”¨äºæµ‹è¯•éŸ³é¢‘
         voiceTestorToggle.onValueChanged.AddListener(delegate
         {
-            //µ±È»ÊÇµÃ¼¤»î²Å¶ÁÈ¡
+            //å½“ç„¶æ˜¯å¾—æ¿€æ´»æ‰è¯»å–
             if (voiceTestorToggle.isOn)
             {
                 var allCardPanels = GameStageCtrl.stageCtrl.GetAllCardOnStage(0);
-                //¼¤»î²âÊÔÆ÷£¬È»ºóÅäÖÃÏàÓ¦µÄ×ÊÔ´
+                //æ¿€æ´»æµ‹è¯•å™¨ï¼Œç„¶åé…ç½®ç›¸åº”çš„èµ„æº
                 for (int i = 0; i < allCardPanels.Length; i++)
                 {
                     tMAudioTestors[i].EnableAudioTestor(allCardPanels[i]);
                 }
                
             }
-            //¹Ø±Õ²âÊÔÆ÷½çÃæ£¬¾Í°ÑËùÓĞµÄ²âÊÔÆ÷½ûÓÃÁË
+            //å…³é—­æµ‹è¯•å™¨ç•Œé¢ï¼Œå°±æŠŠæ‰€æœ‰çš„æµ‹è¯•å™¨ç¦ç”¨äº†
             else
             {
                 foreach (var item in tMAudioTestors)
@@ -269,7 +275,7 @@ public class TestMode : MonoBehaviour
           
         });
 
-        //ÒôÁ¿µ÷Õû
+        //éŸ³é‡è°ƒæ•´
         voiceTestVolume.onValueChanged.AddListener(delegate (float arg0)
         {
             voiceTestPlayer.volume = arg0;
@@ -277,8 +283,8 @@ public class TestMode : MonoBehaviour
 
         #endregion
 
-        //¹Ø±ÕÊäÈëÕÚÕÖ
-        GameUI.gameUI.SetBanInputLayer(false, "²âÊÔÄ£Ê½ÔØÈëÖĞ...");
+        //å…³é—­è¾“å…¥é®ç½©
+        GameUI.gameUI.SetBanInputLayer(false, "æµ‹è¯•æ¨¡å¼è½½å…¥ä¸­...");
     }
 
 
@@ -291,82 +297,82 @@ public class TestMode : MonoBehaviour
             if(eventBeforeSwitchToGame.Count > 0)
             {
               eventBeforeSwitchToGame[0].Invoke();
-                //¼´Ê¹±»removeµô£¬Õâ¸öÊÂ¼şÈÔ»á¼ÌĞøÔËĞĞ
+                //å³ä½¿è¢«removeæ‰ï¼Œè¿™ä¸ªäº‹ä»¶ä»ä¼šç»§ç»­è¿è¡Œ
               eventBeforeSwitchToGame.RemoveAt(0);
             }
         }
     }
 
-    #region Í¨ÓÃ
+    #region é€šç”¨
     void Toggle(Toggle toggle,GameObject panelObject)
     {
-        //ÉÏ·½µÄÇĞ»»Æ÷
+        //ä¸Šæ–¹çš„åˆ‡æ¢å™¨
         toggle.onValueChanged.AddListener(delegate
         {
-            //È«¶¼¼ÓÔØÍêÁË£¬²ÅÄÜÇĞ»»¿ª¹Ø
+            //å…¨éƒ½åŠ è½½å®Œäº†ï¼Œæ‰èƒ½åˆ‡æ¢å¼€å…³
             if (string.IsNullOrEmpty(loadState.text))
             {
-                //ÇĞ»»¿ª¹Ø×´Ì¬                
+                //åˆ‡æ¢å¼€å…³çŠ¶æ€                
                 animator.SetBool("Expanded", toggle.isOn);
                 panelObject.SetActive(toggle.isOn);
             }
 
         });
 
-        //Ã¿¸öpanelÄÚ²¿µÄ¹Ø±Õ°´Å¥
+        //æ¯ä¸ªpanelå†…éƒ¨çš„å…³é—­æŒ‰é’®
         panelCloseButton.OnClick.AddListener(delegate
         {
-            //±£´æ¹Ø±Õ×´Ì¬
+            //ä¿å­˜å…³é—­çŠ¶æ€
             toggle.isOn = false;
 
         });
 
-        //¹Ø±ÕÕâ¸ö¹¤¾ßµÄ½çÃæ
+        //å…³é—­è¿™ä¸ªå·¥å…·çš„ç•Œé¢
         panelObject.SetActive(false);
     }
     #endregion
 
 
-    #region ¿¨ÅÆÑ¡ÔñÆ÷ÅäÌ×·½·¨
+    #region å¡ç‰Œé€‰æ‹©å™¨é…å¥—æ–¹æ³•
 
     /// <summary>
-    /// ÔÚ¿¨ÅÆÑ¡ÔñÆ÷ÖĞÍ¬²½¿¨×éÇåµ¥ĞÅÏ¢
+    /// åœ¨å¡ç‰Œé€‰æ‹©å™¨ä¸­åŒæ­¥å¡ç»„æ¸…å•ä¿¡æ¯
     /// </summary>
     /// <param name="manifestContent"></param>
     void UpdateSelectorBundleInformation(CardBundlesManifest manifestContent)
     {
-        manifestFriendlyName.text = $"<b>ÓÑºÃÃû³Æ£º</b>\n<margin-left=1em><size=80%>{manifestContent.FriendlyBundleName}";
-        manifestName.text =  $"<b>Ê¶±ğÃû³Æ£º</b>\n<margin-left=1em><size=80%>{manifestContent.BundleName}";
-        manifestAnime.text = $"<b>ËùÊô¶¯»­£º</b>\n<margin-left=1em><size=80%>{manifestContent.Anime}";
-        manifestAuthorName.text = $"<b>×÷ÕßÃû³Æ£º</b>\n<margin-left=1em><size=80%>{manifestContent.AuthorName}";
-        manifestDescription.text = $"<b>¿¨×é½éÉÜ£º</b>\n<margin-left=1em><size=80%>{manifestContent.Description}";
+        manifestFriendlyName.text = $"<b>å‹å¥½åç§°ï¼š</b>\n<margin-left=1em><size=80%>{manifestContent.FriendlyBundleName}";
+        manifestName.text =  $"<b>è¯†åˆ«åç§°ï¼š</b>\n<margin-left=1em><size=80%>{manifestContent.BundleName}";
+        manifestAnime.text = $"<b>æ‰€å±åŠ¨ç”»ï¼š</b>\n<margin-left=1em><size=80%>{manifestContent.Anime}";
+        manifestAuthorName.text = $"<b>ä½œè€…åç§°ï¼š</b>\n<margin-left=1em><size=80%>{manifestContent.AuthorName}";
+        manifestDescription.text = $"<b>å¡ç»„ä»‹ç»ï¼š</b>\n<margin-left=1em><size=80%>{manifestContent.Description}";
     }
 
     /// <summary>
-    /// ÔÚ¿¨ÅÆÑ¡ÔñÆ÷ÖĞÍ¬²½¿¨ÅÆĞÅÏ¢
+    /// åœ¨å¡ç‰Œé€‰æ‹©å™¨ä¸­åŒæ­¥å¡ç‰Œä¿¡æ¯
     /// </summary>
     /// <param name="manifestContent"></param>
     void UpdateSelectorCardInformation(CharacterCard cardContent)
     {
-        cardFriendlyName.text = $"<b>ÓÑºÃÃû³Æ£º</b>\n<margin-left=1em><size=80%>{cardContent.FriendlyCardName}";
-        cardCharacterName.text = $"<b>½ÇÉ«Ãû³Æ£º</b>\n<margin-left=1em><size=80%>{cardContent.CharacterName}";
-        cardCharacterVoiceName.text = $"<b>ÉùÓÅÃû³Æ£º</b>\n<margin-left=1em><size=80%>{cardContent.CV}";
-        cardAnime.text = $"<b>ËùÊô¶¯»­£º</b>\n<margin-left=1em><size=80%>{cardContent.Anime}";
-        cardBasicInf.text = $"<b>Ö´ĞĞÁ¦/ÌåÁ¦Öµ£º</b>{cardContent.BasicPower}/{cardContent.BasicHealthPoint}";
-        //±êÇ©Õ¹Ê¾
-        cardTag.text = $"<b>±êÇ©£º</b>";
+        cardFriendlyName.text = $"<b>å‹å¥½åç§°ï¼š</b>\n<margin-left=1em><size=80%>{cardContent.FriendlyCardName}";
+        cardCharacterName.text = $"<b>è§’è‰²åç§°ï¼š</b>\n<margin-left=1em><size=80%>{cardContent.CharacterName}";
+        cardCharacterVoiceName.text = $"<b>å£°ä¼˜åç§°ï¼š</b>\n<margin-left=1em><size=80%>{cardContent.CV}";
+        cardAnime.text = $"<b>æ‰€å±åŠ¨ç”»ï¼š</b>\n<margin-left=1em><size=80%>{cardContent.Anime}";
+        cardBasicInf.text = $"<b>æ‰§è¡ŒåŠ›/ä½“åŠ›å€¼ï¼š</b>{cardContent.BasicPower}/{cardContent.BasicHealthPoint}";
+        //æ ‡ç­¾å±•ç¤º
+        cardTag.text = $"<b>æ ‡ç­¾ï¼š</b>";
         for (int i = 0; i < cardContent.tags.Count; i++)
         {
             string item = cardContent.tags[i];
             if (i == 0) cardTag.text = $"{cardTag.text}{item}";           
-            cardTag.text = $"{cardTag.text}¡¢{item}";
+            cardTag.text = $"{cardTag.text}ã€{item}";
         }
-        cardDescription.text = $"<b>ÄÜÁ¦½éÉÜ£º</b>\n<margin-left=1em><size=80%>{cardContent.AbilityDescription}";
+        cardDescription.text = $"<b>èƒ½åŠ›ä»‹ç»ï¼š</b>\n<margin-left=1em><size=80%>{cardContent.AbilityDescription}";
     }
 
     async UniTask<Sprite> LoadCoverImage(string inmageFullPath)
     {
-        //¼ÓÔØÍ¼Æ¬£¬Èç¹û¼ÓÔØÊ§°ÜµÄ»°£¬¾ÍÓÃÔ¤Éè×Ô´øµÄÄ¬ÈÏÍ¼Æ¬ÁË
+        //åŠ è½½å›¾ç‰‡ï¼Œå¦‚æœåŠ è½½å¤±è´¥çš„è¯ï¼Œå°±ç”¨é¢„è®¾è‡ªå¸¦çš„é»˜è®¤å›¾ç‰‡äº†
         var texture = await CardReadWrite.CoverImageLoader(inmageFullPath);
         if (texture != null)
         {
@@ -377,7 +383,7 @@ public class TestMode : MonoBehaviour
     }
 
     /// <summary>
-    /// °´ÕÕdebut ability defeat exitµÄË³Ğò¶ÁÈ¡Ä³¸ö¿¨ÅÆËùÓĞµÄÒôÆµ
+    /// æŒ‰ç…§debut ability defeat exitçš„é¡ºåºè¯»å–æŸä¸ªå¡ç‰Œæ‰€æœ‰çš„éŸ³é¢‘
     /// </summary>
     /// <param name="cardContent"></param>
     /// <param name="cardDirectoryPath"></param>

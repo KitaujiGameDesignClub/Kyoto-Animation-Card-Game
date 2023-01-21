@@ -141,11 +141,11 @@ namespace Core
         /// <summary>
         /// 羁绊类型
         /// </summary>
-        public Information.ConnectTypes ConnectType;
+       // public Information.ConnectTypes ConnectType;
         /// <summary>
         /// 同一种羁绊类型中，只有在相同层上的，才可以激活。可以加入额外标记：[标记内容]：标记内容不同的卡牌之间才能够激活羁绊。
         /// </summary>
-        public string ConnectLayer;
+      //  public string ConnectLayer;
         
     }
 
@@ -597,15 +597,17 @@ namespace Core
              "中二",
              "节能",
              "傲娇",
-
+             "腹黑",
+             
+             "%外貌",
+             "黑长直",
+             "眼镜",
+             "京都脸",
+             "水手服",
+             
             "%特长",
             "唱歌",
             "乐器",
-            "手眼通天",
-            "知书达理",
-            "无所不知",
-            
-           
 
             "%感情",
             "有男女朋友",
@@ -619,9 +621,6 @@ namespace Core
             "弟弟",
             "姐姐",
             "妹妹",
-
-            
-
         };
 
 
@@ -668,7 +667,7 @@ namespace Core
             Fin,
         }
 
-
+/*
         /// <summary>
         /// 角色卡羁绊类别
         /// </summary>
@@ -696,14 +695,13 @@ namespace Core
             BroOrSis,
 
         }
-        
+        */
+      
         /// <summary>
         /// 角色卡状态
         /// </summary>
         public enum CardState
         {
-           
-
             /// <summary>
             /// 在可招募卡牌中出现
             /// </summary>

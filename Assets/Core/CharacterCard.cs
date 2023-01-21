@@ -87,7 +87,7 @@ namespace Core
         /// </summary>
         public string AbilityDescription = "甚至可以写一点简短的小骚话\n我很好奇能力是什么";
 
-        /*
+        /* 暂时做不了，以后用别的东西实现
                 /// <summary>
                 /// 角色间羁绊
                 /// </summary>
