@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Core
 {
@@ -16,6 +17,7 @@ namespace Core
         /// <summary>
         /// 卡牌名称（仅英语，文件名也是这个）
         /// </summary>
+        [Tooltip("卡牌名称（仅英语，文件名也是这个）")]
         public string CardName = "CharacterCard";
 
         /// <summary>
@@ -56,6 +58,7 @@ namespace Core
         /// <summary>
         /// 性别 0 无性别或性别不重要 1男 2女
         /// </summary>
+        [Tooltip("性别 0 无性别或性别不重要 1男 2女")]
         public int gender = 0;
 
         /// <summary>
@@ -85,6 +88,7 @@ namespace Core
         /// <summary>
         /// 能力描述
         /// </summary>
+        [TextArea]
         public string AbilityDescription = "甚至可以写一点简短的小骚话\n我很好奇能力是什么";
 
         /* 暂时做不了，以后用别的东西实现

@@ -83,7 +83,7 @@ public class TestMode : MonoBehaviour
     [Header("打架模拟器")]
     public GameObject battleEmulator;
     public Toggle battleEmulatorToggle;
-    public CharacterCard[] enemy = new CharacterCard[0];
+    public TMEnemyEmluation[] enemy = new TMEnemyEmluation[0];
     
     private Animator animator;
 
@@ -133,7 +133,7 @@ public class TestMode : MonoBehaviour
         //初始化额外加载状态
         loadState.text = string.Empty;
         GameUI.gameUI.SetBanInputLayer(true, "测试模式载入中...");
-        backgroundActivity();
+        BackgroundActivity();
 
 
         #region 卡牌选择器
@@ -283,12 +283,17 @@ public class TestMode : MonoBehaviour
 
         #endregion
 
+        #region 打架模拟器
+        //开关
+        Toggle(battleEmulatorToggle, battleEmulator);
+        #endregion
+
         //关闭输入遮罩
         GameUI.gameUI.SetBanInputLayer(false, "测试模式载入中...");
     }
 
 
-    private async UniTask backgroundActivity()
+    private async UniTask BackgroundActivity()
     {
         while (true)
         {

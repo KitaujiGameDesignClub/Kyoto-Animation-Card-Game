@@ -73,7 +73,7 @@ namespace Core
             else
             {
                 var card = new CharacterInGame(profile, teamId);
-                GameState.CardOnSpot[teamId].Add(card);
+                CardOnSpot[teamId].Add(card);
                 return card;
             }
         }

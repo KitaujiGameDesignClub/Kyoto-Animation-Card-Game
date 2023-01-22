@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Events;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {
@@ -15,21 +16,29 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 
         public int value => int.Parse(inputField.text);
 
+        public UnityEvent<int> onEndEdit;
+
         private void Start()
         {
-            //检查在不在范围内
+            //区间修正
             inputField.onEndEdit.AddListener(delegate 
             {
-                inputField.SetTextWithoutNotify(Mathf.Clamp(value, Min, Max).ToString());
+                var value = Mathf.Clamp(this.value, Min, Max);
+                inputField.text =(value.ToString());
+                onEndEdit.Invoke(value);
             });
         }
 
+        /// <summary>
+        /// 按钮增加减少用
+        /// </summary>
+        /// <param name="value"></param>
         public void Button(int value)
         {
             var number = this.value + value;
             number = Mathf.Clamp(number, Min, Max);
 
-            inputField.SetTextWithoutNotify(number.ToString());
+            inputField.text = (number.ToString());
         }
 
 

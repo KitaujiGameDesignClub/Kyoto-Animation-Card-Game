@@ -17,13 +17,30 @@ public class TMEnemyEmluation : MonoBehaviour
   /// 卡牌信息展示
   /// </summary>
   public TMP_Text Information;
+    public TMP_Text Name;
+
+    //数值修改
+    public IntegerInput power;
+    public IntegerInput hp;
+    public IntegerInput cardCount;
 
   private void Awake()
   {
-    //更新信息
+        //更新信息
+        Name.text = enemyProfile.FriendlyCardName;
+        var allTags = string.Empty;
+        for (int i = 0; i < enemyProfile.tags.Count; i++)
+        {
+            if(i == 0) allTags = $"{enemyProfile.tags[i]}";
+            else allTags = $"{allTags}、{enemyProfile.tags[i]}";
+
+        }
     Information.text = $"所属动画：{enemyProfile.Anime}\n" +
                        $"声优：{enemyProfile.CV}\n" +
                        $"能力描述：{enemyProfile.AbilityDescription}\n" +
-                       $"标签";
-  }
+                       $"标签：{allTags}";
+        power.onEndEdit.AddListener(delegate(int value) { enemyProfile.BasicPower = value; });
+        hp.onEndEdit.AddListener(delegate (int value) { enemyProfile.BasicHealthPoint = value; });
+        cardCount.onEndEdit.AddListener(delegate (int value) { enemyProfile.CardCount = value; });
+    }
 }

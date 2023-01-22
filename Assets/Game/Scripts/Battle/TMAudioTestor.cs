@@ -14,14 +14,6 @@ public class TMAudioTestor : MonoBehaviour
 
     private AudioClip[] clips = new AudioClip[4];
 
-    private void Start()
-    {
-   
-        //注册点击按钮播放音频的事件。不需要对clip=null进行验证
-       
-        
-    }
-
     public void EnableAudioTestor(CardPanel cardPanel)
     {
         gameObject.SetActive(true);
