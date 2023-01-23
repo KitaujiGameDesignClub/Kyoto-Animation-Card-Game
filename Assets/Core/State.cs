@@ -57,26 +57,7 @@ namespace Core
             chiefs = new Chief[2];
         }
 
-        /// <summary>
-        /// 添加出场卡牌
-        /// </summary>
-        /// <param name="profile"></param>
-        /// <param name="teamId">0=A 1=B</param>
-        public static CharacterInGame AddCard(CharacterCard profile, int teamId)
-        {
-            //此队伍的出场卡牌够多了（指到达上限6个）
-            if (CardOnSpot[teamId].Count >= Information.TeamMaxCardOnSpotCount)
-            {
-                return null;
-            }
-            //还能加
-            else
-            {
-                var card = new CharacterInGame(profile, teamId);
-                CardOnSpot[teamId].Add(card);
-                return card;
-            }
-        }
+      
 
 
     }

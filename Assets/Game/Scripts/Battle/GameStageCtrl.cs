@@ -30,7 +30,7 @@ public class GameStageCtrl : MonoBehaviour
     /// </summary>
     public CardPanel AddCardAndDisplayInStage(CharacterCard profile,int teamId,Sprite coverImage,AudioClip Debut, AudioClip ability, AudioClip Defeat,AudioClip Exit)
     {
-        var card = GameState.AddCard(profile, teamId);
+        var card = AddCard(profile, teamId);
 
         //能添加进来的话（指人数没有超过限制，就不是null）
        if (card != null)
@@ -40,7 +40,8 @@ public class GameStageCtrl : MonoBehaviour
             card.voiceExit = Exit;
             card.voiceDefeat = Defeat;
             card.voiceDebut = Debut;
-            card.CoverImage = coverImage == null ? card.CoverImage : coverImage;
+            //如果不提供图片，则用此预设的默认图片
+            card.CoverImage = coverImage;
             //卡面显示，并将卡牌信息panel进入到游戏模式中
             var panel =  Instantiate(cardPrefeb, Vector2.zero,Quaternion.identity, TeamParent(teamId));
             panel.EnterGameMode(card);
@@ -106,7 +107,64 @@ public class GameStageCtrl : MonoBehaviour
         }
 
     }
-  
+
+    /// <summary>
+    /// 移除某个组内所有的卡牌
+    /// </summary>
+    /// <param name="teamId">0=A 1=B</param>
+    public void RemoveAllCardsOnSpot(int teamId)
+    {
+
+        //卡牌数量 总子对象数目 - 定位用对象数目
+        var cardCount = TeamParent(teamId).childCount - CardPrePoint[teamId].PrePoint.Length;
+        //
+        for (int i = 0; i < cardCount; i++)
+        {
+            RemoveCardOnSpot(teamId, 0);            
+        }
+            
+    }
+
+    /// <summary>
+    /// 移除某个组的某个卡牌
+    /// </summary>
+    /// <param name="teamId">0=A 1=B</param>
+    /// <param name="index">第几张卡（从0开始）</param>
+    public void RemoveCardOnSpot(int teamId, int index)
+    {
+
+        //此组卡牌数量 总子对象数目 - 定位用对象数目
+        var cardCount = TeamParent(teamId).childCount - CardPrePoint[teamId].PrePoint.Length;
+        if (cardCount > 0)
+        {
+            DestroyImmediate(TeamParent(teamId).GetChild(index + CardPrePoint[teamId].PrePoint.Length).gameObject);
+            GameState.CardOnSpot[teamId].RemoveAt(index);
+
+        }
+       
+    }
+
+    /// <summary>
+    /// 给某个组添加出场卡牌（但是没有对用户显示）
+    /// </summary>
+    /// <param name="profile"></param>
+    /// <param name="teamId">0=A 1=B</param>
+     CharacterInGame AddCard(CharacterCard profile, int teamId)
+    {
+        //此队伍的出场卡牌够多了（指到达上限6个）
+        if (GameState. CardOnSpot[teamId].Count >= Information.TeamMaxCardOnSpotCount)
+        {
+            return null;
+        }
+        //还能加
+        else
+        {
+            var card = new CharacterInGame(profile, teamId);
+            GameState.CardOnSpot[teamId].Add(card);
+            return card;
+        }
+    }
+
     /// <summary>
     /// 每一个卡牌点位分组的父对象（就是那个TeamA(Player))
     /// </summary>
@@ -125,7 +183,7 @@ public class GameStageCtrl : MonoBehaviour
     {
         //缓存一下，这一组有多少子对象
         var totalChildCount = TeamParent(teamId).childCount;
-        //卡牌数量 总子对象数目 - 定位用对象数目
+        //此组卡牌数量 总子对象数目 - 定位用对象数目
         var cardCount = totalChildCount - CardPrePoint[teamId].PrePoint.Length;
         var cardPanels = new CardPanel[cardCount];
         //获取每一个卡牌的panel组件

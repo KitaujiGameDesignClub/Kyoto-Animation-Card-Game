@@ -41,7 +41,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
     /// <param name="cardState"></param>
     public void EnterGameMode(CharacterInGame cardState)
     {
-        image.sprite = cardState.CoverImage;
+        image.sprite = cardState.CoverImage == null ? image.sprite: cardState.CoverImage;
         DestroyImmediate(cardName.gameObject);
         DestroyImmediate(cv.gameObject);
         DestroyImmediate(description.gameObject);

@@ -20,8 +20,8 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 
         private void Start()
         {
-            //区间修正
-            inputField.onEndEdit.AddListener(delegate 
+            //区间修正 endEdit不能用
+            inputField.onValueChanged.AddListener(delegate 
             {
                 var value = Mathf.Clamp(this.value, Min, Max);
                 inputField.text =(value.ToString());

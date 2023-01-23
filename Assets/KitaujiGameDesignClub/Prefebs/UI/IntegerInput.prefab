@@ -459,7 +459,7 @@ MonoBehaviour:
   m_CharacterValidation: 2
   m_RegexValue: 
   m_GlobalPointSize: 26.2
-  m_CharacterLimit: 0
+  m_CharacterLimit: 4
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -960,6 +960,9 @@ MonoBehaviour:
   Max: 6
   Min: 0
   inputField: {fileID: 483455710220537450}
+  onEndEdit:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &483455711423619163
 GameObject:
   m_ObjectHideFlags: 0

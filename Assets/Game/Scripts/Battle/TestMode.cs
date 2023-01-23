@@ -84,7 +84,8 @@ public class TestMode : MonoBehaviour
     public GameObject battleEmulator;
     public Toggle battleEmulatorToggle;
     public TMEnemyEmluation[] enemy = new TMEnemyEmluation[0];
-    
+    public Button BattleEnemyAdditionButton;
+
     private Animator animator;
 
     private void Awake()
@@ -286,6 +287,19 @@ public class TestMode : MonoBehaviour
         #region 打架模拟器
         //开关
         Toggle(battleEmulatorToggle, battleEmulator);
+        //添加敌机
+        BattleEnemyAdditionButton.onClick.AddListener(delegate 
+        {
+            //清除已有敌机
+            GameStageCtrl.stageCtrl.RemoveAllCardsOnSpot(1);
+            //添加卡牌（反正现在就一个敌机卡）
+            for (int i = 0; i < enemy[0].enemyProfile.CardCount; i++)
+            {
+                GameStageCtrl.stageCtrl.AddCardAndDisplayInStage(enemy[0].enemyProfile, 1, enemy[0].image.sprite, null, null, null, null);
+            }        
+
+
+        });
         #endregion
 
         //关闭输入遮罩
