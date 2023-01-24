@@ -80,6 +80,8 @@ namespace Core
             profile = characterCard;
             silence = 0;
             ridicule = 0;
+            actualPower = characterCard.BasicPower;
+            actualHealthPoint = characterCard.BasicHealthPoint;
             State = Information.CardState.Present;
            // connectEnabled = false;
             this.teamId = teamId;

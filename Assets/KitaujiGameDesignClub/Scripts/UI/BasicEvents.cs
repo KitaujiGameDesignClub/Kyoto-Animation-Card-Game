@@ -44,12 +44,20 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             if (PublicAudioSource.publicAudioSource != null)   PublicAudioSource.publicAudioSource.PlaySoundEffect(PublicAudioSource.AudioType.Click);
         }
 
-        public  void OpenWeb()
+        /// <summary>
+        /// 打开某个网站
+        /// </summary>
+        public void OpenURL(string url)
         {
             clickSound();
-            Application.OpenURL("https://kitaujigamedesign.top");
+            Application.OpenURL(url);
         }
-    
+
+        /// <summary>
+        /// 打开官网
+        /// </summary>
+        public void OpenWeb() => OpenURL("https://kitaujigamedesign.top");
+
         public  void ReturnToTitle()
         {
             if (PublicAudioSource.publicAudioSource != null)   PublicAudioSource.publicAudioSource.StopMusicPlaying();

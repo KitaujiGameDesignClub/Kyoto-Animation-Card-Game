@@ -367,7 +367,9 @@ public class CardMaker : MonoBehaviour
 
 
 
-    #region 界面切换（返回，编辑器间切换）
+    #region 界面切换（返回，编辑器间切换）和打开文档
+
+    public void OpenHelpDocument() => basicEvents.OpenURL("https://shimo.im/docs/N2A1M7mzZ4S0NRAD");
 
     public void ExitGame() => basicEvents.ExitGame();
 

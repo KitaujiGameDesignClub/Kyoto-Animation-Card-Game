@@ -22,17 +22,27 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
     /// 所用卡牌在游戏中的状态
     /// </summary>
     [Header("游戏模式")]
+    public GameObject[] othersToDestroy;
     public CharacterInGame cardStateInGame;
     public Transform tr;
-    public GameObject[] othersToDestroy;
+    public TMP_Text powerValue;
+    public TMP_Text hpValue;
 
- 
+    /// <summary>
+    /// 信息展示用（即不是游戏模式）
+    /// </summary>
+    /// <param name="cardName"></param>
+    /// <param name="cv"></param>
+    /// <param name="description"></param>
+    /// <param name="image"></param>
     public void UpdateBasicInformation(string cardName,string cv, string description,Sprite image)
     {
         this.cardName.text = cardName ?? throw new ArgumentNullException(nameof(cardName));
         this.cv.text = cv == "不设置声优" ? string.Empty : $"cv:{cv}";
         this.description.text = description ?? throw new ArgumentNullException(nameof(description));
         this.image.sprite = image;
+        Destroy(powerValue.gameObject);
+        Destroy(hpValue.gameObject);
     }
 
     /// <summary>
@@ -41,7 +51,14 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
     /// <param name="cardState"></param>
     public void EnterGameMode(CharacterInGame cardState)
     {
+        //设置上图片
         image.sprite = cardState.CoverImage == null ? image.sprite: cardState.CoverImage;
+        image.sortingOrder = 0;//层级调整
+        //初始化体力值与行动力
+        powerValue.text = cardState.actualPower.ToString();
+        powerValue.gameObject.SetActive(true);
+        hpValue.text = cardState.actualHealthPoint.ToString();
+        hpValue.gameObject.SetActive(true);
         DestroyImmediate(cardName.gameObject);
         DestroyImmediate(cv.gameObject);
         DestroyImmediate(description.gameObject);
