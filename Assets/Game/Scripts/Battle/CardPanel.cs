@@ -94,6 +94,9 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
     public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2, CharacterInGame Activator)
     {
         ((ICharacterCardInGame)cardStateInGame).ChangeHealthAndPower(changeHealth, value1, changePower, value2, Activator);
+        //更新数据显示
+        powerValue.text = cardStateInGame.actualPower.ToString();
+        hpValue.text = cardStateInGame.actualHealthPoint.ToString();
     }
 
     public void ChangeState(Information.CardState cardState)

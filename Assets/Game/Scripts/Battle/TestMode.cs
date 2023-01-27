@@ -57,6 +57,7 @@ public class TestMode : MonoBehaviour
     public TMP_Text cardBasicInf;//攻击力和生命值
     public TMP_Text cardTag;
     public TMP_Text cardDescription;
+    public Button[] DeletionButtons = new Button[6];
     /// <summary>
     /// 缓存的所有卡组
     /// </summary>
@@ -140,6 +141,24 @@ public class TestMode : MonoBehaviour
         #region 卡牌选择器
         //卡牌选择器 展开和关闭
         Toggle(CardSelectorToggle,cardSelector);
+
+        for (int i = 0; i < DeletionButtons.Length; i++)
+        {
+            //缓存i的值
+            var value = i;
+            Button deletionButton = DeletionButtons[value];
+            //总之先把所有的删除按钮禁用了
+            deletionButton.interactable = false;
+            //注册卡牌删除事件
+            deletionButton.onClick.AddListener(delegate
+            {
+                //移除要删除的卡牌
+                GameStageCtrl.stageCtrl.RemoveCardOnSpot(0, value);
+                //调整按钮的禁用关系
+                RefreshDeletionButtonState();
+             //   Debug.Log($"{value}  {i}"); 经过这行代码的验证，i在这个事件中永远是6，所以需要缓存一个value
+            });
+        }
 
         //读取所有的卡组
         GameUI.gameUI.SetBanInputLayer(true, "卡组读取中...");
@@ -244,8 +263,13 @@ public class TestMode : MonoBehaviour
                     loadState.text = string.Empty;
                     image = null;
                     audios = null;
+                    //刷新删除按钮的激活状态
+                    Debug.Log(GameStageCtrl.stageCtrl.GetCardCount(0));
+                    RefreshDeletionButtonState();
                 }));
             }
+
+          
         });
         #endregion
 
@@ -257,6 +281,7 @@ public class TestMode : MonoBehaviour
             //当然是得激活才读取
             if (voiceTestorToggle.isOn)
             {
+                //得到所有的cardpanel，用于读取其中的音频资源
                 var allCardPanels = GameStageCtrl.stageCtrl.GetAllCardOnStage(0);
                 //激活测试器，然后配置相应的资源
                 for (int i = 0; i < allCardPanels.Length; i++)
@@ -353,6 +378,18 @@ public class TestMode : MonoBehaviour
 
 
     #region 卡牌选择器配套方法
+
+    /// <summary>
+    /// 根据己方场上卡牌的数量，刷新删除按钮的可用状态
+    /// </summary>
+    void RefreshDeletionButtonState()
+    {
+        var count = GameStageCtrl.stageCtrl.GetCardCount(0);
+        for (int i = 0; i < 6; i++)
+        {
+            DeletionButtons[i].interactable = count > i;
+        }
+    }
 
     /// <summary>
     /// 在卡牌选择器中同步卡组清单信息

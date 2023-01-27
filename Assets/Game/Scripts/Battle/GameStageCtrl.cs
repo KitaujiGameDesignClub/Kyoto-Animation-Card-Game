@@ -48,12 +48,8 @@ public class GameStageCtrl : MonoBehaviour
             //整理场上的卡牌排序
             ArrangeTeamCardOnSpot(teamId);
             return panel;
-
         }
-        else
-        {
-            return null;
-        }
+        else return null;
     }
 
 
@@ -114,15 +110,13 @@ public class GameStageCtrl : MonoBehaviour
     /// <param name="teamId">0=A 1=B</param>
     public void RemoveAllCardsOnSpot(int teamId)
     {
-
         //卡牌数量 总子对象数目 - 定位用对象数目
         var cardCount = TeamParent(teamId).childCount - CardPrePoint[teamId].PrePoint.Length;
         //
         for (int i = 0; i < cardCount; i++)
         {
-            RemoveCardOnSpot(teamId, 0);            
-        }
-            
+            RemoveCardOnSpot(teamId, 0,false);            
+        }            
     }
 
     /// <summary>
@@ -130,26 +124,59 @@ public class GameStageCtrl : MonoBehaviour
     /// </summary>
     /// <param name="teamId">0=A 1=B</param>
     /// <param name="index">第几张卡（从0开始）</param>
-    public void RemoveCardOnSpot(int teamId, int index)
+    /// <param name="autoArrange">是否允许移除后自动整理卡牌排序</param>
+    public void RemoveCardOnSpot(int teamId, int index,bool autoArrange = true)
     {
 
         //此组卡牌数量 总子对象数目 - 定位用对象数目
-        var cardCount = TeamParent(teamId).childCount - CardPrePoint[teamId].PrePoint.Length;
+        var cardCount = GetCardCount(teamId);
         if (cardCount > 0)
         {
-            DestroyImmediate(TeamParent(teamId).GetChild(index + CardPrePoint[teamId].PrePoint.Length).gameObject);
+            DestroyImmediate(((Transform)GetCardOnSpot<Transform>(teamId,index)).gameObject);
+            Debug.Log($"{index}  {GameState.CardOnSpot[teamId].Count}");
             GameState.CardOnSpot[teamId].RemoveAt(index);
-
-        }
-       
+            if (autoArrange) ArrangeTeamCardOnSpot(teamId);
+        }       
     }
 
     /// <summary>
-    /// 给某个组添加出场卡牌（但是没有对用户显示）
+    /// 获取场上的某一个卡牌
+    /// </summary>
+    /// <param name="teamId">0=A 1=B</param>
+    /// <param name="index">第几张卡（从0开始）</param>
+    /// <returns></returns>
+    public CharacterInGame GetCardOnSpot(int teamId,int index)
+    {
+       return GameState.CardOnSpot[teamId][index];
+    }
+
+    /// <summary>
+    /// 获取场上的某一个卡牌
+    /// </summary>
+    /// <param name="teamId">0=A 1=B</param>
+    /// <param name="index">第几张卡（从0开始）</param>
+    /// <returns></returns>
+    public object GetCardOnSpot<T>(int teamId, int index)
+    {
+        //TeamA(Player)的第 CardPrePoint[teamId].PrePoint.Length 个子对象（从0开始数）就是第一张卡牌
+        var cardPanel = TeamParent(teamId).GetChild(6 + index);
+     //   var cardPanel = TeamParent(teamId).GetChild(index + CardPrePoint[teamId].PrePoint.Length);
+        if (typeof(T) == typeof(Transform))
+        {            
+            return cardPanel;
+        }
+        else
+        {
+            return cardPanel.GetComponent<T>();
+        }
+    }
+
+    /// <summary>
+    /// 给某个组添加出场卡牌（但是没有对用户显示，即仅有里状态）
     /// </summary>
     /// <param name="profile"></param>
     /// <param name="teamId">0=A 1=B</param>
-     CharacterInGame AddCard(CharacterCard profile, int teamId)
+    CharacterInGame AddCard(CharacterCard profile, int teamId)
     {
         //此队伍的出场卡牌够多了（指到达上限6个）
         if (GameState. CardOnSpot[teamId].Count >= Information.TeamMaxCardOnSpotCount)
@@ -165,15 +192,7 @@ public class GameStageCtrl : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 每一个卡牌点位分组的父对象（就是那个TeamA(Player))
-    /// </summary>
-    /// <param name="teamId"></param>
-    /// <returns></returns>
-    private Transform TeamParent(int teamId)
-    {
-        return CardPrePoint[teamId].PrePoint[0].parent;
-    }
+
 
     /// <summary>
     /// 获取场上的所有卡牌
@@ -195,7 +214,26 @@ public class GameStageCtrl : MonoBehaviour
         }
         return cardPanels;
     }
-    
+
+    /// <summary>
+    /// 获取某一组卡牌的数量
+    /// </summary>
+    /// <param name="teamId">0=A 1=B</param>
+    /// <returns></returns>
+    public int GetCardCount(int teamId)
+    {
+        return GameState.CardOnSpot[teamId].Count;
+    }
+
+    /// <summary>
+    /// 每一个卡牌点位分组的父对象（就是那个TeamA(Player))
+    /// </summary>
+    /// <param name="teamId">0=A 1=B</param>
+    /// <returns></returns>
+    private Transform TeamParent(int teamId)
+    {
+        return CardPrePoint[teamId].PrePoint[0].parent;
+    }
 
     [System.Serializable]
     private class Team
