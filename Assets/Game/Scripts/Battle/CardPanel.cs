@@ -109,9 +109,51 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
         ((ICharacterCardInGame)cardStateInGame).OnDebut();
     }
 
-    public void Normal()
+    public void Attack(CharacterInGame target)
     {
-        ((ICharacterCardInGame)cardStateInGame).Normal();
+        //执行攻击逻辑
+        ((ICharacterCardInGame)cardStateInGame).Attack(target);
+    }
+
+    /// <summary>
+    /// 针对：每一回合都执行的攻击逻辑 用的动画之类的东西
+    /// </summary>
+    /// <returns></returns>
+    public async UniTask AnimationForNormal(Vector2 attackPoint)
+    {
+        //通常的攻击动画
+        await attackAnimation(attackPoint);
+    }
+
+    private async UniTask attackAnimation(Vector2 attackPoint)
+    {
+        //记录原位置
+        var originalPos = tr.position;
+
+        //靠近要攻击目标卡牌
+        while (true)
+        {
+            tr.position = Vector2.Lerp(tr.position, attackPoint, 0.5f);
+            //足够近，停止循环
+            if(Math.Abs(tr.position.x - attackPoint.x) <= 0.1f)
+            {
+                break;
+            }
+            await UniTask.Yield(PlayerLoopTiming.Update);
+        }
+        //等一帧
+        await UniTask.Yield(PlayerLoopTiming.Update);
+        //回到远地点
+        while (true)
+        {
+            tr.position = Vector2.Lerp(tr.position, originalPos, 0.5f);
+            //足够近，停止循环（尽量能靠近）
+            if (Math.Abs(tr.position.x - originalPos.x) <= 0.01f)
+            {
+                break;
+            }
+            await UniTask.Yield(PlayerLoopTiming.Update);
+        }
     }
 
     public void Exit()

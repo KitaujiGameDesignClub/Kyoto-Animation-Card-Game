@@ -1514,7 +1514,7 @@ Sprite:
     81d7b7561dbcf814d8532f388db439a7: 21300000
   m_AtlasTags:
   - Battle
-  m_SpriteAtlas: {fileID: 4343727234628468602, guid: 8bc64b84f3de3cc428b5f243249712d7, type: 2}
+  m_SpriteAtlas: {fileID: 0}
   m_RD:
     serializedVersion: 3
     texture: {fileID: 2800000, guid: 81d7b7561dbcf814d8532f388db439a7, type: 3}
@@ -1608,7 +1608,7 @@ Sprite:
     downscaleMultiplier: 1
   m_AtlasRD:
     serializedVersion: 3
-    texture: {fileID: 2, guid: 00000000000000000000000000000000, type: 0}
+    texture: {fileID: 0}
     alphaTexture: {fileID: 0}
     secondaryTextures: []
     m_SubMeshes:
@@ -1688,14 +1688,14 @@ Sprite:
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
-      x: 644.0761
-      y: 0.07612038
+      x: 69.07612
+      y: 14.07612
       width: 116.847755
       height: 227.84775
     textureRectOffset: {x: 69.07612, y: 14.07612}
-    atlasRectOffset: {x: 575, y: -14}
-    settingsRaw: 67
-    uvTransform: {x: 50, y: 703, z: 50, w: 114}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 50, y: 128, z: 50, w: 128}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: -1.14, y: -2.24}
@@ -1747,7 +1747,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 42.4, y: -214.33}
+  m_AnchoredPosition: {x: 42.40001, y: -214.33}
   m_SizeDelta: {x: 51.04, y: 51.04}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &307267980
@@ -3868,6 +3868,7 @@ MonoBehaviour:
     - {fileID: 522093594}
     - {fileID: 1017907211}
     - {fileID: 1998206130}
+  basicCardInterval: 0.3
 --- !u!1 &503941569
 GameObject:
   m_ObjectHideFlags: 0
@@ -6557,7 +6558,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 42.4, y: -112.25}
+  m_AnchoredPosition: {x: 42.40001, y: -112.25}
   m_SizeDelta: {x: 51.04, y: 51.04}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &801480999
@@ -10861,7 +10862,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 212.86, y: -0.000015259}
+  m_AnchoredPosition: {x: 212.85999, y: -0.000015259}
   m_SizeDelta: {x: 425.3, y: 807.98}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1199463028
@@ -12254,7 +12255,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 42.4, y: -163.29}
+  m_AnchoredPosition: {x: 42.40001, y: -163.29}
   m_SizeDelta: {x: 51.04, y: 51.04}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1418646891
@@ -12449,7 +12450,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 42.4, y: -61.21}
+  m_AnchoredPosition: {x: 42.40001, y: -61.21}
   m_SizeDelta: {x: 51.04, y: 51.04}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1419474761
@@ -17346,6 +17347,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1199463026}
     m_Modifications:
+    - target: {fileID: 480229911200303282, guid: 7e34afe616502ee449db987f70647444, type: 3}
+      propertyPath: m_text
+      value: "\u6682\u505C\u6A21\u5F0F"
+      objectReference: {fileID: 0}
     - target: {fileID: 480229911441259178, guid: 7e34afe616502ee449db987f70647444, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -17432,7 +17437,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 480229911441259179, guid: 7e34afe616502ee449db987f70647444, type: 3}
       propertyPath: m_Name
-      value: test model
+      value: pause model
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7e34afe616502ee449db987f70647444, type: 3}

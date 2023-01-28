@@ -2,8 +2,16 @@ using Cysharp.Threading.Tasks;
 
 namespace Core.Interface
 {
+    /// <summary>
+    /// 没有动画，瞬间完成的游戏逻辑
+    /// </summary>
     public interface ICharacterCardInGame
     {
+        /*
+         * 对于各类数值的调整同步执行就行，反正也是瞬间完成
+         * 动画或者其他效果之类的，要等待他播放完成，用每个方法对应的异步（CardPanel专属）
+        */
+
         /// <summary>
         /// 受到伤害
         /// </summary>
@@ -39,9 +47,9 @@ namespace Core.Interface
         public void OnDebut();
 
         /// <summary>
-        /// 每次轮到该卡都执行
+        /// 每次轮到该卡都执行的攻击逻辑
         /// </summary>
-        public void Normal();
+        public void Attack(CharacterInGame target);
 
         /// <summary>
         /// 退场时执行

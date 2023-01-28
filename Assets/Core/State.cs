@@ -31,14 +31,25 @@ namespace Core
         public static int whichTeamIsAttacking = -1;
 
         /// <summary>
-        /// 哪一张卡正在执行攻击等有关逻辑（1-6）  A,B队
+        /// 哪一张卡正在执行攻击等有关逻辑（0-5）  A,B队
         /// </summary>
-        public static int[] whichCardPerforming = { 1, 1 };
+        public static int[] whichCardPerforming = { 0, 0 };
 
         /// <summary>
         /// 双方的部长
         /// </summary>
         public static Chief[] chiefs = new Chief[2];
+
+        /// <summary>
+        /// 打架中的游戏模式
+        /// </summary>
+        public enum PauseModeOfBattle
+        {
+            Legacy,
+            EachCard,
+            EachEnemyCard,
+            EachOurCard,
+        }
 
         /// <summary>
         /// 创建新游戏
@@ -53,7 +64,7 @@ namespace Core
             CardInHand[0] = new();
             CardInHand[1] = new();
             whichTeamIsAttacking = -1;
-            whichCardPerforming[0] = 1; whichCardPerforming[1] = 1;
+            whichCardPerforming[0] = 0; whichCardPerforming[1] = 0;
             chiefs = new Chief[2];
         }
 

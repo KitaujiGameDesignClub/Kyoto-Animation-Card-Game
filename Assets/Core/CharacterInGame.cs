@@ -52,6 +52,11 @@ namespace Core
         public Information.CardState State;
 
         /// <summary>
+        /// 这一轮游戏这个卡牌已经干过活了
+        /// </summary>
+        public bool thisRoundHasActiviated = false;
+
+        /// <summary>
         /// 音效资源
         /// </summary>
         public AudioClip voiceDebut;
@@ -168,14 +173,17 @@ namespace Core
         }
 
         /// <summary>
-        /// 每次轮到该卡都执行
+        /// 每次轮到该卡都执行的攻击逻辑
         /// </summary>
-        public void Normal()
+        public void Attack(CharacterInGame target)
         {
+            //顺带分析一波能力
             if (profile.AbilityActivityType == Information.CardAbilityTypes.Normal)
             {
                 AbilityReasonAnalyze(this);
             }
+
+            //扣血逻辑之类的...
         }
 
         /// <summary>
