@@ -86,6 +86,15 @@ public class TestMode : MonoBehaviour
     public Toggle battleEmulatorToggle;
     public TMEnemyEmluation[] enemy = new TMEnemyEmluation[0];
     public Button BattleEnemyAdditionButton;
+    public Button GoToBattleFieldButton;
+    [Header("打架模拟器-控制部分")]
+    public GameObject BattleEmulatorControlPart;
+    public LeanToggle[] PauseModeSelector = new LeanToggle[4];
+    public Button ContinueBattleButton;
+    public LeanButton StartBattleButton;
+    public LeanButton RestartTestButton;
+    public LeanButton CancelTestButton;
+
 
     private Animator animator;
 
@@ -103,7 +112,8 @@ public class TestMode : MonoBehaviour
     {        
         //面板初始化
         title.text = $"目前处于测试模式\nDevice:{SystemInfo.deviceType}  CPU:{SystemInfo.processorType}  OS:{SystemInfo.operatingSystem}  RAM:{SystemInfo.systemMemorySize}MiB  Screen:{Screen.currentResolution}";
-
+        //初始化一个新游戏
+        GameState.CreateNewGame();
 
         #region 调整卡牌选择器板块的激活状态
         BundleList.gameObject.SetActive(true);
@@ -117,6 +127,10 @@ public class TestMode : MonoBehaviour
         {
             item.gameObject.SetActive(false);
         }
+        #endregion
+
+        #region 调整打架模拟的激活状态
+        BattleEmulatorControlPart.SetActive(false);
         #endregion
 
 
@@ -321,17 +335,57 @@ public class TestMode : MonoBehaviour
             for (int i = 0; i < enemy[0].enemyProfile.CardCount; i++)
             {
                 GameStageCtrl.stageCtrl.AddCardAndDisplayInStage(enemy[0].enemyProfile, 1, enemy[0].image.sprite, null, null, null, null);
-            }        
-
-
+            } 
         });
+
+        //进入到控制部分
+        GoToBattleFieldButton.onClick.AddListener(delegate
+        {
+            BattleEmulatorControlPart.SetActive(true);
+            battleEmulatorToggle.gameObject.SetActive(false);
+            CardSelectorToggle.gameObject.SetActive(false);
+            voiceTestorToggle.gameObject.SetActive(false);
+            panel.gameObject.SetActive(false);
+        });
+
+        //模拟开战
+        StartBattleButton.OnClick.AddListener(delegate
+        {
+            //禁用“继续战斗”按钮
+            ContinueBattleButton.interactable = false;
+
+            for (int i = 0; i < PauseModeSelector.Length; i++)
+            {
+                //找到选择的是哪个暂停模式，开打
+                //顺便注册激活“继续战斗”按钮事件
+                if (PauseModeSelector[i].On) GameStageCtrl.stageCtrl.BattleSystem((Information.PauseModeOfBattle)i,delegate { ContinueBattleButton.interactable = true; });
+
+            }           
+        });
+
+        //继续战斗
+        ContinueBattleButton.onClick.AddListener(delegate
+        {
+            //禁用“继续战斗”按钮
+            ContinueBattleButton.interactable = false;
+
+            for (int i = 0; i < PauseModeSelector.Length; i++)
+            {
+                //找到选择的是哪个暂停模式，开打
+                //顺便注册激活“继续战斗”按钮事件
+                if (PauseModeSelector[i].On) GameStageCtrl.stageCtrl.BattleSystem((Information.PauseModeOfBattle)i, delegate { ContinueBattleButton.interactable = true; });
+
+            }
+        });
+
+
         #endregion
 
         //关闭输入遮罩
         GameUI.gameUI.SetBanInputLayer(false, "测试模式载入中...");
     }
 
-
+    [Obsolete("maybe useless")]
     private async UniTask BackgroundActivity()
     {
         while (true)

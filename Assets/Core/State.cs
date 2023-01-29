@@ -40,16 +40,7 @@ namespace Core
         /// </summary>
         public static Chief[] chiefs = new Chief[2];
 
-        /// <summary>
-        /// 打架中的游戏模式
-        /// </summary>
-        public enum PauseModeOfBattle
-        {
-            Legacy,
-            EachCard,
-            EachEnemyCard,
-            EachOurCard,
-        }
+        public static Information.GameState gameState = Information.GameState.Preparation;
 
         /// <summary>
         /// 创建新游戏

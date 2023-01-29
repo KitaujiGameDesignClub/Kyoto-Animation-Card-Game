@@ -336,6 +336,9 @@ public class CardEditor : MonoBehaviour
         abilityResultSilence.SetTextWithoutNotify("0");
         CVField.inputField.SetTextWithoutNotify(String.Empty);
         abilityResultSummon.ChangeOptionDatas(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
+        abilityReasonJudgeLogic.value = nowEditingCard.Reason.Logic + 3;
+        abilityReasonLogic.value = nowEditingCard.Reason.NeededObjects.Logic + 3;
+        abilityResultLogic.value = nowEditingCard.Result.ResultObject.Logic;
         //tag也同步一下
         //移出所有无用(残留）的tag对象
         var UnusedTags = tagParent.GetComponentsInChildren<tagListItem>(false);
@@ -541,9 +544,9 @@ public class CardEditor : MonoBehaviour
         editing.AbilityActivityType = (Information.CardAbilityTypes)abilityReasonType.value;
         editing.Reason.NeededObjects.LargeScope = (Information.Objects)abilityReasonLargeScope.value;
         editing.Reason.NeededObjects.ParameterToShrinkScope = (Information.Parameter)abilityReasonParameter.value;
-        editing.Reason.NeededObjects.Logic = abilityReasonLogic.value;
+        editing.Reason.NeededObjects.Logic = abilityReasonLogic.value - 3;
         editing.Reason.NeededObjects.Threshold = abilityReasonThreshold.text;
-        editing.Reason.Logic = abilityReasonLogic.value;
+        editing.Reason.Logic = abilityReasonJudgeLogic.value - 3;
         editing.Reason.ReasonParameter = (Information.Parameter)abilityReasonJudgeParameter.value;
         editing.Reason.ReasonJudgeMethod = (Information.JudgeMethod)abilityReasonJudgeMethod.value;
         editing.Reason.Threshold = abilityReasonJudgeThreshold.text;
@@ -552,7 +555,7 @@ public class CardEditor : MonoBehaviour
         editing.Result.Ridicule = int.Parse(abilityResultRidicule.text);
         editing.Result.ResultObject.LargeScope = (Information.Objects)abilityResultLargeScope.value;
         editing.Result.ResultObject.ParameterToShrinkScope = (Information.Parameter)abilityResultParameter.value;
-        editing.Result.ResultObject.Logic = abilityResultLogic.value;
+        editing.Result.ResultObject.Logic = abilityResultLogic.value - 3;
         editing.Result.ResultObject.Threshold = abilityResultThreshold.text;
         editing.Result.ParameterToChange = (Information.Parameter)abilityResultParameterToChange.value;
         editing.Result.CalculationMethod = (Information.CalculationMethod)abilityResultChangeMethod.value;

@@ -234,16 +234,7 @@ namespace Core
             /// <summary>
             /// 场上所有卡牌
             /// </summary>
-            AllOnSpot,
-            /// <summary>
-            /// 己方场上随机一位角色
-            /// </summary>
-            RandomInTeam,
-
-            /// <summary>
-            /// 地方场上随机一位角色
-            /// </summary>
-            RandomOfEnemy,
+            AllOnSpot,          
 
             /// <summary>
             /// 己方全部
@@ -254,6 +245,16 @@ namespace Core
             /// 敌方全部
             /// </summary>
             AllOfEnemy,
+
+            /// <summary>
+            /// 己方场上随机一位角色
+            /// </summary>
+            RandomInTeam,
+
+            /// <summary>
+            /// 地方场上随机一位角色
+            /// </summary>
+            RandomOfEnemy,
 
             /// <summary>
             /// （己方）发动者的上一位
@@ -298,9 +299,6 @@ namespace Core
             Silence,
             Ridicule,
             State,
-            /// <summary>
-            /// 角色名字
-            /// </summary>
             Coin,
           
         }
@@ -356,7 +354,7 @@ namespace Core
             /// <summary>
             /// 每次轮到此卡均会出发
             /// </summary>
-            Normal,
+            Round,
 
             /// <summary>
             /// 登场。每次战斗中第一次轮到此卡牌时触发
@@ -380,7 +378,7 @@ namespace Core
 
             if (abilityEnum.GetType() == typeof(CardAbilityTypes))
             {
-                var text = "触发判定";
+                var text = "触发";
             
                 switch (abilityEnum)
                 {
@@ -394,9 +392,9 @@ namespace Core
                         return $"受伤时{text}";
                 
                     case CardAbilityTypes.None:
-                        return "不触发能力";
+                        return "不触发能力or无能力";
                 
-                    case CardAbilityTypes.Normal:
+                    case CardAbilityTypes.Round:
                         return $"每回合{text}";
                 
                     default:
@@ -440,13 +438,13 @@ namespace Core
                         return "剩余沉默回合数";
                     
                     case Parameter.State:
-                        return "角色状态";
+                        return "卡牌状态";
                     
                     case Parameter.Tag:
                         return "标签";
                     
                     case Parameter.Gender:
-                        return "性别";
+                        return "角色性别";
                 }
             }
 
@@ -463,13 +461,13 @@ namespace Core
                         return "触发器";
                     
                     case Objects.AllInTeam:
-                        return "己方全部";
+                        return "己方全部卡牌";
                     
                     case Objects.AllOfEnemy:
-                        return "敌方全部";
+                        return "敌方全部卡牌";
                     
                     case Objects.AllOnSpot:
-                        return "场上所有";
+                        return "场上所有卡牌";
                     
                     case Objects.Any:
                         return "任何情况下都可以";
@@ -478,22 +476,22 @@ namespace Core
                         return "敌方部长";
                     
                     case Objects.Last:
-                        return "己方上位";
+                        return "己方上位卡牌";
                     
                     case Objects.Next:
-                        return "己方下位";
+                        return "己方下位卡牌";
                     
                     case Objects.None:
                         return "不设定范围";
                     
                     case Objects.OurChief:
-                        return "己方部长";
+                        return "己方部长卡牌";
                     
                     case Objects.RandomInTeam:
-                        return "己方随机一位";
+                        return "己方随机一位卡牌";
                     
                     case Objects.RandomOfEnemy:
-                        return "敌方随机一位";
+                        return "敌方随机一位卡牌";
                     
                     case Objects.Self:
                         return "卡牌自身";
@@ -560,29 +558,37 @@ namespace Core
             
            
         }
-        
+
         #endregion
 
 
         #region 角色标签（默认值 可以按照萌娘百科萌点来）
 
-   
+
 
 
 
         #endregion
 
 
- 
-        
-
+        #region 游戏逻辑用 
+        /// <summary>
+        /// 打架中的游戏模式
+        /// </summary>
+        public enum PauseModeOfBattle
+        {
+            Legacy,
+            EachCard,
+            EachEnemyCard,
+            EachOurCard,
+        }
         /// <summary>
         /// 游戏状态
         /// </summary>
         public enum GameState
         {
             /// <summary>
-            /// 准备游戏。在所有玩家准备之前，处于此阶段
+            /// 准备游戏。在所有玩家准备之前/其他情况下，处于此阶段
             /// </summary>
             Preparation,
 
@@ -611,37 +617,41 @@ namespace Core
             /// </summary>
             Fin,
         }
+        #endregion
 
-/*
-        /// <summary>
-        /// 角色卡羁绊类别
-        /// </summary>
-        public enum ConnectTypes
-        {
-            /// <summary>
-            /// 无任何羁绊或不必要
-            /// </summary>
-            None,
-            /// <summary>
-            /// 恋人
-            /// </summary>
-            Lovers,
-            /// <summary>
-            /// 挚友
-            /// </summary>
-            BestFriends,
-            /// <summary>
-            /// 竞争对手
-            /// </summary>
-            Competitor,
-            /// <summary>
-            /// 兄弟姐妹
-            /// </summary>
-            BroOrSis,
 
-        }
-        */
-      
+
+
+        /*
+                /// <summary>
+                /// 角色卡羁绊类别
+                /// </summary>
+                public enum ConnectTypes
+                {
+                    /// <summary>
+                    /// 无任何羁绊或不必要
+                    /// </summary>
+                    None,
+                    /// <summary>
+                    /// 恋人
+                    /// </summary>
+                    Lovers,
+                    /// <summary>
+                    /// 挚友
+                    /// </summary>
+                    BestFriends,
+                    /// <summary>
+                    /// 竞争对手
+                    /// </summary>
+                    Competitor,
+                    /// <summary>
+                    /// 兄弟姐妹
+                    /// </summary>
+                    BroOrSis,
+
+                }
+                */
+
         /// <summary>
         /// 角色卡状态
         /// </summary>

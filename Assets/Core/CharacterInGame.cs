@@ -93,42 +93,25 @@ namespace Core
         }
 
 
-        /// <summary>
-        /// 受到伤害
-        /// </summary>
-        /// <param name="damage">正数</param>
         public void GetDamaged(int damage, CharacterInGame activator) =>
             ChangeHealthAndPower(true, damage, false, 0, activator);
 
-        /// <summary>
-        /// 攻击力提升
-        /// </summary>
-        /// <param name="value">正数</param>
+
         public void PowerUp(int value, CharacterInGame activator) =>
             ChangeHealthAndPower(false, 0, true, value, activator);
 
 
-        /// <summary>
-        /// 修改血量和攻击力
-        /// </summary>
-        /// <param name="changeHealth">要修改生命值吗</param>
-        /// <param name="value1">对血量修改，加法运算</param>
-        /// <param name="changePower">要修改攻击力吗</param>
-        /// <param name="value2">对攻击力修改，加法运算</param>
-        /// <param name="Activator">是谁触发了这个函数</param>
+     
         public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2,
             CharacterInGame Activator)
         {
             if (changeHealth)
             {
-               actualHealthPoint += value1;
-
                 //受到伤害
-                if (value1 < 0)
-                {
-                    OnHurt(Activator);
-                }
+                actualHealthPoint -= value1;
 
+               
+               //没血了
                 if (actualHealthPoint <= 0)
                 {
                     //do something....
@@ -140,10 +123,7 @@ namespace Core
             {
                actualPower += value2;
 
-                if (actualPower <= 0)
-                {
-                    //do something....
-                }
+             
             }
         }
 
@@ -178,12 +158,13 @@ namespace Core
         public void Attack(CharacterInGame target)
         {
             //顺带分析一波能力
-            if (profile.AbilityActivityType == Information.CardAbilityTypes.Normal)
+            if (profile.AbilityActivityType == Information.CardAbilityTypes.Round)
             {
                 AbilityReasonAnalyze(this);
             }
 
             //扣血逻辑之类的...
+            target.GetDamaged(actualPower, this);
         }
 
         /// <summary>

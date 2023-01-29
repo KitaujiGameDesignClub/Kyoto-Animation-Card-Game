@@ -65,7 +65,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
 
         foreach (var item in othersToDestroy)
         {
-            DestroyImmediate(item);
+          if(item != null) DestroyImmediate(item);
         }
 
        // cardName.gameObject.SetActive(false);
@@ -133,7 +133,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
         //靠近要攻击目标卡牌
         while (true)
         {
-            tr.position = Vector2.Lerp(tr.position, attackPoint, 0.5f);
+            tr.position = Vector2.Lerp(tr.position, attackPoint, 0.1f);
             //足够近，停止循环
             if(Math.Abs(tr.position.x - attackPoint.x) <= 0.1f)
             {
@@ -141,12 +141,12 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
             }
             await UniTask.Yield(PlayerLoopTiming.Update);
         }
-        //等一帧
-        await UniTask.Yield(PlayerLoopTiming.Update);
+        //等100ms
+        await UniTask.Delay(100);
         //回到远地点
         while (true)
         {
-            tr.position = Vector2.Lerp(tr.position, originalPos, 0.5f);
+            tr.position = Vector2.Lerp(tr.position, originalPos, 0.1f);
             //足够近，停止循环（尽量能靠近）
             if (Math.Abs(tr.position.x - originalPos.x) <= 0.01f)
             {

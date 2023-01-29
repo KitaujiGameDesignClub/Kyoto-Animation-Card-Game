@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Core;
 using Cysharp.Threading.Tasks;
+using System;
 
 /// <summary>
 /// 在加载好卡牌的情况下，游戏的本体逻辑应当都在这边
@@ -17,16 +18,18 @@ public class GameStageCtrl : MonoBehaviour
     /// 卡牌预用点位 A=0 B=1
     /// </summary>
     [SerializeField] private Team[] CardPrePoint  = new Team[2];
+    [SerializeField] private Transform CardCache;
 
     /// <summary>
     /// 每个卡牌之间 攻击的间隔(ms)
     /// </summary>
     [Header("打架逻辑")]
+    [Tooltip("单位：ms")]
     public int basicCardInterval = 300;
     /// <summary>
     /// 强制停止游戏逻辑
     /// </summary>
-    public bool forceToStop = false;
+    bool forceToStop = false;
 
     private void Awake()
     {
@@ -49,18 +52,21 @@ public class GameStageCtrl : MonoBehaviour
     /// </summary>
     /// <param name="pauseModeOfBattle"></param>
     /// <returns></returns>
-   async UniTask BattleSystem(GameState.PauseModeOfBattle pauseModeOfBattle)
+   public  async UniTask BattleSystem(Information.PauseModeOfBattle pauseModeOfBattle,Action battleEnd)
     {
+        //调整游戏状态为“在打架”
+        GameState.gameState = Information.GameState.Competition;
+
         switch (pauseModeOfBattle)
         {
             //每张卡牌运行后，都要暂停
-            case GameState.PauseModeOfBattle.EachCard:
+            case Information.PauseModeOfBattle.EachCard:
 
                    await CardRound(GameState.whichTeamIsAttacking == 0 ? 1:0);
                 
                 break;
 
-            case GameState.PauseModeOfBattle.EachEnemyCard:
+            case Information.PauseModeOfBattle.EachEnemyCard:
                 //玩家这边优先开打（这一轮做什么）     
                 await CardRound(0);
                 //卡牌间隔
@@ -69,7 +75,7 @@ public class GameStageCtrl : MonoBehaviour
                 await CardRound(1);
                 break;
 
-            case GameState.PauseModeOfBattle.EachOurCard:
+            case Information.PauseModeOfBattle.EachOurCard:
                 while (true)
                 {
                     //每个卡牌该怎么做就怎么做
@@ -79,7 +85,7 @@ public class GameStageCtrl : MonoBehaviour
                 }
                 break;
 
-            case GameState.PauseModeOfBattle.Legacy:
+            case Information.PauseModeOfBattle.Legacy:
                 while (true)
                 {
                     //每个卡牌该怎么做就怎么做
@@ -90,15 +96,15 @@ public class GameStageCtrl : MonoBehaviour
                 break;
         }
 
-        //玩家这边优先开打（这一轮做什么）     
-        await CardRound(0);  
-        //卡牌间隔
-        await UniTask.Delay(basicCardInterval);
-        //敌人打
-        await CardRound(1);
-    
+        //取消强制停止
+        forceToStop = false;
+        //调整游戏状态为“准备”
+        GameState.gameState = Information.GameState.Preparation;
+        //执行打架结束事件
+        battleEnd.Invoke();
 
-       
+
+
     }
 
 
@@ -131,7 +137,7 @@ public class GameStageCtrl : MonoBehaviour
                         //先执行每回合都执行的攻击逻辑
                         card.Attack(card.cardStateInGame);
                         //然后是动画相关的
-                        await card.AnimationForNormal(GetCardTransformOnSpot(teamId == 0 ? 1 : 0, Random.Range(0, GameState.CardOnSpot[1].Count)).position);
+                        await card.AnimationForNormal(GetCardTransformOnSpot(teamId == 0 ? 1 : 0, UnityEngine.Random.Range(0, GameState.CardOnSpot[1].Count)).position);
                     }
                     //沉默了的，不打架了
                     else
@@ -163,22 +169,44 @@ public class GameStageCtrl : MonoBehaviour
     {
        
         var card = AddCard(profile, teamId);
+        CardPanel panel = null;
 
         //能添加进来的话（指人数没有超过限制，就不是null）
         if (card != null)
         {
-            //资源填充
-            card.voiceAbility = ability;
-            card.voiceExit = Exit;
-            card.voiceDefeat = Defeat;
-            card.voiceDebut = Debut;
-            //如果不提供图片，则用此预设的默认图片
-            card.CoverImage = coverImage;
-            //卡面显示，并将卡牌信息panel进入到游戏模式中
-            var panel = Instantiate(cardPrefeb, Vector2.zero, Quaternion.identity, TeamParent(teamId));
+            //先看看缓存里有没有
+            var allInCache = GetAllCardPanelsInCache();
+            foreach (var item in allInCache )
+            {
+                //有的话，就用这个panel了
+                if (item.cardStateInGame.profile.Equals(card.profile))
+                {
+                    panel = item;
+                    //并将这个卡从缓存里拿出来
+                    panel.transform.parent = TeamParent(teamId);
+                    break;
+                }
+            }
+            //如果缓存里没有的话，就按部就班的生成此卡牌
+            if(panel == null)
+            {
+                //资源填充
+                card.voiceAbility = ability;
+                card.voiceExit = Exit;
+                card.voiceDefeat = Defeat;
+                card.voiceDebut = Debut;
+                //如果不提供图片，则用此预设的默认图片
+                card.CoverImage = coverImage;
+                //卡面显示，并将卡牌信息panel进入到游戏模式中
+                panel = Instantiate(cardPrefeb, Vector2.zero, Quaternion.identity, TeamParent(teamId));
+            }
+
+            //进入到游戏模式中
             panel.EnterGameMode(card);
             //整理场上的卡牌排序
             ArrangeTeamCardOnSpot(teamId);
+            //修改物体名称
+            panel.gameObject.name = $"{card.profile.CardName}";
             return panel;
         }
         else return null;
@@ -264,7 +292,7 @@ public class GameStageCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// 移除某个组的某个卡牌
+    /// 移除某个组的某个卡牌，并释放资源
     /// </summary>
     /// <param name="teamId">0=A 1=B</param>
     /// <param name="index">第几张卡（从0开始）</param>
@@ -276,11 +304,27 @@ public class GameStageCtrl : MonoBehaviour
         var cardCount = GetCardCount(teamId);
         if (cardCount > 0)
         {
-            DestroyImmediate(GetCardTransformOnSpot(teamId,index).gameObject);
-            Debug.Log($"{index}  {GameState.CardOnSpot[teamId].Count}");
+            //消除游戏中的显示
+            DestroyImmediate(GetCardTransformOnSpot(teamId,index).gameObject,true);
+            //消除游戏记录
             GameState.CardOnSpot[teamId].RemoveAt(index);
             if (autoArrange) ArrangeTeamCardOnSpot(teamId);
         }       
+    }
+
+    /// <summary>
+    ///  回收某一个卡牌，使其回到缓存中
+    /// </summary>
+    /// <param name="teamId"></param>
+    /// <param name="index"></param>
+    /// <param name="autoArrange"></param>
+    public void RecycleCardOnSpot(int teamId, int index, bool autoArrange = true)
+    {
+        //将此卡牌移到缓存中，并将其隐藏（父对象is disactive）
+        GetCardTransformOnSpot(teamId, index).parent = CardCache;
+        //消除游戏记录
+        GameState.CardOnSpot[teamId].RemoveAt(index);
+        if (autoArrange) ArrangeTeamCardOnSpot(teamId);
     }
 
 
@@ -329,6 +373,12 @@ public class GameStageCtrl : MonoBehaviour
             return cardPanel.GetComponent<T>();
         }
     }
+
+    /// <summary>
+    /// 获取缓存中的所有卡牌panel组件
+    /// </summary>
+    /// <returns></returns>
+    public CardPanel[] GetAllCardPanelsInCache() => CardCache.GetComponentsInChildren<CardPanel>();
 
 
     #endregion
