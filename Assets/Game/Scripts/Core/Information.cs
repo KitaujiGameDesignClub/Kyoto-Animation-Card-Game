@@ -621,8 +621,10 @@ namespace Core
 
 
 
+        #region  暂时不用了的羁绊
 
-        /*
+        
+  /*
                 /// <summary>
                 /// 角色卡羁绊类别
                 /// </summary>
@@ -652,6 +654,8 @@ namespace Core
                 }
                 */
 
+        #endregion
+      
         /// <summary>
         /// 角色卡状态
         /// </summary>
@@ -911,5 +915,32 @@ namespace Core
 
 
 
+    }
+    
+    public class Bundle
+    {
+        public CardBundlesManifest manifest= new();
+        public CharacterCard[] cards= new CharacterCard[0];
+        public string manifestFullPath;
+
+        public Bundle(CardBundlesManifest manifest,CharacterCard[] cards)
+        {
+            this.manifest = manifest;
+            this.cards = cards;
+            manifestFullPath = null;
+        }
+        public Bundle(CardBundlesManifest manifest, CharacterCard[] cards,string manifestFullPath)
+        {
+            this.manifest = manifest;
+            this.cards = cards;
+            this.manifestFullPath = manifestFullPath;
+        }
+
+        public Bundle()
+        {
+            CardBundlesManifest manifest= new();  
+            CharacterCard[] cards= new CharacterCard[0];
+            manifestFullPath = null;
+        }
     }
 }

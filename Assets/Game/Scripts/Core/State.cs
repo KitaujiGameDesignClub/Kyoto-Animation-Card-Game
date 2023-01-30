@@ -18,11 +18,11 @@ namespace Core
         /// <summary>
         /// 各自登场的角色卡（最多6个）
         /// </summary>
-        public static List<CharacterInGame>[] CardOnSpot = new List<CharacterInGame>[2];
+        public static List<CardPanel>[] CardOnSpot = new List<CardPanel>[2];
         /// <summary>
         /// 各自手牌里的角色卡（最多10个）
         /// </summary>
-        public static List<CharacterInGame>[] CardInHand = new List<CharacterInGame>[2];
+        public static List<CardPanel>[] CardInHand = new List<CardPanel>[2];
 
 
         /// <summary>
@@ -48,10 +48,10 @@ namespace Core
         public static void CreateNewGame()
         {
             AllAvailableCards = new List<CharacterCard>[2];
-            CardOnSpot = new List<CharacterInGame>[2];
+            CardOnSpot = new List<CardPanel>[2];
             CardOnSpot[0] = new();
             CardOnSpot[1] = new();
-            CardInHand = new List<CharacterInGame>[2];
+            CardInHand = new List<CardPanel>[2];
             CardInHand[0] = new();
             CardInHand[1] = new();
             whichTeamIsAttacking = -1;

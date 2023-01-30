@@ -6,7 +6,7 @@ using Cysharp.Threading.Tasks;
 using System;
 
 /// <summary>
-/// ÔÚ¼ÓÔØºÃ¿¨ÅÆµÄÇé¿öÏÂ£¬ÓÎÏ·µÄ±¾ÌåÂß¼­Ó¦µ±¶¼ÔÚÕâ±ß
+/// åœ¨åŠ è½½å¥½å¡ç‰Œçš„æƒ…å†µä¸‹ï¼Œæ¸¸æˆçš„æœ¬ä½“é€»è¾‘åº”å½“éƒ½åœ¨è¿™è¾¹
 /// </summary>
 public class GameStageCtrl : MonoBehaviour
 {
@@ -15,19 +15,19 @@ public class GameStageCtrl : MonoBehaviour
     public CardPanel cardPrefeb;
 
     /// <summary>
-    /// ¿¨ÅÆÔ¤ÓÃµãÎ» A=0 B=1
+    /// å¡ç‰Œé¢„ç”¨ç‚¹ä½ A=0 B=1
     /// </summary>
     [SerializeField] private Team[] CardPrePoint  = new Team[2];
     [SerializeField] private Transform CardCache;
 
     /// <summary>
-    /// Ã¿¸ö¿¨ÅÆÖ®¼ä ¹¥»÷µÄ¼ä¸ô(ms)
+    /// æ¯ä¸ªå¡ç‰Œä¹‹é—´ æ”»å‡»çš„é—´éš”(ms)
     /// </summary>
-    [Header("´ò¼ÜÂß¼­")]
-    [Tooltip("µ¥Î»£ºms")]
+    [Header("æ‰“æ¶é€»è¾‘")]
+    [Tooltip("å•ä½ï¼šms")]
     public int basicCardInterval = 300;
     /// <summary>
-    /// Ç¿ÖÆÍ£Ö¹ÓÎÏ·Âß¼­
+    /// å¼ºåˆ¶åœæ­¢æ¸¸æˆé€»è¾‘
     /// </summary>
     bool forceToStop = false;
 
@@ -37,29 +37,29 @@ public class GameStageCtrl : MonoBehaviour
        
     }
 
-    #region ´ò¼ÜÂß¼­
+    #region æ‰“æ¶é€»è¾‘
     /// <summary>
-    /// ³õÊ¼»¯ÉçÍÅÖ®¼äµÄÕ½³¡
+    /// åˆå§‹åŒ–ç¤¾å›¢ä¹‹é—´çš„æˆ˜åœº
     /// </summary>
     void InitializeClubBattleField()
     {
-        //³õÊ¼»¯Ò»¸öĞÂÓÎÏ·
+        //åˆå§‹åŒ–ä¸€ä¸ªæ–°æ¸¸æˆ
         GameState.CreateNewGame();
     }
 
     /// <summary>
-    /// ´ò¼ÜÏµÍ³
+    /// æ‰“æ¶ç³»ç»Ÿ
     /// </summary>
     /// <param name="pauseModeOfBattle"></param>
     /// <returns></returns>
    public  async UniTask BattleSystem(Information.PauseModeOfBattle pauseModeOfBattle,Action battleEnd)
     {
-        //µ÷ÕûÓÎÏ·×´Ì¬Îª¡°ÔÚ´ò¼Ü¡±
+        //è°ƒæ•´æ¸¸æˆçŠ¶æ€ä¸ºâ€œåœ¨æ‰“æ¶â€
         GameState.gameState = Information.GameState.Competition;
 
         switch (pauseModeOfBattle)
         {
-            //Ã¿ÕÅ¿¨ÅÆÔËĞĞºó£¬¶¼ÒªÔİÍ£
+            //æ¯å¼ å¡ç‰Œè¿è¡Œåï¼Œéƒ½è¦æš‚åœ
             case Information.PauseModeOfBattle.EachCard:
 
                    await CardRound(GameState.whichTeamIsAttacking == 0 ? 1:0);
@@ -67,20 +67,20 @@ public class GameStageCtrl : MonoBehaviour
                 break;
 
             case Information.PauseModeOfBattle.EachEnemyCard:
-                //Íæ¼ÒÕâ±ßÓÅÏÈ¿ª´ò£¨ÕâÒ»ÂÖ×öÊ²Ã´£©     
+                //ç©å®¶è¿™è¾¹ä¼˜å…ˆå¼€æ‰“ï¼ˆè¿™ä¸€è½®åšä»€ä¹ˆï¼‰     
                 await CardRound(0);
-                //¿¨ÅÆ¼ä¸ô
+                //å¡ç‰Œé—´éš”
                 await UniTask.Delay(basicCardInterval);
-                //µĞÈË´ò
+                //æ•Œäººæ‰“
                 await CardRound(1);
                 break;
 
             case Information.PauseModeOfBattle.EachOurCard:
                 while (true)
                 {
-                    //Ã¿¸ö¿¨ÅÆ¸ÃÔõÃ´×ö¾ÍÔõÃ´×ö
+                    //æ¯ä¸ªå¡ç‰Œè¯¥æ€ä¹ˆåšå°±æ€ä¹ˆåš
                    await CardRound(GameState.whichTeamIsAttacking == 0 ? 1 : 0);
-                    //Èç¹ûÊÇÍæ¼ÒÕâ±ßÖ´ĞĞÍêÁË£¬¾ÍÍ£Ö¹Õâ¸öÑ­»·£¬¼´ÔİÍ£ÁËÓÎÏ·loop
+                    //å¦‚æœæ˜¯ç©å®¶è¿™è¾¹æ‰§è¡Œå®Œäº†ï¼Œå°±åœæ­¢è¿™ä¸ªå¾ªç¯ï¼Œå³æš‚åœäº†æ¸¸æˆloop
                     if (GameState.whichTeamIsAttacking == 0) break;
                 }
                 break;
@@ -88,19 +88,19 @@ public class GameStageCtrl : MonoBehaviour
             case Information.PauseModeOfBattle.Legacy:
                 while (true)
                 {
-                    //Ã¿¸ö¿¨ÅÆ¸ÃÔõÃ´×ö¾ÍÔõÃ´×ö
+                    //æ¯ä¸ªå¡ç‰Œè¯¥æ€ä¹ˆåšå°±æ€ä¹ˆåš
                     await CardRound(GameState.whichTeamIsAttacking == 0 ? 1 : 0);
-                    //Èç¹ûÒªÇ¿ÖÆÍ£Ö¹£¬¾ÍÕâÑùÍË³öÓÎÏ·Ñ­»·
+                    //å¦‚æœè¦å¼ºåˆ¶åœæ­¢ï¼Œå°±è¿™æ ·é€€å‡ºæ¸¸æˆå¾ªç¯
                     if (forceToStop) break;
                 }
                 break;
         }
 
-        //È¡ÏûÇ¿ÖÆÍ£Ö¹
+        //å–æ¶ˆå¼ºåˆ¶åœæ­¢
         forceToStop = false;
-        //µ÷ÕûÓÎÏ·×´Ì¬Îª¡°×¼±¸¡±
+        //è°ƒæ•´æ¸¸æˆçŠ¶æ€ä¸ºâ€œå‡†å¤‡â€
         GameState.gameState = Information.GameState.Preparation;
-        //Ö´ĞĞ´ò¼Ü½áÊøÊÂ¼ş
+        //æ‰§è¡Œæ‰“æ¶ç»“æŸäº‹ä»¶
         battleEnd.Invoke();
 
 
@@ -110,45 +110,45 @@ public class GameStageCtrl : MonoBehaviour
 
 
     /// <summary>
-    /// ¿¨ÅÆÃ¿Ò»¸ö»ØºÏ¸Ã×öÊ²Ã´
+    /// å¡ç‰Œæ¯ä¸€ä¸ªå›åˆè¯¥åšä»€ä¹ˆ
     /// </summary>
     /// <param name="teamId"></param>
     /// <returns></returns>
     private async UniTask CardRound(int teamId)
     {
-        //¼ÇÂ¼ÊÇÄÄÒ»×éÔÚ´ò
+        //è®°å½•æ˜¯å“ªä¸€ç»„åœ¨æ‰“
         GameState.whichTeamIsAttacking = teamId;
         
         for (int i = 0; i < GameState.CardOnSpot[teamId].Count; i++)
         {
             var card = ((CardPanel)GetCardOnSpot<CardPanel>(teamId, i));
 
-            //Èç¹ûÕÒµ½ÁËÒ»¸öÕâÒ»»ØºÏ»¹Ã»´òµÄ¿¨ÅÆµÄ»°£¬ÈÃËû´ò£¬²¢ÖÕÖ¹for
+            //å¦‚æœæ‰¾åˆ°äº†ä¸€ä¸ªè¿™ä¸€å›åˆè¿˜æ²¡æ‰“çš„å¡ç‰Œçš„è¯ï¼Œè®©ä»–æ‰“ï¼Œå¹¶ç»ˆæ­¢for
             if (!card.cardStateInGame.thisRoundHasActiviated)
             {
-                //¼ÇÂ¼Ò»ÏÂ£¬ÏÖÔÚÊÇÕâ¸öÅÆÔÚ´ò
+                //è®°å½•ä¸€ä¸‹ï¼Œç°åœ¨æ˜¯è¿™ä¸ªç‰Œåœ¨æ‰“
                 GameState.whichCardPerforming[teamId] = i;
 
-                //Ö´ĞĞ¿¨ÅÆÕâÒ»»ØºÏ¸Ã×öµÄÊÂÇé              
+                //æ‰§è¡Œå¡ç‰Œè¿™ä¸€å›åˆè¯¥åšçš„äº‹æƒ…              
 
-                    //Ã»ÓĞ³ÁÄ¬£¬Õı³£´ò¼Ü
+                    //æ²¡æœ‰æ²‰é»˜ï¼Œæ­£å¸¸æ‰“æ¶
                     if (card.cardStateInGame.silence <= 0)
                     {
-                        //ÏÈÖ´ĞĞÃ¿»ØºÏ¶¼Ö´ĞĞµÄ¹¥»÷Âß¼­
+                        //å…ˆæ‰§è¡Œæ¯å›åˆéƒ½æ‰§è¡Œçš„æ”»å‡»é€»è¾‘
                         card.Attack(card.cardStateInGame);
-                        //È»ºóÊÇ¶¯»­Ïà¹ØµÄ
+                        //ç„¶åæ˜¯åŠ¨ç”»ç›¸å…³çš„
                         await card.AnimationForNormal(GetCardTransformOnSpot(teamId == 0 ? 1 : 0, UnityEngine.Random.Range(0, GameState.CardOnSpot[1].Count)).position);
                     }
-                    //³ÁÄ¬ÁËµÄ£¬²»´ò¼ÜÁË
+                    //æ²‰é»˜äº†çš„ï¼Œä¸æ‰“æ¶äº†
                     else
                     {
                         card.cardStateInGame.silence--;
                     }
 
-                    //¼ÇÂ¼Ò»ÏÂ£¬Õâ¸öÅÆ´ò¹ıÁË
+                    //è®°å½•ä¸€ä¸‹ï¼Œè¿™ä¸ªç‰Œæ‰“è¿‡äº†
                     card.cardStateInGame.thisRoundHasActiviated = true;
                 
-                //Ñ­»·Í£ÔÚÕâ¸ö¿¨ÅÆ
+                //å¾ªç¯åœåœ¨è¿™ä¸ªå¡ç‰Œ
                 break;
             }
             else
@@ -163,7 +163,7 @@ public class GameStageCtrl : MonoBehaviour
     #endregion
 
     /// <summary>
-    /// ½«Ä³Ò»¿¨ÅÆÉÏ³¡£¬²¢ÔÚÎèÌ¨ÉÏÏÔÊ¾£¨ÕıÊ½ÓÎÏ·ÖĞÒªÇóÌáÇ°¼ÓÔØºÃËùĞèµÄ×ÊÔ´£©
+    /// å°†æŸä¸€å¡ç‰Œä¸Šåœºï¼Œå¹¶åœ¨èˆå°ä¸Šæ˜¾ç¤ºï¼ˆæ­£å¼æ¸¸æˆä¸­è¦æ±‚æå‰åŠ è½½å¥½æ‰€éœ€çš„èµ„æºï¼‰
     /// </summary>
     public CardPanel AddCardAndDisplayInStage(CharacterCard profile, int teamId, Sprite coverImage, AudioClip Debut, AudioClip ability, AudioClip Defeat, AudioClip Exit)
     {
@@ -171,41 +171,41 @@ public class GameStageCtrl : MonoBehaviour
         var card = AddCard(profile, teamId);
         CardPanel panel = null;
 
-        //ÄÜÌí¼Ó½øÀ´µÄ»°£¨Ö¸ÈËÊıÃ»ÓĞ³¬¹ıÏŞÖÆ£¬¾Í²»ÊÇnull£©
+        //èƒ½æ·»åŠ è¿›æ¥çš„è¯ï¼ˆæŒ‡äººæ•°æ²¡æœ‰è¶…è¿‡é™åˆ¶ï¼Œå°±ä¸æ˜¯nullï¼‰
         if (card != null)
         {
-            //ÏÈ¿´¿´»º´æÀïÓĞÃ»ÓĞ
+            //å…ˆçœ‹çœ‹ç¼“å­˜é‡Œæœ‰æ²¡æœ‰
             var allInCache = GetAllCardPanelsInCache();
             foreach (var item in allInCache )
             {
-                //ÓĞµÄ»°£¬¾ÍÓÃÕâ¸öpanelÁË
+                //æœ‰çš„è¯ï¼Œå°±ç”¨è¿™ä¸ªpaneläº†
                 if (item.cardStateInGame.profile.Equals(card.profile))
                 {
                     panel = item;
-                    //²¢½«Õâ¸ö¿¨´Ó»º´æÀïÄÃ³öÀ´
+                    //å¹¶å°†è¿™ä¸ªå¡ä»ç¼“å­˜é‡Œæ‹¿å‡ºæ¥
                     panel.transform.parent = TeamParent(teamId);
                     break;
                 }
             }
-            //Èç¹û»º´æÀïÃ»ÓĞµÄ»°£¬¾Í°´²¿¾Í°àµÄÉú³É´Ë¿¨ÅÆ
+            //å¦‚æœç¼“å­˜é‡Œæ²¡æœ‰çš„è¯ï¼Œå°±æŒ‰éƒ¨å°±ç­çš„ç”Ÿæˆæ­¤å¡ç‰Œ
             if(panel == null)
             {
-                //×ÊÔ´Ìî³ä
+                //èµ„æºå¡«å……
                 card.voiceAbility = ability;
                 card.voiceExit = Exit;
                 card.voiceDefeat = Defeat;
                 card.voiceDebut = Debut;
-                //Èç¹û²»Ìá¹©Í¼Æ¬£¬ÔòÓÃ´ËÔ¤ÉèµÄÄ¬ÈÏÍ¼Æ¬
+                //å¦‚æœä¸æä¾›å›¾ç‰‡ï¼Œåˆ™ç”¨æ­¤é¢„è®¾çš„é»˜è®¤å›¾ç‰‡
                 card.CoverImage = coverImage;
-                //¿¨ÃæÏÔÊ¾£¬²¢½«¿¨ÅÆĞÅÏ¢panel½øÈëµ½ÓÎÏ·Ä£Ê½ÖĞ
+                //å¡é¢æ˜¾ç¤ºï¼Œå¹¶å°†å¡ç‰Œä¿¡æ¯panelè¿›å…¥åˆ°æ¸¸æˆæ¨¡å¼ä¸­
                 panel = Instantiate(cardPrefeb, Vector2.zero, Quaternion.identity, TeamParent(teamId));
             }
 
-            //½øÈëµ½ÓÎÏ·Ä£Ê½ÖĞ
+            //è¿›å…¥åˆ°æ¸¸æˆæ¨¡å¼ä¸­
             panel.EnterGameMode(card);
-            //ÕûÀí³¡ÉÏµÄ¿¨ÅÆÅÅĞò
+            //æ•´ç†åœºä¸Šçš„å¡ç‰Œæ’åº
             ArrangeTeamCardOnSpot(teamId);
-            //ĞŞ¸ÄÎïÌåÃû³Æ
+            //ä¿®æ”¹ç‰©ä½“åç§°
             panel.gameObject.name = $"{card.profile.CardName}";
             return panel;
         }
@@ -217,56 +217,56 @@ public class GameStageCtrl : MonoBehaviour
 
 
     /// <summary>
-    /// ÕûÀíÄ³Ò»¶ÓµÄ¿¨ÅÆ£¬²¢½«ÆäÕ¹Ê¾ÔÚÓÎÏ·ÎèÌ¨ÉÏ£¨¿ÉÄÜºÄÄÜ¸ßµã£©
+    /// æ•´ç†æŸä¸€é˜Ÿçš„å¡ç‰Œï¼Œå¹¶å°†å…¶å±•ç¤ºåœ¨æ¸¸æˆèˆå°ä¸Šï¼ˆå¯èƒ½è€—èƒ½é«˜ç‚¹ï¼‰
     /// </summary>
     /// <param name="teamId"></param>
     void ArrangeTeamCardOnSpot(int teamId)
     {
-        // TeamParent(teamId).GetChild(CardPrePoint[teamId].PrePoint.Length) Ïàµ±ÓÚ»ñÈ¡ÕâÒ»×é¿¨ÅÆÖĞµÄµÚÒ»ÕÅ¿¨ÅÆ
+        // TeamParent(teamId).GetChild(CardPrePoint[teamId].PrePoint.Length) ç›¸å½“äºè·å–è¿™ä¸€ç»„å¡ç‰Œä¸­çš„ç¬¬ä¸€å¼ å¡ç‰Œ
 
-        //»º´æÒ»ÏÂ£¬ÕâÒ»×éÓĞ¶àÉÙ×Ó¶ÔÏó
+        //ç¼“å­˜ä¸€ä¸‹ï¼Œè¿™ä¸€ç»„æœ‰å¤šå°‘å­å¯¹è±¡
         var totalChildCount = TeamParent(teamId).childCount;
-        //¿¨ÅÆÊıÁ¿ ×Ü×Ó¶ÔÏóÊıÄ¿ - ¶¨Î»ÓÃ¶ÔÏóÊıÄ¿
+        //å¡ç‰Œæ•°é‡ æ€»å­å¯¹è±¡æ•°ç›® - å®šä½ç”¨å¯¹è±¡æ•°ç›®
         var cardCount = totalChildCount - CardPrePoint[teamId].PrePoint.Length;
 
-        //ÖĞ¼äÁ½¸ö¶¨Î»µã¼äµÄÖĞÎ»Êı£¨xÖá£©
+        //ä¸­é—´ä¸¤ä¸ªå®šä½ç‚¹é—´çš„ä¸­ä½æ•°ï¼ˆxè½´ï¼‰
         var pointMiddle = TeamParent(teamId).GetChild(CardPrePoint[teamId].PrePoint.Length / 2 + 1).position.x - TeamParent(teamId).GetChild(CardPrePoint[teamId].PrePoint.Length / 2).position.x;
-        //ÓÒÒÆÒÆ¶¯¾àÀë
+        //å³ç§»ç§»åŠ¨è·ç¦»
         float distance;
         if (cardCount % 2 == 0)
         {
-            //Å¼Êı¸ö¿¨ÅÆ
-            //ÖĞ¼äÁ½ÖÖ¿¨ÅÆµÄ×ø±ê£¨xÖá£©µÄÖĞÎ»Êı
+            //å¶æ•°ä¸ªå¡ç‰Œ
+            //ä¸­é—´ä¸¤ç§å¡ç‰Œçš„åæ ‡ï¼ˆxè½´ï¼‰çš„ä¸­ä½æ•°
             var middle = (TeamParent(teamId).GetChild(cardCount / 2 + 1).position.x + TeamParent(teamId).GetChild(cardCount / 2).position.x) / 2f;
-            //¼ÆËãÒÆ¶¯¾àÀë
+            //è®¡ç®—ç§»åŠ¨è·ç¦»
             distance = pointMiddle - middle;
         }
         else
         {
-            //ÆæÊı¸ö¿¨ÅÆ£¬Ö±½Ó¼ÆËãÒÆ¶¯¾àÀë¾ÍĞĞ£¨ÖĞ¼äÄÇ¸ö¿¨ÅÆµ±×÷middle£©
+            //å¥‡æ•°ä¸ªå¡ç‰Œï¼Œç›´æ¥è®¡ç®—ç§»åŠ¨è·ç¦»å°±è¡Œï¼ˆä¸­é—´é‚£ä¸ªå¡ç‰Œå½“ä½œmiddleï¼‰
             distance = pointMiddle - TeamParent(teamId).GetChild(cardCount / 2 + 1).position.x;
         }
-        //£¨¶ÔÃ¿Ò»ÕÅ¿¨ÅÆµÄ±ä»»×é¼ş½øĞĞ²Ù×÷£©×îºó£¬°Ñ¿¨ÅÆ×ó¶ÔÆë£¬²¢ÔÚ¶¨Î»µãÉÏ£¬ÔÚ½øĞĞËõ½ø£¬½«ËùÓĞ¿¨ÅÆ¶¨Î»µ½ÖĞ¼äÎ»ÖÃ
+        //ï¼ˆå¯¹æ¯ä¸€å¼ å¡ç‰Œçš„å˜æ¢ç»„ä»¶è¿›è¡Œæ“ä½œï¼‰æœ€åï¼ŒæŠŠå¡ç‰Œå·¦å¯¹é½ï¼Œå¹¶åœ¨å®šä½ç‚¹ä¸Šï¼Œåœ¨è¿›è¡Œç¼©è¿›ï¼Œå°†æ‰€æœ‰å¡ç‰Œå®šä½åˆ°ä¸­é—´ä½ç½®
         for (int i = CardPrePoint[teamId].PrePoint.Length; i < totalChildCount; i++)
         {
-            //TeamA(Player)µÄµÚ CardPrePoint[teamId].PrePoint.Length ¸ö×Ó¶ÔÏó£¨´Ó0¿ªÊ¼Êı£©¾ÍÊÇµÚÒ»ÕÅ¿¨ÅÆ
+            //TeamA(Player)çš„ç¬¬ CardPrePoint[teamId].PrePoint.Length ä¸ªå­å¯¹è±¡ï¼ˆä»0å¼€å§‹æ•°ï¼‰å°±æ˜¯ç¬¬ä¸€å¼ å¡ç‰Œ
            
-            //¿¨ÅÆµÄ±ä»»×é¼ş
+            //å¡ç‰Œçš„å˜æ¢ç»„ä»¶
             var card = TeamParent(teamId).GetChild(i);
-            //½öÏŞ±»¼¤»îµÄ¿¨ÅÆÅÅĞò
+            //ä»…é™è¢«æ¿€æ´»çš„å¡ç‰Œæ’åº
             if (card.gameObject.activeSelf)
             {
-                //×ó¶ÔÆë·ÅÖÃ
-                //i - Information.TeamMaxCardOnSpotCount£ºµÚ 1 2 3 4 5 6¸ö¶¨Î»µã
+                //å·¦å¯¹é½æ”¾ç½®
+                //i - Information.TeamMaxCardOnSpotCountï¼šç¬¬ 1 2 3 4 5 6ä¸ªå®šä½ç‚¹
                 card.position = CardPrePoint[teamId].PrePoint[i - Information.TeamMaxCardOnSpotCount].position;
-                //Ëõ½øÒÆ¶¯
-                //¼ÆËãËõ½øÁ¿£¨¿¨ÅÆÈ«ÂúÁË¾Í²»ÓÃËõ½øÁË£¬ÕâÀïÏÈÄ¬ÈÏ¿¨ÅÆ×ó¶ÔÆë£¬²¢ÔÚ¶¨Î»µãÉÏ£©
+                //ç¼©è¿›ç§»åŠ¨
+                //è®¡ç®—ç¼©è¿›é‡ï¼ˆå¡ç‰Œå…¨æ»¡äº†å°±ä¸ç”¨ç¼©è¿›äº†ï¼Œè¿™é‡Œå…ˆé»˜è®¤å¡ç‰Œå·¦å¯¹é½ï¼Œå¹¶åœ¨å®šä½ç‚¹ä¸Šï¼‰
                 if (cardCount < Information.TeamMaxCardOnSpotCount)
                 {
                     card.Translate(distance, 0f, 0f, Space.World);
                 }
             }
-            //Ã»±»¼¤»îµÄ»°¡£·ÅÄÇÀï¾ÍĞĞ
+            //æ²¡è¢«æ¿€æ´»çš„è¯ã€‚æ”¾é‚£é‡Œå°±è¡Œ
             else
             {
                 continue;
@@ -277,12 +277,12 @@ public class GameStageCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// ÒÆ³ıÄ³¸ö×éÄÚËùÓĞµÄ¿¨ÅÆ
+    /// ç§»é™¤æŸä¸ªç»„å†…æ‰€æœ‰çš„å¡ç‰Œ
     /// </summary>
     /// <param name="teamId">0=A 1=B</param>
     public void RemoveAllCardsOnSpot(int teamId)
     {
-        //¿¨ÅÆÊıÁ¿ ×Ü×Ó¶ÔÏóÊıÄ¿ - ¶¨Î»ÓÃ¶ÔÏóÊıÄ¿
+        //å¡ç‰Œæ•°é‡ æ€»å­å¯¹è±¡æ•°ç›® - å®šä½ç”¨å¯¹è±¡æ•°ç›®
         var cardCount = TeamParent(teamId).childCount - CardPrePoint[teamId].PrePoint.Length;
         //
         for (int i = 0; i < cardCount; i++)
@@ -292,56 +292,47 @@ public class GameStageCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// ÒÆ³ıÄ³¸ö×éµÄÄ³¸ö¿¨ÅÆ£¬²¢ÊÍ·Å×ÊÔ´
+    /// ç§»é™¤æŸä¸ªç»„çš„æŸä¸ªå¡ç‰Œï¼Œå¹¶é‡Šæ”¾èµ„æº
     /// </summary>
     /// <param name="teamId">0=A 1=B</param>
-    /// <param name="index">µÚ¼¸ÕÅ¿¨£¨´Ó0¿ªÊ¼£©</param>
-    /// <param name="autoArrange">ÊÇ·ñÔÊĞíÒÆ³ıºó×Ô¶¯ÕûÀí¿¨ÅÆÅÅĞò</param>
+    /// <param name="index">ç¬¬å‡ å¼ å¡ï¼ˆä»0å¼€å§‹ï¼‰</param>
+    /// <param name="autoArrange">æ˜¯å¦å…è®¸ç§»é™¤åè‡ªåŠ¨æ•´ç†å¡ç‰Œæ’åº</param>
     public void RemoveCardOnSpot(int teamId, int index,bool autoArrange = true)
     {
 
-        //´Ë×é¿¨ÅÆÊıÁ¿ ×Ü×Ó¶ÔÏóÊıÄ¿ - ¶¨Î»ÓÃ¶ÔÏóÊıÄ¿
+        //æ­¤ç»„å¡ç‰Œæ•°é‡ æ€»å­å¯¹è±¡æ•°ç›® - å®šä½ç”¨å¯¹è±¡æ•°ç›®
         var cardCount = GetCardCount(teamId);
         if (cardCount > 0)
         {
-            //Ïû³ıÓÎÏ·ÖĞµÄÏÔÊ¾
+            //æ¶ˆé™¤æ¸¸æˆä¸­çš„æ˜¾ç¤º
             DestroyImmediate(GetCardTransformOnSpot(teamId,index).gameObject,true);
-            //Ïû³ıÓÎÏ·¼ÇÂ¼
+            //æ¶ˆé™¤æ¸¸æˆè®°å½•
             GameState.CardOnSpot[teamId].RemoveAt(index);
             if (autoArrange) ArrangeTeamCardOnSpot(teamId);
         }       
     }
 
     /// <summary>
-    ///  »ØÊÕÄ³Ò»¸ö¿¨ÅÆ£¬Ê¹Æä»Øµ½»º´æÖĞ
+    ///  å›æ”¶æŸä¸€ä¸ªå¡ç‰Œï¼Œä½¿å…¶å›åˆ°ç¼“å­˜ä¸­
     /// </summary>
     /// <param name="teamId"></param>
     /// <param name="index"></param>
     /// <param name="autoArrange"></param>
     public void RecycleCardOnSpot(int teamId, int index, bool autoArrange = true)
     {
-        //½«´Ë¿¨ÅÆÒÆµ½»º´æÖĞ£¬²¢½«ÆäÒş²Ø£¨¸¸¶ÔÏóis disactive£©
+        //å°†æ­¤å¡ç‰Œç§»åˆ°ç¼“å­˜ä¸­ï¼Œå¹¶å°†å…¶éšè—ï¼ˆçˆ¶å¯¹è±¡is disactiveï¼‰
         GetCardTransformOnSpot(teamId, index).parent = CardCache;
-        //Ïû³ıÓÎÏ·¼ÇÂ¼
+        //æ¶ˆé™¤æ¸¸æˆè®°å½•
         GameState.CardOnSpot[teamId].RemoveAt(index);
         if (autoArrange) ArrangeTeamCardOnSpot(teamId);
     }
 
 
-    #region »ñÈ¡¿¨Æ¬
-    /// <summary>
-    /// »ñÈ¡³¡ÉÏµÄÄ³Ò»¸ö¿¨ÅÆµÄÓÎÏ·Àï×´Ì¬
-    /// </summary>
-    /// <param name="teamId">0=A 1=B</param>
-    /// <param name="index">µÚ¼¸ÕÅ¿¨£¨´Ó0¿ªÊ¼£©</param>
-    /// <returns></returns>
-    public CharacterInGame GetCardOnSpot(int teamId, int index)
-    {
-        return GameState.CardOnSpot[teamId][index];
-    }
+    #region è·å–å¡ç‰‡
+
 
     /// <summary>
-    /// »ñÈ¡³¡ÉÏÒ»¸ö¿¨ÅÆµÄ±ä»»×é¼ş
+    /// è·å–åœºä¸Šä¸€ä¸ªå¡ç‰Œçš„å˜æ¢ç»„ä»¶
     /// </summary>
     /// <param name="teamId"></param>
     /// <param name="index"></param>
@@ -354,14 +345,14 @@ public class GameStageCtrl : MonoBehaviour
     public CardPanel GetCardPanelOnSpot(int teamId, int index) => ((CardPanel)GetCardOnSpot<CardPanel>(teamId, index));
 
     /// <summary>
-    /// »ñÈ¡³¡ÉÏµÄÄ³Ò»¸ö¿¨ÅÆ
+    /// è·å–åœºä¸Šçš„æŸä¸€ä¸ªå¡ç‰Œ
     /// </summary>
     /// <param name="teamId">0=A 1=B</param>
-    /// <param name="index">µÚ¼¸ÕÅ¿¨£¨´Ó0¿ªÊ¼£©</param>
+    /// <param name="index">ç¬¬å‡ å¼ å¡ï¼ˆä»0å¼€å§‹ï¼‰</param>
     /// <returns></returns>
     public object GetCardOnSpot<T>(int teamId, int index)
     {
-        //TeamA(Player)µÄµÚ CardPrePoint[teamId].PrePoint.Length ¸ö×Ó¶ÔÏó£¨´Ó0¿ªÊ¼Êı£©¾ÍÊÇµÚÒ»ÕÅ¿¨ÅÆ
+        //TeamA(Player)çš„ç¬¬ CardPrePoint[teamId].PrePoint.Length ä¸ªå­å¯¹è±¡ï¼ˆä»0å¼€å§‹æ•°ï¼‰å°±æ˜¯ç¬¬ä¸€å¼ å¡ç‰Œ
         var cardPanel = TeamParent(teamId).GetChild(6 + index);
         //   var cardPanel = TeamParent(teamId).GetChild(index + CardPrePoint[teamId].PrePoint.Length);
         if (typeof(T) == typeof(Transform))
@@ -375,7 +366,7 @@ public class GameStageCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// »ñÈ¡»º´æÖĞµÄËùÓĞ¿¨ÅÆpanel×é¼ş
+    /// è·å–ç¼“å­˜ä¸­çš„æ‰€æœ‰å¡ç‰Œpanelç»„ä»¶
     /// </summary>
     /// <returns></returns>
     public CardPanel[] GetAllCardPanelsInCache() => CardCache.GetComponentsInChildren<CardPanel>();
@@ -386,21 +377,21 @@ public class GameStageCtrl : MonoBehaviour
 
 
     /// <summary>
-    /// ¸øÄ³¸ö×éÌí¼Ó³ö³¡¿¨ÅÆ£¨µ«ÊÇÃ»ÓĞ¶ÔÓÃ»§ÏÔÊ¾£¬¼´½öÓĞÀï×´Ì¬£©
+    /// ç»™æŸä¸ªç»„æ·»åŠ å‡ºåœºå¡ç‰Œï¼ˆä½†æ˜¯æ²¡æœ‰å¯¹ç”¨æˆ·æ˜¾ç¤ºï¼Œå³ä»…æœ‰é‡ŒçŠ¶æ€ï¼‰
     /// </summary>
     /// <param name="profile"></param>
     /// <param name="teamId">0=A 1=B</param>
-    CharacterInGame AddCard(CharacterCard profile, int teamId)
+   CardPanel AddCard(CharacterCard profile, int teamId)
     {
-        //´Ë¶ÓÎéµÄ³ö³¡¿¨ÅÆ¹»¶àÁË£¨Ö¸µ½´ïÉÏÏŞ6¸ö£©
+        //æ­¤é˜Ÿä¼çš„å‡ºåœºå¡ç‰Œå¤Ÿå¤šäº†ï¼ˆæŒ‡åˆ°è¾¾ä¸Šé™6ä¸ªï¼‰
         if (GameState. CardOnSpot[teamId].Count >= Information.TeamMaxCardOnSpotCount)
         {
             return null;
         }
-        //»¹ÄÜ¼Ó
+        //è¿˜èƒ½åŠ 
         else
         {
-            var card = new CharacterInGame(profile, teamId);
+            var card = new CardPanel(profile, teamId).cardStateInGame;
             GameState.CardOnSpot[teamId].Add(card);
             return card;
         }
@@ -409,20 +400,20 @@ public class GameStageCtrl : MonoBehaviour
 
 
     /// <summary>
-    /// »ñÈ¡³¡ÉÏµÄËùÓĞ¿¨ÅÆ
+    /// è·å–åœºä¸Šçš„æ‰€æœ‰å¡ç‰Œ
     /// </summary>
     /// <returns></returns>
     public CardPanel[] GetAllCardOnStage(int teamId)
     {
-        //»º´æÒ»ÏÂ£¬ÕâÒ»×éÓĞ¶àÉÙ×Ó¶ÔÏó
+        //ç¼“å­˜ä¸€ä¸‹ï¼Œè¿™ä¸€ç»„æœ‰å¤šå°‘å­å¯¹è±¡
         var totalChildCount = TeamParent(teamId).childCount;
-        //´Ë×é¿¨ÅÆÊıÁ¿ ×Ü×Ó¶ÔÏóÊıÄ¿ - ¶¨Î»ÓÃ¶ÔÏóÊıÄ¿
+        //æ­¤ç»„å¡ç‰Œæ•°é‡ æ€»å­å¯¹è±¡æ•°ç›® - å®šä½ç”¨å¯¹è±¡æ•°ç›®
         var cardCount = totalChildCount - CardPrePoint[teamId].PrePoint.Length;
         var cardPanels = new CardPanel[cardCount];
-        //»ñÈ¡Ã¿Ò»¸ö¿¨ÅÆµÄpanel×é¼ş
+        //è·å–æ¯ä¸€ä¸ªå¡ç‰Œçš„panelç»„ä»¶
         for (int i = CardPrePoint[teamId].PrePoint.Length; i < totalChildCount; i++)
         {
-            //¿¨ÅÆµÄ±ä»»×é¼ş
+            //å¡ç‰Œçš„å˜æ¢ç»„ä»¶
             var card = TeamParent(teamId).GetChild(i);
             cardPanels[i - CardPrePoint[teamId].PrePoint.Length] = card.GetComponent<CardPanel>();
         }
@@ -430,7 +421,7 @@ public class GameStageCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// »ñÈ¡Ä³Ò»×é¿¨ÅÆµÄÊıÁ¿
+    /// è·å–æŸä¸€ç»„å¡ç‰Œçš„æ•°é‡
     /// </summary>
     /// <param name="teamId">0=A 1=B</param>
     /// <returns></returns>
@@ -440,7 +431,7 @@ public class GameStageCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// Ã¿Ò»¸ö¿¨ÅÆµãÎ»·Ö×éµÄ¸¸¶ÔÏó£¨¾ÍÊÇÄÇ¸öTeamA(Player))
+    /// æ¯ä¸€ä¸ªå¡ç‰Œç‚¹ä½åˆ†ç»„çš„çˆ¶å¯¹è±¡ï¼ˆå°±æ˜¯é‚£ä¸ªTeamA(Player))
     /// </summary>
     /// <param name="teamId">0=A 1=B</param>
     /// <returns></returns>

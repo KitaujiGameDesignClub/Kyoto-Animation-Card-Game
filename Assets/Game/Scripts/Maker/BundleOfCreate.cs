@@ -1,8 +1,8 @@
 
-using System;
+using Core;
 using System.Collections.Generic;
 
-namespace Core
+namespace Maker
 {
     /// <summary>
     /// 目前正在编辑的manifest 和 card（每次只能编辑一个card，且与manifest不共存）
@@ -41,31 +41,6 @@ namespace Core
         }
     }
     
-    public class Bundle
-    {
-        public CardBundlesManifest manifest= new();
-        public CharacterCard[] cards= new CharacterCard[0];
-        public string manifestFullPath;
-
-        public Bundle(CardBundlesManifest manifest,CharacterCard[] cards)
-        {
-            this.manifest = manifest;
-            this.cards = cards;
-            manifestFullPath = null;
-        }
-        public Bundle(CardBundlesManifest manifest, CharacterCard[] cards,string manifestFullPath)
-        {
-            this.manifest = manifest;
-            this.cards = cards;
-            this.manifestFullPath = manifestFullPath;
-        }
-
-        public Bundle()
-        {
-            CardBundlesManifest manifest= new();  
-            CharacterCard[] cards= new CharacterCard[0];
-            manifestFullPath = null;
-        }
-    }
+    
 }
 
