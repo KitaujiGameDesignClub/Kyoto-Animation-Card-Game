@@ -9,11 +9,12 @@ using Core.Interface;
 using Cysharp.Threading.Tasks;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using Random = System.Random;
+using System.Threading.Tasks;
 
 /// <summary>
-/// 图形化显示卡牌的信息与动画效果（characterInGame的表状态）
+/// 图形化显示卡牌的信息与动画效果，并执行有关逻辑
 /// </summary>
-public class CardPanel : MonoBehaviour, ICharacterCardInGame
+public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后实现玩家自定义行为（写代码）
 {
     
     [Header("信息模式")]
@@ -32,8 +33,8 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
     public TMP_Text powerValue;
     public TMP_Text hpValue;
 
-    
-    
+
+
     /// <summary>
     /// 信息展示用（即不是游戏模式）
     /// </summary>
@@ -55,29 +56,34 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
     /// 进入到游戏模式，从里文件CharacterInGame中读取，并展示出来
     /// </summary>
     /// <param name="cardState"></param>
-    public void EnterGameMode(CharacterInGame cardState)
+    public void EnterGameMode()
     {
         //设置上图片
-        image.sprite = cardState.CoverImage == null ? image.sprite: cardState.CoverImage;
+        image.sprite = cardStateInGame.CoverImage == null ? image.sprite : cardStateInGame.CoverImage;
         image.sortingOrder = 0;//层级调整
         //初始化体力值与行动力
-        powerValue.text = cardState.actualPower.ToString();
+        powerValue.text = cardStateInGame.actualPower.ToString();
         powerValue.gameObject.SetActive(true);
-        hpValue.text = cardState.actualHealthPoint.ToString();
+        hpValue.text = cardStateInGame.actualHealthPoint.ToString();
         hpValue.gameObject.SetActive(true);
-        DestroyImmediate(cardName.gameObject);
-        DestroyImmediate(cv.gameObject);
-        DestroyImmediate(description.gameObject);
-
-        foreach (var item in othersToDestroy)
+      
+        //销毁信息显示用的东西（这些东西游戏模式用不到）
+        if(cardName.gameObject != null)
         {
-          if(item != null) DestroyImmediate(item);
+            DestroyImmediate(cardName.gameObject);
+            DestroyImmediate(cv.gameObject);
+            DestroyImmediate(description.gameObject);
+
+            foreach (var item in othersToDestroy)
+            {
+                if (item != null) DestroyImmediate(item);
+            }
         }
+      
 
        // cardName.gameObject.SetActive(false);
         //cv.gameObject.SetActive(false);
        // description.gameObject.SetActive(false);
-        cardStateInGame = cardState;
 
         //修复莫名其妙的图片变大的（显示不完全）的bug
         image.size = Vector2.one * 0.6228073f;
@@ -87,20 +93,26 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
     }
 
   
-    public void GetDamaged(int damage, CharacterInGame activator)
+    public void GetDamaged(int damage, CardPanel activator) => ChangeHealthAndPower(true, damage, false, -1, activator);
+
+
+    public void PowerUp(int value, CardPanel activator)
     {
-        ((ICharacterCardInGame)cardStateInGame).GetDamaged(damage, activator);
+       
     }
 
-    public void PowerUp(int value, CharacterInGame activator)
+    public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2, CardPanel Activator)
     {
-        ((ICharacterCardInGame)cardStateInGame).PowerUp(value, activator);
-    }
 
-    public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2, CharacterInGame Activator)
-    {
-        ((ICharacterCardInGame)cardStateInGame).ChangeHealthAndPower(changeHealth, value1, changePower, value2, Activator);
-        //更新数据显示
+        //更新数据
+       if(changePower) cardStateInGame.actualPower += value2;
+        if (changeHealth)
+        {
+            cardStateInGame.actualHealthPoint -= value1;
+            //告知自己挨打了
+            OnHurt(Activator);
+        }
+        //更新显示
         powerValue.text = cardStateInGame.actualPower.ToString();
         hpValue.text = cardStateInGame.actualHealthPoint.ToString();
     }
@@ -115,26 +127,19 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
         ((ICharacterCardInGame)cardStateInGame).OnDebut();
     }
 
-    public void Attack(CharacterInGame target)
+    public async UniTask Attack(CardPanel target)
     {
-        //执行攻击逻辑
-        ((ICharacterCardInGame)cardStateInGame).Attack(target);
+        await attackAnimation(target);
     }
 
-    /// <summary>
-    /// 针对：每一回合都执行的攻击逻辑 用的动画之类的东西
-    /// </summary>
-    /// <returns></returns>
-    public async UniTask AnimationForNormal(Vector2 attackPoint)
-    {
-        //通常的攻击动画
-        await attackAnimation(attackPoint);
-    }
-
-    private async UniTask attackAnimation(Vector2 attackPoint)
+    private async UniTask attackAnimation(CardPanel target)
     {
         //记录原位置
         var originalPos = tr.position;
+        Debug.Log(originalPos);
+        //记录挨打一方的位置
+        var attackPoint = target.tr.position;
+        Debug.Log(attackPoint);
 
         //靠近要攻击目标卡牌
         while (true)
@@ -147,9 +152,15 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
             }
             await UniTask.Yield(PlayerLoopTiming.Update);
         }
+        //施暴
+        target.GetDamaged(cardStateInGame.actualPower,this);
+        Debug.Log("施暴");
+
         //等100ms
         await UniTask.Delay(100);
-        //回到远地点
+        Debug.Log("打完了");
+
+        //回到原地点
         while (true)
         {
             tr.position = Vector2.Lerp(tr.position, originalPos, 0.1f);
@@ -160,6 +171,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
             }
             await UniTask.Yield(PlayerLoopTiming.Update);
         }
+        Debug.Log("H回来了");
     }
 
     public void Exit()
@@ -167,11 +179,11 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
         ((ICharacterCardInGame)cardStateInGame).Exit();
     }
 
-    public void OnHurt(CharacterInGame activator)
+    public void OnHurt(CardPanel activator)
     {
-        ((ICharacterCardInGame)cardStateInGame).OnHurt(activator);
+        if (cardStateInGame.actualHealthPoint <= 0) GameStageCtrl.stageCtrl.RecycleCardOnSpot(cardStateInGame.teamId, cardStateInGame.cardId);
     }
-    
+
     
         #region 能力解析相关
         /// <summary>
@@ -1015,6 +1027,9 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame
 
             return null;
         }
-        #endregion
+
+   
+    #endregion
+
 
 }

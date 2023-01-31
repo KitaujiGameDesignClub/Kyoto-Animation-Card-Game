@@ -115,6 +115,8 @@ public class TestMode : MonoBehaviour
         //初始化一个新游戏
         GameState.CreateNewGame();
 
+        panel.gameObject.SetActive(true);
+
         #region 调整卡牌选择器板块的激活状态
         BundleList.gameObject.SetActive(true);
         BundleInformationDisplay.SetActive(false);
@@ -209,7 +211,6 @@ public class TestMode : MonoBehaviour
             //allBundles[selectedBundleId]：所选卡组
 
             //获取所选bundle的序号
-            Debug.Log(BundleList.text.Split("<alpha=#00>")[1]);
             selectedBundleId = BundleList.text.Contains("<alpha=#00>") ? int.Parse(BundleList.text.Split("<alpha=#00>")[1]) : -1;
 
             //卡组有选择，信息同步与卡牌列表激活
@@ -245,7 +246,6 @@ public class TestMode : MonoBehaviour
         CardList.onDropdownValueChangedWithoutInt.AddListener(delegate 
         {
             //获取所选card的序号
-            Debug.Log(CardList.text.Split("<alpha=#00>")[1]);
             selectedCardId = CardList.text.Contains("<alpha=#00>") ? int.Parse(CardList.text.Split("<alpha=#00>")[1]) : -1;
 
             UpdateSelectorCardInformation(allBundles[selectedBundleId].cards[selectedCardId]);
@@ -278,7 +278,6 @@ public class TestMode : MonoBehaviour
                     image = null;
                     audios = null;
                     //刷新删除按钮的激活状态
-                    Debug.Log(GameStageCtrl.stageCtrl.GetCardCount(0));
                     RefreshDeletionButtonState();
                 }));
             }

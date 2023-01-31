@@ -1,16 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
-using KitaujiGameDesignClub.GameFramework.Tools;
-using Random = System.Random;
-using Core.Interface;
 
 namespace Core
 {
     /// <summary>
-    /// 角色卡在游戏中的状态（里状态）
+    /// 角色卡在游戏中的数据
     /// </summary>
     public class CharacterInGame
     {
@@ -25,6 +18,10 @@ namespace Core
         /// 是哪一个玩家的可用牌 0=A 1=B
         /// </summary>
         public int teamId;
+        /// <summary>
+        /// 这一组内第几个卡牌（从0开始）
+        /// </summary>
+        public int cardId;
 
         /// <summary>
         /// 沉默回合数 
@@ -80,7 +77,7 @@ namespace Core
         /// </summary>
         /// <param name="characterCard">角色卡配置</param>
         /// <param name="teamId">属于哪个玩家？ 0=A 1=B</param>
-        public CharacterInGame(CharacterCard characterCard, int teamId)
+        public CharacterInGame(CharacterCard characterCard)
         {
             profile = characterCard;
             silence = 0;
@@ -89,17 +86,8 @@ namespace Core
             actualHealthPoint = characterCard.BasicHealthPoint;
             State = Information.CardState.Present;
            // connectEnabled = false;
-            this.teamId = teamId;
         }
-
-
-        public void GetDamaged(int damage, CharacterInGame activator) =>
-            ChangeHealthAndPower(true, damage, false, 0, activator);
-
-
-        public void PowerUp(int value, CharacterInGame activator) =>
-            ChangeHealthAndPower(false, 0, true, value, activator);
-
+     
 
      
         public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2,
@@ -128,58 +116,9 @@ namespace Core
         }
 
 
-        /// <summary>
-        /// 改变此卡状态
-        /// </summary>
-        public void ChangeState(Information.CardState cardState)
-        {
-            State = cardState;
+      
 
-            switch (cardState)
-            {
-                //do something...
-            }
-        }
-
-        /// <summary>
-        /// 登场执行
-        /// </summary>
-        public void OnDebut()
-        {
-           
-        }
-
-        /// <summary>
-        /// 每次轮到该卡都执行的攻击逻辑
-        /// </summary>
-        public void Attack(CharacterInGame target)
-        {
-            //顺带分析一波能力
-           
-
-            //扣血逻辑之类的...
-            target.GetDamaged(actualPower, this);
-        }
-
-        /// <summary>
-        /// 退场时执行
-        /// </summary>
-        public void Exit()
-        {
-            
-        }
-
-        /// <summary>
-        /// 被击时执行
-        /// </summary>
-        /// <param name="activator">是谁触发了这个函数（谁打我了）</param>
-        public void OnHurt(CharacterInGame activator)
-        {
-          
-            
-            
-        }
-
+      
     
 
     }

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 
 namespace Core.Interface
@@ -17,14 +18,14 @@ namespace Core.Interface
         /// </summary>
         /// <param name="damage">正数:减血</param>
         /// <param name="activator">受到的伤害是谁造成的</param>
-        public void GetDamaged(int damage, CharacterInGame activator);
+        public void GetDamaged(int damage, CardPanel activator);
 
         /// <summary>
         /// 攻击力提升
         /// </summary>
         /// <param name="value">正数：提高数值</param>
-        /// <param name="activator">受到的伤害是谁造成的</param>
-        public void PowerUp(int value, CharacterInGame activator);
+        /// <param name="activator">是谁提高了我的攻击力</param>
+        public void PowerUp(int value, CardPanel activator);
 
         /// <summary>
         /// 修改血量和攻击力
@@ -34,7 +35,7 @@ namespace Core.Interface
         /// <param name="changePower">要修改攻击力吗</param>
         /// <param name="value2">正数：提高攻击力数值</param>
         /// <param name="Activator">是谁触发了这个函数</param>
-        public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2, CharacterInGame Activator);
+        public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2, CardPanel Activator);
 
         /// <summary>
         /// 改变此卡状态
@@ -49,7 +50,9 @@ namespace Core.Interface
         /// <summary>
         /// 每次轮到该卡都执行的攻击逻辑
         /// </summary>
-        public void Attack(CharacterInGame target);
+        /// <param name="target">打谁</param>
+        /// <returns></returns>
+        public UniTask Attack(CardPanel target);
 
         /// <summary>
         /// 退场时执行
@@ -60,8 +63,7 @@ namespace Core.Interface
         /// 被击时执行
         /// </summary>
         /// <param name="activator">是谁触发了这个函数（谁打我了）</param>
-        public void OnHurt(CharacterInGame activator);
-
+        public void OnHurt(CardPanel activator);
 
     }
 }

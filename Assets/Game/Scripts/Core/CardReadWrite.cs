@@ -490,11 +490,12 @@ namespace Core
                     return null;
             }
 
+            handler.streamAudio = true;
              var uwr = new UnityWebRequest(audioFullPath, "GET", handler, null);
 
             await uwr.SendWebRequest();
 
-            var clip = handler.audioClip;
+            var clip = handler.audioClip;            
             handler.Dispose();
             uwr.Dispose();
             return clip;

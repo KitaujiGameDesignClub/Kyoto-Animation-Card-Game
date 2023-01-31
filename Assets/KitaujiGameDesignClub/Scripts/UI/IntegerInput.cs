@@ -14,7 +14,17 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 
         public TMP_InputField inputField;
 
-        public int value => int.Parse(inputField.text);
+        public int value
+        {
+            get
+            {
+                return int.Parse(inputField.text);
+            }
+            set
+            {
+                inputField.text = value.ToString();
+            }
+        }
 
         public UnityEvent<int> onEndEdit;
 

@@ -44,11 +44,11 @@ public class TMEnemyEmluation : MonoBehaviour
                        $"标签：{allTags}";
 
         //初始值与事件
-        enemyProfile.BasicPower = power.value;
+        power.value = enemyProfile.BasicPower;
         power.onEndEdit.AddListener(delegate(int value) { enemyProfile.BasicPower = value; });
-        enemyProfile.BasicHealthPoint = hp.value;
+        hp.value = enemyProfile.BasicHealthPoint;
         hp.onEndEdit.AddListener(delegate (int value) { enemyProfile.BasicHealthPoint = value; });
-        enemyProfile.CardCount = cardCount.value;
+        cardCount.value = enemyProfile.CardCount;
         cardCount.onEndEdit.AddListener(delegate (int value) { enemyProfile.CardCount = value;});
        
     }
