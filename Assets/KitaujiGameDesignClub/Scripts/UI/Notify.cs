@@ -4,12 +4,14 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using KitaujiGameDesignClub.GameFramework.Tools;
+using KitaujiGameDesignClub.GameFramework.@interface;
 
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {
     [DisallowMultipleComponent]
-    public class Notify : MonoBehaviour
+    public class Notify : MonoBehaviour,IUpdate
     {
         public static Notify notify = null;
 
@@ -19,7 +21,6 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         /// </summary>
         [FormerlySerializedAs("Modal")] [Header("强通知")] [SerializeField]
         private LeanWindow strongNotification;
-
         [SerializeField] private Button buttonOne;
         [SerializeField] private Button buttonTwo;
         [SerializeField] private Button buttonThree;
@@ -68,6 +69,22 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                 notify = this;
             }
         }
+        private void Start()
+        {
+            UpdateManager.RegisterUpdate(this);
+        }
+
+        /// <summary>
+        /// 主要是响应一些键盘输入
+        /// </summary>
+        public void FastUpdate()
+        {
+            //按下esc 并且允许背景按钮关闭通知，就关了吧
+            if (Input.GetKeyDown(KeyCode.Escape) && Shutdown.interactable)
+            {
+                strongNotification.TurnOff();
+            }
+        }
 
         /// <summary>
         /// 创建强通知（弹窗通知）
@@ -80,9 +97,11 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         public void CreateStrongNotification(UnityAction onNotify, UnityAction OnOff, string title, string content,
             UnityAction Button1 = null, string ButtonOneText = "确认", UnityAction Button2 = null,
             string ButtonTwoText = "返回", UnityAction Button3 = null, string ButtonThreeText = "取消",
-            float fontSizeRate = 1f)
+            float fontSizeRate = 1f,bool allowBackgroundCloseNotification = true)
         {
-            
+            //处理背景图片能否关闭此通知
+           Shutdown.interactable = allowBackgroundCloseNotification;
+
             //优先处理按钮
             //激活与禁用
             buttonOne.gameObject.SetActive(Button1 != null);
@@ -116,16 +135,14 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             Shutdown.OnDown.RemoveAllListeners();
 
             if (onNotify != null) strongNotification.OnOn.AddListener(onNotify);
+            if (OnOff != null) strongNotification.OnOff.AddListener(OnOff);
 
-            Shutdown.OnDown.AddListener(delegate
-            {
-                TurnOffStrongNotification();
-                if (OnOff != null) OnOff.Invoke();
-            });
+            //让背景能关掉通知
+            Shutdown.OnDown.AddListener(TurnOffStrongNotification);
 
             this.strongContent.text = $"<size=132%><align=\"center\">{title}</align></size>\n\n{content}";
             this.strongContent.fontSize = DefaultfontSize[1] * fontSizeRate;
-
+            //前面的弄好了，打开通知
             strongNotification.TurnOn();
             Debug.Log($"发生强通知：{title} - {content}");
         }
@@ -176,6 +193,8 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         {
             CreateStrongNotification(null, null, "测试通知", "1145141919810");
         }
+
+     
 #endif
     }
 }

@@ -102,26 +102,64 @@ namespace Maker
             //加入一个quickLink
             FileBrowser.AddQuickLink("游戏卡组", $"{Information.bundlesPath}", bundlePathIco);
 
-            //android储存权限申请
-            AndroidRequestPermeission();
+            //android储存权限检查
+            AndroidRequestCheck();
 
 #if UNITY_STANDALONE
-            //禁止全屏
-            Screen.fullScreen = false;
-            Screen.SetResolution(1280, 720, false, 30);
+            //禁止全屏,如果是全屏就初始化显示
+            if (Screen.fullScreen)
+            {
+                Screen.fullScreen = false;
+                Screen.SetResolution(1280, 720, false, 30);
+            }         
 
 #endif
         }
 
-        public void AndroidRequestPermeission()
+        public void AndroidRequestCheck()
         {
-            FileBrowser.RequestPermission();
-
-            if (FileBrowser.CheckPermission() == FileBrowser.Permission.Denied)
+            switch (FileBrowser.CheckPermission())
             {
-                //不能读取外部储存的有关逻辑
-                Notify.notify.CreateStrongNotification(null, delegate { basicEvents.ReturnToTitle(); },
-                    "储存权限被拒绝", "如果要编辑或制作卡包，需要储存权限\n点击黑色区域返回游戏标题");
+                case FileBrowser.Permission.Denied:
+                    AskPermission("储存权限被拒绝！卡牌编辑器需要储存权限以储存、读取卡组文件\n请按意愿授予");
+                    break;
+
+                case FileBrowser.Permission.Granted:
+                    break;
+
+                case FileBrowser.Permission.ShouldAsk:
+                    AskPermission("卡牌编辑器需要储存权限以储存、读取卡组文件\n请按意愿授予");
+                    break;
+
+               
+            }
+         
+
+            void AskPermission(string content) => Notify.notify.CreateStrongNotification(null, null, "需要储存权限", content, delegate 
+            { 
+                //按这个按钮，就申请权限
+                FileBrowser.RequestPermission();  
+
+                //得到权限就关闭通知
+                if(FileBrowser.CheckPermission() == FileBrowser.Permission.Granted)
+                {
+                    Notify.notify.TurnOffStrongNotification();
+                }
+                //得不到就算了
+                else
+                {
+                    DeniedPermissionAgain();
+                }
+
+            }, "申请", DeniedPermissionAgain, "取消并关闭", allowBackgroundCloseNotification: false);
+
+            //权限申请再次被拒绝，回到游戏主界面
+            void DeniedPermissionAgain()
+            {
+                Notify.notify.CreateStrongNotification(null, delegate
+                {
+                    Application.Quit(-233);
+                }, "储存权限被拒绝", "如果要编辑或制作卡包，需要储存权限\n此通知会与游戏一起关闭",Notify.notify.TurnOffStrongNotification,"确认并关闭");
             }
         }
 
