@@ -24,7 +24,7 @@ Reason:
     ParameterToShrinkScope: None
     Logic: 0
     Threshold: ''
-  ReasonParameter: None
+  JudgeParameter: None
   ReasonJudgeMethod: Value
   Logic: 0
   Threshold: 																								
@@ -32,9 +32,10 @@ Result:
   RegardActivatorAsResultObject: false
   SummonCardName: ''
   Ridicule: 0
+  Silence: 0
   ResultObject: *o0
   ParameterToChange: None
-  CalculationMethod: addition
+  ChangeMethod: addition
   Value: ''
 AbilityDescription: 我很好奇能力是什么
 voiceExitFileName: voiceExit.mp3

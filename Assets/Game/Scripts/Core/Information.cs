@@ -26,7 +26,7 @@ namespace Core
         /// <summary>
         /// 可以对确定的条件对象的参数进行判断，判断结果为真（或参数设置为None），会触发能力效果
         /// </summary>
-        public Information.Parameter ReasonParameter;
+        public Information.Parameter JudgeParameter;
         
         /// <summary>
         /// 如何进行参数判断，对值判断亦或是对数量判断
@@ -59,16 +59,7 @@ namespace Core
         /// </summary>
         public bool RegardActivatorAsResultObject;
 
-        /// <summary>
-        /// 召唤一个符合CardName的卡牌（空则不召唤）
-        /// </summary>
-        public string SummonCardName;
-
-        /// <summary>
-        /// 嘲讽回合数（>1时，就只会攻击嘲讽他的那位）
-        /// </summary>
-        public int Ridicule;
-        
+     
         //新一轮的对象筛选（筛选出结果对象）
 
         /// <summary>
@@ -84,14 +75,27 @@ namespace Core
         /// <summary>
         /// 结果对象参数的修改方法
         /// </summary>
-        public Information.CalculationMethod CalculationMethod;
+        public Information.CalculationMethod ChangeMethod;
 
         /// <summary>
         /// 修改的值。如何计算按照CalculationMethod来
         /// </summary>
         public string Value;
 
-      
+        /// <summary>
+        /// 召唤一个符合CardName的卡牌（空则不召唤）
+        /// </summary>
+        public string SummonCardName;
+
+        /// <summary>
+        /// 嘲讽回合数（加法，>1时，就只会攻击嘲讽他的那位）
+        /// </summary>
+        public int Ridicule;
+
+        /// <summary>
+        /// 嘲讽回合数（加法）
+        /// </summary>
+        public int Silence;
     }
 
     /// <summary>

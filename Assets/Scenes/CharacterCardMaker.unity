@@ -17236,6 +17236,10 @@ PrefabInstance:
       propertyPath: m_text
       value: "\u5224\u5B9A\u53C2\u6570"
       objectReference: {fileID: 0}
+    - target: {fileID: 9093592089880722890, guid: 1b2fb4a0f7de4794b9e48032276c4a73, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9093592089880722892, guid: 1b2fb4a0f7de4794b9e48032276c4a73, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
       value: 2

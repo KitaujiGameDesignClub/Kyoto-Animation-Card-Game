@@ -526,18 +526,19 @@ namespace Maker
             editing.Reason.NeededObjects.Logic = abilityReasonLogic.value - 3;
             editing.Reason.NeededObjects.Threshold = abilityReasonThreshold.text;
             editing.Reason.Logic = abilityReasonJudgeLogic.value - 3;
-            editing.Reason.ReasonParameter = (Information.Parameter)abilityReasonJudgeParameter.value;
+            editing.Reason.JudgeParameter = (Information.Parameter)abilityReasonJudgeParameter.value;
             editing.Reason.ReasonJudgeMethod = (Information.JudgeMethod)abilityReasonJudgeMethod.value;
             editing.Reason.Threshold = abilityReasonJudgeThreshold.text;
             editing.Result.RegardActivatorAsResultObject = abilityReasonObjectAsTarget.On;
             editing.Result.SummonCardName = abilityResultSummon.text;
             editing.Result.Ridicule = int.Parse(abilityResultRidicule.text);
+            editing.Result.Silence = int.Parse(abilityResultSilence.text);
             editing.Result.ResultObject.LargeScope = (Information.Objects)abilityResultLargeScope.value;
             editing.Result.ResultObject.ParameterToShrinkScope = (Information.Parameter)abilityResultParameter.value;
             editing.Result.ResultObject.Logic = abilityResultLogic.value - 3;
             editing.Result.ResultObject.Threshold = abilityResultThreshold.text;
             editing.Result.ParameterToChange = (Information.Parameter)abilityResultParameterToChange.value;
-            editing.Result.CalculationMethod = (Information.CalculationMethod)abilityResultChangeMethod.value;
+            editing.Result.ChangeMethod = (Information.CalculationMethod)abilityResultChangeMethod.value;
             editing.Result.Value = abilityResultChangeValue.text;
 
             //音频

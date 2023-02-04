@@ -232,7 +232,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
 
             #region 获取判断的参数的值
 
-            switch (cardStateInGame.profile.Reason.ReasonParameter)
+            switch (cardStateInGame.profile.Reason.JudgeParameter)
             {
                 //部长/主席/主持的金币数量
                 case Information.Parameter.Coin:
@@ -444,7 +444,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
             else
             {
                 //这些都是对values（数值进行判定）
-                switch (cardStateInGame.profile.Reason.ReasonParameter)
+                switch (cardStateInGame.profile.Reason.JudgeParameter)
                 {
                     //数据为Int
                     case Information.Parameter.Coin or Information.Parameter.Power or Information.Parameter.Silence
@@ -460,7 +460,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                             if (!int.TryParse(values[i], out fixedValues[i]))
                             {
                                 throw new Exception(
-                                    $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})的能力出发原因中，{cardStateInGame.profile.Reason.ReasonParameter}是int的，但是给定的阈值形式上不符合int类型");
+                                    $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})的能力出发原因中，{cardStateInGame.profile.Reason.JudgeParameter}是int的，但是给定的阈值形式上不符合int类型");
                             }
                             else
                             {
@@ -670,7 +670,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                         break;
 
                     case Information.Parameter.Tag:
-                        switch (cardStateInGame.profile.Result.CalculationMethod)
+                        switch (cardStateInGame.profile.Result.ChangeMethod)
                         {
                             //添加/删除一个tag  values种，如果有个“-”。说明是减去这个tag
                             case Information.CalculationMethod.addition:
@@ -715,7 +715,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
         /// <param name="values">（</param>
         private int ChangeIntValue(int parameter)
         {
-            switch (cardStateInGame.profile.Result.CalculationMethod)
+            switch (cardStateInGame.profile.Result.ChangeMethod)
             {
                 case Information.CalculationMethod.addition:
                     parameter += int.Parse(cardStateInGame.profile.Result.Value);
