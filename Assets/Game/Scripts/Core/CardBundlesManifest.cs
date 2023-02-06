@@ -23,6 +23,8 @@ namespace  Core
         /// </summary>
         public string BundleName = "BundleManifest";
 
+        public bool OtherContent = false;
+
         /// <summary>
         /// 友好型名称。在游戏中会显示此卡包名称。（可以中文）
         /// </summary>

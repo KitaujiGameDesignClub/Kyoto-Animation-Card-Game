@@ -15,6 +15,7 @@ namespace Maker
     public class BundleEditor : MonoBehaviour
     {
         [Header("编辑器")] public TMP_InputField bundleName;
+        public LeanToggle OtherContent;
         public TMP_InputField bundleFriendlyName;
         public InputFieldWithDropdown Anime;
         public TMP_InputField bundleVersion;
@@ -24,6 +25,7 @@ namespace Maker
         public TMP_Text codeVersionCheck;
         public Image bundleImage;
         public Sprite DefaultImage;
+
 
         [Header("效果显示")] public TMP_Text friendlyName;
         public TMP_Text descriptionOfBundle;
@@ -47,7 +49,7 @@ namespace Maker
 
         private void Start()
         {
-            #region 事件组
+            #region 切换事件组
 
             //返回标题
             returnToTitle.OnClick.AddListener(delegate
@@ -101,6 +103,7 @@ namespace Maker
             //获取卡组清单信息
             var manifest = CardMaker.cardMaker.nowEditingBundle.manifest;
             bundleName.SetTextWithoutNotify(manifest.BundleName);
+            OtherContent.Set(manifest.OtherContent);
             bundleFriendlyName.SetTextWithoutNotify(manifest.FriendlyBundleName);
             authorName.SetTextWithoutNotify(manifest.AuthorName);
             Anime.inputField.SetTextWithoutNotify(manifest.Anime);
@@ -129,11 +132,12 @@ namespace Maker
             }
 
 
-            //读取卡组内所有卡牌的友好名称
+            //没有卡牌的话，就禁用与卡编辑器的切换功能
             if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Count == 0)
             {
                 cardsFriendlyNamesList.gameObject.SetActive(false);
             }
+            //读取卡组内所有卡牌的友好名称
             else
             {
                 CardMaker.cardMaker.BanInputLayer(true, "所含卡牌缓存中...");
@@ -151,6 +155,10 @@ namespace Maker
             {
                 codeVersionCheck.text =
                     $"清单代码版本号：{Information.ManifestVersion}\n编辑器代码版本号：{Information.ManifestVersion}\n<color=green>完全兼容</color>";
+            }
+            else
+            {
+                //不兼容就要尝试修复
             }
 
 
@@ -176,6 +184,7 @@ namespace Maker
         {
             //更新暂存在内存中的清单
             CardMaker.cardMaker.nowEditingBundle.manifest.BundleName = bundleName.text;
+            CardMaker.cardMaker.nowEditingBundle.manifest.OtherContent = OtherContent.On;
             CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName = friendlyName.text;
             CardMaker.cardMaker.nowEditingBundle.manifest.BundleVersion = bundleVersion.text;
             CardMaker.cardMaker.nowEditingBundle.manifest.AuthorName = authorName.text;
