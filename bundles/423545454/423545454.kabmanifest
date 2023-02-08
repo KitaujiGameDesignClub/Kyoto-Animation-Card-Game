@@ -1,0 +1,15 @@
+﻿# Only for Kyoto Animation Card game with utf-8
+# card bundle manifest.
+# It'll tell you the summary of the bundle.
+
+CodeVersion: 1
+BundleName: 423545454
+OtherContent: false
+FriendlyBundleName: 默认卡包
+Anime: ''
+ImageName: cover
+BundleVersion: v1.0
+AuthorName: 作者名称
+shortDescription: 卡包简短介绍
+Description: 卡包介绍
+Remarks: 这是你新建的卡组。从这里开始创作！

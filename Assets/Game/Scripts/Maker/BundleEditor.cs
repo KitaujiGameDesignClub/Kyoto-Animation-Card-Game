@@ -131,24 +131,8 @@ namespace Maker
                 ////没有的话，就保持刚刚设置的默认图片
             }
 
-
-            //没有卡牌的话，就禁用与卡编辑器的切换功能
-            if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Count == 0)
-            {
-                cardsFriendlyNamesList.gameObject.SetActive(false);
-            }
-            //读取卡组内所有卡牌的友好名称
-            else
-            {
-                CardMaker.cardMaker.BanInputLayer(true, "所含卡牌缓存中...");
-                cardsFriendlyNamesList.ClearOptions();
-                cardsFriendlyNamesList.AddOptions(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
-                cardsFriendlyNamesList.options.Insert(0, new TMP_Dropdown.OptionData("<创建新卡牌>"));
-                cardsFriendlyNamesList.value = 0;
-                cardsFriendlyNamesList.RefreshShownValue();
-                cardsFriendlyNamesList.gameObject.SetActive(true);
-            }
-
+            //调整能否切换到卡牌编辑器
+            CheckSwitchToCardEditorAvailable();
 
             //兼容性检查
             if (manifest.CodeVersion == Information.ManifestVersion)
@@ -199,12 +183,19 @@ namespace Maker
              * 卡组清单就只保存清单（此脚本）
              * 卡牌就仅保存正在编辑的那个卡牌
              */
+
             //执行保存or另存为操作
             //没有预先加载卡包，或者原加载的清单文件不存在了，则另存为
             if (string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath) ||
                 !File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath))
             {
-                await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath);
+                //执行另存为的逻辑，顺便记录一下保存的位置
+               var directoryName =  await CardMaker.cardMaker.AsyncManifestSaveTo(newImageFullPath);        
+	//如果切换还有bug的话，在另存为完成之后，使用“编辑卡组”的打开方式，重新打开这个刚刚创建的卡组，以便能用上所有的功能（适用于编辑）       
+                //记录刚刚保存的路径
+                CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath = $"{directoryName}/{CardMaker.cardMaker.nowEditingBundle.manifest.BundleName}/{CardMaker.cardMaker.nowEditingBundle.manifest.BundleName}{Information.ManifestExtension}";
+	 //将刚刚创建的卡组作为“正在编辑的卡组”，启用与卡牌编辑器间的切换
+                CheckSwitchToCardEditorAvailable();
             }
             //有加载卡包，保存
             else
@@ -227,6 +218,30 @@ namespace Maker
             image.sprite = bundleImage.sprite;
             CardMaker.cardMaker.changeSignal.SetActive(true);
         }
+
+        #region 与卡牌编辑器切换
+        /// <summary>
+        /// 检查能否切换到卡牌编辑器
+        /// </summary>
+        void CheckSwitchToCardEditorAvailable()
+        {
+            //没有卡牌的话，就禁用与卡编辑器的切换功能
+            if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Count == 0)
+            {
+                cardsFriendlyNamesList.gameObject.SetActive(false);
+            }
+            //读取卡组内所有卡牌的友好名称
+            else
+            {
+                cardsFriendlyNamesList.ClearOptions();
+                cardsFriendlyNamesList.AddOptions(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
+                cardsFriendlyNamesList.options.Insert(0, new TMP_Dropdown.OptionData("<创建新卡牌>"));
+                cardsFriendlyNamesList.value = 0;
+                cardsFriendlyNamesList.RefreshShownValue();
+                cardsFriendlyNamesList.gameObject.SetActive(true);
+            }
+        }
+        #endregion
 
         /// <summary>
         /// 切换编辑器用的，加载所选的卡牌的配置文件

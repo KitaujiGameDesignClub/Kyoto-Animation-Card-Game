@@ -92,10 +92,9 @@ namespace Maker
             //刷新yaml资源
             refreshYamlRes();
 
-
             //隐藏文件选择器
             FileBrowser.HideDialog();
-
+           
             //允许玩家输入
             banInput.SetActive(false);
 
@@ -190,7 +189,6 @@ namespace Maker
 
             if (FileBrowser.Success)
             {
-                nowEditingBundle = new();
                 //现在还没有改内容，关闭修改标记
                 changeSignal.SetActive(false);
                 nowEditingBundle.loadedManifestFullPath = FileBrowser.Result[0];
@@ -332,7 +330,7 @@ namespace Maker
         }
 
         /// <summary>
-        /// 卡组清单另存为
+        /// 卡组清单另存为（返回值为保存的路径，仅DirectoryName）
         /// </summary>
         /// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
         /// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
@@ -340,9 +338,11 @@ namespace Maker
         /// <param name="saveManifest"></param>
         /// <param name="saveCard"></param>
         /// <returns>保存成功了吗？</returns>
-        public async UniTask AsyncSaveTo(string manifestNewImageFullPath)
+        public async UniTask<string> AsyncManifestSaveTo(string manifestNewImageFullPath)
         {
-            await AsyncSaveTo(manifestNewImageFullPath, null, true, false, null);
+            //执行保存逻辑
+          return  await AsyncSaveTo(manifestNewImageFullPath, null, true, false, null);
+           
         }
 
         /// <summary>
@@ -354,13 +354,13 @@ namespace Maker
         /// <param name="saveManifest"></param>
         /// <param name="saveCard"></param>
         /// <returns>保存成功了吗？</returns>
-        public async UniTask AsyncSaveTo(string cardNewImageFullPath, audioSetting[] cardAudioSettins)
+        public async UniTask AsyncCardSaveTo(string cardNewImageFullPath, audioSetting[] cardAudioSettins)
         {
             await AsyncSaveTo(null, cardNewImageFullPath, false, true, cardAudioSettins);
         }
 
         /// <summary>
-        /// 另存为（整套卡包）
+        /// 通用的另存为（返回值为保存的路径，仅DirectoryName）
         /// </summary>
         /// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
         /// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
@@ -368,7 +368,7 @@ namespace Maker
         /// <param name="saveManifest"></param>
         /// <param name="saveCard"></param>
         /// <returns>保存成功了吗？</returns>
-        public async UniTask AsyncSaveTo(string manifestNewImageFullPath, string newCardImageFullPath,
+        public async UniTask<string> AsyncSaveTo(string manifestNewImageFullPath, string newCardImageFullPath,
             bool saveManifest, bool saveCard, audioSetting[] cardAudioSettings)
         {
             //还没有保存过/不是打开编辑卡包，打开选择文件的窗口，选择保存位置
@@ -389,12 +389,17 @@ namespace Maker
                     $"{FileBrowser.Result[0]}/{nowEditingBundle.card.CardName}/{nowEditingBundle.card.CardName}{Information.CardExtension}",
                     newCardImageFullPath, saveManifest, saveCard,
                     cardAudioSettings);
+
+                return FileBrowser.Result[0];
             }
             else
             {
                 //关闭禁用曾
                 banInput.SetActive(false);
+                return null;
             }
+
+           
         }
 
 

@@ -68,7 +68,7 @@ namespace Core
         /// <summary>
         /// 创建卡包清单文件
         /// </summary>
-        /// <param name="cardBundlesManifest">保存的内容</param>
+        /// <param name="BundlesManifest">保存的内容</param>
         /// <param name="manifestFullPathToSave">清单保存的完整路径（含文件和拓展名）</param>
         /// <param name="newImageFullPath">新图片的完整路径，将图片复制到卡包目录下</param>
         /// <returns></returns>

@@ -560,7 +560,7 @@ namespace Maker
                 if (string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath))
                 {
                     //另存为
-                    await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath, audios);
+                    await CardMaker.cardMaker.AsyncCardSaveTo(newImageFullPath, audios);
                 }
                 //不是新建的，有现成的文件了
                 else
@@ -584,7 +584,7 @@ namespace Maker
                     else
                     {
                         Notify.notify.CreateBannerNotification(null, "原始文件损坏或遗失，执行另存为");
-                        await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath, audios);
+                        await CardMaker.cardMaker.AsyncCardSaveTo(newImageFullPath, audios);
                     }
                 }
             }
@@ -612,7 +612,7 @@ namespace Maker
                 {
                     Debug.Log(
                         $"卡组{CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName}丢失，在{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}中找不到");
-                    await CardMaker.cardMaker.AsyncSaveTo(newImageFullPath, audios);
+                    await CardMaker.cardMaker.AsyncCardSaveTo(newImageFullPath, audios);
                     //认定此卡牌不属于任何卡组
                     CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath = string.Empty;
                     switchToBundleEditor.gameObject.SetActive(
