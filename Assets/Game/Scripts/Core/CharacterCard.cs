@@ -43,7 +43,7 @@ namespace Core
         /// <summary>
         /// 图片名字（含拓展名）
         /// </summary>
-        public string ImageName = "cover.png";
+        public string ImageName;
 
         /// <summary>
         /// 角色名称（无则空）

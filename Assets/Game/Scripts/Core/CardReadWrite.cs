@@ -85,10 +85,10 @@ namespace Core
                 "# card bundle manifest.\n# It'll tell you the summary of the bundle.");
             await YamlReadWrite.WriteAsync(io, cardBundlesManifest);
             //复制封面图片
-            if (!string.IsNullOrEmpty(newImageFullPath) && newImageFullPath != $"{directory}/{cardBundlesManifest.ImageName}")
+            if (!string.IsNullOrEmpty(newImageFullPath) && newImageFullPath != $"{directory}\\{cardBundlesManifest.ImageName}")
             {
-
-                File.Copy(newImageFullPath, $"{directory}/{cardBundlesManifest.ImageName}", true);
+                Debug.Log($"{newImageFullPath}, { directory}\\{ cardBundlesManifest.ImageName}");
+                File.Copy(newImageFullPath, $"{directory}\\{cardBundlesManifest.ImageName}", true);
 
             }
 
@@ -133,9 +133,9 @@ namespace Core
 
 
             //复制封面图片
-            if (!string.IsNullOrEmpty(imageFullPath) && imageFullPath != $"{directory}/{characterCard.ImageName}")
+            if (!string.IsNullOrEmpty(imageFullPath) && imageFullPath != $"{directory}\\{characterCard.ImageName}")
             {
-                File.Copy(imageFullPath, $"{directory}/{characterCard.ImageName}", true);
+                File.Copy(imageFullPath, $"{directory}\\{characterCard.ImageName}", true);
             }
 
             //复制音频资源
@@ -508,6 +508,7 @@ namespace Core
         /// <returns></returns>
         public static async UniTask<Texture2D> CoverImageLoader(string imageFullPath)
         {
+            imageFullPath = Path.GetFullPath(imageFullPath);
 
             if (!File.Exists(imageFullPath))
             {
@@ -516,24 +517,37 @@ namespace Core
 
             var handler = new DownloadHandlerTexture();
             UnityWebRequest unityWebRequest = new(imageFullPath, "GET", handler, null);
-            await unityWebRequest.SendWebRequest();
-
-            //都等待了，不用isDone了
-            if (unityWebRequest.result == UnityWebRequest.Result.Success)
+            
+            //试试能不能正常加载图片
+            try
             {
-              var image = handler.texture;
-                handler.Dispose();
-                unityWebRequest.Dispose();
-                return image;
+                await unityWebRequest.SendWebRequest();
 
+                //都等待了，不用isDone了
+                if (unityWebRequest.result == UnityWebRequest.Result.Success)
+                {
+                    var image = handler.texture;
+                    handler.Dispose();
+                    unityWebRequest.Dispose();
+                    return image;
+
+                }
+                //不存在或加载失败，返回空值
+                else
+                {
+                    handler.Dispose();
+                    unityWebRequest.Dispose();
+                    return null;
+                }
             }
-            //不存在或加载失败，返回空值
-            else
+            catch (Exception e)
             {
-                handler.Dispose();
-                unityWebRequest.Dispose();
+                //不行的话就抓取报错
+                Debug.LogError(unityWebRequest.url);
+                Debug.LogError(e.Message);
                 return null;
             }
+         
           
 
         }

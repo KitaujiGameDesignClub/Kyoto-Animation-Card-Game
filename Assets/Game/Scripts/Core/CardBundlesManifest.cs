@@ -35,7 +35,7 @@ namespace  Core
         /// <summary>
         /// 封面图片（含拓展名）
         /// </summary>
-        public string ImageName = "cover.jpg";
+        public string ImageName;
         
         /// <summary>
         /// 卡包版本。用于玩家和作者进行区分

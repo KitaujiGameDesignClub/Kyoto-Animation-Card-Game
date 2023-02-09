@@ -104,15 +104,6 @@ namespace Maker
             //android储存权限检查
             AndroidRequestCheck();
 
-#if UNITY_STANDALONE
-            //禁止全屏,如果是全屏就初始化显示
-            if (Screen.fullScreen)
-            {
-                Screen.fullScreen = false;
-                Screen.SetResolution(1280, 720, false, 30);
-            }         
-
-#endif
         }
 
         public void AndroidRequestCheck()
@@ -160,6 +151,16 @@ namespace Maker
                     Application.Quit(-233);
                 }, "储存权限被拒绝", "如果要编辑或制作卡包，需要储存权限\n此通知会与游戏一起关闭",Notify.notify.TurnOffStrongNotification,"确认并关闭");
             }
+        }
+
+        public void ReturnToStartMenu()
+        {
+            nowEditingBundle = null;
+            //允许玩家输入
+            banInput.SetActive(false);
+            //关闭编辑器
+            bundleEditor.gameObject.SetActive(false);
+            cardEditor.gameObject.SetActive(false);
         }
 
         /// <summary>

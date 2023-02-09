@@ -48,8 +48,8 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
         this.cv.text = cv == "不设置声优" ? string.Empty : $"cv:{cv}";
         this.description.text = description ?? throw new ArgumentNullException(nameof(description));
         this.image.sprite = image;
-        Destroy(powerValue.gameObject);
-        Destroy(hpValue.gameObject);
+        if(powerValue != null) Destroy(powerValue.gameObject);
+        if(hpValue != null ) Destroy(hpValue.gameObject);
     }
 
     /// <summary>

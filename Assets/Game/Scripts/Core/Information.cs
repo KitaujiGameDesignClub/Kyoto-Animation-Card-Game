@@ -181,6 +181,7 @@ namespace Core
 
         public const string ManifestExtension = ".kabmanifest";
         public const string CardExtension = ".kabcard";
+        public const string defaultCoverNameWithoutExtension = "cover";
         public static readonly string[] SupportedImageExtension = { ".jpg",".jpeg", ".bmp", ".png", ".gif" };
         public static readonly string[] SupportedAudioExtension = { ".mp3",".ogg",".wav",".aif" };
 

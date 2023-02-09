@@ -128,7 +128,7 @@ namespace Maker
                 sprite = sprite == null ? DefaultImage : sprite;
                 bundleImage.sprite = sprite;
 
-                ////没有的话，就保持刚刚设置的默认图片
+                //新建卡组，找不到图片，就保持刚刚设置的默认图片
             }
 
             //调整能否切换到卡牌编辑器
@@ -175,9 +175,10 @@ namespace Maker
             CardMaker.cardMaker.nowEditingBundle.manifest.Description = description.text;
             CardMaker.cardMaker.nowEditingBundle.manifest.Remarks = remark.text;
             CardMaker.cardMaker.nowEditingBundle.manifest.Anime = Anime.text;
-            CardMaker.cardMaker.nowEditingBundle.manifest.ImageName = newImageFullPath == string.Empty
+            //图片
+            CardMaker.cardMaker.nowEditingBundle.manifest.ImageName = string.IsNullOrEmpty(newImageFullPath)
                 ? CardMaker.cardMaker.nowEditingBundle.manifest.ImageName
-                : $"cover{Path.GetExtension(newImageFullPath)}";
+                : $"{Information.defaultCoverNameWithoutExtension}{Path.GetExtension(newImageFullPath)}";
 
             /*保存和另存为，都是自己保存自己的
              * 卡组清单就只保存清单（此脚本）
@@ -189,13 +190,19 @@ namespace Maker
             if (string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath) ||
                 !File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath))
             {
-                //执行另存为的逻辑，顺便记录一下保存的位置
-               var directoryName =  await CardMaker.cardMaker.AsyncManifestSaveTo(newImageFullPath);        
-	//如果切换还有bug的话，在另存为完成之后，使用“编辑卡组”的打开方式，重新打开这个刚刚创建的卡组，以便能用上所有的功能（适用于编辑）       
-                //记录刚刚保存的路径
-                CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath = $"{directoryName}/{CardMaker.cardMaker.nowEditingBundle.manifest.BundleName}/{CardMaker.cardMaker.nowEditingBundle.manifest.BundleName}{Information.ManifestExtension}";
-	 //将刚刚创建的卡组作为“正在编辑的卡组”，启用与卡牌编辑器间的切换
-                CheckSwitchToCardEditorAvailable();
+                //执行另存为的逻辑,并缓存个保存的路径
+               var directoryName = await CardMaker.cardMaker.AsyncManifestSaveTo(newImageFullPath);
+
+                //只有选择了路径，并执行有关另存为操作后，才开启剩余的功能
+                if (!string.IsNullOrEmpty(directoryName))
+                {
+                    //记录刚刚创建好了的卡组
+                    CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath = $"{directoryName}/{CardMaker.cardMaker.nowEditingBundle.manifest.BundleName}//{CardMaker.cardMaker.nowEditingBundle.manifest.BundleName}{Information.ManifestExtension}";
+                    //保存好了，用“编辑卡组”功能重新打开此卡组，以便能使用所有的功能
+                    await OpenManifestEditor();
+                }
+               
+                 
             }
             //有加载卡包，保存
             else
@@ -258,7 +265,6 @@ namespace Maker
             {
                 //但是把新卡牌的Anime设置成与卡组一致（可以在card editor内修改）
                 card.Anime = CardMaker.cardMaker.nowEditingBundle.manifest.Anime;
-                Debug.Log($"{card.Anime}   {CardMaker.cardMaker.nowEditingBundle.manifest.Anime}");
             }
             else
             {
@@ -332,28 +338,28 @@ namespace Maker
             newImageFullPath = imageFullPath;
 
             //下载（加载）图片
-            var hander = await CardReadWrite.CoverImageLoader(imageFullPath);
+            var texture2D = await CardReadWrite.CoverImageLoader(imageFullPath);
 
             //图片不存在或者读取失败，返回null
-            if (hander == null) return null;
+            if (texture2D == null) return null;
             else
             {
                 //毕竟是正方形，进行大小调整
                 int size;
                 //正方形图片就随便取一个边作为图片大小
-                if (hander.width == hander.height)
+                if (texture2D.width == texture2D.height)
                 {
-                    size = hander.width;
+                    size = texture2D.width;
                 }
                 //非正方形则取最短边
                 else
                 {
-                    size = hander.width > hander.height
-                        ? hander.height
-                        : hander.width;
+                    size = texture2D.width > texture2D.height
+                        ? texture2D.height
+                        : texture2D.width;
                 }
 
-                var sprite = Sprite.Create(hander, new Rect(0f, 0f, size, size), Vector2.one / 2f);
+                var sprite = Sprite.Create(texture2D, new Rect(0f, 0f, size, size), Vector2.one / 2f);
                 return sprite;
             }
         }

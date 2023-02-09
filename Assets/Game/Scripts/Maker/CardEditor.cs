@@ -287,6 +287,7 @@ namespace Maker
 
             CardMaker.cardMaker.BanInputLayer(true, "卡牌配置加载中...");
 
+            //上层方法已经将CardMaker.cardMaker.nowEditingBundle.card附好值了
             nowEditingCard = CardMaker.cardMaker.nowEditingBundle.card;
 
             if (nowEditingCard == null)
@@ -419,6 +420,15 @@ namespace Maker
 
         async UniTask AsyncLoadImage(string imageFullPath)
         {
+            //没有特意设置图片，用默认的
+            if (string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.card.ImageName))
+            {
+                imageOfCardField.sprite = defaultImage;
+                preview.image.sprite = defaultImage;
+                return;
+            }
+
+            //图片文件丢失了
             if (!File.Exists(imageFullPath))
             {
                 Debug.LogWarning($"图片文件“{imageFullPath}”不存在，已应用默认图片");
@@ -510,10 +520,7 @@ namespace Maker
             editing.FriendlyCardName = friendlyNameField.text;
             editing.Anime = AnimeField.text;
             editing.tags = tagStorage;
-            editing.CardCount = int.Parse(cardNumberField.text);
-            editing.ImageName = newImageFullPath == string.Empty
-                ? editing.ImageName
-                : $"cover{Path.GetExtension(Path.GetFileName(newImageFullPath))}";
+            editing.CardCount = int.Parse(cardNumberField.text);           
             editing.CharacterName = CharacterNameField.text;
             editing.CV = CVField.text;
             editing.allowAsChief = AsChiefToggle.On;
@@ -541,6 +548,10 @@ namespace Maker
             editing.Result.ChangeMethod = (Information.CalculationMethod)abilityResultChangeMethod.value;
             editing.Result.Value = abilityResultChangeValue.text;
 
+            //封面 string.IsNullOrEmpty(newImageFullPath) = true 没有选择新图片
+            editing.ImageName = string.IsNullOrEmpty(newImageFullPath)
+               ? editing.ImageName
+               : $"{Information.defaultCoverNameWithoutExtension}{Path.GetExtension(Path.GetFileName(newImageFullPath))}";
             //音频
             var audios = new audioSetting[4];
             audios[0] = voiceAbility;
