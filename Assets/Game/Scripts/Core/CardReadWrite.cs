@@ -508,6 +508,21 @@ namespace Core
         /// <returns></returns>
         public static async UniTask<Texture2D> CoverImageLoader(string imageFullPath)
         {
+            //没有特意设置图片，用默认的
+            if (string.IsNullOrEmpty(Path.GetExtension(imageFullPath)))
+            {             
+                return null;
+            }
+
+            //图片文件丢失了
+            if (!File.Exists(imageFullPath))
+            {
+                Debug.LogWarning($"图片文件“{imageFullPath}”不存在");             
+                return null;
+            }
+
+
+            //路径补全，防止产生cann't connect host错误
             imageFullPath = Path.GetFullPath(imageFullPath);
 
             if (!File.Exists(imageFullPath))

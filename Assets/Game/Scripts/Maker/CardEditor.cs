@@ -352,6 +352,7 @@ namespace Maker
             RefreshVariableDropdownList(false);
 
             //图片，音频资源加载
+            //已经有加载的卡牌了
             if (CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath != string.Empty)
             {
                 var cardRootPath = Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath);
@@ -368,7 +369,6 @@ namespace Maker
                 voiceDefeat.clear();
                 voiceExit.clear();
                 //加载音频，没加载上的就保持clear状态了
-
                 string audioPath = $"{cardRootPath}/{nowEditingCard.voiceAbilityFileName}";
                 if (File.Exists(audioPath)) await AsyncLoadSelectedAudio(voiceAbility, audioPath);
                 audioPath = $"{cardRootPath}/{nowEditingCard.voiceExitFileName}";
@@ -378,7 +378,18 @@ namespace Maker
                 audioPath = $"{cardRootPath}/{nowEditingCard.voiceDefeatFileName}";
                 if (File.Exists(audioPath)) await AsyncLoadSelectedAudio(voiceDefeat, audioPath);
             }
-
+            //新建的卡牌，清理之前遗留的音频图片资源
+            else
+            {
+                //先清除音频
+                voiceAbility.clear();
+                voiceDebut.clear();
+                voiceDefeat.clear();
+                voiceExit.clear();
+                //然后是图片
+                imageOfCardField.sprite = defaultImage;
+                preview.image.sprite = defaultImage;
+            }
             #endregion
 
 
@@ -419,24 +430,7 @@ namespace Maker
 
 
         async UniTask AsyncLoadImage(string imageFullPath)
-        {
-            //没有特意设置图片，用默认的
-            if (string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.card.ImageName))
-            {
-                imageOfCardField.sprite = defaultImage;
-                preview.image.sprite = defaultImage;
-                return;
-            }
-
-            //图片文件丢失了
-            if (!File.Exists(imageFullPath))
-            {
-                Debug.LogWarning($"图片文件“{imageFullPath}”不存在，已应用默认图片");
-                imageOfCardField.sprite = defaultImage;
-                preview.image.sprite = defaultImage;
-                return;
-            }
-
+        {            
             //加载图片
             Texture2D image = await CardReadWrite.CoverImageLoader(imageFullPath);
 
@@ -450,7 +444,7 @@ namespace Maker
             //因为各种原因加载不出来，用默认图片
             else
             {
-                imageOfCardField.sprite = defaultImage;
+;                imageOfCardField.sprite = defaultImage;
                 preview.image.sprite = defaultImage;
             }
         }

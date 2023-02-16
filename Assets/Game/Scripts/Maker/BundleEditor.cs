@@ -120,13 +120,10 @@ namespace Maker
             //如果是加载的已有卡组，则读取现成的cover图片
             if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath != string.Empty)
             {
-                Debug.Log(
-                    $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/{CardMaker.cardMaker.nowEditingBundle.manifest.ImageName}");
                 //加载图片
-                var sprite = await ManifestLoadImageAsync(
+                await ManifestLoadImageAsync(
                     $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/{CardMaker.cardMaker.nowEditingBundle.manifest.ImageName}");
-                sprite = sprite == null ? DefaultImage : sprite;
-                bundleImage.sprite = sprite;
+               
 
                 //新建卡组，找不到图片，就保持刚刚设置的默认图片
             }
@@ -305,10 +302,8 @@ namespace Maker
             {
                 Debug.Log($"加载成功，图片文件{FileBrowser.Result[0]}");
                 //加载图片
-                var sprite = await ManifestLoadImageAsync(FileBrowser.Result[0]);
-                sprite = sprite == null ? DefaultImage : sprite;
-                bundleImage.sprite = sprite;
-                image.sprite = sprite;
+                 await ManifestLoadImageAsync(FileBrowser.Result[0]);
+            
 
                 //显示已修改的印记
                 CardMaker.cardMaker.changeSignal.SetActive(true);
@@ -322,26 +317,20 @@ namespace Maker
         /// </summary>
         /// <param name="imageFullPath">string.Empty时返回空</param>
         /// <returns></returns>
-        private async UniTask<Sprite> ManifestLoadImageAsync(string imageFullPath)
-        {
-            if (imageFullPath == string.Empty)
-            {
-                return null;
-            }
-
-            if (!File.Exists(imageFullPath))
-            {
-                Debug.LogError($"图片文件“{imageFullPath}”不存在，已应用默认图片");
-                return null;
-            }
-
+        private async UniTask ManifestLoadImageAsync(string imageFullPath)
+        {          
             newImageFullPath = imageFullPath;
 
             //下载（加载）图片
             var texture2D = await CardReadWrite.CoverImageLoader(imageFullPath);
 
-            //图片不存在或者读取失败，返回null
-            if (texture2D == null) return null;
+            //图片不存在或者读取失败，用默认的图片
+            if (texture2D == null)
+            {
+               image.sprite = DefaultImage;
+                bundleImage.sprite = DefaultImage;
+            }
+            //存在的话，调整图片大小，然后应用
             else
             {
                 //毕竟是正方形，进行大小调整
@@ -360,7 +349,8 @@ namespace Maker
                 }
 
                 var sprite = Sprite.Create(texture2D, new Rect(0f, 0f, size, size), Vector2.one / 2f);
-                return sprite;
+                image.sprite = sprite;
+                bundleImage.sprite = sprite;
             }
         }
 
