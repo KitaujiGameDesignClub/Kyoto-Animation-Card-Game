@@ -68,6 +68,23 @@ namespace Maker
         [Header("游戏加载时的实践")] public UnityEvent OnGameLoad;
 
 
+        #region 键盘输入事件
+
+        /// <summary>
+        /// 按下ctrl了吗？
+        /// </summary>
+        private bool controlPressed = false;
+/// <summary>
+/// 上次激活热键后，松开了吗
+/// </summary>
+        private bool releaseButton = true;
+        /// <summary>
+        /// 想要保存
+        /// </summary>
+        [HideInInspector] public UnityEvent WantToSave = new();
+
+        #endregion
+
         private void Awake()
         {
             Information.bundlesPath = $"{YamlReadWrite.UnityButNotAssets}/bundles";
@@ -94,7 +111,7 @@ namespace Maker
 
             //隐藏文件选择器
             FileBrowser.HideDialog();
-           
+
             //允许玩家输入
             banInput.SetActive(false);
 
@@ -103,7 +120,42 @@ namespace Maker
 
             //android储存权限检查
             AndroidRequestCheck();
+        }
 
+
+        private void Update()
+        {
+            #region 键盘输入监听
+
+            if (!banInput.activeSelf && releaseButton)
+            {
+                controlPressed = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+
+                //保存ctrl+s
+                if (Input.GetKey(KeyCode.S) && controlPressed)
+                {
+                    releaseButton = false;
+                    WantToSave.Invoke();
+                }
+                //打开根目录
+                if (Input.GetKey(KeyCode.E) && controlPressed)
+                {
+                    releaseButton = false;
+                    Application.OpenURL(YamlReadWrite.UnityButNotAssets);
+                }
+                //刷新字典缓存
+                if (Input.GetKey(KeyCode.R) && controlPressed)
+                {
+                    releaseButton = false;
+                    RefreshDictionariesAndUpdateVariableInputField();
+                }
+            }
+            else
+            {
+                releaseButton = !Input.anyKey;
+            }
+
+            #endregion
         }
 
         public void AndroidRequestCheck()
@@ -120,36 +172,32 @@ namespace Maker
                 case FileBrowser.Permission.ShouldAsk:
                     AskPermission("卡牌编辑器需要储存权限以储存、读取卡组文件\n请按意愿授予");
                     break;
-
-               
             }
-         
 
-            void AskPermission(string content) => Notify.notify.CreateStrongNotification(null, null, "需要储存权限", content, delegate 
-            { 
-                //按这个按钮，就申请权限
-                FileBrowser.RequestPermission();  
 
-                //得到权限就关闭通知
-                if(FileBrowser.CheckPermission() == FileBrowser.Permission.Granted)
+            void AskPermission(string content) => Notify.notify.CreateStrongNotification(null, null, "需要储存权限", content,
+                delegate
                 {
-                    Notify.notify.TurnOffStrongNotification();
-                }
-                //得不到就算了
-                else
-                {
-                    DeniedPermissionAgain();
-                }
+                    //按这个按钮，就申请权限
+                    FileBrowser.RequestPermission();
 
-            }, "申请", DeniedPermissionAgain, "取消并关闭", allowBackgroundCloseNotification: false);
+                    //得到权限就关闭通知
+                    if (FileBrowser.CheckPermission() == FileBrowser.Permission.Granted)
+                    {
+                        Notify.notify.TurnOffStrongNotification();
+                    }
+                    //得不到就算了
+                    else
+                    {
+                        DeniedPermissionAgain();
+                    }
+                }, "申请", DeniedPermissionAgain, "取消并关闭", allowBackgroundCloseNotification: false);
 
             //权限申请再次被拒绝，回到游戏主界面
             void DeniedPermissionAgain()
             {
-                Notify.notify.CreateStrongNotification(null, delegate
-                {
-                    Application.Quit(-233);
-                }, "储存权限被拒绝", "如果要编辑或制作卡包，需要储存权限\n此通知会与游戏一起关闭",Notify.notify.TurnOffStrongNotification,"确认并关闭");
+                Notify.notify.CreateStrongNotification(null, delegate { Application.Quit(-233); }, "储存权限被拒绝",
+                    "如果要编辑或制作卡包，需要储存权限\n此通知会与游戏一起关闭", Notify.notify.TurnOffStrongNotification, "确认并关闭");
             }
         }
 
@@ -162,6 +210,8 @@ namespace Maker
             bundleEditor.gameObject.SetActive(false);
             cardEditor.gameObject.SetActive(false);
         }
+
+        #region 编辑与创建
 
         /// <summary>
         /// 创建卡包
@@ -185,7 +235,8 @@ namespace Maker
         private async UniTask EditBundle()
         {
             //得到文件内容
-            FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组清单文件", Information.ManifestExtension));
+            FileBrowser.SetFilters(false,
+                new FileBrowser.Filter("卡组清单文件", Path.GetExtension(Information.ManifestFileName)));
             await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "加载卡组清单", loadButtonText: "选择");
 
             if (FileBrowser.Success)
@@ -199,11 +250,11 @@ namespace Maker
 
                 nowEditingBundle.manifest = bundle.manifest;
 
-                //缓存所有卡牌的友好和识别名称
+                //缓存所有卡牌的友好和uuid
                 foreach (var variable in bundle.cards)
                 {
                     nowEditingBundle.allCardsFriendlyName.Add(variable.FriendlyCardName);
-                    nowEditingBundle.allCardsName.Add(variable.CardName);
+                    nowEditingBundle.allCardName.Add(variable.CardName);
                 }
 
                 Debug.Log($"成功加载卡组“{bundle.manifest.FriendlyBundleName}”，内含{bundle.cards.Length}张卡牌");
@@ -233,7 +284,7 @@ namespace Maker
         private async UniTask EditCard()
         {
             //得到配置文件
-            FileBrowser.SetFilters(false, new FileBrowser.Filter("卡牌配置文件", Information.CardExtension));
+            FileBrowser.SetFilters(false, new FileBrowser.Filter("卡牌配置文件", Information.CardFileName));
             await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "加载卡牌配置", loadButtonText: "选择");
 
             if (FileBrowser.Success)
@@ -259,6 +310,20 @@ namespace Maker
                 //然后打开编辑器
                 await cardEditor.OpenCardEditor();
             }
+        }
+
+        #endregion
+
+        private void RefreshDictionariesAndUpdateVariableInputField()
+        {
+            BanInputLayer(true, "字典重载中...");
+            //重新读取
+            CardReadWrite.ReloadDictionaries();
+            //刷新可变下拉框
+            cardEditor.RefreshVariableDropdownList();
+            bundleEditor.RefreshVariableInputField();
+            BanInputLayer(false, "字典重载中...");
+            Notify.notify.CreateBannerNotification(null,"字典重载成功",0.8f);
         }
 
 
@@ -342,8 +407,7 @@ namespace Maker
         public async UniTask<string> AsyncManifestSaveTo(string manifestNewImageFullPath)
         {
             //执行保存逻辑
-          return  await AsyncSaveTo(manifestNewImageFullPath, null, true, false, null);
-           
+            return await AsyncSaveTo(manifestNewImageFullPath, null, true, false, null);
         }
 
         /// <summary>
@@ -385,9 +449,9 @@ namespace Maker
             {
                 //保存
                 await AsyncSave(
-                    $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.BundleName}/{nowEditingBundle.manifest.BundleName}{Information.ManifestExtension}",
+                    $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.BundleName}/{Information.ManifestFileName}",
                     manifestNewImageFullPath,
-                    $"{FileBrowser.Result[0]}/{nowEditingBundle.card.CardName}/{nowEditingBundle.card.CardName}{Information.CardExtension}",
+                    $"{FileBrowser.Result[0]}/{nowEditingBundle.card.CardName}/{Information.CardFileName}",
                     newCardImageFullPath, saveManifest, saveCard,
                     cardAudioSettings);
 
@@ -399,8 +463,6 @@ namespace Maker
                 banInput.SetActive(false);
                 return null;
             }
-
-           
         }
 
 
@@ -479,7 +541,7 @@ namespace Maker
         /// <summary>
         /// 刷新yaml资源（tag anime cv列表，从本地文件中读取）
         /// </summary>
-        public void refreshYamlRes() => CardReadWrite.refreshYamlResFromDisk();
+        public void refreshYamlRes() => CardReadWrite.ReloadDictionaries();
 
 
 #if UNITY_EDITOR

@@ -51,9 +51,9 @@ namespace Core
 
 
         /// <summary> 
-        /// 刷新yaml资源（tag anime cv列表，从本地文件中读取）
+        /// 重新读取字典内容（tag anime cv列表，从本地文件中读取）
         /// </summary>
-        public static void refreshYamlResFromDisk()
+        public static void ReloadDictionaries()
         {
             ReadAnimeList();
             ReadTags();
@@ -84,25 +84,15 @@ namespace Core
                 $"-{directory}",
                 "# card bundle manifest.\n# It'll tell you the summary of the bundle.");
             await YamlReadWrite.WriteAsync(io, cardBundlesManifest);
+           
             //复制封面图片
             if (!string.IsNullOrEmpty(newImageFullPath) && newImageFullPath != $"{directory}\\{cardBundlesManifest.ImageName}")
             {
-                Debug.Log($"{newImageFullPath}, { directory}\\{ cardBundlesManifest.ImageName}");
                 File.Copy(newImageFullPath, $"{directory}\\{cardBundlesManifest.ImageName}", true);
-
             }
 
             //创建一个cards文件夹
             Directory.CreateDirectory($"{directory}/cards");
-            //创建readme文件
-            StreamWriter streamWriter = new($"{directory}/readme.txt", false, Encoding.UTF8);
-            await streamWriter.WriteAsync(
-                $"此为卡组“{cardBundlesManifest.FriendlyBundleName}”（识别名称：“{cardBundlesManifest.BundleName}）”的卡组文件夹" +
-                $"\ncards文件夹内储存此卡组内所有的卡牌。cards文件夹及其所有内容不应当修改文件名（文本文件txt可以任意修改）" +
-                $"\ncover图片文件是此卡组的封面图片文件" +
-                $"\n为避免不必要的错误，只有此文件夹、txt文件以及“{Information.ManifestExtension}”文件允许修改名称");
-            await streamWriter.DisposeAsync();
-            streamWriter.Close();
 
             Debug.Log($"“{cardBundlesManifest.FriendlyBundleName}”已成功保存在{directory}");
         }
@@ -223,10 +213,10 @@ namespace Core
                 for (int i = 0; i < allDirectories.Length; i++)
                 {
                     //此卡存在且目录合法，则加进去
-                    if (File.Exists($"{allDirectories[i]}/{allDirectories[i].Split("\\")[^1]}{Information.CardExtension}"))
+                    if (File.Exists($"{allDirectories[i]}/{Information.CardFileName}"))
                     {
                         var card = await YamlReadWrite.ReadAsync<CharacterCard>(
-                       new DescribeFileIO($"*{Information.CardExtension}", $"-{allDirectories[i]}"), null, false);
+                       new DescribeFileIO($"{Information.CardFileName}", $"-{allDirectories[i]}"), null, false);
 
                         if (card != null) allCards.Add(card);
                     }
@@ -291,7 +281,7 @@ namespace Core
                         //试试读取，合规的清单文件是有值的
                         var manifest =
                             await YamlReadWrite.ReadAsync<CardBundlesManifest>(
-                                new DescribeFileIO($"*{Information.ManifestExtension}", $"-{allDirectories[i]}"), null,
+                                new DescribeFileIO($"{Information.ManifestFileName}", $"-{allDirectories[i]}"), null,
                                 false);
 
                         //检查是不是与要求的name相符
@@ -355,7 +345,7 @@ namespace Core
 
             //查询所有的manifest文件
             DirectoryInfo directoryInfo = new(bundlesPath);
-            FileInfo[] fileInfos = directoryInfo.GetFiles($"*{Information.ManifestExtension}", SearchOption.AllDirectories);
+            FileInfo[] fileInfos = directoryInfo.GetFiles($"{Information.ManifestFileName}", SearchOption.AllDirectories);
 
             bundles = new Bundle[fileInfos.Length];
             //读取清单文件

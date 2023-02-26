@@ -2014,6 +2014,8 @@ namespace SimpleFileBrowser
 
 			gameObject.SetActive( false );
 		}
+		
+		
 
 		public void RefreshFiles( bool pathChanged )
 		{

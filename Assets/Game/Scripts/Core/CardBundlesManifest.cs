@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using KitaujiGameDesignClub.GameFramework.Tools;
-
 namespace  Core
 {
     /// <summary>
@@ -11,6 +6,8 @@ namespace  Core
     [System.Serializable]
     public class CardBundlesManifest
     {
+        public string UUID = string.Empty;
+        
         /// <summary>
         /// 清单文件代码版本号（如果代码上有修改，且修改后不兼容，就+1）
         /// </summary>
@@ -47,11 +44,6 @@ namespace  Core
         /// </summary>
         public string AuthorName = "作者名称";
 
-        /// <summary>
-        ///卡包简短介绍（支持TMP_text的富文本） 
-        /// </summary>
-        public string shortDescription = "卡包简短介绍";
-        
         /// <summary>
         /// 卡包介绍（支持TMP_text的富文本）
         /// </summary>

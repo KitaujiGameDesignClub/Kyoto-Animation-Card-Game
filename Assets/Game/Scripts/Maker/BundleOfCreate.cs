@@ -16,11 +16,11 @@ namespace Maker
         /// <summary>
         /// 记录这个卡组内，所有卡牌的友好名称
         /// </summary>
-        public List<string> allCardsFriendlyName = new ();
+        public List<string> allCardsFriendlyName = new();
         /// <summary>
-        /// 记录这个卡组内，所有卡牌的识别名称（这两个名称数组是要相互对应的
+        /// 记录这个卡组内，所有卡牌的所属文件夹的名字（这两个名称数组是要相互对应的
         /// </summary>
-        public List<string> allCardsName = new ();
+        public List<string> allCardName = new();
 
         /// <summary>
         /// 上次加载的清单文件的完整路径
@@ -36,7 +36,7 @@ namespace Maker
             manifest = new();
             card = new CharacterCard();
             allCardsFriendlyName = new ();
-            allCardsName = new ();
+            allCardName = new ();
             loadedManifestFullPath = string.Empty;
         }
     }

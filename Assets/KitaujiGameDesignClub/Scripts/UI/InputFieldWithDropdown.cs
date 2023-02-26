@@ -51,6 +51,9 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         [FormerlySerializedAs("supportSearch")]
         [Header("候选筛选功能")]
         public bool supportFilter = false;
+        /// <summary>
+        /// 自动去除富文本
+        /// </summary>
         [Header("自动去除富文本")]
         public bool autoRemoveRichText = true;
 

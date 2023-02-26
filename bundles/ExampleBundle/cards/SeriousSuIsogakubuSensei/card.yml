@@ -1,0 +1,52 @@
+# Only for Kyoto Animation Card game with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+UUID: d7fbb07e-22b1-40ec-a512-a5fe7237c977
+CodeVersion: 1
+CardName: SeriousSuIsogakubuSensei
+AuthorName: PureAmaya
+FriendlyCardName: 严格的吹奏乐部顾问
+Anime: 吹响吧!上低音号
+tags:
+- 教师
+- 顾问
+- 眼镜
+- 严格
+CardCount: 5
+ImageName: cover.png
+CharacterName: 泷昇
+CV: 樱井孝宏
+gender: 1
+allowAsChief: true
+BasicHealthPoint: 10
+BasicPower: 1
+AbilityActivityType: Round
+Reason:
+  NeededObjects:
+    LargeScope: Any
+    ParameterToShrinkScope: None
+    Logic: -3
+    Threshold: ''
+  JudgeParameter: None
+  ReasonJudgeMethod: Value
+  Logic: -3
+  Threshold: 																								
+Result:
+  RegardActivatorAsResultObject: false
+  ResultObject:
+    LargeScope: AllInTeam
+    ParameterToShrinkScope: Tag
+    Logic: 0
+    Threshold: 乐器
+  ParameterToChange: Power
+  ChangeMethod: addition
+  Value: 1
+  SummonCardName: ''
+  Ridicule: 0
+  Silence: 0
+AbilityDescription: <b>合奏练习</b>：每回合使己方场上会“乐器”的卡牌提高 1 点执行力
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut
+voiceAbilityFileName: voiceAbility

@@ -1,5 +1,10 @@
+using System;
 using System.Collections.Generic;
+
+#if  UNITY_EDITOR
 using UnityEngine;
+#endif
+
 
 namespace Core
 {
@@ -9,6 +14,8 @@ namespace Core
     [System.Serializable]
     public class CharacterCard
     {
+        public string UUID = string.Empty;
+        
         /// <summary>
         /// 角色卡文件代码版本号（如果代码上有修改，且修改后不兼容，就+1）
         /// </summary>
@@ -16,10 +23,11 @@ namespace Core
         
         /// <summary>
         /// 卡牌名称（仅英语，文件名也是这个）
-        /// </summary>
-        [Tooltip("卡牌名称（仅英语，文件名也是这个）")]
-        public string CardName = "CharacterCard";
+        /// </summary>f
+        public string CardName = string.Empty;
 
+        public string AuthorName;
+        
         /// <summary>
         /// 友好卡牌名，用来显示给玩家的
         /// </summary>
@@ -58,7 +66,6 @@ namespace Core
         /// <summary>
         /// 性别 0 无性别或性别不重要 1男 2女
         /// </summary>
-        [Tooltip("性别 0 无性别或性别不重要 1男 2女")]
         public int gender = 0;
 
         /// <summary>
@@ -88,7 +95,9 @@ namespace Core
         /// <summary>
         /// 能力描述
         /// </summary>
+#if  UNITY_EDITOR
         [TextArea]
+        #endif
         public string AbilityDescription = "甚至可以写一点简短的小骚话\n我很好奇能力是什么";
 
         /* 暂时做不了，以后用别的东西实现

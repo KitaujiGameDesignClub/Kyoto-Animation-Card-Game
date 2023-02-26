@@ -179,8 +179,8 @@ namespace Core
 
         #region 内置路径与文件拓展名规范和字典预设
 
-        public const string ManifestExtension = ".kabmanifest";
-        public const string CardExtension = ".kabcard";
+        public const string ManifestFileName = "manifest.yml";
+        public const string CardFileName = "card.yml";
         public const string defaultCoverNameWithoutExtension = "cover";
         public static readonly string[] SupportedImageExtension = { ".jpg",".jpeg", ".bmp", ".png", ".gif" };
         public static readonly string[] SupportedAudioExtension = { ".mp3",".ogg",".wav",".aif" };

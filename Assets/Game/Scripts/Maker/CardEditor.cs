@@ -23,6 +23,7 @@ namespace Maker
 
         [Header("信息侧")] public TMP_InputField cardNameField;
         public TMP_InputField friendlyNameField;
+        public TMP_InputField AuthorNameField;
         public InputFieldWithDropdown AnimeField;
         public InputFieldWithDropdown CharacterNameField;
         public InputFieldWithDropdown CVField;
@@ -171,6 +172,9 @@ namespace Maker
             }
 
             #endregion
+            
+            basicHp.contentType = TMP_InputField.ContentType.IntegerNumber;
+            basicPower.contentType = TMP_InputField.ContentType.IntegerNumber;
 
             #region 事件注册
 
@@ -194,12 +198,6 @@ namespace Maker
             abilityResultParameter.onValueChanged.AddListener(delegate(int arg0)
             {
                 inputFieldHelperContent(abilityResultThreshold, arg0);
-            });
-
-            //参数、能力类型可以选择类似于None的选项，如果选定了，则禁用一些输入内容
-            abilityReasonType.onValueChanged.AddListener(delegate(int arg0)
-            {
-                banAllInputFieldInteraction(arg0 != 0, 0);
             });
 
             //当将触发器作为处理对象时，禁用部分结果输入
@@ -241,6 +239,9 @@ namespace Maker
 
         private void Start()
         {
+            //保存热键
+            CardMaker.cardMaker.WantToSave.AddListener(UniTask.UnityAction(async () => {await SaveOrSaveTo();}));
+            
             //返回标题
             returnToTitle.OnClick.AddListener(delegate
             {
@@ -287,7 +288,7 @@ namespace Maker
 
             CardMaker.cardMaker.BanInputLayer(true, "卡牌配置加载中...");
 
-            //上层方法已经将CardMaker.cardMaker.nowEditingBundle.card附好值了
+            //上层方法已经将CardMaker.cardMaker.nowEditingBundle.card附好值了（就是已经获得卡牌了）
             nowEditingCard = CardMaker.cardMaker.nowEditingBundle.card;
 
             if (nowEditingCard == null)
@@ -295,6 +296,10 @@ namespace Maker
                 Notify.notify.CreateBannerNotification(null, "意外错误：没有创建卡牌实例，请重新创建或联系作者");
                 throw new Exception("意外错误：没有创建卡牌实例，请重新创建或联系作者");
             }
+
+            //如果已经设定（保存）过识别名称了，则不允许修改
+            cardNameField.interactable = string.IsNullOrEmpty(nowEditingCard.CardName);
+
 
 
             //关闭能力和声音编辑器
@@ -309,27 +314,41 @@ namespace Maker
             #region 常规的信息加载
 
             cardNameField.SetTextWithoutNotify(nowEditingCard.CardName);
+            AuthorNameField.SetTextWithoutNotify(nowEditingCard.AuthorName);
             friendlyNameField.SetTextWithoutNotify(nowEditingCard.FriendlyCardName);
             AnimeField.inputField.SetTextWithoutNotify(nowEditingCard.Anime);
             CharacterNameField.inputField.SetTextWithoutNotify(nowEditingCard.CharacterName);
             CVField.inputField.SetTextWithoutNotify(nowEditingCard.CV);
+            AsChiefToggle.Set(nowEditingCard.allowAsChief);
             cardNumberField.SetTextWithoutNotify(nowEditingCard.CardCount.ToString());
             genderField.SetValueWithoutNotify(nowEditingCard.gender);
             basicHp.SetTextWithoutNotify(nowEditingCard.BasicHealthPoint.ToString());
-            basicHp.contentType = TMP_InputField.ContentType.IntegerNumber;
             basicPower.SetTextWithoutNotify(nowEditingCard.BasicPower.ToString());
-            basicHp.contentType = TMP_InputField.ContentType.IntegerNumber;
+
             abilityReasonType.SetValueWithoutNotify((int)nowEditingCard.AbilityActivityType);
-            abilityReasonObjectAsTarget.TurnOff();
-            abilityDescription.text = nowEditingCard.AbilityDescription;
-            AsChiefToggle.Set(nowEditingCard.allowAsChief);
-            abilityResultRidicule.SetTextWithoutNotify("0");
-            abilityResultSilence.SetTextWithoutNotify("0");
-            CVField.inputField.SetTextWithoutNotify(String.Empty);
+            abilityReasonLargeScope.SetValueWithoutNotify((int)nowEditingCard.Reason.NeededObjects.LargeScope);
+            abilityReasonParameter.SetValueWithoutNotify((int)nowEditingCard.Reason.NeededObjects.ParameterToShrinkScope);
+            abilityReasonLogic.SetValueWithoutNotify(nowEditingCard.Reason.NeededObjects.Logic+ 3);
+            abilityReasonThreshold.inputField.SetTextWithoutNotify(nowEditingCard.Reason.NeededObjects.Threshold);
+            abilityReasonJudgeParameter.SetValueWithoutNotify((int)nowEditingCard.Reason.JudgeParameter);
+            abilityReasonJudgeMethod.SetValueWithoutNotify((int)nowEditingCard.Reason.ReasonJudgeMethod);
+            abilityReasonJudgeLogic.SetValueWithoutNotify(nowEditingCard.Reason.Logic + 3);
+            abilityReasonJudgeThreshold.inputField.SetTextWithoutNotify(nowEditingCard.Reason.Threshold);
+            abilityReasonObjectAsTarget.Set(nowEditingCard.Result.RegardActivatorAsResultObject);
+            abilityResultLargeScope.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.LargeScope);
+            abilityResultParameter.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.ParameterToShrinkScope);
+            abilityResultLogic.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.Logic);
+            abilityResultThreshold.inputField.SetTextWithoutNotify(nowEditingCard.Result.ResultObject.Threshold);
+            abilityResultParameterToChange.SetValueWithoutNotify((int)nowEditingCard.Result.ParameterToChange);
+            abilityResultChangeMethod.SetValueWithoutNotify((int)nowEditingCard.Result.ChangeMethod);
+            abilityResultChangeValue.inputField.SetTextWithoutNotify(nowEditingCard.Result.Value);
+            abilityResultSummon.inputField.SetTextWithoutNotify(nowEditingCard.Result.SummonCardName);
             abilityResultSummon.ChangeOptionDatas(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
-            abilityReasonJudgeLogic.value = nowEditingCard.Reason.Logic + 3;
-            abilityReasonLogic.value = nowEditingCard.Reason.NeededObjects.Logic + 3;
-            abilityResultLogic.value = nowEditingCard.Result.ResultObject.Logic;
+            abilityResultRidicule.SetTextWithoutNotify(nowEditingCard.Result.Ridicule.ToString());
+            abilityResultSilence.SetTextWithoutNotify(nowEditingCard.Result.Silence.ToString());
+            abilityDescription.SetTextWithoutNotify(nowEditingCard.AbilityDescription);
+     
+     
             //tag也同步一下
             //移出所有无用(残留）的tag对象
             var UnusedTags = tagParent.GetComponentsInChildren<tagListItem>(false);
@@ -349,7 +368,7 @@ namespace Maker
 
 
             //获取可变下拉列表内容
-            RefreshVariableDropdownList(false);
+            RefreshVariableDropdownList();
 
             //图片，音频资源加载
             //已经有加载的卡牌了
@@ -396,7 +415,7 @@ namespace Maker
             CardMaker.cardMaker.BanInputLayer(false, "卡牌加载中...");
             //启用编辑器，并初始化显示界面
             gameObject.SetActive(true);
-            banAllInputFieldInteraction(false, 0);
+
             //同步一下信息
             OnValueChanged();
             CardMaker.cardMaker.changeSignal.SetActive(false);
@@ -507,9 +526,15 @@ namespace Maker
 
         private async UniTask SaveOrSaveTo()
         {
+            if (!gameObject.activeSelf && FileBrowser.IsOpen)
+            {
+                return;
+            }
+            
             //内存保存
             var editing = CardMaker.cardMaker.nowEditingBundle.card;
             editing.CardName = cardNameField.text;
+            editing.AuthorName = AuthorNameField.text;
             editing.gender = genderField.value;
             editing.FriendlyCardName = friendlyNameField.text;
             editing.Anime = AnimeField.text;
@@ -542,6 +567,8 @@ namespace Maker
             editing.Result.ChangeMethod = (Information.CalculationMethod)abilityResultChangeMethod.value;
             editing.Result.Value = abilityResultChangeValue.text;
 
+            //UUID
+            editing.UUID = string.IsNullOrEmpty(editing.UUID) ? Guid.NewGuid().ToString() : editing.UUID;
             //封面 string.IsNullOrEmpty(newImageFullPath) = true 没有选择新图片
             editing.ImageName = string.IsNullOrEmpty(newImageFullPath)
                ? editing.ImageName
@@ -552,7 +579,7 @@ namespace Maker
             audios[1] = voiceDebut;
             audios[2] = voiceDefeat;
             audios[3] = voiceExit;
-            //文件名保存在内存中
+            //音频文件名保存在内存中
             editing.voiceExitFileName = $"{audios[3].VoiceName}{Path.GetExtension(audios[3].newAudioFullFileName)}";
             editing.voiceDefeatFileName = $"{audios[2].VoiceName}{Path.GetExtension(audios[2].newAudioFullFileName)}";
             editing.voiceDebutFileName = $"{audios[1].VoiceName}{Path.GetExtension(audios[1].newAudioFullFileName)}";
@@ -572,20 +599,14 @@ namespace Maker
                 {
                     //检查是用保存还是另存为
                     var FileExistNow = File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath);
-                    var d = Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath).Split("\\");
-                    var cardRootDirectory = d[^1];
-                    var cardNameNotChanged = editing.CardName.Equals(cardRootDirectory) &&
-                                             editing.CardName.Equals(
-                                                 Path.GetFileNameWithoutExtension(CardMaker.cardMaker.nowEditingBundle
-                                                     .loadedCardFullPath));
-                    //额外满足这2个条件（此文件存在，并且卡牌的识别名称没有修改），执行保存操作
-                    if (FileExistNow && cardNameNotChanged)
+                    //文件存在的话，就直接保存
+                    if (FileExistNow)
                     {
                         await CardMaker.cardMaker.AsyncSave(null, null,
                             CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath, newImageFullPath, false, true,
                             audios);
                     }
-                    //任何一点不满足，都是另存为
+                    //否则都是另存为
                     else
                     {
                         Notify.notify.CreateBannerNotification(null, "原始文件损坏或遗失，执行另存为");
@@ -600,14 +621,14 @@ namespace Maker
                 if (File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath))
                 {
                     var saveFullPath =
-                        $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/cards/{cardNameField.text}/{cardNameField.text}{Information.CardExtension}";
+                        $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/cards/{cardNameField.text}/{Information.CardFileName}";
                     await CardMaker.cardMaker.AsyncSave(null, null, saveFullPath, newImageFullPath, false, true,
                         audios);
 
                     //注册此卡牌，使其能在manifest编辑器那边的切换器中显示出来
                     var card = CardMaker.cardMaker.nowEditingBundle.card;
                     CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Add(card.FriendlyCardName);
-                    CardMaker.cardMaker.nowEditingBundle.allCardsName.Add(card.CardName);
+                    CardMaker.cardMaker.nowEditingBundle.allCardName.Add(cardNameField.text);
 
                     Debug.Log(
                         $"此卡牌“{CardMaker.cardMaker.nowEditingBundle.card.FriendlyCardName}”属于卡组“{CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName}”，已自动保存到该卡组中");
@@ -617,6 +638,7 @@ namespace Maker
                 {
                     Debug.Log(
                         $"卡组{CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName}丢失，在{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}中找不到");
+                  
                     await CardMaker.cardMaker.AsyncCardSaveTo(newImageFullPath, audios);
                     //认定此卡牌不属于任何卡组
                     CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath = string.Empty;
@@ -641,56 +663,19 @@ namespace Maker
         /// 刷新可变下拉列表内容（AnimeList CV CharacterName tags）
         /// </summary>
         /// <param name="reReadFromDisk">重新从硬盘读一遍吗？</param>
-        public void RefreshVariableDropdownList(bool reReadFromDisk)
+        public void RefreshVariableDropdownList()
         {
-            if (reReadFromDisk)
-            {
-                CardReadWrite.refreshYamlResFromDisk();
-            }
-
             AnimeField.ChangeOptionDatas(Information.AnimeList);
             CVField.ChangeOptionDatas(Information.CV);
             CharacterNameField.ChangeOptionDatas(Information.characterNamesList);
             tagField.ChangeOptionDatas(Information.tags);
 
             //有分类标记的额外处理一下（处理分类标记和内容，加入禁用列表，合并同类项）
-            WithClassificationNote.format(CharacterNameField);
-            WithClassificationNote.format(tagField);
+            IncludeClassificationNote.format(CharacterNameField);
+            IncludeClassificationNote.format(tagField);
         }
 
-        /// <summary>
-        /// 禁用所有输入框的交互
-        /// </summary>
-        /// <param name="ban"></param>
-        private void banAllInputFieldInteraction(bool ban, int level)
-        {
-            //IF先暂时放着吧，以后补上
-
-            //0:触发类型选择“不”会触发
-            if (level == 0)
-            {
-                abilityReasonLargeScope.interactable = ban;
-            }
-
-            abilityReasonParameter.interactable = ban;
-            abilityReasonLogic.interactable = ban;
-            abilityReasonThreshold.interactable = ban;
-            abilityReasonJudgeParameter.interactable = ban;
-            abilityReasonJudgeMethod.interactable = ban;
-            abilityReasonJudgeLogic.interactable = ban;
-            abilityReasonJudgeThreshold.interactable = ban;
-            abilityReasonObjectAsTargetButton.interactable = ban;
-            abilityResultLargeScope.interactable = ban;
-            abilityResultParameter.interactable = ban;
-            abilityResultLogic.interactable = ban;
-            abilityResultThreshold.interactable = ban;
-            abilityResultParameterToChange.interactable = ban;
-            abilityResultChangeMethod.interactable = ban;
-            abilityResultChangeValue.interactable = ban;
-            abilityResultSummon.interactable = ban;
-            abilityResultRidicule.interactable = ban;
-            abilityResultSilence.interactable = ban;
-        }
+     
 
         /// <summary>
         /// 为带有helper的输入框提供可变的下拉栏帮助（用于规范输入内容）
@@ -759,8 +744,10 @@ namespace Maker
 
 
         #region 有分类标记的处理方法
-
-        private class WithClassificationNote
+/// <summary>
+/// 有分类标记的处理方法
+/// </summary>
+        private class IncludeClassificationNote
         {
             /// <summary>
             /// 格式化
@@ -778,7 +765,7 @@ namespace Maker
                         //记录分类标记的序号，禁止玩家输入
                         inputFieldWithDropdown.ban.Add(newText);
                     }
-                    //不是的，稍许淡化，缩进一点
+                    //不是的，稍许淡化，缩进一点，允许选择
                     else
                     {
                         var newText = $"<margin=5%><alpha=#CC>{inputFieldWithDropdown.options[i].text}";

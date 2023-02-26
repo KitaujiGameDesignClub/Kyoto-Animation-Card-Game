@@ -30,7 +30,7 @@ namespace KitaujiGameDesignClub.GameFramework
                     done = $"{done}/{raw[i]}";
                 }
 
-                return done;
+                return Path.GetFullPath(done);
             }
 
 #else
@@ -66,7 +66,6 @@ namespace KitaujiGameDesignClub.GameFramework
             streamWriter.Close();
         }
 
-
         /// <summary>
         /// 在规定的文件夹中写yaml文件
         /// </summary>
@@ -77,19 +76,18 @@ namespace KitaujiGameDesignClub.GameFramework
         {
             Serializer serializer = new Serializer();
 
-
             //得到最终呈现在文件中的文本内容
             string authenticContent =
                 $"# Only for {Application.productName} with utf-8\n{profile.Note}\n\n{serializer.Serialize(content)}";
 
-
             StreamWriter streamWriter =
-                new StreamWriter($"{GetFullDirectory(profile.Path)}/{profile.FileName}", false, Encoding.UTF8);
+                new($"{GetFullDirectory(profile.Path)}/{profile.FileName}", false, Encoding.UTF8);
 
             streamWriter.Write(authenticContent);
-            streamWriter.Dispose();
+             streamWriter.Dispose();
             streamWriter.Close();
         }
+       
 
         /// <summary>
         /// 读取yaml
@@ -167,13 +165,20 @@ namespace KitaujiGameDesignClub.GameFramework
         /// <summary>
         /// 读取yaml
         /// </summary>
-        /// <param name="yaml"></param>
+        /// <param name="yaml">IO</param>
         /// <param name="content">读取文件的内容（作为默认值）</param>
+        /// <param name="createIfFileNotExit">如果文件不存在，则在返回默认值的时候顺便创建一个文件。文件内容为默认值</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Read<T>(DescribeFileIO yaml, T content)
+        public static T Read<T>(DescribeFileIO yaml, T content, bool createIfFileNotExit = true)
         {
-            var fullPath = GetFullDirectory(yaml.Path);
+            var directory = GetFullDirectory(yaml.Path);
+            var fileName = yaml.FileName;
+
+            if (fileName.Substring(0, 1) == "*")
+            {
+                fileName = FindOneMatchedFile(fileName.Substring(1), directory);            
+            }
 
             Deserializer deserializer = new();
 
@@ -185,14 +190,14 @@ namespace KitaujiGameDesignClub.GameFramework
             try
             {
                 streamReader =
-                    new StreamReader($"{fullPath}/{yaml.FileName}", Encoding.UTF8);
+                    new StreamReader($"{directory}/{fileName}", Encoding.UTF8);
 
 
                 var fileContent = deserializer.Deserialize<T>(streamReader.ReadToEnd());
                 streamReader.Dispose();
                 streamReader.Close();
 
-                Debug.Log($"成功加载：{fullPath}/{yaml.FileName}");
+                Debug.Log($"成功加载：{directory}/{fileName}");
                 return fileContent;
             }
             catch (Exception e)
@@ -201,22 +206,30 @@ namespace KitaujiGameDesignClub.GameFramework
                 streamReader.Dispose();
                 streamReader.Close();
 
-                if (File.Exists($"{fullPath}/{yaml.FileName}"))
+
+                if (File.Exists($"{directory}/{yaml.FileName}"))
                 {
                     //文件损坏，备份原文件先，然后弄个新的
-                    File.Move($"{fullPath}/{yaml.FileName}",
-                        $"{fullPath}/{yaml.FileName} - {System.DateTime.Now:yyyy-MM-dd-HH-mm-ss}.bak");
-                    Debug.LogWarning($"{yaml.Path}中的“{yaml.FileName}”已损坏，此文件已备份，并创建了新文件。损坏原因：{e}");
+                    File.Move($"{directory}/{yaml.FileName}",
+                        $"{directory}/{yaml.FileName} - {System.DateTime.Now:yyyy-MM-dd-HH-mm-ss}.bak");
+                    Debug.LogWarning($"{directory}中的“{yaml.FileName}”已损坏，此文件已备份，并创建了新文件。损坏原因：{e}");
                 }
                 else
                 {
                     //不存在的话，初始化一个
-                    Debug.LogWarning($"{yaml.Path}中不存在“{yaml.FileName}”，已创建此文件。");
+                    if(createIfFileNotExit)  Debug.LogWarning($"{directory}中不存在“{yaml.FileName}”，已创建此文件。");
+                    else Debug.LogWarning($"{directory}中不存在“{yaml.FileName}”");
                 }
 
 
-                Write(yaml, content);
+                if(createIfFileNotExit)
+                {
+                     Write(yaml, content);
+                }
+             
                 return content;
+            
+               
             }
         }
 
