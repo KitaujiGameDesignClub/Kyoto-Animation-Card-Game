@@ -95,7 +95,11 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
   
     public void GetDamaged(int damage, CardPanel activator) => ChangeHealthAndPower(true, damage, false, -1, activator);
 
-
+    public void ChangeTeam(int targetTeamId)
+    {
+        
+    }
+    
     public void PowerUp(int value, CardPanel activator)
     {
        
@@ -316,6 +320,20 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                         throw new Exception(
                             $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断角色卡性别，但是能力原因的条件对象不是角色卡");
                     break;
+                
+                //所属社团（队伍）
+                case Information.Parameter.Team:
+                    if (chief == null)
+                    {
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            parameterValues[i] = ReasonObjects[i].cardStateInGame.teamId.ToString();
+                        }
+                    }
+                    else
+                        throw new Exception(
+                            $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断角色卡性别，但是能力原因的条件对象不是角色卡");
+                    break;
 
                 //tag对比
                 case Information.Parameter.Tag:
@@ -448,7 +466,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 {
                     //数据为Int
                     case Information.Parameter.Coin or Information.Parameter.Power or Information.Parameter.Silence
-                        or Information.Parameter.HealthPoint or Information.Parameter.Gender:
+                        or Information.Parameter.HealthPoint or Information.Parameter.Gender or Information.Parameter.Team:
                         //将string转换为正规的类型（int）
                         int[] fixedValues = new int[values.Length];
                         int thresholdInt = int.Parse(cardStateInGame.profile.Reason.Threshold);
@@ -659,6 +677,12 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
 
                     case Information.Parameter.Gender:
                         card.cardStateInGame.profile.gender = ChangeIntValue(card.cardStateInGame.profile.gender);
+                        break;
+                    
+                    //修改所属的team。0=玩家方 1=电脑方 2=双方交换
+                    case Information.Parameter.Team:
+                        //ChangeIntValue里要求必须为changeTo
+                        card.ChangeTeam(ChangeIntValue(card.cardStateInGame.teamId));
                         break;
 
                     case Information.Parameter.Silence:
@@ -897,6 +921,10 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                     case Information.Parameter.Gender:
                         parameter = neededCards[i].cardStateInGame.profile.gender.ToString();
                         break;
+                    
+                    case Information.Parameter.Team:
+                        parameter = neededCards[i].cardStateInGame.teamId.ToString();
+                        break;
 
                     case Information.Parameter.Tag:
                         foreach (var tag in cardStateInGame.profile.tags)
@@ -917,7 +945,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 {
                     //数据为Int
                     case Information.Parameter.Coin or Information.Parameter.Power or Information.Parameter.Silence
-                        or Information.Parameter.HealthPoint or Information.Parameter.Ridicule or Information.Parameter.Gender:
+                        or Information.Parameter.HealthPoint or Information.Parameter.Ridicule or Information.Parameter.Gender or Information.Parameter.Team:
                         //将string转换为正规的类型（int）
                         int fixedValue;
                         int thresholdInt = int.Parse(cardStateInGame.profile.Reason.Threshold);

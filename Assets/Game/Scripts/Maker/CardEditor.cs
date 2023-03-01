@@ -179,7 +179,6 @@ namespace Maker
             #region 事件注册
 
             //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
-
             abilityReasonJudgeParameter.onValueChanged.AddListener(delegate(int arg0)
             {
                 inputFieldHelperContent(abilityReasonJudgeThreshold, arg0);
@@ -678,26 +677,26 @@ namespace Maker
      
 
         /// <summary>
-        /// 为带有helper的输入框提供可变的下拉栏帮助（用于规范输入内容）
+        /// 当“判定参数”变化时，同步更新“可变下拉栏”的下拉框内容
         /// </summary>
         /// <param name="inputFieldWithDropdown"></param>
         /// <param name="index"></param>
         private void inputFieldHelperContent(InputFieldWithDropdown inputFieldWithDropdown, int index)
-        {
+        {               
+            inputFieldWithDropdown.supportFilter = true;
+            
             switch (index)
             {
                 //Anime
                 case (int)Information.Parameter.Anime:
                     inputFieldWithDropdown.ChangeOptionDatas(AnimeField.options, true);
                     inputFieldWithDropdown.ban = AnimeField.ban;
-                    inputFieldWithDropdown.supportFilter = true;
                     break;
 
                 //tag
                 case (int)Information.Parameter.Tag:
                     inputFieldWithDropdown.ChangeOptionDatas(tagField.options, true);
                     inputFieldWithDropdown.ban = tagField.ban;
-                    inputFieldWithDropdown.supportFilter = true;
                     break;
 
                 //state
@@ -710,28 +709,32 @@ namespace Maker
                             new TMP_Dropdown.OptionData(
                                 Information.AbilityChineseIntroduction((Information.CardState)i)));
                     }
-
-                    inputFieldWithDropdown.supportFilter = true;
                     break;
 
                 //cv
                 case (int)Information.Parameter.CV:
                     inputFieldWithDropdown.ChangeOptionDatas(CVField.options);
                     inputFieldWithDropdown.ban = CVField.ban;
-                    inputFieldWithDropdown.supportFilter = true;
                     break;
 
                 //characterName
                 case (int)Information.Parameter.CharacterName:
                     inputFieldWithDropdown.ChangeOptionDatas(CharacterNameField.options);
                     inputFieldWithDropdown.ban = CharacterNameField.ban;
-                    inputFieldWithDropdown.supportFilter = true;
                     break;
 
                 case (int)Information.Parameter.Gender:
                     inputFieldWithDropdown.ChangeOptionDatas(genderField.options);
                     inputFieldWithDropdown.ban = null;
-                    inputFieldWithDropdown.supportFilter = true;
+                    break;
+                
+                case (int) Information.Parameter.Team:
+                    var content = new List<TMP_Dropdown.OptionData>();
+                    content.Add(new TMP_Dropdown.OptionData("从属玩家社团（队伍）"));
+                    content.Add(new TMP_Dropdown.OptionData("从属电脑社团（队伍）"));
+                    content.Add(new TMP_Dropdown.OptionData("改变从属社团（队伍）"));
+                    inputFieldWithDropdown.ChangeOptionDatas(content);
+                    inputFieldWithDropdown.ban = null;
                     break;
 
                 default:
