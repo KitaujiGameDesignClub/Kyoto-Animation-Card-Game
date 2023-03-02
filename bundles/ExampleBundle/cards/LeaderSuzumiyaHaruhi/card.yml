@@ -8,44 +8,48 @@ CardName: LeaderSuzumiyaHaruhi
 AuthorName: PureAmaya
 FriendlyCardName: SOS团 团长！
 Anime: 凉宫春日的忧郁
-tags: []
+tags:
+- SOS团
+- 县立北高
+- 学生
+- 元气
+- 鲁莽
+- 天才
+- 有男女朋友
 CardCount: 1
 ImageName: cover.png
 CharacterName: 凉宫春日
 CV: 平野绫
 gender: 2
 allowAsChief: true
-BasicHealthPoint: 3
-BasicPower: 2
-AbilityActivityType: None
+BasicHealthPoint: 15
+BasicPower: 5
+AbilityActivityType: Round
 Reason:
   NeededObjects:
-    LargeScope: None
-    ParameterToShrinkScope: None
+    LargeScope: AllInTeam
+    ParameterToShrinkScope: Tag
     Logic: 0
-    Threshold: ''
-  JudgeParameter: None
-  ReasonJudgeMethod: Value
+    Threshold: 凉宫春日希望的
+  JudgeParameter: CharacterName
+  ReasonJudgeMethod: Count
   Logic: 0
-  Threshold: ''
+  Threshold: 0
 Result:
   RegardActivatorAsResultObject: false
   ResultObject:
-    LargeScope: None
-    ParameterToShrinkScope: None
+    LargeScope: AllOfEnemy
+    ParameterToShrinkScope: Tag
     Logic: -3
-    Threshold: ''
-  ParameterToChange: None
-  ChangeMethod: addition
-  Value: ''
+    Threshold: 凉宫春日希望的
+  ParameterToChange: Team
+  ChangeMethod: ChangeTo
+  Value: 改变从属社团（队伍）
   SummonCardName: ''
   Ridicule: 0
   Silence: 0
-AbilityDescription: >-
-  甚至可以写一点简短的小骚话
-
-  我很好奇能力是什么
-voiceExitFileName: voiceExit
+AbilityDescription: 如果自己社团中不含有宇宙人、未来人、异世界人、超能力者，则将对方社团中这些人转移到自己身边
+voiceExitFileName: voiceExit.wav
 voiceDefeatFileName: voiceDefeat
-voiceDebutFileName: voiceDebut
-voiceAbilityFileName: voiceAbility
+voiceDebutFileName: voiceDebut.wav
+voiceAbilityFileName: voiceAbility.mp3

@@ -87,6 +87,9 @@ namespace Maker
 
         private void Awake()
         {
+            
+            
+            
             Information.bundlesPath = $"{YamlReadWrite.UnityButNotAssets}/bundles";
 
 
@@ -121,8 +124,7 @@ namespace Maker
             //android储存权限检查
             AndroidRequestCheck();
         }
-
-
+        
         private void Update()
         {
             #region 键盘输入监听

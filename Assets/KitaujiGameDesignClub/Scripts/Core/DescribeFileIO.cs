@@ -37,9 +37,20 @@ namespace KitaujiGameDesignClub.GameFramework
             Note = note;
         }
 
-        public string pathWithFile()
+        public readonly string FullPath()
         {
-            return $"{Path}/{FileName}";
+            //带有 - 标记的 绝对路径
+            if (Path.Substring(0, 1) == "-")
+            {
+                return $"{Path.Substring(1)}/{FileName}";
+            }
+            //相对于根目录的路径
+            else
+            {
+                return $"{System.IO.Path.GetFullPath(YamlReadWrite.UnityButNotAssets)}/{Path}/{FileName}";
+            }
+            
+           
         }
     }
 

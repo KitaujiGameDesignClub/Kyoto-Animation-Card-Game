@@ -7,7 +7,7 @@ using System.Text;
 using KitaujiGameDesignClub.GameFramework.UI;
 using UnityEngine;
 using UnityEngine.Networking;
-using System.Diagnostics.CodeAnalysis;
+using YamlDotNet.Core.Tokens;
 
 namespace Core
 {
@@ -17,7 +17,7 @@ namespace Core
     /// </summary>
     public class CardReadWrite
     {
-        #region 游戏特有的yaml资源读写
+        #region 游戏特有的yaml资源（字典文件）读写
 
         /// <summary>
         /// 读取所有的Anime
@@ -27,11 +27,23 @@ namespace Core
         {
             Information.AnimeList = YamlReadWrite.Read(Information.AnimeListIO, Information.AnimeList);
         }
-
+        
 
         public static void ReadTags()
         {
-            Information.tags = YamlReadWrite.Read(Information.TagsIO, Information.tags);
+#if UNITY_EDITOR
+            if (File.Exists(Information.TagsIO.FullPath()))
+            {
+                File.Delete(Information.TagsIO.FullPath());
+            }
+#endif
+            
+            Information.tags = YamlReadWrite.Read(Information.TagsIO, Information.tags,out int errorCode,false);
+           //错误代码小于0，你这字典有问题啊
+            if (errorCode < 0)
+            {
+                CreateDictionaryFilesWithClassification(Information.tags,Information.TagsIO);
+            }
         }
 
         public static void ReadCV()
@@ -45,11 +57,24 @@ namespace Core
 
         public static void ReadCharacterNames()
         {
+#if UNITY_EDITOR
+            if (File.Exists(Information.characterNameIO.FullPath()))
+            {
+                File.Delete(Information.characterNameIO.FullPath());
+            }
+#endif
+            
+            //这个的话，如果不存在不使用默认的方法创建新的文件，用自己封装的一个方法
             Information.characterNamesList =
-                YamlReadWrite.Read(Information.characterNameIO, Information.characterNamesList);
+                YamlReadWrite.Read(Information.characterNameIO, Information.characterNamesList,out int errorCode,false);
+            
+            //错误代码小于0，你这字典有问题啊
+            if (errorCode < 0)
+            {
+                CreateDictionaryFilesWithClassification(Information.characterNamesList,Information.characterNameIO);
+            }
         }
-
-
+        
         /// <summary> 
         /// 重新读取字典内容（tag anime cv列表，从本地文件中读取）
         /// </summary>
@@ -59,6 +84,41 @@ namespace Core
             ReadTags();
             ReadCV();
             ReadCharacterNames();
+        }
+
+        private static void CreateDictionaryFilesWithClassification(string[] strings,DescribeFileIO io)
+        {
+            YamlDotNet.Serialization.Serializer serializer = new();
+            var content =  serializer.Serialize(strings);
+            //初始化要保存的文本，并加上开头需要的东西 就是说，这个是修正后的文本
+              StringBuilder fixedContent = new();
+              fixedContent.AppendLine($"# UTF-8\n{io.Note}");
+              fixedContent.AppendLine();
+              
+              //在每个分类符号之前，都加一个空行
+            StringReader stringReader = new(content);
+            while (true)
+            {
+                var line = stringReader.ReadLine();
+                //到最后了
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    break;
+                }
+                //这一行存在着内容
+
+                if (line.Contains("%"))
+                {
+                    //加2行空行（现在看起来效果还行）
+                    fixedContent.AppendLine(System.Environment.NewLine);
+                }
+
+                //加上这行该有的东西
+                fixedContent.AppendLine(line);
+            }
+            
+            YamlReadWrite.WriteString(io,fixedContent.ToString());
+
         }
 
         #endregion
@@ -118,7 +178,7 @@ namespace Core
             var io = new DescribeFileIO(fileNameWithExtension,
                 $"-{directory}",
                 "# card detail.\n# It'll tell you all the information of the card,but it can't work independently.");
-            Debug.Log(io.pathWithFile());
+            Debug.Log(io.FullPath());
             await YamlReadWrite.WriteAsync(io, characterCard);
 
 

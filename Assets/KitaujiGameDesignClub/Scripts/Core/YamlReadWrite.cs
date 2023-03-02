@@ -66,6 +66,24 @@ namespace KitaujiGameDesignClub.GameFramework
             streamWriter.Close();
         }
 
+        
+        /// <summary>
+        /// 在规定的文件夹中写yaml文件
+        /// </summary>
+        /// <param name="profile">yamlIO文件设置</param>
+        /// <param name="content">写入的内容</param>
+        /// <typeparam name="T"></typeparam>
+        public static void WriteString(DescribeFileIO profile, string content)
+        {
+           
+            StreamWriter streamWriter =
+                new($"{GetFullDirectory(profile.Path)}/{profile.FileName}", false, Encoding.UTF8);
+
+            streamWriter.Write(content);
+            streamWriter.Dispose();
+            streamWriter.Close();
+        }
+        
         /// <summary>
         /// 在规定的文件夹中写yaml文件
         /// </summary>
@@ -161,16 +179,29 @@ namespace KitaujiGameDesignClub.GameFramework
             }
         }
 
-
         /// <summary>
         /// 读取yaml
         /// </summary>
         /// <param name="yaml">IO</param>
-        /// <param name="content">读取文件的内容（作为默认值）</param>
+        /// <param name="defaultContent">读取文件的内容（作为默认值）</param>
         /// <param name="createIfFileNotExit">如果文件不存在，则在返回默认值的时候顺便创建一个文件。文件内容为默认值</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Read<T>(DescribeFileIO yaml, T content, bool createIfFileNotExit = true)
+        public static T Read<T>(DescribeFileIO yaml, T defaultContent, bool createIfFileNotExit = true) =>
+            Read(yaml, defaultContent, out int e, createIfFileNotExit);
+
+
+
+         /// <summary>
+        /// 读取yaml
+        /// </summary>
+        /// <param name="yaml">IO</param>
+        /// <param name="defaultContent">读取文件的内容（作为默认值）</param>
+        /// <param name="errorCode">0表示一切正常。-1文件存在但损坏 -2文件不存在 </param>
+        /// <param name="createIfFileNotExit">如果文件不存在，则在返回默认值的时候顺便创建一个文件。文件内容为默认值</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T Read<T>(DescribeFileIO yaml, T defaultContent, out int errorCode,bool createIfFileNotExit = true)
         {
             var directory = GetFullDirectory(yaml.Path);
             var fileName = yaml.FileName;
@@ -189,15 +220,14 @@ namespace KitaujiGameDesignClub.GameFramework
             //尝试yaml文件
             try
             {
-                streamReader =
-                    new StreamReader($"{directory}/{fileName}", Encoding.UTF8);
-
+                streamReader = new StreamReader($"{directory}/{fileName}", Encoding.UTF8);
 
                 var fileContent = deserializer.Deserialize<T>(streamReader.ReadToEnd());
                 streamReader.Dispose();
                 streamReader.Close();
 
                 Debug.Log($"成功加载：{directory}/{fileName}");
+                errorCode = 0;
                 return fileContent;
             }
             catch (Exception e)
@@ -206,28 +236,31 @@ namespace KitaujiGameDesignClub.GameFramework
                 streamReader.Dispose();
                 streamReader.Close();
 
-
                 if (File.Exists($"{directory}/{yaml.FileName}"))
                 {
-                    //文件损坏，备份原文件先，然后弄个新的
+                    //文件损坏，备份原文件
                     File.Move($"{directory}/{yaml.FileName}",
                         $"{directory}/{yaml.FileName} - {System.DateTime.Now:yyyy-MM-dd-HH-mm-ss}.bak");
-                    Debug.LogWarning($"{directory}中的“{yaml.FileName}”已损坏，此文件已备份，并创建了新文件。损坏原因：{e}");
+                    Debug.LogWarning($"{directory}中的“{yaml.FileName}”已损坏，此文件已备份。损坏原因：{e}");
+
+                    errorCode = -1;
                 }
                 else
                 {
-                    //不存在的话，初始化一个
-                    if(createIfFileNotExit)  Debug.LogWarning($"{directory}中不存在“{yaml.FileName}”，已创建此文件。");
-                    else Debug.LogWarning($"{directory}中不存在“{yaml.FileName}”");
+                    //不存在
+                  Debug.LogWarning($"{directory}中不存在“{yaml.FileName}”");
+
+
+                    errorCode = -2;
                 }
 
 
                 if(createIfFileNotExit)
                 {
-                     Write(yaml, content);
+                     Write(yaml, defaultContent);
                 }
              
-                return content;
+                return defaultContent;
             
                
             }

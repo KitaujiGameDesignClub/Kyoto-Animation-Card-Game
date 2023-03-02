@@ -74,7 +74,6 @@ namespace Maker
         [Header("描述侧")] public Lean.Gui.LeanButton Auto;
         public Lean.Gui.LeanButton Clear;
         public TMP_InputField abilityDescription;
-        public LeanToggle autoGenerate;
         [Header("音频侧")] public audioSetting voiceDebut;
         [FormerlySerializedAs("voiceKill")] public audioSetting voiceDefeat;
         public audioSetting voiceAbility;
@@ -346,8 +345,7 @@ namespace Maker
             abilityResultRidicule.SetTextWithoutNotify(nowEditingCard.Result.Ridicule.ToString());
             abilityResultSilence.SetTextWithoutNotify(nowEditingCard.Result.Silence.ToString());
             abilityDescription.SetTextWithoutNotify(nowEditingCard.AbilityDescription);
-     
-     
+
             //tag也同步一下
             //移出所有无用(残留）的tag对象
             var UnusedTags = tagParent.GetComponentsInChildren<tagListItem>(false);
@@ -410,6 +408,12 @@ namespace Maker
             }
             #endregion
 
+            //更新下拉栏的禁用情况
+            inputFieldHelperContent(abilityReasonJudgeThreshold,abilityReasonJudgeParameter.value);
+            inputFieldHelperContent(abilityReasonThreshold,  abilityReasonParameter.value);
+            inputFieldHelperContent(abilityResultChangeValue, abilityResultParameterToChange.value);
+            inputFieldHelperContent(abilityResultThreshold, abilityResultParameter.value);
+            
 
             CardMaker.cardMaker.BanInputLayer(false, "卡牌加载中...");
             //启用编辑器，并初始化显示界面
@@ -514,7 +518,7 @@ namespace Maker
             CardMaker.cardMaker.changeSignal.SetActive(true);
 
             //预览中，除了能力外所有的信息进行同步
-            preview.UpdateBasicInformation(friendlyNameField.text, CVField.text, preview.description.text,
+            preview.UpdateBasicInformation(friendlyNameField.text, CVField.text,abilityDescription.text,
                 imageOfCardField.sprite);
         }
 
@@ -644,17 +648,6 @@ namespace Maker
                     switchToBundleEditor.gameObject.SetActive(
                         !string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath));
                 }
-            }
-        }
-
-
-        //更新阈值（值）输入框下拉菜单内容
-        public void OnEditEnd()
-        {
-            //自动生成能力描述
-            if (autoGenerate.On)
-            {
-                // preview.description.text =$"当{abilityReasonLargeScope.captionText}存在{abilityReasonParameter.captionText}为{}时，"
             }
         }
 

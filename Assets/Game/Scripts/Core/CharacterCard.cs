@@ -12,7 +12,7 @@ namespace Core
     /// 记录了每个角色卡的设定(yaml配置文件与游戏搭桥）
     /// </summary>
     [System.Serializable]
-    public class CharacterCard
+    public class CharacterCard 
     {
         public string UUID = string.Empty;
         
