@@ -87,11 +87,12 @@ namespace Maker
 
         private void Awake()
         {
-            
-            
+            //帧率修正
+            Application.targetFrameRate = -1;
+            Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, Screen.fullScreen,
+                60);
             
             Information.bundlesPath = $"{YamlReadWrite.UnityButNotAssets}/bundles";
-
 
             cardMaker = this;
 
@@ -120,9 +121,13 @@ namespace Maker
 
             //加入一个quickLink
             FileBrowser.AddQuickLink("游戏卡组", $"{Information.bundlesPath}", bundlePathIco);
-
+            FileBrowser.AddQuickLink("游戏路径",Application.persistentDataPath);
+            
+#if UNITY_ANDROID
             //android储存权限检查
             AndroidRequestCheck();
+#endif
+           
         }
         
         private void Update()
@@ -183,16 +188,8 @@ namespace Maker
                     //按这个按钮，就申请权限
                     FileBrowser.RequestPermission();
 
-                    //得到权限就关闭通知
-                    if (FileBrowser.CheckPermission() == FileBrowser.Permission.Granted)
-                    {
                         Notify.notify.TurnOffStrongNotification();
-                    }
-                    //得不到就算了
-                    else
-                    {
-                        DeniedPermissionAgain();
-                    }
+
                 }, "申请", DeniedPermissionAgain, "取消并关闭", allowBackgroundCloseNotification: false);
 
             //权限申请再次被拒绝，回到游戏主界面
@@ -248,7 +245,7 @@ namespace Maker
                 nowEditingBundle.loadedManifestFullPath = FileBrowser.Result[0];
 
                 BanInputLayer(true, "读取卡组配置...");
-                var bundle = await CardReadWrite.GetOneBundle(FileBrowser.Result[0]);
+                var bundle = await CardReadWrite.GetOneBundle(FileBrowser.Result[0],true);
 
                 nowEditingBundle.manifest = bundle.manifest;
 
@@ -286,7 +283,7 @@ namespace Maker
         private async UniTask EditCard()
         {
             //得到配置文件
-            FileBrowser.SetFilters(false, new FileBrowser.Filter("卡牌配置文件", Information.CardFileName));
+            FileBrowser.SetFilters(false, new FileBrowser.Filter("卡牌配置文件", Path.GetExtension(Information.CardFileName)));
             await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "加载卡牌配置", loadButtonText: "选择");
 
             if (FileBrowser.Success)
@@ -298,13 +295,7 @@ namespace Maker
                 cardMaker.BanInputLayer(true, "卡牌配置加载中...");
                 nowEditingBundle.loadedCardFullPath = FileBrowser.Result[0];
 
-                var card = await YamlReadWrite.ReadAsync(
-                    new DescribeFileIO($"{Path.GetFileName(FileBrowser.Result[0])}",
-                        $"-{Path.GetDirectoryName(FileBrowser.Result[0])}"), new CharacterCard(), false);
-
-                nowEditingBundle.card = card;
-
-                Debug.Log($"成功加载卡牌“{nowEditingBundle.card.FriendlyCardName}”");
+                nowEditingBundle.card = await CardReadWrite.GetOneCard(FileBrowser.Result[0],true);
 
                 //关闭编辑选择界面
                 EditPanel.SetActive(false);
@@ -332,17 +323,17 @@ namespace Maker
         /// <summary>
         /// 异步保存（清单和卡牌自己保存自己的）
         /// </summary>
-        /// <param name="manifestSaveFullPath">manifest储存的路径（含文件名和拓展名）</param>
+        /// <param name="manifestDirectoryToSave">manifest储存的路径（仅文件夹）</param>
         /// <param name="manifestNewImageFullPath"></param>
-        /// <param name="cardToSaveFullPath">卡牌储存的路径（含文件名和拓展名）</param>
+        /// <param name="cardDirectoryToSave">卡牌储存的路径</param>
         /// <param name="newCardImageFullPath">新图片所在路径</param>
         /// <param name="saveManifest"></param>
         /// <param name="saveCard"></param>
         /// <param name="cardAudioSettings"></param>
         /// <exception cref="Exception"></exception>
-        public async UniTask AsyncSave(string manifestSaveFullPath, string manifestNewImageFullPath,
-            string cardToSaveFullPath, string newCardImageFullPath,
-            bool saveManifest, bool saveCard, audioSetting[] cardAudioSettings)
+        public async UniTask AsyncSave(string manifestDirectoryToSave, string manifestNewImageFullPath,
+            string cardDirectoryToSave, string newCardImageFullPath,
+            bool saveManifest, bool saveCard, audioSetting[] cardAudioSettings,bool pathSelectedByFileBrowser)
         {
             BanInputLayer(true, "保存中...");
 
@@ -352,9 +343,8 @@ namespace Maker
 
                 try
                 {
-                    Debug.Log(manifestSaveFullPath);
-                    await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest, manifestSaveFullPath,
-                        manifestNewImageFullPath);
+                    await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest, manifestDirectoryToSave,
+                        manifestNewImageFullPath,pathSelectedByFileBrowser);
                 }
                 catch (Exception e)
                 {
@@ -380,8 +370,8 @@ namespace Maker
                         audioNamesWithoutExtension[i] = cardAudioSettings[i].VoiceName;
                     }
 
-                    await CardReadWrite.CreateCardFile(nowEditingBundle.card, cardToSaveFullPath, newCardImageFullPath,
-                        newAudiosFullPath, audioNamesWithoutExtension);
+                    await CardReadWrite.CreateCardFile(nowEditingBundle.card, cardDirectoryToSave, newCardImageFullPath,
+                        newAudiosFullPath, audioNamesWithoutExtension,pathSelectedByFileBrowser);
                 }
                 catch (Exception e)
                 {
@@ -451,11 +441,11 @@ namespace Maker
             {
                 //保存
                 await AsyncSave(
-                    $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.BundleName}/{Information.ManifestFileName}",
+                    $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.BundleName}",
                     manifestNewImageFullPath,
-                    $"{FileBrowser.Result[0]}/{nowEditingBundle.card.CardName}/{Information.CardFileName}",
+                    $"{FileBrowser.Result[0]}/{nowEditingBundle.card.CardName}",
                     newCardImageFullPath, saveManifest, saveCard,
-                    cardAudioSettings);
+                    cardAudioSettings,true);
 
                 return FileBrowser.Result[0];
             }

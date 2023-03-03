@@ -1,3 +1,4 @@
+
 namespace  Core
 {
     /// <summary>
@@ -54,6 +55,12 @@ namespace  Core
         /// </summary>
         public string Remarks = "这是你新建的卡组。从这里开始创作！";
 
+
+        public override string ToString()
+        {
+            YamlDotNet.Serialization.Serializer serializer = new();
+            return serializer.Serialize(this);
+        }
     }
 
 

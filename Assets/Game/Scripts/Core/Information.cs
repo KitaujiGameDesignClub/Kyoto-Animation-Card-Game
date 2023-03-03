@@ -181,10 +181,16 @@ namespace Core
 
         public const string ManifestFileName = "manifest.yml";
         public const string CardFileName = "card.yml";
-        public const string defaultCoverNameWithoutExtension = "cover";
+        public const string DefaultCoverNameWithoutExtension = "cover";
         public static readonly string[] SupportedImageExtension = { ".jpg",".jpeg", ".bmp", ".png", ".gif" };
         public static readonly string[] SupportedAudioExtension = { ".mp3",".ogg",".wav",".aif" };
-
+        //导出导入用的卡组文件
+        public const string BundleFileExtension = ".cardbundle";
+/// <summary>
+/// 工作缓存路径（解压cardbundle文件之后，清单啥的都存在这里）
+/// </summary>
+        public static string workCache = $"{YamlReadWrite.UnityButNotAssets}/Temp/{nameof(workCache)}";
+        
         /// <summary>
         /// 游戏会在这里读取卡组
         /// </summary>

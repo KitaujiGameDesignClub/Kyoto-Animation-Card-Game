@@ -125,5 +125,10 @@ namespace Core
         public string voiceAbilityFileName = "voiceAbility.ogg";
 
 
+        public override string ToString()
+        {
+            YamlDotNet.Serialization.Serializer serializer = new();
+            return serializer.Serialize(this);
+        }
     }
 }

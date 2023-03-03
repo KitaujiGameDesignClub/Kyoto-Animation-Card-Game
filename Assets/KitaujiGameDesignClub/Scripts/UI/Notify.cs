@@ -94,6 +94,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         /// <param name="title">通知标题</param>
         /// <param name="content">通知内容</param>
         /// <param name="fontSizeRate">全局字体大小（相对值）</param>
+        /// <param name="allowBackgroundCloseNotification">背景图片能否关闭此通知</param>
         public void CreateStrongNotification(UnityAction onNotify, UnityAction OnOff, string title, string content,
             UnityAction Button1 = null, string ButtonOneText = "确认", UnityAction Button2 = null,
             string ButtonTwoText = "返回", UnityAction Button3 = null, string ButtonThreeText = "取消",

@@ -194,7 +194,7 @@ namespace Maker
             //图片
             CardMaker.cardMaker.nowEditingBundle.manifest.ImageName = string.IsNullOrEmpty(newImageFullPath)
                 ? CardMaker.cardMaker.nowEditingBundle.manifest.ImageName
-                : $"{Information.defaultCoverNameWithoutExtension}{Path.GetExtension(newImageFullPath)}";
+                : $"{Information.DefaultCoverNameWithoutExtension}{Path.GetExtension(newImageFullPath)}";
             //UUID生成
             CardMaker.cardMaker.nowEditingBundle.manifest.UUID = string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.manifest.UUID) ? Guid.NewGuid().ToString():CardMaker.cardMaker.nowEditingBundle.manifest.UUID;
             
@@ -228,8 +228,8 @@ namespace Maker
             //有加载卡包，保存
             else
             {
-                await CardMaker.cardMaker.AsyncSave(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath,
-                    newImageFullPath, null, null, true, false, null);
+                await CardMaker.cardMaker.AsyncSave(FileBrowserHelpers.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath),
+                    newImageFullPath, null, null, true, false, null,true);
             }
         }
 

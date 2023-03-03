@@ -280,6 +280,7 @@ namespace KitaujiGameDesignClub.GameFramework
             if (path.Substring(0, 1).Equals("-"))
             {
                 actualPath = path.Substring(1);
+              
             }
             //开头没有-，是从根目录开始的相对路径
             else
@@ -287,14 +288,16 @@ namespace KitaujiGameDesignClub.GameFramework
                 actualPath = $"{UnityButNotAssets}/{path}";
             }
 
-
+            Debug.Log( $"{path}  {actualPath}");
+            
+            /*
             //如果文件夹不存在，则创建
             if (!Directory.Exists(actualPath))
             {
                 Directory.CreateDirectory(actualPath);
-            }
+            }*/
 
-
+          
             return actualPath;
         }
 

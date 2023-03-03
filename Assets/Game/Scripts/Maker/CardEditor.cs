@@ -575,7 +575,7 @@ namespace Maker
             //封面 string.IsNullOrEmpty(newImageFullPath) = true 没有选择新图片
             editing.ImageName = string.IsNullOrEmpty(newImageFullPath)
                ? editing.ImageName
-               : $"{Information.defaultCoverNameWithoutExtension}{Path.GetExtension(Path.GetFileName(newImageFullPath))}";
+               : $"{Information.DefaultCoverNameWithoutExtension}{Path.GetExtension(Path.GetFileName(newImageFullPath))}";
             //音频
             var audios = new audioSetting[4];
             audios[0] = voiceAbility;
@@ -607,7 +607,7 @@ namespace Maker
                     {
                         await CardMaker.cardMaker.AsyncSave(null, null,
                             CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath, newImageFullPath, false, true,
-                            audios);
+                            audios,false);
                     }
                     //否则都是另存为
                     else
@@ -620,13 +620,13 @@ namespace Maker
             //隶属于某个卡组
             else
             {
-                //卡组清单文件存在
+                //卡组清单文件存在（保存）
                 if (File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath))
                 {
                     var saveFullPath =
                         $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/cards/{cardNameField.text}/{Information.CardFileName}";
-                    await CardMaker.cardMaker.AsyncSave(null, null, saveFullPath, newImageFullPath, false, true,
-                        audios);
+                    await CardMaker.cardMaker.AsyncSave(null, null, FileBrowserHelpers.GetDirectoryName(saveFullPath), newImageFullPath, false, true,
+                        audios,true);
 
                     //注册此卡牌，使其能在manifest编辑器那边的切换器中显示出来
                     var card = CardMaker.cardMaker.nowEditingBundle.card;
@@ -636,7 +636,7 @@ namespace Maker
                     Debug.Log(
                         $"此卡牌“{CardMaker.cardMaker.nowEditingBundle.card.FriendlyCardName}”属于卡组“{CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName}”，已自动保存到该卡组中");
                 }
-                //卡组清单文件不存在
+                //卡组清单文件不存在（另存为）
                 else
                 {
                     Debug.Log(
