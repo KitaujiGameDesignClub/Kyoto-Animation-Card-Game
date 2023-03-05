@@ -106,6 +106,8 @@ namespace Maker
 
         private void Awake()
         {
+            
+            
            //清除缓存
            ClearCache();
            
@@ -209,6 +211,32 @@ namespace Maker
         }
 
         #region 字典的导入导出
+
+        public void DictionaryInitialize(int dictionaryType)
+        {
+            var path =
+                $"{YamlReadWrite.UnityButNotAssets}/saves/{((Information.DictionaryType)dictionaryType).ToString()}.yml";
+          if(File.Exists(path))  File.Delete(path);
+         
+          //重新读取字典文件
+          switch (dictionaryType)
+          {
+              case 0:
+                  CardReadWrite.ReadAnimeList();
+                  break;
+              case 1:
+                  CardReadWrite.ReadCV();
+                  break;
+              case 2:
+                  CardReadWrite.ReadCharacterNames();
+                  break;
+              case 3:
+                  CardReadWrite.ReadTags();
+                  break;
+          }
+          
+          Notify.notify.CreateBannerNotification(null,$"字典重置成功");
+        }
 
         public async void DictionaryExport(int dictionaryType)
         {
