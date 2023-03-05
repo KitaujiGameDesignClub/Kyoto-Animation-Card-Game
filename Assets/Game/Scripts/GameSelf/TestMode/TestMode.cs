@@ -38,7 +38,6 @@ public class TestMode : MonoBehaviour
     /// </summary>
     public GameObject BundleInformationDisplay;
     public TMP_Text manifestFriendlyName;
-    public TMP_Text manifestName;
     public TMP_Text manifestAnime;
     public TMP_Text manifestAuthorName;
     public TMP_Text manifestDescription;
@@ -451,7 +450,6 @@ public class TestMode : MonoBehaviour
     void UpdateSelectorBundleInformation(CardBundlesManifest manifestContent)
     {
         manifestFriendlyName.text = $"<b>友好名称：</b>\n<margin-left=1em><size=80%>{manifestContent.FriendlyBundleName}";
-        manifestName.text =  $"<b>识别名称：</b>\n<margin-left=1em><size=80%>{manifestContent.BundleName}";
         manifestAnime.text = $"<b>所属动画：</b>\n<margin-left=1em><size=80%>{manifestContent.Anime}";
         manifestAuthorName.text = $"<b>作者名称：</b>\n<margin-left=1em><size=80%>{manifestContent.AuthorName}";
         manifestDescription.text = $"<b>卡组介绍：</b>\n<margin-left=1em><size=80%>{manifestContent.Description}";
@@ -499,10 +497,10 @@ public class TestMode : MonoBehaviour
     /// <returns></returns>
     async UniTask<AudioClip[]> LoadAllAudioOfOneCard(CharacterCard cardContent,string cardDirectoryPath)
     {
-        var (debut, ability, defeat, exit) = await UniTask.WhenAll(CardReadWrite.CardVoiceLoader($"{cardDirectoryPath}/{cardContent.voiceDebutFileName}"),
-                                             CardReadWrite.CardVoiceLoader($"{cardDirectoryPath}/{cardContent.voiceAbilityFileName}"),
-                                             CardReadWrite.CardVoiceLoader($"{cardDirectoryPath}/{cardContent.voiceDefeatFileName}"),
-                                             CardReadWrite.CardVoiceLoader($"{cardDirectoryPath}/{cardContent.voiceExitFileName}"));
+        var (debut, ability, defeat, exit) = await UniTask.WhenAll(CardReadWrite.CardAudioLoader($"{cardDirectoryPath}/{cardContent.voiceDebutFileName}"),
+                                             CardReadWrite.CardAudioLoader($"{cardDirectoryPath}/{cardContent.voiceAbilityFileName}"),
+                                             CardReadWrite.CardAudioLoader($"{cardDirectoryPath}/{cardContent.voiceDefeatFileName}"),
+                                             CardReadWrite.CardAudioLoader($"{cardDirectoryPath}/{cardContent.voiceExitFileName}"));
 
         AudioClip[] clips =  {debut,ability,defeat,exit};
         return clips;

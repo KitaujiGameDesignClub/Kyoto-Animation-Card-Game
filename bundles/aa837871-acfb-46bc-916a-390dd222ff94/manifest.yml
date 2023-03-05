@@ -1,0 +1,14 @@
+# Only for 社团Battle！ with utf-8
+# card bundle manifest.
+# It'll tell you the summary of the bundle.
+
+UUID: aa837871-acfb-46bc-916a-390dd222ff94
+CodeVersion: 1
+OtherContent: false
+FriendlyBundleName: 示例卡组
+Anime: 通用卡牌
+ImageName: cover.jpeg
+BundleVersion: trial-0.1
+AuthorName: PureAmaya
+Description: 游戏示例卡组
+Remarks: 内容与样式最后更新于 2023 年 2 月 8 日，适用于 1.0 版本

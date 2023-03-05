@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-
+using System.Text.RegularExpressions;
 
 
 namespace KitaujiGameDesignClub.GameFramework.Tools
@@ -9,6 +9,16 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
     /// </summary>
     public class CommonTools 
     {
+        /// <summary>
+        /// 去除非法字符
+        /// </summary>
+        /// <param name="strIn"></param>
+        /// <returns></returns>
+        public static string CleanInvalid(string strIn)
+        {
+            return Regex.Replace(strIn, "[^\\w\\.@-]", " ");
+        }
+        
         /// <summary>
         /// 将数组转化为列表list
         /// </summary>

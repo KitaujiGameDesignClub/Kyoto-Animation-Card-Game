@@ -10,13 +10,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using KitaujiGameDesignClub.GameFramework.UI;
 using Lean.Gui;
+using UnityEngine.Serialization;
 
 namespace Maker
 {
     public class BundleEditor : MonoBehaviour
     {
-        [Header("编辑器")] public TMP_InputField bundleName;
-        public LeanToggle OtherContent;
+        [Header("编辑器")] public LeanToggle OtherContent;
         public TMP_InputField bundleFriendlyName;
         public InputFieldWithDropdown Anime;
         public TMP_InputField bundleVersion;
@@ -33,7 +33,7 @@ namespace Maker
         public TMP_Text authorAndVersion;
         public SpriteRenderer image;
 
-        [Header("面板")] public LeanButton returnToTitle;
+        [FormerlySerializedAs("returnToTitle")] [Header("面板")] public LeanButton returnButton;
 
         /// <summary>
         /// 列举此卡组内所有的卡牌的友好名称
@@ -51,18 +51,18 @@ namespace Maker
         private void Start()
         {
             //保存热键
-            CardMaker.cardMaker.WantToSave.AddListener(UniTask.UnityAction(async () => {await SaveOrSaveTo();}));
-           
+            CardMaker.cardMaker.WantToSave.AddListener(UniTask.UnityAction(async () => { await SaveOrSaveTo(); }));
+
             #region 切换事件组
 
             //返回标题
-            returnToTitle.OnClick.AddListener(delegate
+            returnButton.OnClick.AddListener(delegate
             {
                 CardMaker.cardMaker.SwitchPanel(UniTask.Action(async () =>
                 {
                     //检查保存（仅限在这个事件中）
                     await SaveOrSaveTo();
-                }), delegate { CardMaker.cardMaker.ReturnToMakerTitle(); });
+                }), delegate { CardMaker.cardMaker.ReturnToCreateEditPanel(); });
             });
 
             //切换到card editor
@@ -85,9 +85,6 @@ namespace Maker
             });
 
             #endregion
-
-
-          
         }
 
         /// <summary>
@@ -99,7 +96,6 @@ namespace Maker
 
             //获取卡组清单信息
             var manifest = CardMaker.cardMaker.nowEditingBundle.manifest;
-            bundleName.SetTextWithoutNotify(manifest.BundleName);
             OtherContent.Set(manifest.OtherContent);
             bundleFriendlyName.SetTextWithoutNotify(manifest.FriendlyBundleName);
             authorName.SetTextWithoutNotify(manifest.AuthorName);
@@ -120,14 +116,14 @@ namespace Maker
                 //加载图片
                 await ManifestLoadImageAsync(
                     $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/{CardMaker.cardMaker.nowEditingBundle.manifest.ImageName}");
-               
+
 
                 //新建卡组，找不到图片，就保持刚刚设置的默认图片
             }
 
             //调整能否切换到卡牌编辑器
             CheckSwitchToCardEditorAvailable();
-            
+
             //加载（刷新）可变下拉框的内容
             RefreshVariableInputField();
 
@@ -163,27 +159,40 @@ namespace Maker
             {
                 all.Add(Information.AnimeList[i]);
             }
+
             Anime.ChangeOptionDatas(all);
         }
-        
+
 
         /// <summary>
-        /// 保存或另存为
+        /// 保存或另存为的按钮
         /// </summary>
-        public async void SaveButton()
+        public void SaveButton()
         {
-            await SaveOrSaveTo();
+            SaveOrSaveTo();
+        }
+
+
+        public void ExportButton()
+        {
+            if (CardMaker.cardMaker.changeSignal.activeSelf)
+            {
+                Notify.notify.CreateBannerNotification(null, "在导出之前，需要先保存卡组");
+            }
+            else
+            {
+                CardMaker.cardMaker.Export();
+            }
         }
 
         private async UniTask SaveOrSaveTo()
-        {           
+        {
             if (!gameObject.activeSelf && FileBrowser.IsOpen)
             {
                 return;
             }
 
             //更新暂存在内存中的清单
-            CardMaker.cardMaker.nowEditingBundle.manifest.BundleName = bundleName.text;
             CardMaker.cardMaker.nowEditingBundle.manifest.OtherContent = OtherContent.On;
             CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName = friendlyName.text;
             CardMaker.cardMaker.nowEditingBundle.manifest.BundleVersion = bundleVersion.text;
@@ -196,43 +205,22 @@ namespace Maker
                 ? CardMaker.cardMaker.nowEditingBundle.manifest.ImageName
                 : $"{Information.DefaultCoverNameWithoutExtension}{Path.GetExtension(newImageFullPath)}";
             //UUID生成
-            CardMaker.cardMaker.nowEditingBundle.manifest.UUID = string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.manifest.UUID) ? Guid.NewGuid().ToString():CardMaker.cardMaker.nowEditingBundle.manifest.UUID;
+            CardMaker.cardMaker.nowEditingBundle.manifest.UUID =
+                string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.manifest.UUID)
+                    ? Guid.NewGuid().ToString()
+                    : CardMaker.cardMaker.nowEditingBundle.manifest.UUID;
+
+            //记录储存的位置
+            CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath =
+                $"{Path.Combine(Information.bundlesPath, CardMaker.cardMaker.nowEditingBundle.manifest.UUID)}/{Information.ManifestFileName}";
+
+            await CardMaker.cardMaker.AsyncSave(
+                Path.GetDirectoryName( CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath),
+                newImageFullPath, null, null, true, false, null);
             
-            
-            /*保存和另存为，都是自己保存自己的
-             * 卡组清单就只保存清单（此脚本）
-             * 卡牌就仅保存正在编辑的那个卡牌
-             */
+              }
 
-            //执行保存or另存为操作
-            //没有预先加载卡包，或者原加载的清单文件不存在了，则另存为
-            if (string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath) ||
-                !File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath))
-            {
-                //执行另存为的逻辑,并缓存个保存的路径
-                
-                //manifest的根目录
-               var directoryName = await CardMaker.cardMaker.AsyncManifestSaveTo(newImageFullPath);
-
-                //只有选择了路径，并执行有关另存为操作后，才开启剩余的功能
-                if (!string.IsNullOrEmpty(directoryName))
-                {
-                    //记录刚刚创建好了的卡组
-                    CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath = $"{directoryName}/{Information.ManifestFileName}";
-                    //保存好了，用“编辑卡组”功能重新打开此卡组，以便能使用所有的功能
-                    await OpenManifestEditor();
-                }
-               
-                 
-            }
-            //有加载卡包，保存
-            else
-            {
-                await CardMaker.cardMaker.AsyncSave(FileBrowserHelpers.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath),
-                    newImageFullPath, null, null, true, false, null,true);
-            }
-        }
-
+        
 
         /// <summary>
         /// 输入框内的数据完成，调用此函数，用于显示最终的效果
@@ -248,20 +236,21 @@ namespace Maker
         }
 
         #region 与卡牌编辑器切换
+
         /// <summary>
         /// 检查能否切换到卡牌编辑器
         /// </summary>
         void CheckSwitchToCardEditorAvailable()
         {
-            //没有卡牌的话，就禁用与卡编辑器的切换功能
+            cardsFriendlyNamesList.ClearOptions();
+
+            //没有卡牌的话，就算了
             if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Count == 0)
             {
-                cardsFriendlyNamesList.gameObject.SetActive(false);
             }
             //读取卡组内所有卡牌的友好名称
             else
             {
-                cardsFriendlyNamesList.ClearOptions();
                 cardsFriendlyNamesList.AddOptions(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
                 cardsFriendlyNamesList.options.Insert(0, new TMP_Dropdown.OptionData("<创建新卡牌>"));
                 cardsFriendlyNamesList.value = 0;
@@ -269,6 +258,7 @@ namespace Maker
                 cardsFriendlyNamesList.gameObject.SetActive(true);
             }
         }
+
         #endregion
 
         /// <summary>
@@ -290,7 +280,8 @@ namespace Maker
             else
             {
                 var manifestPath = CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath;
-                var cardDirectoryName = CardMaker.cardMaker.nowEditingBundle.allCardName[cardsFriendlyNamesList.value - 1];
+                var cardDirectoryName =
+                    CardMaker.cardMaker.nowEditingBundle.allCardName[cardsFriendlyNamesList.value - 1];
 
                 CardMaker.cardMaker.BanInputLayer(true, "读取卡牌配置...");
                 card = await YamlReadWrite.ReadAsync<CharacterCard>(
@@ -324,15 +315,13 @@ namespace Maker
 
             if (FileBrowser.Success)
             {
-                Debug.Log($"加载成功，图片文件{FileBrowser.Result[0]}");
                 //加载图片
-                 await ManifestLoadImageAsync(FileBrowser.Result[0]);
-            
+                await ManifestLoadImageAsync(CardReadWrite.FixedPathDueToSAF(FileBrowser.Result[0]));
 
                 //显示已修改的印记
                 CardMaker.cardMaker.changeSignal.SetActive(true);
                 //更新新的图片全路径，用于保存
-                newImageFullPath = FileBrowser.Result[0];
+                newImageFullPath = CardReadWrite.FixedPathDueToSAF(FileBrowser.Result[0]);
             }
         }
 
@@ -343,14 +332,13 @@ namespace Maker
         /// <returns></returns>
         private async UniTask ManifestLoadImageAsync(string imageFullPath)
         {
-
             //下载（加载）图片
             var texture2D = await CardReadWrite.CoverImageLoader(imageFullPath);
 
             //图片不存在或者读取失败，用默认的图片
             if (texture2D == null)
             {
-               image.sprite = DefaultImage;
+                image.sprite = DefaultImage;
                 bundleImage.sprite = DefaultImage;
             }
             //存在的话，调整图片大小，然后应用

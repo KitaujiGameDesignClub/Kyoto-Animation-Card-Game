@@ -13,13 +13,7 @@ namespace  Core
         /// 清单文件代码版本号（如果代码上有修改，且修改后不兼容，就+1）
         /// </summary>
         public int CodeVersion = Information.ManifestVersion;
-
-
-        /// <summary>
-        /// （要求英文）卡包名称。（可以自定义，一般是番剧名称，额外添加一些修饰符什么的，比如 中二世界-中二病也要谈恋爱、与中二病也要谈恋爱就分属两个不同的阵营了）
-        /// 最终会作为路径，和各类文件（夹）的名字
-        /// </summary>
-        public string BundleName = "BundleManifest";
+        
 
         public bool OtherContent = false;
 

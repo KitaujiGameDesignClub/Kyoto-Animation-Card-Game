@@ -28,9 +28,8 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         public virtual void Awake()
         {
 
-
-            QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
+            Screen.SetResolution(Screen.currentResolution.width,Screen.currentResolution.height,Screen.fullScreen,60);
 
             OnDemandRendering.renderFrameInterval = 1;
 

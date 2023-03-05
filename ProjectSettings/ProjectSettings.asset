@@ -12,8 +12,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
-  productName: Kyoto Animation Card game
+  companyName: Kitauji High School Game Design Club
+  productName: "\u793E\u56E2Battle\uFF01"
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -39,7 +39,9 @@ PlayerSettings:
     y: 0
     width: 1
     height: 1
-  m_SplashScreenLogos: []
+  m_SplashScreenLogos:
+  - logo: {fileID: 21300000, guid: 1705cde8965e65f419e91a6edb648130, type: 3}
+    duration: 2
   m_VirtualRealitySplashScreen: {fileID: 0}
   m_ShowUnitySplashAds: 0
   m_AdsAndroidGameId: 
@@ -163,17 +165,17 @@ PlayerSettings:
   targetPixelDensity: 30
   resolutionScalingMode: 0
   resetResolutionOnWindowResize: 0
-  androidSupportedAspectRatio: 2
+  androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 1.86
   applicationIdentifier:
-    Android: com.DefaultCompany.KyotoAnimationCardgame
+    Android: com.kitaujigdclub.animeclubcompetition
     Standalone: com.DefaultCompany.Kyoto-Animation-Card-game
   buildNumber:
     Standalone: 0
     iPhone: 0
     tvOS: 0
-  overrideDefaultApplicationIdentifier: 0
-  AndroidBundleVersionCode: 15
+  overrideDefaultApplicationIdentifier: 1
+  AndroidBundleVersionCode: 48
   AndroidMinSdkVersion: 25
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1

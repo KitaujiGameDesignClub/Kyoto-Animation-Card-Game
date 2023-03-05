@@ -1,0 +1,14 @@
+﻿# Only for 社团Battle！ with utf-8
+# card bundle manifest.
+# It'll tell you the summary of the bundle.
+
+UUID: 9886f1f0-b824-48f5-b00b-68af3ba7d5a0
+CodeVersion: 1
+OtherContent: false
+FriendlyBundleName: 默认卡包
+Anime: ''
+ImageName: cover.jpg
+BundleVersion: v1.0
+AuthorName: 作者名称
+Description: 卡包介绍
+Remarks: 这是你新建的卡组。从这里开始创作！

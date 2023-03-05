@@ -11,6 +11,9 @@ using UnityEngine.Serialization;
 using KitaujiGameDesignClub.GameFramework;
 using System.Collections.Generic;
 using System.IO;
+using KitaujiGameDesignClub.GameFramework.Tools;
+using Lean.Gui;
+using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 
 namespace Maker
@@ -31,16 +34,32 @@ namespace Maker
 
 
         [Header("界面切换")] public GameObject title;
-        [Header("选择编辑界面")] public GameObject EditPanel;
+        [FormerlySerializedAs("InternalPanel")] [FormerlySerializedAs("EditPanel")] [Header("编辑与创建")] public GameObject EditAndCreatePanel;
+        [FormerlySerializedAs("ExternalPanel")] [Header("导入与导出")] public GameObject ExportAndImportPanel;
 
+        //两个编辑器
         [FormerlySerializedAs("ManifestEditor")]
         public GameObject ManifestEditorPlane;
 
         [FormerlySerializedAs("CardEditor")] public GameObject CardEditorPlane;
         public BundleEditor bundleEditor;
         public CardEditor cardEditor;
-
-
+       
+        
+        //编辑创建用
+        [FormerlySerializedAs("allAvailableBundles")] [Header("编辑创建用")]
+        public LeanButton editButton;
+        public LeanButton createButton;
+        public TMP_Dropdown allAvailableBundlesDropdownToEdit;
+        public Button DeleteThisBundleButton;
+        [Header("导入导出用")] 
+        public LeanButton outputButton;
+        public LeanButton inputButton;
+        [FormerlySerializedAs("allAvailableBundlesDropdown")] public TMP_Dropdown allAvailableBundlesDropdownToExport;
+        
+        
+        private List<string> allBundleLoadedGUID = new();
+        
         /// <summary>
         /// 禁用输入层
         /// </summary>
@@ -87,12 +106,16 @@ namespace Maker
 
         private void Awake()
         {
-            //帧率修正
-            Application.targetFrameRate = -1;
+           //清除缓存
+           ClearCache();
+           
+           //创建bundle文件夹
+           if (!File.Exists(Information.bundlesPath)) Directory.CreateDirectory(Information.bundlesPath);
+;
+           //帧率修正
+            Application.targetFrameRate = 60;
             Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, Screen.fullScreen,
                 60);
-            
-            Information.bundlesPath = $"{YamlReadWrite.UnityButNotAssets}/bundles";
 
             cardMaker = this;
 
@@ -103,9 +126,13 @@ namespace Maker
             title.SetActive(true);
             ManifestEditorPlane.SetActive(false);
             CardEditorPlane.SetActive(false);
+            ExportAndImportPanel.SetActive(false);
+            EditAndCreatePanel.SetActive(false);
 
             //关闭修改信号
             changeSignal.SetActive(false);
+
+          
         }
 
         private void Start()
@@ -119,15 +146,31 @@ namespace Maker
             //允许玩家输入
             banInput.SetActive(false);
 
-            //加入一个quickLink
-            FileBrowser.AddQuickLink("游戏卡组", $"{Information.bundlesPath}", bundlePathIco);
-            FileBrowser.AddQuickLink("游戏路径",Application.persistentDataPath);
+
+            #region 事件注册
+
+            //外部导入导出用
+            outputButton.OnClick.AddListener(UniTask.UnityAction(async () => { await Export(); }));
+            inputButton.OnClick.AddListener(UniTask.UnityAction(async () => { await Import(); }));
+
+            //内部编辑创建用
+            createButton.OnClick.AddListener(CreateBundle);
+            editButton.OnClick.AddListener(EditBundleButton);
+            DeleteThisBundleButton.onClick.AddListener(delegate
+            {
+                DeletionBundle(allBundleLoadedGUID[allAvailableBundlesDropdownToEdit.value],
+                    allAvailableBundlesDropdownToEdit.captionText.text);
+            });
+
+            #endregion
             
 #if UNITY_ANDROID
             //android储存权限检查
-            AndroidRequestCheck();
+         //   AndroidRequestCheck(); SAF与应用私有目录不需要
 #endif
-           
+
+            //刷新已经加载了的卡组
+            RefreshAllLoadedBundle();
         }
         
         private void Update()
@@ -165,52 +208,159 @@ namespace Maker
             #endregion
         }
 
-        public void AndroidRequestCheck()
+        #region 字典的导入导出
+
+        public async void DictionaryExport(int dictionaryType)
         {
-            switch (FileBrowser.CheckPermission())
+            FileBrowser.SetFilters(false,new FileBrowser.Filter("字典文件",".yml"));
+            await  FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders,true,title:"导出字典",saveButtonText:"选择");
+
+          if (FileBrowser.Success)
+          {
+              CardReadWrite.ExportDictionary(FileBrowser.Result[0],$"{((Information.DictionaryType)dictionaryType).ToString()}.yml");
+              
+              Notify.notify.CreateBannerNotification(null,$"字典导出成功");
+          }
+        }
+
+        public async void DictionaryImport(int  dictionaryType)
+        {
+            FileBrowser.SetFilters(false,new FileBrowser.Filter("字典文件",".yml"));
+            await  FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files,true,title:"导出字典",loadButtonText:"选择");
+
+            if (FileBrowser.Success)
             {
-                case FileBrowser.Permission.Denied:
-                    AskPermission("储存权限被拒绝！卡牌编辑器需要储存权限以储存、读取卡组文件\n请按意愿授予");
-                    break;
-
-                case FileBrowser.Permission.Granted:
-                    break;
-
-                case FileBrowser.Permission.ShouldAsk:
-                    AskPermission("卡牌编辑器需要储存权限以储存、读取卡组文件\n请按意愿授予");
-                    break;
-            }
-
-
-            void AskPermission(string content) => Notify.notify.CreateStrongNotification(null, null, "需要储存权限", content,
-                delegate
+          CardReadWrite.ImportDictionary(FileBrowser.Result[0],(Information.DictionaryType)dictionaryType);
+                Notify.notify.CreateBannerNotification(null,$"字典导入成功");
+                
+                //重新读取字典文件
+                switch (dictionaryType)
                 {
-                    //按这个按钮，就申请权限
-                    FileBrowser.RequestPermission();
-
-                        Notify.notify.TurnOffStrongNotification();
-
-                }, "申请", DeniedPermissionAgain, "取消并关闭", allowBackgroundCloseNotification: false);
-
-            //权限申请再次被拒绝，回到游戏主界面
-            void DeniedPermissionAgain()
-            {
-                Notify.notify.CreateStrongNotification(null, delegate { Application.Quit(-233); }, "储存权限被拒绝",
-                    "如果要编辑或制作卡包，需要储存权限\n此通知会与游戏一起关闭", Notify.notify.TurnOffStrongNotification, "确认并关闭");
+                    case 0:
+                        CardReadWrite.ReadAnimeList();
+                        break;
+                    case 1:
+                        CardReadWrite.ReadCV();
+                        break;
+                    case 2:
+                        CardReadWrite.ReadCharacterNames();
+                        break;
+                    case 3:
+                        CardReadWrite.ReadTags();
+                        break;
+                }
+                
             }
         }
 
-        public void ReturnToStartMenu()
+        #endregion
+        
+        #region 外部卡组的导入与导出，和他的面板切换
+        
+        
+        /// <summary>
+        /// 导出卡组
+        /// </summary>
+        internal async UniTask Export()
         {
-            nowEditingBundle = null;
-            //允许玩家输入
-            banInput.SetActive(false);
-            //关闭编辑器
-            bundleEditor.gameObject.SetActive(false);
-            cardEditor.gameObject.SetActive(false);
+            if (allAvailableBundlesDropdownToExport.options.Count > 0)
+            {
+                //还没加载所有已经加载的卡组
+
+                FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组", ".zip"));
+
+                await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, true, title: "导出卡组",
+                    saveButtonText: "选择");
+
+                if (FileBrowser.Success)
+                {
+                    BanInputLayer(true, "卡组导出中...");
+
+                    var selectedBundlePath =
+                        $"{Information.bundlesPath}/{allBundleLoadedGUID[allAvailableBundlesDropdownToExport.value]}/{Information.ManifestFileName}";
+               
+
+                  
+                    
+#if UNITY_STANDALONE || UNITY_EDITOR
+                    
+                    var rawSavePathNoExtension =
+                        $"{FileBrowser.Result[0]}/{CommonTools.CleanInvalid(allAvailableBundlesDropdownToExport.captionText.text)}";
+                    //不断循环，在文件名后面加数字，直到不重名为止
+                    var savePathNoRepeat = rawSavePathNoExtension;
+               
+                    int i = 0;
+                    while (true)
+                    {
+                        i++;
+                        if (FileBrowserHelpers.FileExists($"{savePathNoRepeat}.zip"))
+                        {
+                            savePathNoRepeat = $"{rawSavePathNoExtension}-{i}";
+                        }
+                        else
+                        {
+                            //导出
+                            CardReadWrite.ExportBundleZip(Path.GetDirectoryName($"{savePathNoRepeat}.zip"),Path.GetFileName($"{savePathNoRepeat}.zip"), selectedBundlePath);
+                            break;
+                        }
+                    }
+                    
+                    
+                    Notify.notify.CreateBannerNotification(null,
+                        $"“{allAvailableBundlesDropdownToExport.captionText.text}”导出成功：{FileBrowserHelpers.GetFilename(savePathNoRepeat)}.zip");
+
+                    
+                    #elif UNITY_ANDROID && !UNITY_EDITOR
+
+
+                    CardReadWrite.ExportBundleZip(FileBrowser.Result[0],
+                        $"{CommonTools.CleanInvalid(allAvailableBundlesDropdownToExport.captionText.text)}.zip",
+                        selectedBundlePath);
+                    
+                     Notify.notify.CreateBannerNotification(null,
+                        $"“{allAvailableBundlesDropdownToExport.captionText.text}”导出成功");
+
+#endif                
+                    
+                    BanInputLayer(false, "卡组导入中...");
+       }
+            }
         }
 
-        #region 编辑与创建
+        /// <summary>
+        /// 导入卡组
+        /// </summary>
+        private async UniTask Import()
+        {
+            FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组", ".zip"));
+
+           await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, false, title: "导入卡组", loadButtonText: "选择");
+
+           BanInputLayer(true,"卡组导入中...");
+           
+           if (FileBrowser.Success)
+           {
+               try
+               {
+                   CardReadWrite.ImportBundleZip(FileBrowser.Result[0]);
+                   await RefreshAllLoadedBundle();
+               }
+               catch (Exception e)
+               {
+                   Console.WriteLine(e);
+                   throw;
+               }
+            
+           }
+           
+           BanInputLayer(false,"卡组导入中...");
+        }
+        
+
+        #endregion
+        
+
+        #region 内部卡组编辑、创建与删除
 
         /// <summary>
         /// 创建卡包
@@ -219,13 +369,17 @@ namespace Maker
         {
             //创建新内容
             nowEditingBundle = new();
+            CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath = string.Empty;
             //然后打开编辑器
             bundleEditor.OpenManifestEditor();
         }
 
         public async void EditBundleButton()
         {
-            await EditBundle();
+
+              //可以了，就开始编辑吧
+                await EditBundle();
+
         }
 
         /// <summary>
@@ -233,24 +387,31 @@ namespace Maker
         /// </summary>
         private async UniTask EditBundle()
         {
-            //得到文件内容
-            FileBrowser.SetFilters(false,
-                new FileBrowser.Filter("卡组清单文件", Path.GetExtension(Information.ManifestFileName)));
-            await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "加载卡组清单", loadButtonText: "选择");
-
-            if (FileBrowser.Success)
+            if (allAvailableBundlesDropdownToEdit.options.Count > 0)
             {
+
                 //现在还没有改内容，关闭修改标记
                 changeSignal.SetActive(false);
-                nowEditingBundle.loadedManifestFullPath = FileBrowser.Result[0];
 
+                //开始读取
                 BanInputLayer(true, "读取卡组配置...");
-                var bundle = await CardReadWrite.GetOneBundle(FileBrowser.Result[0],true);
+                var bundle = new Bundle();
+              
+                //选定要编辑卡组manifest的路径
+                var manifestFullPath =
+                    $"{Information.bundlesPath}/{allBundleLoadedGUID[allAvailableBundlesDropdownToEdit.value]}/{Information.ManifestFileName}";
+                
+                //直接读的yml文件
+                bundle = await CardReadWrite.GetOneBundle( manifestFullPath);
+                    nowEditingBundle.loadedManifestFullPath =  manifestFullPath;
 
+                
                 nowEditingBundle.manifest = bundle.manifest;
-
-                //缓存所有卡牌的友好和uuid
-                foreach (var variable in bundle.cards)
+                
+                //缓存所有卡牌的友好和识别名称
+                nowEditingBundle.allCardsFriendlyName.Clear();
+                nowEditingBundle.allCardName.Clear();
+                foreach (var variable in  bundle.cards)
                 {
                     nowEditingBundle.allCardsFriendlyName.Add(variable.FriendlyCardName);
                     nowEditingBundle.allCardName.Add(variable.CardName);
@@ -259,14 +420,44 @@ namespace Maker
                 Debug.Log($"成功加载卡组“{bundle.manifest.FriendlyBundleName}”，内含{bundle.cards.Length}张卡牌");
 
                 //关闭编辑选择界面
-                EditPanel.SetActive(false);
+                EditAndCreatePanel.SetActive(false);
 
                 //然后打开编辑器
                 await bundleEditor.OpenManifestEditor();
+                
             }
+            
         }
 
+        /// <summary>
+        /// 删除选定的卡组
+        /// </summary>
+        public void DeletionBundle(string bundleName,string bundleFriendlyName)
+        {
+            if (allAvailableBundlesDropdownToEdit.options.Count > 0)
+            {
+                Notify.notify.CreateStrongNotification(null, null, "确认删除？",
+                    $"此过程不可撤销。\n要删除“{bundleFriendlyName}”吗？", UniTask.UnityAction(
+                        async () =>
+                        {
+                            BanInputLayer(true, "删除中...");
+                            //先删除
+                            Directory.Delete(
+                                $"{Information.bundlesPath}/{bundleName}",
+                                true);
 
+                            Notify.notify.CreateBannerNotification(null, "删除成功", 0.7f);
+
+                            //然后刷新
+                            await RefreshAllLoadedBundle();
+                        }), "确认删除", delegate { }, "再想想");
+            }
+        }
+        
+#if UNITY_EDITOR
+        #region 废弃的 卡牌单独编辑
+
+        
         public void CreateNewCard()
         {
             //创建新内容
@@ -283,8 +474,17 @@ namespace Maker
         private async UniTask EditCard()
         {
             //得到配置文件
+#if UNITY_EDITOR || UNITY_STANDALONE
             FileBrowser.SetFilters(false, new FileBrowser.Filter("卡牌配置文件", Path.GetExtension(Information.CardFileName)));
             await FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, title: "加载卡牌配置", loadButtonText: "选择");
+            
+            //android的话，不允许读取单个卡牌
+#elif UNITY_ANDROID
+          Notify.notify.CreateBannerNotification(null,$"{Application.platform}不支持读取单独的卡牌。");
+              return;
+#endif
+             
+         
 
             if (FileBrowser.Success)
             {
@@ -298,12 +498,17 @@ namespace Maker
                 nowEditingBundle.card = await CardReadWrite.GetOneCard(FileBrowser.Result[0],true);
 
                 //关闭编辑选择界面
-                EditPanel.SetActive(false);
+                EditAndCreatePanel.SetActive(false);
 
                 //然后打开编辑器
                 await cardEditor.OpenCardEditor();
             }
         }
+
+        #endregion
+#endif
+      
+
 
         #endregion
 
@@ -319,6 +524,7 @@ namespace Maker
             Notify.notify.CreateBannerNotification(null,"字典重载成功",0.8f);
         }
 
+        #region  保存、另存为
 
         /// <summary>
         /// 异步保存（清单和卡牌自己保存自己的）
@@ -333,10 +539,11 @@ namespace Maker
         /// <exception cref="Exception"></exception>
         public async UniTask AsyncSave(string manifestDirectoryToSave, string manifestNewImageFullPath,
             string cardDirectoryToSave, string newCardImageFullPath,
-            bool saveManifest, bool saveCard, audioSetting[] cardAudioSettings,bool pathSelectedByFileBrowser)
+            bool saveManifest, bool saveCard, audioSetting[] cardAudioSettings)
         {
             BanInputLayer(true, "保存中...");
 
+            //修复少的文件夹（用不到SAF，因为android的保存操作只在缓存中
             if (saveManifest)
             {
                 saveStatus.text = "卡组清单保存中...";
@@ -344,7 +551,12 @@ namespace Maker
                 try
                 {
                     await CardReadWrite.CreateBundleManifestFile(nowEditingBundle.manifest, manifestDirectoryToSave,
-                        manifestNewImageFullPath,pathSelectedByFileBrowser);
+                        manifestNewImageFullPath);
+                    
+                    //刷新已经加载卡组的缓存
+                    await   RefreshAllLoadedBundle();
+                    
+                    Notify.notify.CreateBannerNotification(null,$"清单保存完成");
                 }
                 catch (Exception e)
                 {
@@ -371,7 +583,9 @@ namespace Maker
                     }
 
                     await CardReadWrite.CreateCardFile(nowEditingBundle.card, cardDirectoryToSave, newCardImageFullPath,
-                        newAudiosFullPath, audioNamesWithoutExtension,pathSelectedByFileBrowser);
+                        newAudiosFullPath, audioNamesWithoutExtension);
+                    
+                    Notify.notify.CreateBannerNotification(null,$"卡牌保存完成");
                 }
                 catch (Exception e)
                 {
@@ -384,37 +598,9 @@ namespace Maker
 
             //关闭输入禁用层
             banInput.SetActive(false);
-            cardMaker.changeSignal.SetActive(false);
+            changeSignal.SetActive(false);
         }
-
-        /// <summary>
-        /// 卡组清单另存为（返回值为保存的路径，仅DirectoryName）
-        /// </summary>
-        /// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
-        /// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
-        /// <param name="cardNewImageFullPath">卡牌的新图片的全路径</param>
-        /// <param name="saveManifest"></param>
-        /// <param name="saveCard"></param>
-        /// <returns>保存成功了吗？</returns>
-        public async UniTask<string> AsyncManifestSaveTo(string manifestNewImageFullPath)
-        {
-            //执行保存逻辑
-            return await AsyncSaveTo(manifestNewImageFullPath, null, true, false, null);
-        }
-
-        /// <summary>
-        /// 卡牌另存为
-        /// </summary>
-        /// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
-        /// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
-        /// <param name="cardNewImageFullPath">卡牌的新图片的全路径</param>
-        /// <param name="saveManifest"></param>
-        /// <param name="saveCard"></param>
-        /// <returns>保存成功了吗？</returns>
-        public async UniTask AsyncCardSaveTo(string cardNewImageFullPath, audioSetting[] cardAudioSettins)
-        {
-            await AsyncSaveTo(null, cardNewImageFullPath, false, true, cardAudioSettins);
-        }
+        
 
         /// <summary>
         /// 通用的另存为（返回值为保存的路径，仅DirectoryName）
@@ -441,11 +627,11 @@ namespace Maker
             {
                 //保存
                 await AsyncSave(
-                    $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.BundleName}",
+                    $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.UUID}",
                     manifestNewImageFullPath,
                     $"{FileBrowser.Result[0]}/{nowEditingBundle.card.CardName}",
                     newCardImageFullPath, saveManifest, saveCard,
-                    cardAudioSettings,true);
+                    cardAudioSettings);
 
                 return FileBrowser.Result[0];
             }
@@ -457,7 +643,9 @@ namespace Maker
             }
         }
 
-
+        #endregion
+        
+        
         /// <summary>
         /// 输入禁用层
         /// </summary>
@@ -470,12 +658,46 @@ namespace Maker
             saveStatus.text = textContent;
         }
 
+        private async UniTask RefreshAllLoadedBundle()
+        {
+            BanInputLayer(true,"卡组刷新中...");
+                
+            //获取所有卡组
+            var allCards = await CardReadWrite.GetAllBundles();
+            allAvailableBundlesDropdownToExport.ClearOptions();
+            allAvailableBundlesDropdownToEdit.ClearOptions();
+            allBundleLoadedGUID.Clear();
+            
+            if (allCards.Length == 0)
+            {
+               
+                DeleteThisBundleButton.interactable = false;
+               
+            }
+            else
+            {
+                //填充选择用的下拉栏
+                var options =new List<TMP_Dropdown.OptionData>();
+                foreach (var VARIABLE in allCards)
+                {
+                    options.Add(new TMP_Dropdown.OptionData(VARIABLE.manifest.FriendlyBundleName));
+                    //顺便记录一下识别名称
+                    allBundleLoadedGUID.Add(VARIABLE.manifest.UUID);
+                }
+                allAvailableBundlesDropdownToExport.AddOptions(options);
+                allAvailableBundlesDropdownToEdit.options = allAvailableBundlesDropdownToExport.options;
+                DeleteThisBundleButton.interactable = true;
+            }
+            
+          
+            BanInputLayer(false,"卡组刷新中...");
 
-        #region 界面切换（返回，编辑器间切换）和打开文档
+        }
+
+        #region 界面切换（返回，编辑器间切换）和打开帮助文档
 
         public void OpenHelpDocument() => basicEvents.OpenURL("https://shimo.im/docs/N2A1M7mzZ4S0NRAD");
-
-        public void ExitGame() => basicEvents.ExitGame();
+        public void ExitGame() =>     basicEvents.ExitGame();
 
         public void SwitchPanel(Action saveOrSaveTo, Action doWhat)
         {
@@ -525,9 +747,33 @@ namespace Maker
             CardEditorPlane.SetActive(false);
             ManifestEditorPlane.SetActive(false);
             title.SetActive(true);
+            EditAndCreatePanel.SetActive(false);
+            ExportAndImportPanel.SetActive(false);
+        }
+
+        public void ReturnToCreateEditPanel()
+        {
+            changeSignal.SetActive(false);
+            CardEditorPlane.SetActive(false);
+            ManifestEditorPlane.SetActive(false);
+            title.SetActive(false);
+            EditAndCreatePanel.SetActive(true);
+            ExportAndImportPanel.SetActive(false);
         }
 
         #endregion
+
+        public void ClearCache()
+        {
+            // 判断目录是否存在
+            if (Directory.Exists(Application.temporaryCachePath))
+            {
+                // 删除目录及其所有内容
+                Directory.Delete(Application.temporaryCachePath, true);
+            }
+
+            Directory.CreateDirectory(Application.temporaryCachePath);
+        }
 
 
         /// <summary>

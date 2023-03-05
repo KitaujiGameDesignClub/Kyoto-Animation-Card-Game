@@ -288,14 +288,12 @@ namespace KitaujiGameDesignClub.GameFramework
                 actualPath = $"{UnityButNotAssets}/{path}";
             }
 
-            Debug.Log( $"{path}  {actualPath}");
-            
-            /*
+
             //如果文件夹不存在，则创建
             if (!Directory.Exists(actualPath))
             {
                 Directory.CreateDirectory(actualPath);
-            }*/
+            }
 
           
             return actualPath;

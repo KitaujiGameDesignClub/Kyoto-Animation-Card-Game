@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
@@ -73,10 +74,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
           //  inputField = GetComponentInChildren<TMP_InputField>();
           //  dropdown = GetComponentInChildren<TMP_Dropdown>();
            // dropdownButton = GetComponentInChildren<Button>();
-            //占位符也加入禁选列表内
-            ban.Add("未搜索到结果，但仍可以使用");
-            ban.Add("以下为候选结果：");
-            ban.Add("以下为全部可用内容：");
+
 
             //选定某一项
             dropdown.onValueChanged.AddListener(delegate(int arg0)
@@ -109,6 +107,14 @@ namespace KitaujiGameDesignClub.GameFramework.UI
                     dropdown.Show();              
               
             });
+        }
+
+        private void Start()
+        {
+            //占位符也加入禁选列表内
+            ban.Add("未搜索到结果，但仍可以使用");
+            ban.Add("以下为候选结果：");
+            ban.Add("以下为全部可用内容：");
         }
 
         /// <summary>

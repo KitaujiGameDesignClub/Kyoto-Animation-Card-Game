@@ -1,6 +1,8 @@
 
 using System;
 using KitaujiGameDesignClub.GameFramework;
+using Maker;
+using UnityEngine;
 
 namespace Core
 {
@@ -184,13 +186,8 @@ namespace Core
         public const string DefaultCoverNameWithoutExtension = "cover";
         public static readonly string[] SupportedImageExtension = { ".jpg",".jpeg", ".bmp", ".png", ".gif" };
         public static readonly string[] SupportedAudioExtension = { ".mp3",".ogg",".wav",".aif" };
-        //导出导入用的卡组文件
-        public const string BundleFileExtension = ".cardbundle";
-/// <summary>
-/// 工作缓存路径（解压cardbundle文件之后，清单啥的都存在这里）
-/// </summary>
-        public static string workCache = $"{YamlReadWrite.UnityButNotAssets}/Temp/{nameof(workCache)}";
         
+
         /// <summary>
         /// 游戏会在这里读取卡组
         /// </summary>
@@ -218,6 +215,16 @@ namespace Core
            "\n# 为便于后期维护，如果要添加自定义词条，请在默认内容之后添加（词条后方可以加“#”来写注释）。可以加入空行" +
            "\n# 分类标记要用“%”开头，含有此标记的字符不会作为角色名称" +
            $"\n# 此文件的默认内容由本游戏的“{CharacterVersion}”版本呈现");
+        
+        public enum  DictionaryType
+        {
+            animeList,
+            cv,
+            characters,
+           tags,
+            
+        }
+        
         #endregion
 
 
@@ -996,6 +1003,16 @@ namespace Core
             CardBundlesManifest manifest= new();  
             CharacterCard[] cards= new CharacterCard[0];
             manifestFullPath = null;
+        }
+        
+        //定义一个隐式转换
+        public static implicit operator BundleOfCreate(Bundle c)
+        {
+           var s =new BundleOfCreate
+           {
+               manifest = c.manifest
+           };
+           return s;
         }
     }
 }

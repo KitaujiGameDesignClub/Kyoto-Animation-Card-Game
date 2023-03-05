@@ -1,4 +1,5 @@
 
+using System;
 using Core;
 using System.Collections.Generic;
 
@@ -31,6 +32,7 @@ namespace Maker
         /// </summary>
         public string loadedCardFullPath = string.Empty;
         
+        
         public BundleOfCreate()
         {
             manifest = new();
@@ -38,6 +40,14 @@ namespace Maker
             allCardsFriendlyName = new ();
             allCardName = new ();
             loadedManifestFullPath = string.Empty;
+        }
+
+        //定义一个隐式转换
+        public static implicit operator Bundle(BundleOfCreate c)
+        {
+            var cards = Array.Empty<CharacterCard>();
+            cards[0] = c.card;
+            return new Bundle(c.manifest, cards);
         }
     }
     

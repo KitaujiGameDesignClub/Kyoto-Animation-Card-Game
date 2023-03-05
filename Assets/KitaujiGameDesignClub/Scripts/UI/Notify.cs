@@ -55,8 +55,8 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             Shutdown.OnDown.RemoveAllListeners();
             strongNotification.OnOn.RemoveAllListeners();
             //缓存字体大小
-            DefaultfontSize[1] = strongContent.fontSize;
-            DefaultfontSize[0] = BannerContent.fontSize;
+            DefaultfontSize[1] = strongContent.fontSize -2f;
+            DefaultfontSize[0] = BannerContent.fontSize - 2f;
 
             //不能存在多个
             var notificationCount = GameObject.FindObjectsOfType(typeof(Notify)).Length;
@@ -117,18 +117,21 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             {
                 buttonOne.onClick.AddListener(Button1);
                 buttonTexts[0].text = ButtonOneText;
+                buttonOne.onClick.AddListener(TurnOffStrongNotification);
             }
 
             if (Button2 != null)
             {
                 buttonTwo.onClick.AddListener(Button2);
                 buttonTexts[1].text = ButtonTwoText;
+                buttonTwo.onClick.AddListener(TurnOffStrongNotification);
             }
 
             if (Button3 != null)
             {
                 buttonTexts[2].text = ButtonThreeText;
                 buttonThree.onClick.AddListener(Button3);
+                buttonThree.onClick.AddListener(TurnOffStrongNotification);
             }
 
 //清除残留事件
@@ -145,7 +148,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             this.strongContent.fontSize = DefaultfontSize[1] * fontSizeRate;
             //前面的弄好了，打开通知
             strongNotification.TurnOn();
-            Debug.Log($"发生强通知：{title} - {content}");
+            Debug.Log($"发生强通知：{title} - {content.Replace("\n"," ")}");
         }
 
 
@@ -171,7 +174,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             BannerContent.fontSize = DefaultfontSize[0] * fontSizeRate;
 
             BannerNotification.Pulse();
-            Debug.Log($"发生通知：{content}");
+            Debug.Log($"发生通知：{content.Replace("\n"," ")}");
         }
 
 
