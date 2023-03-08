@@ -85,25 +85,6 @@
       },
       "url": "https://packages.unity.cn"
     },
-    "com.unity.adaptiveperformance": {
-      "version": "4.0.0",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.subsystemregistration": "1.1.0",
-        "com.unity.profiling.core": "1.0.0"
-      },
-      "url": "https://packages.unity.cn"
-    },
-    "com.unity.adaptiveperformance.oppo.android": {
-      "version": "4.0.0",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.adaptiveperformance": "4.0.0"
-      },
-      "url": "https://packages.unity.cn"
-    },
     "com.unity.burst": {
       "version": "1.8.2",
       "depth": 1,
@@ -173,13 +154,6 @@
       "dependencies": {},
       "url": "https://packages.unity.cn"
     },
-    "com.unity.profiling.core": {
-      "version": "1.0.2",
-      "depth": 2,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.cn"
-    },
     "com.unity.render-pipelines.core": {
       "version": "12.1.10",
       "depth": 1,
@@ -216,15 +190,6 @@
         "com.unity.render-pipelines.core": "12.1.10",
         "com.unity.searcher": "4.9.1"
       }
-    },
-    "com.unity.subsystemregistration": {
-      "version": "1.1.0",
-      "depth": 2,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.modules.subsystems": "1.0.0"
-      },
-      "url": "https://packages.unity.cn"
     },
     "com.unity.test-framework": {
       "version": "1.1.33",

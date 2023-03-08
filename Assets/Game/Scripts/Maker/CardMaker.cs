@@ -743,7 +743,7 @@ namespace Maker
         {
          
             //清除缓存
-            ClearCache();
+            ClearCache(false);
             basicEvents.ExitGame();
         }
 
@@ -811,17 +811,30 @@ namespace Maker
 
         #endregion
 
-        public void ClearCache()
+        public void ClearCache(bool notify)
         {
             BanInputLayer(true, "清除缓存中...");
             // 判断目录是否存在
             if (Directory.Exists(Application.temporaryCachePath))
             {
+                DirectoryInfo info = new DirectoryInfo(Application.temporaryCachePath);
+                long size = 0;
+
+                foreach (var item in info.GetFiles())
+                {
+                    size += item.Length;
+                }
+
                 // 删除目录及其所有内容
                 Directory.Delete(Application.temporaryCachePath, true);
+
+             if(notify)  Notify.notify.CreateBannerNotification(null, $"缓存清除：{(size / 1024 / 1024f).ToString("F2")}MiB");
             }
 
             Directory.CreateDirectory(Application.temporaryCachePath);
+
+          
+
             BanInputLayer(false, "清除缓存中...");
         }
 

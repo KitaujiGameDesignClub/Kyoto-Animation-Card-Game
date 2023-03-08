@@ -352,7 +352,6 @@ namespace Maker
             basicPower.SetTextWithoutNotify(nowEditingCard.BasicPower.ToString());
 
             abilityReasonType.SetValueWithoutNotify((int)nowEditingCard.AbilityActivityType);
-            Debug.Log(abilityReasonType.captionText.text);
             abilityReasonLargeScope.SetValueWithoutNotify((int)nowEditingCard.Reason.NeededObjects.LargeScope);
             abilityReasonParameter.SetValueWithoutNotify((int)nowEditingCard.Reason.NeededObjects.ParameterToShrinkScope);
             abilityReasonLogic.SetValueWithoutNotify(nowEditingCard.Reason.NeededObjects.Logic+ 3);
@@ -363,13 +362,10 @@ namespace Maker
             abilityReasonJudgeThreshold.inputField.SetTextWithoutNotify(nowEditingCard.Reason.Threshold);
             abilityReasonObjectAsTarget.Set(nowEditingCard.Result.RegardActivatorAsResultObject);
             abilityResultLargeScope.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.LargeScope);
-            Debug.Log(nowEditingCard.Result.ResultObject.LargeScope);
             abilityResultParameter.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.ParameterToShrinkScope);
-            Debug.Log(nowEditingCard.Result.ResultObject.ParameterToShrinkScope);
             abilityResultLogic.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.Logic + 3);
             abilityResultThreshold.inputField.SetTextWithoutNotify(nowEditingCard.Result.ResultObject.Threshold);
             abilityResultParameterToChange.SetValueWithoutNotify((int)nowEditingCard.Result.ParameterToChange);
-            Debug.Log(nowEditingCard.Result.ParameterToChange);
             abilityResultChangeMethod.SetValueWithoutNotify((int)nowEditingCard.Result.ChangeMethod);
             abilityResultChangeValue.inputField.SetTextWithoutNotify(nowEditingCard.Result.Value);
             abilityResultSummon.inputField.SetTextWithoutNotify(nowEditingCard.Result.SummonCardName);
@@ -440,26 +436,24 @@ namespace Maker
                 preview.image.sprite = defaultImage;
             }
             #endregion
-            Debug.Log(abilityReasonType.captionText.text);
+
             //更新下拉栏的禁用情况
             inputFieldHelperContent(abilityReasonJudgeThreshold,abilityReasonJudgeParameter.value);
             inputFieldHelperContent(abilityReasonThreshold,  abilityReasonParameter.value);
             inputFieldHelperContent(abilityResultChangeValue, abilityResultParameterToChange.value);
             inputFieldHelperContent(abilityResultThreshold, abilityResultParameter.value);
 
-            Debug.Log(abilityReasonType.captionText.text);
+;
 
             CardMaker.cardMaker.BanInputLayer(false, "卡牌加载中...");
             //启用编辑器，并初始化显示界面
             gameObject.SetActive(true);
-
-            Debug.Log(abilityReasonType.captionText.text);
+;
 
             //同步一下信息
             OnValueChanged();
             CardMaker.cardMaker.changeSignal.SetActive(false);
 
-            Debug.Log(abilityReasonType.captionText.text);
         }
 
         #region 图片选择
