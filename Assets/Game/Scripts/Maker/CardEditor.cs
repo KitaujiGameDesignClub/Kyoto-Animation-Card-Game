@@ -106,27 +106,29 @@ namespace Maker
         {
 
             #region 能力编辑初始化（不可变下拉栏初始化)
+            var allOption =new List<string>();
 
             abilityReasonType.ClearOptions();
             var length = Enum.GetNames(typeof(Information.CardAbilityTypes)).Length;
             for (int i = 0; i < length; i++)
             {
-                abilityReasonType.options.Add(
-                    new TMP_Dropdown.OptionData(
-                        Information.AbilityChineseIntroduction((Information.CardAbilityTypes)i)));
-            }
+               allOption.Add(Information.AbilityChineseIntroduction((Information.CardAbilityTypes)i));
+
+        }
+            abilityReasonType.AddOptions(allOption);
+            allOption.Clear();
+
 
             abilityReasonLargeScope.ClearOptions();
             abilityResultLargeScope.ClearOptions();
             length = Enum.GetNames(typeof(Information.Objects)).Length;
             for (int i = 0; i < length; i++)
             {
-                abilityReasonLargeScope.options.Add(
-                    new TMP_Dropdown.OptionData(
-                        Information.AbilityChineseIntroduction((Information.Objects)i)));
+                allOption.Add(Information.AbilityChineseIntroduction((Information.Objects)i));
             }
-
-            abilityResultLargeScope.options = abilityReasonLargeScope.options;
+            abilityReasonLargeScope.AddOptions(allOption);
+            abilityResultLargeScope.AddOptions(abilityReasonLargeScope.options);
+            allOption.Clear();
 
             abilityReasonParameter.ClearOptions();
             abilityResultParameter.ClearOptions();
@@ -135,14 +137,14 @@ namespace Maker
             length = Enum.GetNames(typeof(Information.Parameter)).Length;
             for (int i = 0; i < length; i++)
             {
-                abilityReasonParameter.options.Add(
-                    new TMP_Dropdown.OptionData(
-                        Information.AbilityChineseIntroduction((Information.Parameter)i)));
+                allOption.Add(Information.AbilityChineseIntroduction((Information.Parameter)i));
             }
 
-            abilityReasonJudgeParameter.options = abilityReasonParameter.options;
-            abilityResultParameter.options = abilityReasonParameter.options;
-            abilityResultParameterToChange.options = abilityReasonParameter.options;
+            abilityReasonParameter.AddOptions(allOption);
+            abilityReasonJudgeParameter.AddOptions(abilityReasonParameter.options);
+            abilityResultParameter.AddOptions(abilityReasonParameter.options);
+            abilityResultParameterToChange.AddOptions(abilityReasonParameter.options);
+            allOption.Clear();
 
             abilityReasonLogic.ClearOptions();
             abilityResultLogic.ClearOptions();
@@ -153,30 +155,28 @@ namespace Maker
             abilityReasonLogic.options.Add(new TMP_Dropdown.OptionData("等于/包含"));
             abilityReasonLogic.options.Add(new TMP_Dropdown.OptionData("大于等于"));
             abilityReasonLogic.options.Add(new TMP_Dropdown.OptionData("大于"));
-            abilityResultLogic.options = abilityReasonLogic.options;
-            abilityReasonJudgeLogic.options = abilityReasonLogic.options;
+            abilityResultLogic.AddOptions(abilityReasonLogic.options);
+            abilityReasonJudgeLogic.AddOptions(abilityReasonLogic.options);
 
             abilityResultChangeMethod.ClearOptions();
             length = Enum.GetNames(typeof(Information.CalculationMethod)).Length;
             for (int i = 0; i < length; i++)
             {
-                abilityResultChangeMethod.options.Add(
-                    new TMP_Dropdown.OptionData(
-                        Information.AbilityChineseIntroduction((Information.CalculationMethod)i)));
+                allOption.Add(Information.AbilityChineseIntroduction((Information.CalculationMethod)i));
             }
-
+            abilityResultChangeMethod.AddOptions(allOption);
+            allOption.Clear();
 
             abilityReasonJudgeMethod.ClearOptions();
-            length = Enum.GetNames(typeof(Information.JudgeMethod)).Length;
+           length = Enum.GetNames(typeof(Information.JudgeMethod)).Length;
             for (int i = 0; i < length; i++)
             {
-                abilityReasonJudgeMethod.options.Add(
-                    new TMP_Dropdown.OptionData(
-                        Information.AbilityChineseIntroduction((Information.JudgeMethod)i)));
+                allOption.Add(Information.AbilityChineseIntroduction((Information.JudgeMethod)i));
             }
-
+            abilityReasonJudgeMethod.AddOptions(allOption);
+            allOption = null;
             #endregion
-            
+
             basicHp.contentType = TMP_InputField.ContentType.IntegerNumber;
             basicPower.contentType = TMP_InputField.ContentType.IntegerNumber;
 
@@ -352,6 +352,7 @@ namespace Maker
             basicPower.SetTextWithoutNotify(nowEditingCard.BasicPower.ToString());
 
             abilityReasonType.SetValueWithoutNotify((int)nowEditingCard.AbilityActivityType);
+            Debug.Log(abilityReasonType.captionText.text);
             abilityReasonLargeScope.SetValueWithoutNotify((int)nowEditingCard.Reason.NeededObjects.LargeScope);
             abilityReasonParameter.SetValueWithoutNotify((int)nowEditingCard.Reason.NeededObjects.ParameterToShrinkScope);
             abilityReasonLogic.SetValueWithoutNotify(nowEditingCard.Reason.NeededObjects.Logic+ 3);
@@ -362,10 +363,13 @@ namespace Maker
             abilityReasonJudgeThreshold.inputField.SetTextWithoutNotify(nowEditingCard.Reason.Threshold);
             abilityReasonObjectAsTarget.Set(nowEditingCard.Result.RegardActivatorAsResultObject);
             abilityResultLargeScope.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.LargeScope);
+            Debug.Log(nowEditingCard.Result.ResultObject.LargeScope);
             abilityResultParameter.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.ParameterToShrinkScope);
-            abilityResultLogic.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.Logic);
+            Debug.Log(nowEditingCard.Result.ResultObject.ParameterToShrinkScope);
+            abilityResultLogic.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.Logic + 3);
             abilityResultThreshold.inputField.SetTextWithoutNotify(nowEditingCard.Result.ResultObject.Threshold);
             abilityResultParameterToChange.SetValueWithoutNotify((int)nowEditingCard.Result.ParameterToChange);
+            Debug.Log(nowEditingCard.Result.ParameterToChange);
             abilityResultChangeMethod.SetValueWithoutNotify((int)nowEditingCard.Result.ChangeMethod);
             abilityResultChangeValue.inputField.SetTextWithoutNotify(nowEditingCard.Result.Value);
             abilityResultSummon.inputField.SetTextWithoutNotify(nowEditingCard.Result.SummonCardName);
@@ -373,7 +377,8 @@ namespace Maker
             abilityResultRidicule.SetTextWithoutNotify(nowEditingCard.Result.Ridicule.ToString());
             abilityResultSilence.SetTextWithoutNotify(nowEditingCard.Result.Silence.ToString());
             abilityDescription.text = nowEditingCard.AbilityDescription;//这个必须通知onValueChanged，以便让预览更新
-
+            Debug.Log(abilityReasonType.captionText.text);
+         
             //tag也同步一下
             //移出所有无用(残留）的tag对象
             var UnusedTags = tagParent.GetComponentsInChildren<tagListItem>(false);
@@ -435,21 +440,26 @@ namespace Maker
                 preview.image.sprite = defaultImage;
             }
             #endregion
-
+            Debug.Log(abilityReasonType.captionText.text);
             //更新下拉栏的禁用情况
             inputFieldHelperContent(abilityReasonJudgeThreshold,abilityReasonJudgeParameter.value);
             inputFieldHelperContent(abilityReasonThreshold,  abilityReasonParameter.value);
             inputFieldHelperContent(abilityResultChangeValue, abilityResultParameterToChange.value);
             inputFieldHelperContent(abilityResultThreshold, abilityResultParameter.value);
-            
+
+            Debug.Log(abilityReasonType.captionText.text);
 
             CardMaker.cardMaker.BanInputLayer(false, "卡牌加载中...");
             //启用编辑器，并初始化显示界面
             gameObject.SetActive(true);
 
+            Debug.Log(abilityReasonType.captionText.text);
+
             //同步一下信息
             OnValueChanged();
             CardMaker.cardMaker.changeSignal.SetActive(false);
+
+            Debug.Log(abilityReasonType.captionText.text);
         }
 
         #region 图片选择
@@ -558,6 +568,12 @@ namespace Maker
         {
             if (!gameObject.activeSelf && FileBrowser.IsOpen)
             {
+                return;
+            }
+
+            if(string.IsNullOrEmpty(cardNameField.text))
+            {
+                Notify.notify.CreateBannerNotification(null, $"在保存之前，你需要先设置识别名称");
                 return;
             }
 
@@ -732,8 +748,7 @@ namespace Maker
 
                 default:
                     inputFieldWithDropdown.Ban();
-                    inputFieldWithDropdown.inputField.contentType = TMP_InputField.ContentType.IntegerNumber;
-                    inputFieldWithDropdown.text = String.Empty;
+                    inputFieldWithDropdown.ClearOptions();
                     break;
             }
         }

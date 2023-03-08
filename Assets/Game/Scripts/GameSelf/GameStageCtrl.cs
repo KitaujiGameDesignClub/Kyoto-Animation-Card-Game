@@ -147,6 +147,8 @@ public class GameStageCtrl : MonoBehaviour
                 //没有沉默，正常打架
                 if (card.cardStateInGame.silence <= 0)
                 {
+                    //沉默回合数<0，＋1
+                    if(card.cardStateInGame.silence < 0)  card.cardStateInGame.silence++;
                     //执行每回合都执行的攻击逻辑
                    await card.Attack(GetCardPanelOnSpot(teamId == 0? 1:0,UnityEngine.Random.Range(0,GameState.CardOnSpot[teamId == 0 ? 1 : 0].Count)));
                 }
@@ -211,18 +213,17 @@ public class GameStageCtrl : MonoBehaviour
 
             foreach (var item in allInCache )
             {
-                Debug.Log(item);
-                Debug.Log(item.cardStateInGame);
-                Debug.Log(item.cardStateInGame.profile);
-                Debug.Log(profile);
 
                 //有的话，就用这个panel了
                 if (item.cardStateInGame.profile.Equals(profile))
                 {
-                    Debug.Log($"缓存命中：读取卡牌“{item.cardStateInGame.profile.FriendlyCardName}”的缓存");
+                    Debug.Log($"缓存命中：卡牌“{item.cardStateInGame.profile.FriendlyCardName}”");
+                    //要把这个卡牌对外显示了
                     panel = item;
                     //并将这个卡从缓存里拿出来
-                    panel.transform.parent = TeamParent(teamId);                  
+                    panel.transform.parent = TeamParent(teamId);     
+                    //数据回复
+                    panel.cardStateInGame.Recover();
                     break;
                 }
             }
@@ -259,8 +260,6 @@ public class GameStageCtrl : MonoBehaviour
             ArrangeTeamCardOnSpot(teamId);
             //修改物体名称
             panel.gameObject.name = $"{panel.cardStateInGame.profile.CardName}";
-            Debug.Log(panel.cardStateInGame);
-            Debug.Log(panel.cardStateInGame.profile);
             return panel;
         }
         else return null;
@@ -312,7 +311,7 @@ public class GameStageCtrl : MonoBehaviour
             if (card.gameObject.activeSelf)
             {
                 //左对齐放置
-                //i - Information.TeamMaxCardOnSpotCount：第 1 2 3 4 5 6个定位点
+                //i - Information.TeamMaxCardOnSpotCount：第 1 2 3 4 5 6个定位点 //之后得解除场上最多6张卡牌的限制
                 card.position = CardPrePoint[teamId].PrePoint[i - Information.TeamMaxCardOnSpotCount].position;
                 //缩进移动
                 //计算缩进量（卡牌全满了就不用缩进了，这里先默认卡牌左对齐，并在定位点上）

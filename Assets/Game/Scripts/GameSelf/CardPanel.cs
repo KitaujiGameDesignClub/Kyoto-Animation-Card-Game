@@ -5,6 +5,7 @@ using KitaujiGameDesignClub.GameFramework.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using Random = System.Random;
@@ -12,7 +13,7 @@ using Random = System.Random;
 /// <summary>
 /// 图形化显示卡牌的信息与动画效果，并执行有关逻辑
 /// </summary>
-public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后实现玩家自定义行为（写代码）
+public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义行为（写代码）
 {
 
     [Header("信息模式")]
@@ -27,6 +28,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
     [Header("游戏模式")]
     public GameObject[] othersToDestroy;
     public CharacterInGame cardStateInGame;
+    public CharacterCard Profile => cardStateInGame.profile;
     public Transform tr;
     public TMP_Text powerValue;
     public TMP_Text hpValue;
@@ -121,34 +123,36 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
 
     public void ChangeState(Information.CardState cardState)
     {
-        ((ICharacterCardInGame)cardStateInGame).ChangeState(cardState);
+      
     }
 
     public void OnDebut()
     {
-        ((ICharacterCardInGame)cardStateInGame).OnDebut();
+       
     }
 
     public async UniTask Attack(CardPanel target)
     {
-        await attackAnimation(target);
-    }
+        //等20ms
+        await UniTask.Delay(20);
 
-    private async UniTask attackAnimation(CardPanel target)
-    {
+        //实战能力
+        await PerformAbility();
+
+        //等20ms
+        await UniTask.Delay(20);
+
         //记录原位置
         var originalPos = tr.position;
-        Debug.Log(originalPos);
         //记录挨打一方的位置
         var attackPoint = target.tr.position;
-        Debug.Log(attackPoint);
 
         //靠近要攻击目标卡牌
         while (true)
         {
             tr.position = Vector2.Lerp(tr.position, attackPoint, 0.1f);
             //足够近，停止循环
-            if (Math.Abs(tr.position.x - attackPoint.x) <= 0.1f)
+            if (Math.Abs(tr.position.x - attackPoint.x) <= 0.1f && Math.Abs(tr.position.y - attackPoint.y) <= 0.1f)
             {
                 break;
             }
@@ -156,29 +160,36 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
         }
         //施暴
         target.GetDamaged(cardStateInGame.actualPower, this);
-        Debug.Log("施暴");
 
         //等100ms
         await UniTask.Delay(100);
-        Debug.Log("打完了");
+
 
         //回到原地点
         while (true)
         {
             tr.position = Vector2.Lerp(tr.position, originalPos, 0.1f);
             //足够近，停止循环（尽量能靠近）
-            if (Math.Abs(tr.position.x - originalPos.x) <= 0.01f)
+            if (Math.Abs(tr.position.x - originalPos.x) <= 0.01f && Math.Abs(tr.position.y - originalPos.y) <= 0.01f)
             {
                 break;
             }
             await UniTask.Yield(PlayerLoopTiming.Update);
         }
-        Debug.Log("H回来了");
+    }
+
+    private async UniTask PerformAbility()
+    {
+        //动画什么的
+
+
+        //分析一下该做什么，顺便触发能力
+        AbilityReasonAnalyze(null);
     }
 
     public void Exit()
     {
-        ((ICharacterCardInGame)cardStateInGame).Exit();
+        GameStageCtrl.stageCtrl.RecycleCardOnSpot(cardStateInGame.teamId, cardStateInGame.cardId);
     }
 
     public void OnHurt(CardPanel activator)
@@ -188,6 +199,34 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
 
 
     #region 能力解析相关
+
+    /// <summary>
+    /// 展示能力的一些新信息（格式弄好了）
+    /// </summary>
+    void ShowNews(string Subject, string Recepetors, string DoWhat)
+    {
+        if (string.IsNullOrEmpty(Subject))
+        {
+            throw new ArgumentException($"“{nameof(Subject)}”不能为 null 或空。", nameof(Subject));
+        }
+
+        if (string.IsNullOrEmpty(DoWhat))
+        {
+            throw new ArgumentException($"“{nameof(DoWhat)}”不能为 null 或空。", nameof(DoWhat));
+        }
+
+        if (string.IsNullOrEmpty(Recepetors))
+        {
+            string content = string.Format("{0} {1}", Subject, DoWhat);
+        }
+        else
+        {
+            string content = string.Format("{0} 使 {1} {2}", Subject, Recepetors, DoWhat);
+        }
+
+
+    }
+
     /// <summary>
     /// 能力触发原因判定
     /// </summary>
@@ -200,17 +239,17 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
         #region 确定条件对象们
 
         //如果是any情况下都能运行，直接运行结果逻辑
-        if (cardStateInGame.profile.Reason.NeededObjects.LargeScope == Information.Objects.Any)
+        if (Profile.Reason.NeededObjects.LargeScope == Information.Objects.Any)
         {
-            cardStateInGame.profile.Result.RegardActivatorAsResultObject = false;
+            Profile.Result.RegardActivatorAsResultObject = false;
             AbilityResultAnalyze();
             return;
         }
         else
         {
             //确定条件对象们（条件对象可以是角色卡牌，也可以是部长卡牌）
-            ReasonObjects = GetNeededCards(cardStateInGame.profile.Reason.NeededObjects, activator); //确定范围内的条件对象
-            chief = GetNeededChief(cardStateInGame.profile.Reason.NeededObjects); //储存主持/部长的条件对象
+            ReasonObjects = GetNeededCards(Profile.Reason.NeededObjects, activator); //确定范围内的条件对象
+            chief = GetNeededChief(Profile.Reason.NeededObjects); //储存主持/部长的条件对象
         }
 
         #endregion
@@ -234,14 +273,14 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
 
         #region 获取判断的参数的值
 
-        switch (cardStateInGame.profile.Reason.JudgeParameter)
+        switch (Profile.Reason.JudgeParameter)
         {
             //部长/主席/主持的金币数量
             case Information.Parameter.Coin:
                 if (chief != null) parameterValues[0] = chief.coin.ToString();
                 else
                     throw new Exception(
-                        $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断部长金币数，但是能力原因的条件对象不是chief");
+                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断部长金币数，但是能力原因的条件对象不是chief");
                 break;
 
             //角色卡的攻击力
@@ -255,7 +294,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 }
                 else
                     throw new Exception(
-                        $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断角色卡攻击力，但是能力原因的条件对象不是角色卡");
+                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断角色卡攻击力，但是能力原因的条件对象不是角色卡");
 
                 break;
 
@@ -270,7 +309,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 }
                 else
                     throw new Exception(
-                        $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断角色卡沉默回合数，但是能力原因的条件对象不是角色卡");
+                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断角色卡沉默回合数，但是能力原因的条件对象不是角色卡");
 
                 break;
 
@@ -285,7 +324,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 }
                 else
                     throw new Exception(
-                        $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断角色卡炒粉回合数，但是能力原因的条件对象不是角色卡");
+                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断角色卡炒粉回合数，但是能力原因的条件对象不是角色卡");
 
                 break;
 
@@ -301,7 +340,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 }
                 else
                     throw new Exception(
-                        $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断角色卡状态，但是能力原因的条件对象不是角色卡");
+                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断角色卡状态，但是能力原因的条件对象不是角色卡");
 
                 break;
 
@@ -311,12 +350,12 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 {
                     for (int i = 0; i < parameterValues.Length; i++)
                     {
-                        parameterValues[i] = ReasonObjects[i].cardStateInGame.profile.gender.ToString();
+                        parameterValues[i] = ReasonObjects[i].Profile.gender.ToString();
                     }
                 }
                 else
                     throw new Exception(
-                        $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断角色卡性别，但是能力原因的条件对象不是角色卡");
+                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断角色卡性别，但是能力原因的条件对象不是角色卡");
                 break;
 
             //所属社团（队伍）
@@ -330,7 +369,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 }
                 else
                     throw new Exception(
-                        $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断角色卡性别，但是能力原因的条件对象不是角色卡");
+                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断角色卡性别，但是能力原因的条件对象不是角色卡");
                 break;
 
             //tag对比
@@ -339,7 +378,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 {
                     for (int i = 0; i < parameterValues.Length; i++)
                     {
-                        foreach (var tag in ReasonObjects[i].cardStateInGame.profile.tags)
+                        foreach (var tag in ReasonObjects[i].Profile.tags)
                         {
                             parameterValues[i] =
                                 $"{parameterValues[i]}={tag}"; //最终的效果就是，每一个角色卡记录的tags:=SOS=coward，即每个tag间都有个=连接，第一个标签前有一个=
@@ -348,7 +387,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 }
                 else
                     throw new Exception(
-                        $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断角色卡标签，但是能力原因的条件对象不是角色卡");
+                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断角色卡标签，但是能力原因的条件对象不是角色卡");
 
                 break;
 
@@ -358,7 +397,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 {
                     for (int i = 0; i < parameterValues.Length; i++)
                     {
-                        parameterValues[i] = ReasonObjects[i].cardStateInGame.profile.CharacterName;
+                        parameterValues[i] = ReasonObjects[i].Profile.CharacterName;
                     }
                 }
                 else
@@ -373,13 +412,13 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 {
                     for (int i = 0; i < parameterValues.Length; i++)
                     {
-                        parameterValues[i] = ReasonObjects[i].cardStateInGame.profile.CV;
+                        parameterValues[i] = ReasonObjects[i].Profile.CV;
                     }
                 }
                 else
                 {
                     throw new Exception(
-                        $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要判断部长{chief.ChiefName}的声优，但是这是禁止事项");
+                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断部长{chief.ChiefName}的声优，但是这是禁止事项");
                 }
 
                 break;
@@ -393,7 +432,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
 
         #region 根据判断方法，准备数值计算
 
-        switch (cardStateInGame.profile.Reason.ReasonJudgeMethod)
+        switch (Profile.Reason.ReasonJudgeMethod)
         {
             //count：有几个参数？
             case Information.JudgeMethod.Count:
@@ -419,13 +458,13 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
         #region 运用判断逻辑，对阈值进行判定
 
         //count（计数）判定：
-        if (cardStateInGame.profile.Reason.ReasonJudgeMethod == Information.JudgeMethod.Count)
+        if (Profile.Reason.ReasonJudgeMethod == Information.JudgeMethod.Count)
         {
             //满足要求的参数的长度
             var parameterValuesLength = int.Parse(values[0]);
-            int thresholdInt = int.Parse(cardStateInGame.profile.Reason.Threshold);
+            int thresholdInt = int.Parse(Profile.Reason.Threshold);
 
-            switch (cardStateInGame.profile.Reason.Logic)
+            switch (Profile.Reason.Logic)
             {
                 //不等于（不包含）
                 case -3:
@@ -460,14 +499,14 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
         else
         {
             //这些都是对values（数值进行判定）
-            switch (cardStateInGame.profile.Reason.JudgeParameter)
+            switch (Profile.Reason.JudgeParameter)
             {
                 //数据为Int
                 case Information.Parameter.Coin or Information.Parameter.Power or Information.Parameter.Silence
                     or Information.Parameter.HealthPoint or Information.Parameter.Gender or Information.Parameter.Team:
                     //将string转换为正规的类型（int）
                     int[] fixedValues = new int[values.Length];
-                    int thresholdInt = int.Parse(cardStateInGame.profile.Reason.Threshold);
+                    int thresholdInt = int.Parse(Profile.Reason.Threshold);
 
                     //将记录的values转换成Int，并进行有关的判断逻辑处理
                     for (int i = 0; i < values.Length; i++)
@@ -476,12 +515,12 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                         if (!int.TryParse(values[i], out fixedValues[i]))
                         {
                             throw new Exception(
-                                $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})的能力出发原因中，{cardStateInGame.profile.Reason.JudgeParameter}是int的，但是给定的阈值形式上不符合int类型");
+                                $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})的能力出发原因中，{Profile.Reason.JudgeParameter}是int的，但是给定的阈值形式上不符合int类型");
                         }
                         else
                         {
                             //按照记录的逻辑方式判断能否
-                            switch (cardStateInGame.profile.Reason.Logic)
+                            switch (Profile.Reason.Logic)
                             {
                                 //-3 不包含（不等于）
                                 case -3:
@@ -520,7 +559,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
 
 
                         //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
-                        if (!cardStateInGame.profile.Result.RegardActivatorAsResultObject || cardStateInGame.profile.Result.SummonCardName != String.Empty)
+                        if (!Profile.Result.RegardActivatorAsResultObject || Profile.Result.SummonCardName != String.Empty)
                         {
                             if (AllowAbilityExection) break;
                         }
@@ -534,16 +573,16 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                     for (int i = 0; i < values.Length; i++)
                     {
                         //按照记录的逻辑方式判断能否
-                        switch (cardStateInGame.profile.Reason.Logic)
+                        switch (Profile.Reason.Logic)
                         {
                             //-3 不等于（不包含）
                             case -3:
-                                CheckedFixedValuesState[i] = values[i] != cardStateInGame.profile.Reason.Threshold;
+                                CheckedFixedValuesState[i] = values[i] != Profile.Reason.Threshold;
                                 break;
 
                             //等于（包含）
                             case 0:
-                                CheckedFixedValuesState[i] = values[i] == cardStateInGame.profile.Reason.Threshold;
+                                CheckedFixedValuesState[i] = values[i] == Profile.Reason.Threshold;
                                 break;
                         }
 
@@ -553,7 +592,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
 
 
                         //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
-                        if (!cardStateInGame.profile.Result.RegardActivatorAsResultObject || cardStateInGame.profile.Result.SummonCardName != String.Empty)
+                        if (!Profile.Result.RegardActivatorAsResultObject || Profile.Result.SummonCardName != String.Empty)
                         {
                             if (AllowAbilityExection) break;
                         }
@@ -572,16 +611,16 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
 
 
                         //按照记录的逻辑方式判断能否
-                        switch (cardStateInGame.profile.Reason.Logic)
+                        switch (Profile.Reason.Logic)
                         {
                             //-3 不包含
                             case -3:
-                                CheckedFixedValuesState[i] = !allTags.Contains(cardStateInGame.profile.Reason.Threshold);
+                                CheckedFixedValuesState[i] = !allTags.Contains(Profile.Reason.Threshold);
                                 break;
 
                             //等于（包含）
                             case 0:
-                                CheckedFixedValuesState[i] = allTags.Contains(cardStateInGame.profile.Reason.Threshold);
+                                CheckedFixedValuesState[i] = allTags.Contains(Profile.Reason.Threshold);
                                 break;
                         }
 
@@ -591,7 +630,7 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
 
 
                         //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
-                        if (!cardStateInGame.profile.Result.RegardActivatorAsResultObject || cardStateInGame.profile.Result.SummonCardName != String.Empty)
+                        if (!Profile.Result.RegardActivatorAsResultObject || Profile.Result.SummonCardName != String.Empty)
                         {
                             if (AllowAbilityExection) break;
                         }
@@ -624,63 +663,92 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
         CardPanel[] characterToOperate = null;
 
         //召唤
-        if (cardStateInGame.profile.Result.SummonCardName != String.Empty)
+        if (!string.IsNullOrEmpty(Profile.Result.SummonCardName))
         {
 
-
+            ShowNews(Profile.FriendlyCardName,null,"召唤了一张卡牌");
             //11451444444
 
+            //如果要召唤，那就直接不把激活能力的条件对象作为结果对象
+            Profile.Result.RegardActivatorAsResultObject = false;
         }
 
 
         #region 获取能力发动的对象 能力发动到谁身上？
 
-        //如果要召唤，那就直接不把激活能力的条件对象作为结果对象
-        if (cardStateInGame.profile.Result.SummonCardName != string.Empty)
-        {
-            cardStateInGame.profile.Result.RegardActivatorAsResultObject = false;
-        }
-
         //如果把激活能力的条件对象作为结果对象，才查找对象
-        if (cardStateInGame.profile.Result.RegardActivatorAsResultObject)
+        if (Profile.Result.RegardActivatorAsResultObject)
         {
             characterToOperate = reasonObjects;
         }
-        //如果不把激活能力的条件对象作为结果对象，则重新寻找一次
+        //如果不把激活能力的条件对象作为结果对象，则重新寻找一次，确定修改参数的范围
         else
         {
-            chiefToOperate = GetNeededChief(cardStateInGame.profile.Result.ResultObject);
-            characterToOperate = GetNeededCards(cardStateInGame.profile.Result.ResultObject);
+            chiefToOperate = GetNeededChief(Profile.Result.ResultObject);
+            characterToOperate = GetNeededCards(Profile.Result.ResultObject);
         }
 
         #endregion
 
         #region 修改参数
 
-        //角色卡
+        //对目标角色卡的参数进行修改
         foreach (var card in characterToOperate)
         {
-            switch (cardStateInGame.profile.Result.ParameterToChange)
+            switch (Profile.Result.ParameterToChange)
             {
                 case Information.Parameter.Coin:
                     throw new Exception(
-                        $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
+                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
 
                 case Information.Parameter.HealthPoint:
                     card.cardStateInGame.actualHealthPoint = ChangeIntValue(card.cardStateInGame.actualHealthPoint);
+                    ShowNews(Profile.FriendlyCardName, card.Profile.FriendlyCardName, $"的体力值（HP）变为了{card.cardStateInGame.actualHealthPoint}");
+
                     break;
                 case Information.Parameter.Power:
                     card.cardStateInGame.actualPower = ChangeIntValue(card.cardStateInGame.actualPower);
+                    ShowNews(Profile.FriendlyCardName, card.Profile.FriendlyCardName, $"的执行力（攻击力）变为了{card.cardStateInGame.actualPower}");
                     break;
 
                 case Information.Parameter.Gender:
-                    card.cardStateInGame.profile.gender = ChangeIntValue(card.cardStateInGame.profile.gender);
+                    card.Profile.gender = ChangeIntValue(card.Profile.gender);
+
+                 
+                    var gender = card.Profile.gender switch
+                    {
+                        1 => "男",
+                        2 => "女",
+                        _ => "未知或不重要",
+                    };
+                    ShowNews(Profile.FriendlyCardName, card.Profile.FriendlyCardName, $"的性别变为了{gender}");
                     break;
 
                 //修改所属的team。0=玩家方 1=电脑方 2=双方交换
                 case Information.Parameter.Team:
                     //ChangeIntValue里要求必须为changeTo
-                    card.ChangeTeam(ChangeIntValue(card.cardStateInGame.teamId));
+                    if(Profile.Result.ChangeMethod != Information.CalculationMethod.ChangeTo)
+                    {
+                        Debug.LogError($"{Profile.FriendlyCardName}的能力想要修改卡牌的所属社团（队伍），但是他没有将“修改方法”设置为“ChangeTo”");
+                    }
+                    else
+                    {
+                        //实现2：双方互换
+                        if(Profile.Result.Value == 2.ToString())
+
+                        card.ChangeTeam(ChangeIntValue(card.cardStateInGame.teamId));
+
+                        var team = card.cardStateInGame.cardId switch
+                        {
+                            0 => "玩家社团",
+                            1 => "电脑社团",
+
+                        };
+
+                        ShowNews(Profile.FriendlyCardName, card.Profile.FriendlyCardName, $"的性别变为了{team}");
+                    }
+
+                 
                     break;
 
                 case Information.Parameter.Silence:
@@ -692,36 +760,36 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                     break;
 
                 case Information.Parameter.Tag:
-                    switch (cardStateInGame.profile.Result.ChangeMethod)
+                    switch (Profile.Result.ChangeMethod)
                     {
                         //添加/删除一个tag  values种，如果有个“-”。说明是减去这个tag
                         case Information.CalculationMethod.addition:
                             //开头没有-号，加上一个tag
-                            if (cardStateInGame.profile.Result.Value.Substring(0, 1) != "-" && !card.cardStateInGame.profile.tags.Contains(cardStateInGame.profile.Result.Value))
+                            if (Profile.Result.Value.Substring(0, 1) != "-" && !card.Profile.tags.Contains(Profile.Result.Value))
                             {
-                                card.cardStateInGame.profile.tags.Add(cardStateInGame.profile.Result.Value);
+                                card.Profile.tags.Add(Profile.Result.Value);
                             }
                             //开头有-号，减去一个tag
-                            else if (cardStateInGame.profile.Result.Value.Substring(0, 1) == "-" && card.cardStateInGame.profile.tags.Contains(cardStateInGame.profile.Result.Value))
+                            else if (Profile.Result.Value.Substring(0, 1) == "-" && card.Profile.tags.Contains(Profile.Result.Value))
                             {
-                                card.cardStateInGame.profile.tags.Remove(cardStateInGame.profile.Result.Value);
+                                card.Profile.tags.Remove(Profile.Result.Value);
                             }
                             break;
 
                         default:
-                            throw new Exception($"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})想要用乘法修改tag");
+                            throw new Exception($"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要用乘法修改tag");
                     }
                     break;
 
                 case Information.Parameter.State:
-                    card.cardStateInGame.State = (Information.CardState)Enum.Parse(typeof(Information.CardState), cardStateInGame.profile.Result.Value);
+                    card.cardStateInGame.State = (Information.CardState)Enum.Parse(typeof(Information.CardState), Profile.Result.Value);
                     break;
 
             }
         }
 
         //主持
-        switch (cardStateInGame.profile.Result.ParameterToChange)
+        switch (Profile.Result.ParameterToChange)
         {
             case Information.Parameter.Coin:
                 chiefToOperate.coin = ChangeIntValue(chiefToOperate.coin);
@@ -737,18 +805,18 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
     /// <param name="values">（</param>
     private int ChangeIntValue(int parameter)
     {
-        switch (cardStateInGame.profile.Result.ChangeMethod)
+        switch (Profile.Result.ChangeMethod)
         {
             case Information.CalculationMethod.addition:
-                parameter += int.Parse(cardStateInGame.profile.Result.Value);
+                parameter += int.Parse(Profile.Result.Value);
                 break;
 
             case Information.CalculationMethod.ChangeTo:
-                parameter = int.Parse(cardStateInGame.profile.Result.Value);
+                parameter = int.Parse(Profile.Result.Value);
                 break;
 
             case Information.CalculationMethod.multiplication:
-                parameter = (int)(parameter * float.Parse(cardStateInGame.profile.Result.Value));
+                parameter = (int)(parameter * float.Parse(Profile.Result.Value));
                 break;
         }
 
@@ -885,11 +953,11 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
             switch (objectsScope.ParameterToShrinkScope)
             {
                 case Information.Parameter.CharacterName:
-                    parameter = neededCards[i].cardStateInGame.profile.CharacterName.ToString();
+                    parameter = neededCards[i].Profile.CharacterName.ToString();
                     break;
 
                 case Information.Parameter.CV:
-                    parameter = neededCards[i].cardStateInGame.profile.CV.ToString();
+                    parameter = neededCards[i].Profile.CV.ToString();
                     break;
 
                 case Information.Parameter.HealthPoint:
@@ -913,11 +981,11 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                     break;
 
                 case Information.Parameter.Anime:
-                    parameter = neededCards[i].cardStateInGame.profile.Anime;
+                    parameter = neededCards[i].Profile.Anime;
                     break;
 
                 case Information.Parameter.Gender:
-                    parameter = neededCards[i].cardStateInGame.profile.gender.ToString();
+                    parameter = neededCards[i].Profile.gender.ToString();
                     break;
 
                 case Information.Parameter.Team:
@@ -925,10 +993,10 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                     break;
 
                 case Information.Parameter.Tag:
-                    foreach (var tag in cardStateInGame.profile.tags)
+                    foreach (var tag in Profile.tags)
                     {
                         parameter =
-                            $"{parameter}={tag}"; //最终的效果就是，每一个角色卡记录的cardStateInGame.profile.tags:=SOS=coward，即每个tag间都有个=连接，第一个标签前有一个=
+                            $"{parameter}={tag}"; //最终的效果就是，每一个角色卡记录的Profile.tags:=SOS=coward，即每个tag间都有个=连接，第一个标签前有一个=
                     }
 
                     break;
@@ -946,19 +1014,19 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                     or Information.Parameter.HealthPoint or Information.Parameter.Ridicule or Information.Parameter.Gender or Information.Parameter.Team:
                     //将string转换为正规的类型（int）
                     int fixedValue;
-                    int thresholdInt = int.Parse(cardStateInGame.profile.Reason.Threshold);
+                    int thresholdInt = int.Parse(Profile.Reason.Threshold);
 
                     //将记录的values转换成Int，并进行有关的判断逻辑处理
                     //将记录的values转换成Int
                     if (!int.TryParse(parameter, out fixedValue))
                     {
                         throw new Exception(
-                            $"{cardStateInGame.profile.FriendlyCardName}(内部名称：{cardStateInGame.profile.CardName})无法找到正确的对象，因为所找对象的参数是int型，但是给定的阈值形式上不符合int类型");
+                            $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})无法找到正确的对象，因为所找对象的参数是int型，但是给定的阈值形式上不符合int类型");
                     }
                     else
                     {
                         //按照记录的逻辑方式判断能否
-                        allowed = cardStateInGame.profile.Reason.Logic switch
+                        allowed = Profile.Reason.Logic switch
                         {
                             //-3 不包含（不等于）
                             -3 => fixedValue != thresholdInt,
@@ -982,37 +1050,37 @@ public class CardPanel : MonoBehaviour, ICharacterCardInGame//接口可以以后
                 case Information.Parameter.CharacterName or Information.Parameter.CV:
 
                     //按照记录的逻辑方式判断能否
-                    switch (cardStateInGame.profile.Reason.Logic)
+                    switch (Profile.Reason.Logic)
                     {
                         //-3 不等于（不包含）
                         case -3:
-                            allowed = parameter != cardStateInGame.profile.Reason.Threshold;
+                            allowed = parameter != Profile.Reason.Threshold;
                             break;
 
                         //等于（包含）
                         case 0:
-                            allowed = parameter == cardStateInGame.profile.Reason.Threshold;
+                            allowed = parameter == Profile.Reason.Threshold;
                             break;
                     }
                     break;
 
-                //每一个角色卡记录的cardStateInGame.profile.tags:=SOS=coward
+                //每一个角色卡记录的Profile.tags:=SOS=coward
                 case Information.Parameter.Tag:
 
                     //得到每一个对象的所有tag（0不能要）
                     string[] allTags = parameter.Split('=');
 
                     //按照记录的逻辑方式判断能否
-                    switch (cardStateInGame.profile.Reason.Logic)
+                    switch (Profile.Reason.Logic)
                     {
                         //-3 不包含
                         case -3:
-                            allowed = !allTags.Contains(cardStateInGame.profile.Reason.Threshold);
+                            allowed = !allTags.Contains(Profile.Reason.Threshold);
                             break;
 
                         //等于（包含）
                         case 0:
-                            allowed = allTags.Contains(cardStateInGame.profile.Reason.Threshold);
+                            allowed = allTags.Contains(Profile.Reason.Threshold);
                             break;
                     }
 

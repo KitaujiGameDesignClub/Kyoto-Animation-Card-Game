@@ -214,10 +214,15 @@ namespace Maker
             CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath =
                 $"{Path.Combine(Information.bundlesPath, CardMaker.cardMaker.nowEditingBundle.manifest.UUID)}/{Information.ManifestFileName}";
 
+            //保存逻辑执行
             await CardMaker.cardMaker.AsyncSave(
                 Path.GetDirectoryName( CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath),
                 newImageFullPath, null, null, true, false, null);
-            
+
+            //允许玩家进行卡牌创建了
+            CheckSwitchToCardEditorAvailable();
+
+
               }
 
         
@@ -244,19 +249,23 @@ namespace Maker
         {
             cardsFriendlyNamesList.ClearOptions();
 
-            //没有卡牌的话，就算了
-            if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Count == 0)
+            if (string.IsNullOrEmpty(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath))
             {
+                cardsFriendlyNamesList.gameObject.SetActive(false);
+                switchToCardEditor.gameObject.SetActive(false);
+                return;
             }
+
+            //不是新建的卡牌，就打开切换器
+            cardsFriendlyNamesList.gameObject.SetActive(true);
+            switchToCardEditor.gameObject.SetActive(true);
+
             //读取卡组内所有卡牌的友好名称
-            else
-            {
+            cardsFriendlyNamesList.options.Insert(0, new TMP_Dropdown.OptionData("<创建新卡牌>"));
                 cardsFriendlyNamesList.AddOptions(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
-                cardsFriendlyNamesList.options.Insert(0, new TMP_Dropdown.OptionData("<创建新卡牌>"));
                 cardsFriendlyNamesList.value = 0;
                 cardsFriendlyNamesList.RefreshShownValue();
-                cardsFriendlyNamesList.gameObject.SetActive(true);
-            }
+
         }
 
         #endregion

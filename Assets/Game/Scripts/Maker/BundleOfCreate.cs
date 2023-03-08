@@ -40,6 +40,7 @@ namespace Maker
             allCardsFriendlyName = new ();
             allCardName = new ();
             loadedManifestFullPath = string.Empty;
+            loadedCardFullPath = string.Empty;
         }
 
         //定义一个隐式转换

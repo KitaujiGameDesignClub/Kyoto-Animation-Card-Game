@@ -121,7 +121,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3062158194427633952}
   m_HandleRect: {fileID: 2085070026957085017}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -200,8 +200,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 20}
+  m_AnchoredPosition: {x: 0, y: -0.0000076293945}
+  m_SizeDelta: {x: 0, y: 41.18}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1472025534206713245
 MonoBehaviour:
@@ -373,6 +373,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   supportFilter: 0
+  autoRemoveRichText: 1
   ban: []
 --- !u!1 &3545486379416444135
 GameObject:
@@ -467,8 +468,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -491,7 +492,7 @@ MonoBehaviour:
   m_enableKerning: 1
   m_enableExtraPadding: 1
   checkPaddingRequired: 0
-  m_isRichText: 1
+  m_isRichText: 0
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0
@@ -679,7 +680,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.11000061, y: -0.5}
+  m_AnchoredPosition: {x: -0.11000061, y: -0.4999981}
   m_SizeDelta: {x: -19.79, y: -3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3296961587086085641
@@ -737,8 +738,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -974,7 +975,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 2.567505, y: 0.0000011920929}
-  m_SizeDelta: {x: -5.135, y: 150}
+  m_SizeDelta: {x: -5.14, y: 214.85}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &158408030557139535
 CanvasRenderer:
@@ -1450,7 +1451,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.0000019073486}
-  m_SizeDelta: {x: 0, y: 28}
+  m_SizeDelta: {x: 0, y: 41.18}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &8174372485733849013
 GameObject:

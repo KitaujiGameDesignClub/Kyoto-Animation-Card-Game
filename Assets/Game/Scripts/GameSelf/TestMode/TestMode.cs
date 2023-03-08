@@ -10,9 +10,11 @@ using TMPro;
 using KitaujiGameDesignClub.GameFramework.UI;
 using UnityEngine.Events;
 using System.IO;
+using Unity.VisualScripting;
 
 public class TestMode : MonoBehaviour
 {
+
     //备注：进入测试模式之前，应当修改内存中的设置，使测试模式永远开启控制台和帧率显示
 
     [Header("通用")]
@@ -100,7 +102,7 @@ public class TestMode : MonoBehaviour
     private void Awake()
     {
         //如果没有开启测试模式，就销毁这个物体
-
+        
 
     }
 
@@ -351,6 +353,8 @@ public class TestMode : MonoBehaviour
         {
             //禁用“继续战斗”按钮
             ContinueBattleButton.interactable = false;
+            //禁用“开始战斗”按钮
+            StartBattleButton.interactable = false;
 
             for (int i = 0; i < PauseModeSelector.Length; i++)
             {
@@ -395,6 +399,10 @@ public class TestMode : MonoBehaviour
               eventBeforeSwitchToGame[0].Invoke();
                 //即使被remove掉，这个事件仍会继续运行
               eventBeforeSwitchToGame.RemoveAt(0);
+            }
+            else
+            {
+                await UniTask.Yield(PlayerLoopTiming.Update);
             }
         }
     }

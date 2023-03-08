@@ -69,9 +69,6 @@ namespace Core
         /// </summary>
         public bool connectEnabled = false;
         */
-
-
-
         /// <summary>
         /// 按照角色的配置文件，创建游戏中可用的角色卡（登场时调用）（不加载有关资源）
         /// </summary>
@@ -80,46 +77,22 @@ namespace Core
         public CharacterInGame(CharacterCard characterCard)
         {
             profile = characterCard;
+            Recover();
+           // connectEnabled = false;
+        } 
+
+        /// <summary>
+        /// 作为一张新的卡牌，刷新所有的数据
+        /// </summary>
+        public void Recover()
+        {
             silence = 0;
             ridicule = 0;
-            actualPower = characterCard.BasicPower;
-            actualHealthPoint = characterCard.BasicHealthPoint;
+            actualPower = profile.BasicPower;
+            actualHealthPoint = profile.BasicHealthPoint;
             State = Information.CardState.Present;
-           // connectEnabled = false;
-        }
-     
-
-     
-        public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2,
-            CharacterInGame Activator)
-        {
-            if (changeHealth)
-            {
-                //受到伤害
-                actualHealthPoint -= value1;
-
-               
-               //没血了
-                if (actualHealthPoint <= 0)
-                {
-                    //do something....
-                }
-            }
-
-
-            if (changePower)
-            {
-               actualPower += value2;
-
-             
-            }
         }
 
-
-      
-
-      
-    
 
     }
 }

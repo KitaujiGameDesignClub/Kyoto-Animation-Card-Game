@@ -1,4 +1,4 @@
-# Only for Kyoto Animation Card game with utf-8
+﻿# Only for 社团Battle！ with utf-8
 # card detail.
 # It'll tell you all the information of the card,but it can't work independently.
 
@@ -24,14 +24,14 @@ BasicPower: 1
 AbilityActivityType: Round
 Reason:
   NeededObjects:
-    LargeScope: Any
+    LargeScope: None
     ParameterToShrinkScope: None
     Logic: -3
     Threshold: ''
   JudgeParameter: None
   ReasonJudgeMethod: Value
   Logic: -3
-  Threshold: 																								
+  Threshold: ''
 Result:
   RegardActivatorAsResultObject: false
   ResultObject:

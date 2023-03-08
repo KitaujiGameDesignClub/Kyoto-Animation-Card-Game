@@ -42,10 +42,7 @@ namespace Core.Interface
         /// </summary>
         public void ChangeState(Information.CardState cardState);
 
-        /// <summary>
-        /// 登场执行
-        /// </summary>
-        public void OnDebut();
+
 
         /// <summary>
         /// 每次轮到该卡都执行的攻击逻辑
@@ -53,6 +50,13 @@ namespace Core.Interface
         /// <param name="target">打谁</param>
         /// <returns></returns>
         public UniTask Attack(CardPanel target);
+
+
+
+        /// <summary>
+        /// 登场执行
+        /// </summary>
+        public void OnDebut();
 
         /// <summary>
         /// 退场时执行

@@ -1,4 +1,4 @@
-﻿# Only for Kyoto Animation Card game with utf-8
+﻿# Only for 社团Battle！ with utf-8
 # card detail.
 # It'll tell you all the information of the card,but it can't work independently.
 
@@ -40,7 +40,7 @@ Result:
   ResultObject:
     LargeScope: AllOfEnemy
     ParameterToShrinkScope: Tag
-    Logic: -3
+    Logic: 0
     Threshold: 凉宫春日希望的
   ParameterToChange: Team
   ChangeMethod: ChangeTo

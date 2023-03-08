@@ -151,7 +151,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             dropdownButton.interactable = true;
             dropdown.ClearOptions();
           if(optionDatas != null)   dropdown.AddOptions(optionDatas);
-            dropdown.RefreshShownValue();
+           dropdown.RefreshShownValue();
             if (all) allOptionDatas = optionDatas;
         }
 
