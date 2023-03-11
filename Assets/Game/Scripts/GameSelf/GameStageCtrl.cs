@@ -33,6 +33,8 @@ public class GameStageCtrl : MonoBehaviour
     /// </summary>
     bool forceToStop = false;
 
+    public TestMode testMode;
+
     private void Awake()
     {
         stageCtrl = this;
@@ -133,7 +135,7 @@ public class GameStageCtrl : MonoBehaviour
             if (!card.cardStateInGame.thisRoundHasActiviated)
             {
                 //但是，如果这个牌 在同一方 比起刚刚已经打过的卡牌的序号要小（即在左侧多了个牌），跳过去，并认为他打了
-                if(GameState.whichCardPerforming[teamId] >= card.cardStateInGame.cardId)
+                if(GameState.whichCardPerforming[teamId] > card.cardStateInGame.cardId)
                 {
                     card.cardStateInGame.thisRoundHasActiviated = true;
                     continue;
@@ -141,6 +143,11 @@ public class GameStageCtrl : MonoBehaviour
 
                 //记录一下，现在是这个牌在打
                 GameState.whichCardPerforming[teamId] = i;
+
+                if(testMode != null)
+                {
+                    testMode.RoundLoggerManager($"team:{teamId}的“{GetCardPanelOnSpot(teamId,i).Profile.FriendlyCardName}”(排序:{i})正在活动");
+                }
 
                 //执行卡牌这一回合该做的事情              
 
@@ -188,6 +195,10 @@ public class GameStageCtrl : MonoBehaviour
 
     #endregion
 
+
+    #region 卡牌调整逻辑
+
+
     /// <summary>
     /// 将某一卡牌上场，并在舞台上显示（正式游戏中要求提前加载好所需的资源）
     /// </summary>
@@ -205,30 +216,9 @@ public class GameStageCtrl : MonoBehaviour
         //这个对外显示
         CardPanel panel = null;
 
-        //还没超过上限的话
+        //还没超过上限的话 //以后要解除上线
         if (GetCardCount(teamId) < Information.TeamMaxCardOnSpotCount)
         {
-            //先看看缓存里有没有
-            var allInCache = GetAllCardPanelsInCache();
-
-            foreach (var item in allInCache )
-            {
-
-                //有的话，就用这个panel了
-                if (item.cardStateInGame.profile.Equals(profile))
-                {
-                    Debug.Log($"缓存命中：卡牌“{item.cardStateInGame.profile.FriendlyCardName}”");
-                    //要把这个卡牌对外显示了
-                    panel = item;
-                    //并将这个卡从缓存里拿出来
-                    panel.transform.parent = TeamParent(teamId);     
-                    //数据回复
-                    panel.cardStateInGame.Recover();
-                    break;
-                }
-            }
-
-            //如果缓存里没有的话，就按部就班的生成此卡牌
             if(panel == null)
             {
                 //新建一个卡面
@@ -256,12 +246,16 @@ public class GameStageCtrl : MonoBehaviour
 
             //进入到游戏模式中
             panel.EnterGameMode();
+            //赋予teamId
+            panel.cardStateInGame.teamId = teamId;
             //整理场上的卡牌排序
             ArrangeTeamCardOnSpot(teamId);
             //修改物体名称
             panel.gameObject.name = $"{panel.cardStateInGame.profile.CardName}";
+
             return panel;
         }
+
         else return null;
     }
 
@@ -378,12 +372,13 @@ public class GameStageCtrl : MonoBehaviour
     public void RecycleCardOnSpot(int teamId, int index, bool autoArrange = true)
     {
         //将此卡牌移到缓存中，并将其隐藏（父对象is disactive）
-        GetCardTransformOnSpot(teamId, index).parent = CardCache;
+       GetCardTransformOnSpot(teamId, index).parent = CardCache;
+        Destroy(GetCardTransformOnSpot(teamId, index).gameObject);
         //消除游戏记录
         GameState.CardOnSpot[teamId].RemoveAt(index);
         if (autoArrange) ArrangeTeamCardOnSpot(teamId);
     }
-
+    #endregion
 
     #region 获取卡片
 
@@ -442,9 +437,6 @@ public class GameStageCtrl : MonoBehaviour
     public CardPanel[] GetAllCardPanelsInCache() => CardCache.GetComponentsInChildren<CardPanel>();
 
 
-    #endregion
-
-
 
     /// <summary>
     /// 获取场上的所有卡牌
@@ -476,6 +468,45 @@ public class GameStageCtrl : MonoBehaviour
     {
         return GameState.CardOnSpot[teamId].Count;
     }
+    #endregion
+
+    #region 信息输出与输入
+    /// <summary>
+    /// 展示能力的一些新信息（格式弄好了）
+    /// </summary>
+   internal void ShowAbilityNews(string Subject, string Recepetors, string DoWhat)
+    {      
+
+        //如果开着测试模式
+        if(testMode != null)
+        {
+            string content = string.Empty;
+            if (string.IsNullOrEmpty(Subject))
+            {
+                throw new ArgumentException($"“{nameof(Subject)}”不能为 null 或空。", nameof(Subject));
+            }
+
+            if (string.IsNullOrEmpty(DoWhat))
+            {
+                throw new ArgumentException($"“{nameof(DoWhat)}”不能为 null 或空。", nameof(DoWhat));
+            }
+
+            if (string.IsNullOrEmpty(Recepetors))
+            {
+                content = string.Format("{0} {1}", Subject, DoWhat);
+            }
+            else
+            {
+                content = string.Format("{0} 使 {1} {2}", Subject, Recepetors, DoWhat);
+            }
+
+            testMode.RoundLoggerManager(content);
+
+        }
+
+
+    }
+    #endregion
 
     /// <summary>
     /// 每一个卡牌点位分组的父对象（就是那个TeamA(Player))

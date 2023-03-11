@@ -48,7 +48,7 @@ namespace Maker
         string newImageFullPath { get; set; }
 
 
-        private void Start()
+        internal void Initialization()
         {
             //保存热键
             CardMaker.cardMaker.WantToSave.AddListener(UniTask.UnityAction(async () => { await SaveOrSaveTo(); }));

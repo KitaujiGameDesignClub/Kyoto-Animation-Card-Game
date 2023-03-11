@@ -1,0 +1,61 @@
+﻿# Only for 社团Battle！ with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+UUID: a3dc5f4b-1f7a-439a-89a4-76852794dc62
+CodeVersion: 1
+CardName: LeaderNozomi
+AuthorName: PureAmaya
+FriendlyCardName: 南中部长：伞木希美
+Anime: 吹响吧!上低音号
+tags:
+- 吹奏乐部
+- 学生，初中生
+- 乐器，长笛
+- 马尾
+- 元气
+- 下定决心
+- 市立南中学校
+CardCount: 2
+ImageName: cover.jpg
+CharacterName: 伞木希美
+CV: 东山奈央
+gender: 2
+allowAsChief: true
+BasicHealthPoint: 5
+BasicPower: 5
+AbilityActivityType: Debut
+Reason:
+  NeededObjects:
+    LargeScope: AllOnSpot
+    ParameterToShrinkScope: Tag
+    Logic: 0
+    Threshold: 吹奏乐
+  JudgeParameter: None
+  ReasonJudgeMethod: Value
+  Logic: 0
+  Threshold: ''
+Result:
+  RegardActivatorAsResultObject: false
+  ResultObject:
+    LargeScope: Self
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  ParameterToChange: Power
+  ChangeMethod: addition
+  Value: 5
+  SummonCardName: ''
+  Ridicule: 0
+  Silence: 0
+AbilityDescription: >+
+  <align="center"><size=80%><i>“到了高中后，一定要拿金奖！”
+
+  </i></size></align>
+
+  自身登场时，当场上存在吹奏乐卡牌，提高自身执行力5点。
+
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut
+voiceAbilityFileName: voiceAbility.mp3

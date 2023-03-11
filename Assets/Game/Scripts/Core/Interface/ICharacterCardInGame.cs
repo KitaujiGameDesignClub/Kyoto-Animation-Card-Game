@@ -27,20 +27,8 @@ namespace Core.Interface
         /// <param name="activator">是谁提高了我的攻击力</param>
         public void PowerUp(int value, CardPanel activator);
 
-        /// <summary>
-        /// 修改血量和攻击力
-        /// </summary>
-        /// <param name="changeHealth">要修改生命值吗</param>
-        /// <param name="value1">正数:减血</param>
-        /// <param name="changePower">要修改攻击力吗</param>
-        /// <param name="value2">正数：提高攻击力数值</param>
-        /// <param name="Activator">是谁触发了这个函数</param>
+        
         public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2, CardPanel Activator);
-
-        /// <summary>
-        /// 改变此卡状态
-        /// </summary>
-        public void ChangeState(Information.CardState cardState);
 
 
 

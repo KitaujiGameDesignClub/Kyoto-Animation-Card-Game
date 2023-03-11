@@ -24,21 +24,21 @@ BasicPower: 1
 AbilityActivityType: Round
 Reason:
   NeededObjects:
-    LargeScope: None
-    ParameterToShrinkScope: None
-    Logic: -3
-    Threshold: ''
+    LargeScope: AllInTeam
+    ParameterToShrinkScope: Tag
+    Logic: 0
+    Threshold: 乐器
   JudgeParameter: None
   ReasonJudgeMethod: Value
   Logic: -3
   Threshold: ''
 Result:
-  RegardActivatorAsResultObject: false
+  RegardActivatorAsResultObject: true
   ResultObject:
-    LargeScope: AllInTeam
-    ParameterToShrinkScope: Tag
-    Logic: 0
-    Threshold: 乐器
+    LargeScope: None
+    ParameterToShrinkScope: None
+    Logic: -3
+    Threshold: ''
   ParameterToChange: Power
   ChangeMethod: addition
   Value: 1

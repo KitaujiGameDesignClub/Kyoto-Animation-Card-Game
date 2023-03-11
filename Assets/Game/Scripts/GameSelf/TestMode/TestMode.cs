@@ -11,6 +11,8 @@ using KitaujiGameDesignClub.GameFramework.UI;
 using UnityEngine.Events;
 using System.IO;
 using Unity.VisualScripting;
+using System.Linq;
+using System.Text;
 
 public class TestMode : MonoBehaviour
 {
@@ -92,6 +94,7 @@ public class TestMode : MonoBehaviour
     public GameObject BattleEmulatorControlPart;
     public LeanToggle[] PauseModeSelector = new LeanToggle[4];
     public Button ContinueBattleButton;
+    [SerializeField] private TMP_Text roundLogger;
     public LeanButton StartBattleButton;
     public LeanButton RestartTestButton;
     public LeanButton CancelTestButton;
@@ -338,14 +341,22 @@ public class TestMode : MonoBehaviour
             } 
         });
 
-        //进入到控制部分
+        //进入到掐架控制部分
         GoToBattleFieldButton.onClick.AddListener(delegate
         {
-            BattleEmulatorControlPart.SetActive(true);
-            battleEmulatorToggle.gameObject.SetActive(false);
-            CardSelectorToggle.gameObject.SetActive(false);
-            voiceTestorToggle.gameObject.SetActive(false);
-            panel.gameObject.SetActive(false);
+            if(GameStageCtrl.stageCtrl.GetAllCardOnStage(0).Length > 0 && GameStageCtrl.stageCtrl.GetAllCardOnStage(1).Length > 0)
+            {
+                BattleEmulatorControlPart.SetActive(true);
+                battleEmulatorToggle.gameObject.SetActive(false);
+                CardSelectorToggle.gameObject.SetActive(false);
+                voiceTestorToggle.gameObject.SetActive(false);
+                panel.gameObject.SetActive(false);
+            }
+            else
+            {
+                Notify.notify.CreateBannerNotification(null, "场上卡牌数量不足，不能测试");
+            }
+           
         });
 
         //模拟开战
@@ -385,6 +396,12 @@ public class TestMode : MonoBehaviour
 
         //关闭输入遮罩
         GameUI.gameUI.SetBanInputLayer(false, "测试模式载入中...");
+    }
+
+    public void RoundLoggerManager(string news,bool clear = false)
+    {
+        if(clear) roundLogger.text = string.Empty;
+        else roundLogger.text = $"{roundLogger.text}\n <b>YUKI.N ></b> {news}";
     }
 
     [Obsolete("maybe useless")]

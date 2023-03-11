@@ -123,9 +123,10 @@ namespace Maker
             //加载游戏的事件
             OnGameLoad.Invoke();
 
-            //激活一下，运行Awake方法
-            ManifestEditorPlane.SetActive(true);
-            CardEditorPlane.SetActive(true);
+            //运行编辑器的初始化方法
+            cardEditor.Initialization();
+            bundleEditor.Initialization();
+
 
             //关闭修改信号
             changeSignal.SetActive(false);

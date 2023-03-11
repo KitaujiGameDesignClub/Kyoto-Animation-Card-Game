@@ -44,11 +44,6 @@ namespace Core
         public int actualHealthPoint;
 
         /// <summary>
-        /// 此卡状态
-        /// </summary>
-        public Information.CardState State;
-
-        /// <summary>
         /// 这一轮游戏这个卡牌已经干过活了
         /// </summary>
         public bool thisRoundHasActiviated = false;
@@ -77,21 +72,13 @@ namespace Core
         public CharacterInGame(CharacterCard characterCard)
         {
             profile = characterCard;
-            Recover();
-           // connectEnabled = false;
-        } 
-
-        /// <summary>
-        /// 作为一张新的卡牌，刷新所有的数据
-        /// </summary>
-        public void Recover()
-        {
             silence = 0;
             ridicule = 0;
             actualPower = profile.BasicPower;
             actualHealthPoint = profile.BasicHealthPoint;
-            State = Information.CardState.Present;
-        }
+        } 
+
+     
 
 
     }

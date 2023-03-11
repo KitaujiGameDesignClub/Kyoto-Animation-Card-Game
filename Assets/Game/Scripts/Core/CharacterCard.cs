@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 #if  UNITY_EDITOR
 using UnityEngine;
+using UnityEngine.UI;
 #endif
 
 
@@ -129,6 +130,13 @@ namespace Core
         {
             YamlDotNet.Serialization.Serializer serializer = new();
             return serializer.Serialize(this);
+        }
+
+
+
+        public bool Equals(CharacterCard characterCard)
+        {
+          return UUID == characterCard.UUID;
         }
     }
 }

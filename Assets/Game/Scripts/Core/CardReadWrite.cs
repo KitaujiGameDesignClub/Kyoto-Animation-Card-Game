@@ -313,7 +313,7 @@ namespace Core
 
                 if (loadedFromFileBrowser)
                 {
-                    YamlDotNet.Serialization.Deserializer deserializer = new();
+                    Deserializer deserializer = new();
                     card = deserializer.Deserialize<CharacterCard>(FileBrowserHelpers.ReadTextFromFile(cardFullPath));
                 }
                 else

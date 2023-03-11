@@ -802,7 +802,7 @@ namespace Core
             HealthPoint,
             Silence,
             Ridicule,
-            State,
+           // State,
             Coin,
 
         }
@@ -841,6 +841,11 @@ namespace Core
             /// 设定为某个值
             /// </summary>
             ChangeTo,
+
+            /// <summary>
+            /// 使用表达式
+            /// </summary>
+            expression,
 
         }
 
@@ -944,12 +949,6 @@ namespace Core
                     case Parameter.Ridicule:
                         return "剩余嘲讽回合数";
 
-                    case Parameter.Silence:
-                        return "剩余沉默回合数";
-
-                    case Parameter.State:
-                        return "卡牌状态";
-
                     case Parameter.Tag:
                         return "标签";
 
@@ -1037,32 +1036,14 @@ namespace Core
 
                     case CalculationMethod.ChangeTo:
                         return "数值变更";
+
+                    case CalculationMethod.expression:
+                        return "[还没完成的功能]";
                 }
             }
 
             #endregion
 
-            #region 卡牌状态
-
-            else if (type == typeof(CardState))
-            {
-                switch (abilityEnum)
-                {
-                    case CardState.Available:
-                        return "可招募";
-
-                    case CardState.Chief:
-                        return "担任部长";
-
-                    case CardState.Hand:
-                        return "待出场";
-
-                    case CardState.Present:
-                        return "已登场";
-                }
-            }
-
-            #endregion
 
             return string.Empty;
 
@@ -1166,36 +1147,13 @@ namespace Core
 
         #endregion
 
-        /// <summary>
-        /// 角色卡状态
-        /// </summary>
-        public enum CardState
-        {
-            /// <summary>
-            /// 在可招募卡牌中出现
-            /// </summary>
-            Available,
-
-            /// <summary>
-            /// 是手牌
-            /// </summary>
-            Hand,
-
-            /// <summary>
-            /// 登场出战
-            /// </summary>
-            Present,
-
-            /// <summary>
-            /// 部长位
-            /// </summary>
-            Chief,
-        }
-
-
+   
 
 
     }
+
+
+
 
     public class Bundle
     {

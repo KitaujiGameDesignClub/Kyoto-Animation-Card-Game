@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Core;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Triggers;
 using KitaujiGameDesignClub.GameFramework.UI;
 using Lean.Gui;
 using SimpleFileBrowser;
@@ -102,19 +103,18 @@ namespace Maker
         /// </summary>
         private string newImageFullPath = string.Empty;
 
-        private void Awake()
+        internal void Initialization()
         {
-
             #region 能力编辑初始化（不可变下拉栏初始化)
-            var allOption =new List<string>();
+            var allOption = new List<string>();
 
             abilityReasonType.ClearOptions();
             var length = Enum.GetNames(typeof(Information.CardAbilityTypes)).Length;
             for (int i = 0; i < length; i++)
             {
-               allOption.Add(Information.AbilityChineseIntroduction((Information.CardAbilityTypes)i));
+                allOption.Add(Information.AbilityChineseIntroduction((Information.CardAbilityTypes)i));
 
-        }
+            }
             abilityReasonType.AddOptions(allOption);
             allOption.Clear();
 
@@ -168,7 +168,7 @@ namespace Maker
             allOption.Clear();
 
             abilityReasonJudgeMethod.ClearOptions();
-           length = Enum.GetNames(typeof(Information.JudgeMethod)).Length;
+            length = Enum.GetNames(typeof(Information.JudgeMethod)).Length;
             for (int i = 0; i < length; i++)
             {
                 allOption.Add(Information.AbilityChineseIntroduction((Information.JudgeMethod)i));
@@ -180,47 +180,58 @@ namespace Maker
             basicHp.contentType = TMP_InputField.ContentType.IntegerNumber;
             basicPower.contentType = TMP_InputField.ContentType.IntegerNumber;
 
-        
-        }
+            #region 事件注册
 
-        private void Start()
-        {
-               #region 事件注册
-               
+            //启用“将触发效果的卡牌作为对象卡牌”，则自动禁用一些东西（默认是off，所以没啥问题）
+            abilityReasonObjectAsTarget.OnOn.AddListener(delegate ()
+            {
+                abilityResultLargeScope.interactable = false;
+                abilityResultParameter.interactable = false;
+                abilityResultLogic.interactable = false;
+                abilityResultThreshold.interactable = false;
+            });
+            abilityReasonObjectAsTarget.OnOff.AddListener(delegate ()
+            {
+                abilityResultLargeScope.interactable = true;
+                abilityResultParameter.interactable = true;
+                abilityResultLogic.interactable = true;
+                abilityResultThreshold.interactable = true;
+            });
+
             //保存热键
-            CardMaker.cardMaker.WantToSave.AddListener(UniTask.UnityAction(async () => {await SaveOrSaveTo();}));
-            
+            CardMaker.cardMaker.WantToSave.AddListener(UniTask.UnityAction(async () => { await SaveOrSaveTo(); }));
+
             //删除卡牌
             DeleteButton.onClick.AddListener(delegate
             {
 
-                    Notify.notify.CreateStrongNotification(null, null, "确认删除？",
-                        $"此过程不可撤销。\n要删除“{friendlyNameField.text}”吗？", UniTask.UnityAction(
-                            async () =>
-                            {
-                                CardMaker.cardMaker.BanInputLayer(true, "删除中...");
-                                //先删除
-                                Debug.Log(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath);
-                                File.Delete(Path.Combine("file://",CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath));
+                Notify.notify.CreateStrongNotification(null, null, "确认删除？",
+                    $"此过程不可撤销。\n要删除“{friendlyNameField.text}”吗？", UniTask.UnityAction(
+                        async () =>
+                        {
+                            CardMaker.cardMaker.BanInputLayer(true, "删除中...");
+                            //先删除
+                            Debug.Log(CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath);
+                            File.Delete(Path.Combine("file://", CardMaker.cardMaker.nowEditingBundle.loadedCardFullPath));
 
-                                Notify.notify.CreateBannerNotification(null, "删除成功", 0.7f);
-                                
-                                //关闭修改标记
-                                CardMaker.cardMaker.changeSignal.SetActive(false);
-                                
-                                //移出缓存的卡牌记录
-                                CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Remove(nowEditingCard
-                                    .FriendlyCardName);
-                                CardMaker.cardMaker.nowEditingBundle.allCardName.Remove(nowEditingCard.CardName);
-                                
-                                //然后切换
-                                switchToBundleEditor.OnClick.Invoke();
-                                
-                                
-                            }), "确认删除", delegate { }, "再想想");
+                            Notify.notify.CreateBannerNotification(null, "删除成功", 0.7f);
+
+                            //关闭修改标记
+                            CardMaker.cardMaker.changeSignal.SetActive(false);
+
+                            //移出缓存的卡牌记录
+                            CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Remove(nowEditingCard
+                                .FriendlyCardName);
+                            CardMaker.cardMaker.nowEditingBundle.allCardName.Remove(nowEditingCard.CardName);
+
+                            //然后切换
+                            switchToBundleEditor.OnClick.Invoke();
+
+
+                        }), "确认删除", delegate { }, "再想想");
 
             });
-            
+
             //返回标题
             returnToTPanel.OnClick.AddListener(delegate
             {
@@ -236,10 +247,10 @@ namespace Maker
             switchToBundleEditor.OnClick.AddListener(delegate
             {
                 CardMaker.cardMaker.SwitchPanel(UniTask.Action(async () =>
-                    {
-                        //检查保存（仅限在这个事件中）
-                        await SaveOrSaveTo();
-                    }),
+                {
+                    //检查保存（仅限在这个事件中）
+                    await SaveOrSaveTo();
+                }),
                     UniTask.Action(async () =>
                     {
                         //切换界面
@@ -249,37 +260,37 @@ namespace Maker
                         gameObject.SetActive(false);
                     }));
             });
-            
+
             //开关音频编辑界面
             voiceEditButton.OnClick.AddListener(delegate { voiceEditor.SetActive(!voiceEditor.activeSelf); });
 
             //开关能力编辑界面
             abilityDescriptionButton.OnClick.AddListener(delegate { abilityDescriptionEditor.SetActive(!abilityDescriptionEditor.activeSelf); });
-            
+
             //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
-            abilityReasonJudgeParameter.onValueChanged.AddListener(delegate(int arg0)
+            abilityReasonJudgeParameter.onValueChanged.AddListener(delegate (int arg0)
             {
                 inputFieldHelperContent(abilityReasonJudgeThreshold, arg0);
             });
             //当“修范围数”变化时，同步更新“范围阈值”的辅助下拉框内容
-            abilityReasonParameter.onValueChanged.AddListener(delegate(int arg0)
+            abilityReasonParameter.onValueChanged.AddListener(delegate (int arg0)
             {
                 inputFieldHelperContent(abilityReasonThreshold, arg0);
             });
             //当“修改参数”变化时，同步更新“值”的辅助下拉框内容
-            abilityResultParameterToChange.onValueChanged.AddListener(delegate(int arg0)
+            abilityResultParameterToChange.onValueChanged.AddListener(delegate (int arg0)
             {
                 inputFieldHelperContent(abilityResultChangeValue, arg0);
             });
             //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
-            abilityResultParameter.onValueChanged.AddListener(delegate(int arg0)
+            abilityResultParameter.onValueChanged.AddListener(delegate (int arg0)
             {
                 inputFieldHelperContent(abilityResultThreshold, arg0);
             });
-            
+
 
             //ability描述点击 清楚内容 按钮，成品预览那边同步更新
-            abilityDescription.onValueChanged.AddListener(delegate(string arg0)
+            abilityDescription.onValueChanged.AddListener(delegate (string arg0)
             {
                 var text = arg0.Replace("<rb>", "<color=red><b>");
                 text = text.Replace("<g>", "<#00FF25>");
@@ -304,6 +315,7 @@ namespace Maker
             voiceAbility.VoiceName = nameof(voiceAbility);
             voiceDebut.VoiceName = nameof(voiceDebut);
         }
+
 
 
         public async UniTask OpenCardEditor()
@@ -373,7 +385,6 @@ namespace Maker
             abilityResultRidicule.SetTextWithoutNotify(nowEditingCard.Result.Ridicule.ToString());
             abilityResultSilence.SetTextWithoutNotify(nowEditingCard.Result.Silence.ToString());
             abilityDescription.text = nowEditingCard.AbilityDescription;//这个必须通知onValueChanged，以便让预览更新
-            Debug.Log(abilityReasonType.captionText.text);
          
             //tag也同步一下
             //移出所有无用(残留）的tag对象
@@ -702,18 +713,7 @@ namespace Maker
                     inputFieldWithDropdown.ban = tagField.ban;
                     break;
 
-                //state
-                case (int)Information.Parameter.State:
-                    inputFieldWithDropdown.ClearOptions();
-                    var length = Enum.GetNames(typeof(Information.CardState)).Length;
-                    for (int i = 0; i < length; i++)
-                    {
-                        inputFieldWithDropdown.options.Add(
-                            new TMP_Dropdown.OptionData(
-                                Information.AbilityChineseIntroduction((Information.CardState)i)));
-                    }
-                    break;
-
+           
                 //cv
                 case (int)Information.Parameter.CV:
                     inputFieldWithDropdown.ChangeOptionDatas(CVField.options);
