@@ -45,7 +45,7 @@ public class GameStageCtrl : MonoBehaviour
     /// <summary>
     /// 初始化社团之间的战场
     /// </summary>
-    void InitializeClubBattleField()
+    public void InitializeGame()
     {
         //初始化一个新游戏
         GameState.CreateNewGame();
@@ -58,6 +58,21 @@ public class GameStageCtrl : MonoBehaviour
     /// <returns></returns>
    public  async UniTask BattleSystem(Information.PauseModeOfBattle pauseModeOfBattle,Action battleEnd)
     {
+        //就要打架了，让场上所有的卡牌执行“登场”函数
+        if(GameState.gameState != Information.GameState.Competition)
+        {
+            var allCards = GetAllCardOnStage(0);
+            foreach (var item in allCards)
+            {
+                await item.OnDebut();
+            }
+            allCards = GetAllCardOnStage(1);
+            foreach (var item in allCards)
+            {
+                await item.OnDebut();
+            }
+        }
+
         //调整游戏状态为“在打架”
         GameState.gameState = Information.GameState.Competition;
 
@@ -97,7 +112,6 @@ public class GameStageCtrl : MonoBehaviour
                     //如果要强制停止(或者有一方没牌了），就这样退出游戏循环
                     if (forceToStop || GameState.CardOnSpot[0].Count == 0 || GameState.CardOnSpot[1].Count == 0) break;
                     await UniTask.Delay(10);
-                    Debug.Log($"打 {GameState.CardOnSpot[0].Count}  {GameState.CardOnSpot[1].Count}");
                 }
                 break;
         }
@@ -132,12 +146,12 @@ public class GameStageCtrl : MonoBehaviour
             var card = GetCardPanelOnSpot(teamId, i);
 
             //如果找到了一个这一回合还没打的卡牌的话，让他打，并终止for
-            if (!card.cardStateInGame.thisRoundHasActiviated)
+            if (!card.thisRoundHasActiviated)
             {
                 //但是，如果这个牌 在同一方 比起刚刚已经打过的卡牌的序号要小（即在左侧多了个牌），跳过去，并认为他打了
-                if(GameState.whichCardPerforming[teamId] > card.cardStateInGame.cardId)
+                if(GameState.whichCardPerforming[teamId] > card.cardId)
                 {
-                    card.cardStateInGame.thisRoundHasActiviated = true;
+                    card.thisRoundHasActiviated = true;
                     continue;
                 }
 
@@ -152,28 +166,28 @@ public class GameStageCtrl : MonoBehaviour
                 //执行卡牌这一回合该做的事情              
 
                 //没有沉默，正常打架
-                if (card.cardStateInGame.silence <= 0)
+                if (card.silence <= 0)
                 {
                     //沉默回合数<0，＋1
-                    if(card.cardStateInGame.silence < 0)  card.cardStateInGame.silence++;
+                    if(card.silence < 0)  card.silence++;
                     //执行每回合都执行的攻击逻辑
                    await card.Attack(GetCardPanelOnSpot(teamId == 0? 1:0,UnityEngine.Random.Range(0,GameState.CardOnSpot[teamId == 0 ? 1 : 0].Count)));
                 }
                 //沉默了的，不打架了
                 else
                 {
-                    card.cardStateInGame.silence--;
+                    card.silence--;
                 }
 
                     //记录一下，这个牌打过了
-                    card.cardStateInGame.thisRoundHasActiviated = true;
+                    card.thisRoundHasActiviated = true;
 
                 //如果最右侧的卡打完了（打架逻辑在上面，则重置这一方所有的卡
                 if (i == GameState.CardOnSpot[teamId].Count - 1)
                 {
                     foreach (var item in GameState.CardOnSpot[teamId])
                     {
-                        item.cardStateInGame.thisRoundHasActiviated = false;
+                        item.thisRoundHasActiviated = false;
                     }
                     GameState.whichCardPerforming[teamId] = 0;
                 }
@@ -202,7 +216,7 @@ public class GameStageCtrl : MonoBehaviour
     /// <summary>
     /// 将某一卡牌上场，并在舞台上显示（正式游戏中要求提前加载好所需的资源）
     /// </summary>
-    /// <param name="profile">卡牌配置</param>
+    /// <param name="Profile">卡牌配置</param>
     /// <param name="teamId"></param>
     /// <param name="coverImage"></param>
     /// <param name="Debut"></param>
@@ -211,7 +225,7 @@ public class GameStageCtrl : MonoBehaviour
     /// <param name="Exit"></param>
     /// <param name="index">放置位置。-1则为最后一个卡，0则放在第一个，1放在第二个，以此类推，最大5</param>
     /// <returns></returns>
-    public CardPanel AddCardAndDisplayInStage(CharacterCard profile, int teamId, Sprite coverImage, AudioClip Debut, AudioClip ability, AudioClip Defeat, AudioClip Exit,int index = -1)
+    public CardPanel AddCardAndDisplayInStage(CharacterCard Profile, int teamId, Sprite coverImage, AudioClip Debut, AudioClip ability, AudioClip Defeat, AudioClip Exit,int index = -1)
     {
         //这个对外显示
         CardPanel panel = null;
@@ -224,17 +238,13 @@ public class GameStageCtrl : MonoBehaviour
                 //新建一个卡面
                 panel = Instantiate(cardPrefeb, Vector2.zero, Quaternion.identity, TeamParent(teamId));
 
-                //信息填充
-                panel.cardStateInGame = new CharacterInGame(profile)
-                {
-                    //资源填充
-                    voiceAbility = ability,
-                    voiceExit = Exit,
-                    voiceDefeat = Defeat,
-                    voiceDebut = Debut,
-                    //如果不提供图片，则用此预设的默认图片（在panel的EnterGameMode中执行）
-                    CoverImage = coverImage
-                };               
+                //资源填充
+                panel.voiceAbility = ability;
+                panel.voiceExit = Exit;
+                panel.voiceDefeat = Defeat;
+                panel.voiceDebut = Debut;
+                //如果不提供图片，则用此预设的默认图片（在panel的EnterGameMode中执行）
+                panel.CoverImage = coverImage;     
             }
 
             //层级视图中的上下关系修正
@@ -247,11 +257,11 @@ public class GameStageCtrl : MonoBehaviour
             //进入到游戏模式中
             panel.EnterGameMode();
             //赋予teamId
-            panel.cardStateInGame.teamId = teamId;
+            panel.teamId = teamId;
             //整理场上的卡牌排序
             ArrangeTeamCardOnSpot(teamId);
             //修改物体名称
-            panel.gameObject.name = $"{panel.cardStateInGame.profile.CardName}";
+            panel.gameObject.name = $"{panel.Profile.CardName}";
 
             return panel;
         }
@@ -315,7 +325,7 @@ public class GameStageCtrl : MonoBehaviour
                 }
 
                 //赋予cardId
-                GameState.CardOnSpot[teamId][i - 6].cardStateInGame.cardId = i - 6;
+                GameState.CardOnSpot[teamId][i - 6].cardId = i - 6;
             }
             //没被激活的话，还是报错吧，这里不应该有没被激活的
             else
@@ -493,11 +503,11 @@ public class GameStageCtrl : MonoBehaviour
 
             if (string.IsNullOrEmpty(Recepetors))
             {
-                content = string.Format("{0} {1}", Subject, DoWhat);
+                content = string.Format("“{0}” {1}", Subject, DoWhat);
             }
             else
             {
-                content = string.Format("{0} 使 {1} {2}", Subject, Recepetors, DoWhat);
+                content = string.Format("“{0}” 使 “{1}” {2}", Subject, Recepetors, DoWhat);
             }
 
             testMode.RoundLoggerManager(content);

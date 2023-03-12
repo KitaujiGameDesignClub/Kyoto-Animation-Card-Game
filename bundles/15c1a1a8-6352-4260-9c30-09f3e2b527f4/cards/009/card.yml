@@ -1,0 +1,52 @@
+﻿# Only for 社团Battle！ with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+UUID: a987f320-8647-4217-8b0b-cf67e3975270
+CodeVersion: 1
+CardName: 009
+AuthorName: 一宏妹妹
+FriendlyCardName: 小鸟游六花
+Anime: 中二病也要谈恋爱！
+tags:
+- 极东魔术昼寝结社之夏
+- 中二
+CardCount: 4
+ImageName: cover.png
+CharacterName: 小鸟游六花
+CV: 内田真礼
+gender: 2
+allowAsChief: false
+BasicHealthPoint: 5
+BasicPower: 5
+AbilityActivityType: Debut
+Reason:
+  NeededObjects:
+    LargeScope: Any
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  JudgeParameter: None
+  ReasonJudgeMethod: Value
+  Logic: 0
+  Threshold: ''
+Result:
+  RegardActivatorAsResultObject: false
+  ResultObject:
+    LargeScope: RandomOfEnemy
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  ParameterToChange: HealthPoint
+  ChangeMethod: addition
+  Value: -5
+  SummonCardName: ''
+  Ridicule: 0
+  Silence: 0
+AbilityDescription: >-
+  <b><i>邪王真眼是最强的！</i></b>
+      中二病少女如是说
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut
+voiceAbilityFileName: voiceAbility

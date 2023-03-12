@@ -1,0 +1,49 @@
+﻿# Only for 社团Battle！ with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+UUID: ac1a76c9-6440-401f-bada-7dc0e2f43ed9
+CodeVersion: 1
+CardName: Polovetskieplyaski
+AuthorName: PureAmaya
+FriendlyCardName: 吹奏乐：韃靼人舞曲
+Anime: 吹响吧!上低音号
+tags:
+- 亚历山大·鲍罗丁
+- 吹奏乐
+CardCount: 3
+ImageName: cover.jpg
+CharacterName: 通用卡牌
+CV: 不设置声优
+gender: 0
+allowAsChief: false
+BasicHealthPoint: 5
+BasicPower: 0
+AbilityActivityType: None
+Reason:
+  NeededObjects: &o0
+    LargeScope: None
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  JudgeParameter: None
+  ReasonJudgeMethod: Value
+  Logic: 0
+  Threshold: ''
+Result:
+  RegardActivatorAsResultObject: false
+  ResultObject: *o0
+  ParameterToChange: None
+  ChangeMethod: addition
+  Value: ''
+  SummonCardName: ''
+  Ridicule: 0
+  Silence: 0
+AbilityDescription: >-
+  甚至可以写一点简短的小骚话
+
+  我很好奇能力是什么
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut
+voiceAbilityFileName: voiceAbility

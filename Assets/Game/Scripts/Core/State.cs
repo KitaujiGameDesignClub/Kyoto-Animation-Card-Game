@@ -57,11 +57,8 @@ namespace Core
             whichTeamIsAttacking = -1;
             whichCardPerforming[0] = 0; whichCardPerforming[1] = 0;
             chiefs = new Chief[2];
+            gameState = Information.GameState.Preparation;
         }
-
-      
-
-
     }
 }
 

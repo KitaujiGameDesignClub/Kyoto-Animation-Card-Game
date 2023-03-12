@@ -31,19 +31,20 @@ namespace Maker
         /// </summary>
         public Sprite bundlePathIco;
 
-
+        
         [Header("界面切换")] public GameObject title;
-        [FormerlySerializedAs("InternalPanel")][FormerlySerializedAs("EditPanel")][Header("编辑与创建")] public GameObject EditAndCreatePanel;
-        [FormerlySerializedAs("ExternalPanel")][Header("导入与导出")] public GameObject ExportAndImportPanel;
+        [FormerlySerializedAs("InternalPanel")][FormerlySerializedAs("EditPanel")] public GameObject EditAndCreatePanel;
+        [FormerlySerializedAs("ExternalPanel")] public GameObject ExportAndImportPanel;
 
-        //两个编辑器
+        //两个编辑器  
         [FormerlySerializedAs("ManifestEditor")]
         public GameObject ManifestEditorPlane;
+        public GameObject BundleProductPreview;
 
         [FormerlySerializedAs("CardEditor")] public GameObject CardEditorPlane;
         public BundleEditor bundleEditor;
         public CardEditor cardEditor;
-
+        public GameObject CardProductPreview;
 
         //编辑创建用
         [FormerlySerializedAs("allAvailableBundles")]
@@ -324,11 +325,11 @@ namespace Maker
 
 
 
-
+                    Debug.Log(banInput.activeSelf);
 #if UNITY_STANDALONE || UNITY_EDITOR
 
                     var rawSavePathNoExtension =
-                        $"{FileBrowser.Result[0]}/{CommonTools.CleanInvalid(allAvailableBundlesDropdownToExport.captionText.text)}";
+                        $"{FileBrowser.Result[0]}{CommonTools.CleanInvalid(allAvailableBundlesDropdownToExport.captionText.text)}";
                     //不断循环，在文件名后面加数字，直到不重名为止
                     var savePathNoRepeat = rawSavePathNoExtension;
 
@@ -348,11 +349,12 @@ namespace Maker
                         }
                     }
 
-
+                    Debug.Log(banInput.activeSelf);
+                    UnityEditor.EditorApplication.isPaused = true;
                     Notify.notify.CreateBannerNotification(null,
-                        $"“{allAvailableBundlesDropdownToExport.captionText.text}”导出成功：{FileBrowserHelpers.GetFilename(savePathNoRepeat)}.zip");
+                        $"“{allAvailableBundlesDropdownToExport.captionText.text}”卡组导出成功\n{savePathNoRepeat}.zip");
 
-
+                    Debug.Log(banInput.activeSelf);
 #elif UNITY_ANDROID && !UNITY_EDITOR
 
 
@@ -699,6 +701,9 @@ namespace Maker
             //调整开关
             banInput.SetActive(enable);
             saveStatus.text = textContent;
+            //关闭or启用成品预览
+            BundleProductPreview.SetActive(!enable);
+            CardProductPreview.SetActive(!enable);
         }
 
         private async UniTask RefreshAllLoadedBundle()

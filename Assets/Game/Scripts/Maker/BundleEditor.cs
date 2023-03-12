@@ -181,7 +181,7 @@ namespace Maker
             }
             else
             {
-                CardMaker.cardMaker.Export();
+               CardMaker.cardMaker.outputButton.OnClick.Invoke();
             }
         }
 
@@ -325,12 +325,12 @@ namespace Maker
             if (FileBrowser.Success)
             {
                 //加载图片
-                await ManifestLoadImageAsync(CardReadWrite.FixedPathDueToSAF(FileBrowser.Result[0]));
+                await ManifestLoadImageAsync(CardReadWrite.FixedLoadedPathDueToSAF(FileBrowser.Result[0]));
 
                 //显示已修改的印记
                 CardMaker.cardMaker.changeSignal.SetActive(true);
                 //更新新的图片全路径，用于保存
-                newImageFullPath = CardReadWrite.FixedPathDueToSAF(FileBrowser.Result[0]);
+                newImageFullPath = CardReadWrite.FixedLoadedPathDueToSAF(FileBrowser.Result[0]);
             }
         }
 

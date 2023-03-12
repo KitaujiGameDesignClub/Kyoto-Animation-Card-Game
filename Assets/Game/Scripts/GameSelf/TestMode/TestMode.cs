@@ -212,6 +212,10 @@ public class TestMode : MonoBehaviour
         //选定的卡组信息同步
         BundleList.onDropdownValueChangedWithoutInt.AddListener(delegate
         {
+
+            //选定另一个卡组时，清空卡牌选择栏
+            selectedCardId = -1;
+
             //allBundles[selectedBundleId]：所选卡组
 
             //获取所选bundle的序号
@@ -255,6 +259,7 @@ public class TestMode : MonoBehaviour
             UpdateSelectorCardInformation(allBundles[selectedBundleId].cards[selectedCardId]);
             CardInformationDisplay.SetActive(true);
         });
+
 
         //确认此卡牌上场，并添加加载资源的事件
         CardSelectorConfirmButton.OnClick.AddListener(delegate

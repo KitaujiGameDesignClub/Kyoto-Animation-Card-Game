@@ -26,6 +26,11 @@ namespace Core
         {
             //先创建一个文件，以便知到在那里保存
             var fullPath = FileBrowserHelpers.CreateFileInDirectory(directoryName, $"{fileName}");
+
+#if UNITY_EDITOR || UNITY_STANDALONE
+            //android甚至不用删除，或者说不能删除。。
+            File.Delete(fullPath);
+#endif
             FileBrowserHelpers.CopyFile($"{YamlReadWrite.UnityButNotAssets}/saves/{fileName}", fullPath);
         }
 
@@ -154,54 +159,53 @@ namespace Core
         public static void ImportBundleZip(string zipFullPath)
         {
             //saf修正（顺便直接复制到resCache里了）
-          zipFullPath = FixedPathDueToSAF(zipFullPath);
-          
-          //检测是不是符合要求的
-          ZipArchive zipArchive = ZipFile.OpenRead(zipFullPath);
-          //获取Manifest文件
-          ZipArchiveEntry manifestEntry = zipArchive.GetEntry(Information.ManifestFileName);
-          //确实存在这么个文件
-          if (manifestEntry != null)
-          {
-              //读一下试试
-              StreamReader streamReader = new StreamReader(manifestEntry.Open());
-              var content = streamReader.ReadToEnd();
-              streamReader.Close();
-              streamReader.Dispose();
-              zipArchive.Dispose();
-              
-              //看看能不能加载出manifest来
-              Deserializer deserializer = new Deserializer();
-              try
-              {
-                  var manifest = (CardBundlesManifest)deserializer.Deserialize(content, typeof(CardBundlesManifest));
+            zipFullPath = FixedLoadedPathDueToSAF(zipFullPath);
 
-                  if (manifest != null)
-                  {
-                      if (!Directory.Exists($"{Information.bundlesPath}/{manifest.UUID}"))
-                      {
-                          //解压缩此压缩包到游戏目录
-                          ZipFile.ExtractToDirectory(zipFullPath, $"{Information.bundlesPath}/{manifest.UUID}", true);
-                          
-                          Notify.notify.CreateBannerNotification(null,$"“{FileBrowserHelpers.GetFilename(FileBrowser.Result[0])}”导入成功");
-                      }
-                      else
-                      {
-                          Notify.notify.CreateBannerNotification(null, $"“{manifest.FriendlyBundleName}”已存在");
-                      }
-                  }
-              }
-              catch (Exception e)
-              {
-                 Debug.LogError($"“{Path.GetFileName(zipFullPath)}”读取失败，可能不是合规的卡组");
-              }
-           
-              
-            
-          }
+            //检测是不是符合要求的
+            ZipArchive zipArchive = ZipFile.OpenRead(zipFullPath);
+            //获取Manifest文件
+            ZipArchiveEntry manifestEntry = zipArchive.GetEntry(Information.ManifestFileName);
+            //确实存在这么个文件
+            if (manifestEntry != null)
+            {
+                try
+                {
+                    //读一下试试
+                    StreamReader streamReader = new StreamReader(manifestEntry.Open());
+                    var content = streamReader.ReadToEnd();
+                    streamReader.Close();
+                    streamReader.Dispose();
+                    zipArchive.Dispose();
+
+                    //看看能不能加载出manifest来
+                    Deserializer deserializer = new Deserializer();
+
+                    var manifest = (CardBundlesManifest)deserializer.Deserialize(content, typeof(CardBundlesManifest));
+
+                    if (manifest != null)
+                    {
+                        if (!Directory.Exists($"{Information.bundlesPath}/{manifest.UUID}"))
+                        {
+                            //解压缩此压缩包到游戏目录
+                            ZipFile.ExtractToDirectory(zipFullPath, $"{Information.bundlesPath}/{manifest.UUID}", true);
+
+                            Notify.notify.CreateBannerNotification(null, $"“{FileBrowserHelpers.GetFilename(FileBrowser.Result[0])}”导入成功");
+                        }
+                        else
+                        {
+                            Notify.notify.CreateBannerNotification(null, $"“{manifest.FriendlyBundleName}”已存在");
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    Debug.LogError($"“{Path.GetFileName(zipFullPath)}”读取失败，可能不是合规的卡组");
+                }
+
+            }
 
         }
-        
+
         /// <summary>
         /// 导出卡组
         /// </summary>
@@ -209,14 +213,24 @@ namespace Core
         /// <param name="manifestFullPath"></param>
         public static void ExportBundleZip(string saveDirectoryPath,string fileNameWithExtension,string manifestFullPath)
         {
+            var tempZip = $"{Application.temporaryCachePath}/temp.zip";
+            //先检查缓存中是否存在这个
+            if(FileBrowserHelpers.FileExists(tempZip)) FileBrowserHelpers.DeleteFile(tempZip);
+
             //在缓存中创建好压缩包
-            ZipFile.CreateFromDirectory(Path.GetDirectoryName(manifestFullPath), $"{Application.temporaryCachePath}/temp.zip");
+            ZipFile.CreateFromDirectory(Path.GetDirectoryName(manifestFullPath),tempZip);
           
             //创建个文件，以便知道导出到哪里（SAF的格式太迷惑了）
           var fullPath = FileBrowserHelpers.CreateFileInDirectory(saveDirectoryPath, fileNameWithExtension);
-          
-          //然后移动过去
-          FileBrowserHelpers.MoveFile($"{Application.temporaryCachePath}/temp.zip",fullPath);
+
+#if UNITY_EDITOR || UNITY_STANDALONE
+            //android甚至不用删除，或者说不能删除。。
+            File.Delete(fullPath);
+#endif
+
+
+            //然后移动过去
+            FileBrowserHelpers.MoveFile($"{Application.temporaryCachePath}/temp.zip",fullPath);
         }
 
         /// <summary>
@@ -301,7 +315,7 @@ namespace Core
         }
 
 
-        #endregion
+#endregion
 
         #region 读取配置文件
         
@@ -468,7 +482,7 @@ namespace Core
             }
 
             //SAF修正
-            audioFullPath = $"file://{FixedPathDueToSAF(audioFullPath)}";
+            audioFullPath = $"file://{FixedLoadedPathDueToSAF(audioFullPath)}";
             
 
             DownloadHandlerAudioClip handler = null;
@@ -537,7 +551,7 @@ namespace Core
             }
             
             //saf修正
-            imageFullPath =$"file://{FixedPathDueToSAF(imageFullPath)}";
+            imageFullPath =$"file://{FixedLoadedPathDueToSAF(imageFullPath)}";
             
             var handler = new DownloadHandlerTexture();
             UnityWebRequest unityWebRequest = new(imageFullPath, "GET", handler, null);
@@ -581,18 +595,18 @@ namespace Core
         /// <summary>
         /// 修复SAF限制的不可读性。（SAF的话会将这个文件转存到缓存中）
         /// </summary>
-        /// <param name="readFileFullPathBySAF"></param>
+        /// <param name="readFileFullPathBySAF">选取文件的fullPath</param>
         /// <returns></returns>
-        public static string FixedPathDueToSAF(string readFileFullPathBySAF)
+        public static string FixedLoadedPathDueToSAF(string readFileFullPathBySAF)
         {
 
             if (readFileFullPathBySAF.Substring(0, 7) == "content")
             {
-                FileBrowserHelpers.CopyFile(readFileFullPathBySAF,
-                    $"{Application.temporaryCachePath}/{FileBrowserHelpers.GetFilename(readFileFullPathBySAF)}");
+                var temp = $"{Application.temporaryCachePath}/{FileBrowserHelpers.GetFilename(readFileFullPathBySAF)}";
 
-                return $"{Application.temporaryCachePath}/{FileBrowserHelpers.GetFilename(readFileFullPathBySAF)}";
-               
+                FileBrowserHelpers.CopyFile(readFileFullPathBySAF,temp);
+
+                return temp;
              
             }
            

@@ -484,11 +484,11 @@ namespace Maker
             if (FileBrowser.Success)
             {
                 //加载图片文件
-                await AsyncLoadImage(CardReadWrite.FixedPathDueToSAF(FileBrowser.Result[0]));
+                await AsyncLoadImage(CardReadWrite.FixedLoadedPathDueToSAF(FileBrowser.Result[0]));
                 //显示已修改的印记
                 CardMaker.cardMaker.changeSignal.SetActive(true);
                 //更新新的图片全路径
-                newImageFullPath = CardReadWrite.FixedPathDueToSAF(FileBrowser.Result[0]);
+                newImageFullPath = CardReadWrite.FixedLoadedPathDueToSAF(FileBrowser.Result[0]);
             }
         }
 
@@ -536,7 +536,7 @@ namespace Maker
 
             if (FileBrowser.Success)
             {
-                await AsyncLoadSelectedAudio(audioSetting, CardReadWrite.FixedPathDueToSAF(FileBrowser.Result[0]));
+                await AsyncLoadSelectedAudio(audioSetting, CardReadWrite.FixedLoadedPathDueToSAF(FileBrowser.Result[0]));
             }
         }
 
