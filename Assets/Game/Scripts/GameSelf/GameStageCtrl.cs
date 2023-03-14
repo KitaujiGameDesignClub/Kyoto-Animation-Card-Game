@@ -238,6 +238,8 @@ public class GameStageCtrl : MonoBehaviour
                 //新建一个卡面
                 panel = Instantiate(cardPrefeb, Vector2.zero, Quaternion.identity, TeamParent(teamId));
 
+                //信息填充
+                panel.Profile = Profile;
                 //资源填充
                 panel.voiceAbility = ability;
                 panel.voiceExit = Exit;

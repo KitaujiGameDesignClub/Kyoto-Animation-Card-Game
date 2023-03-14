@@ -215,6 +215,7 @@ public class TestMode : MonoBehaviour
 
             //选定另一个卡组时，清空卡牌选择栏
             selectedCardId = -1;
+            CardList.text = string.Empty;
 
             //allBundles[selectedBundleId]：所选卡组
 
@@ -361,7 +362,9 @@ public class TestMode : MonoBehaviour
             {
                 Notify.notify.CreateBannerNotification(null, "场上卡牌数量不足，不能测试");
             }
-           
+
+            //更新游戏状态
+            GameState.gameState = Information.GameState.Preparation;
         });
 
         //模拟开战

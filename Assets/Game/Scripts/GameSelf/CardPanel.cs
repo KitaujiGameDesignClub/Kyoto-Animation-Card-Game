@@ -16,69 +16,70 @@ using Random = System.Random;
 public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义行为（写代码）
 {
     [Header("游戏中状态")]
+    [HideInInspector] public CharacterInGame cardStateInGame;
     /// <summary>
     /// 此角色卡的配置文件
     /// </summary>
-    public CharacterCard Profile;
+    [HideInInspector]  public CharacterCard Profile;
     /// <summary>
     /// 是哪一个玩家的可用牌 0=A 1=B
     /// </summary>
-    public int teamId;
+    [HideInInspector] public int teamId;
     /// <summary>
     /// 这一组内第几个卡牌（从0开始）
     /// </summary>
-    public int cardId;
+    [HideInInspector] public int cardId;
     /// <summary>
     /// 沉默回合数 
     /// </summary>
-    public int silence = 0;
+    [HideInInspector] public int silence = 0;
     /// <summary>
     /// 嘲讽回合数
     /// </summary>
-    public int ridicule = 0;
+    [HideInInspector] public int ridicule = 0;
     /// <summary>
     /// 实际攻击力（各种影响攻击力的都对这个参数修改）
     /// </summary>
-    public int actualPower;
+    [HideInInspector] public int actualPower;
     /// <summary>
     /// 实际生命值（各种影响攻击力的都对这个参数修改）
     /// </summary>
-    public int actualHealthPoint;
+    [HideInInspector] public int actualHealthPoint;
     /// <summary>
     /// 这一轮游戏这个卡牌已经干过活了
     /// </summary>
-    public bool thisRoundHasActiviated = false;
+    [HideInInspector] public bool thisRoundHasActiviated = false;
 
     //之后的话，需要给资源建立一个缓存池，省的卡牌上场的时候卡顿
 
     /// <summary>
     /// 音效资源
     /// </summary>
-    public AudioClip voiceDebut;
-    public AudioClip voiceDefeat;
-    public AudioClip voiceExit;
-    public AudioClip voiceAbility;
+    [HideInInspector] public AudioClip voiceDebut;
+    [HideInInspector] public AudioClip voiceDefeat;
+    [HideInInspector] public AudioClip voiceExit;
+    [HideInInspector] public AudioClip voiceAbility;
     //图片资源
-    public Sprite CoverImage;
+    [HideInInspector] public Sprite CoverImage;
 
+    [Header("通用")]
+    public SpriteRenderer image;
 
     [Header("信息模式")]
     public TMP_Text cardName;
     public TMP_Text cv;
-    public TMP_Text description;
-    [Header("通用")]
-    public SpriteRenderer image;
+    public TMP_Text description;    
+    public GameObject[] infModeToDestroy;
+
     /// <summary>
     /// 所用卡牌在游戏中的状态
     /// </summary>
     [Header("游戏模式")]
-    public GameObject[] othersToDestroy;
-    public CharacterInGame cardStateInGame;
     public Transform tr;
     public TMP_Text powerValue;
     public TMP_Text hpValue;
-
-
+    public CardPanelInformation cardInformation;
+    public GameObject[] gameModeToDestroy;
 
 
     /// <summary>
@@ -94,8 +95,14 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         this.cv.text = cv == "不设置声优" ? string.Empty : $"cv:{cv}";
         this.description.text = description ?? throw new ArgumentNullException(nameof(description));
         this.image.sprite = image;
-        if (powerValue != null) Destroy(powerValue.gameObject);
-        if (hpValue != null) Destroy(hpValue.gameObject);
+        if (powerValue != null)
+        {
+            foreach (var item in infModeToDestroy)
+            {
+                DestroyImmediate(item);
+            }
+        }
+      
     }
 
     /// <summary>
@@ -108,6 +115,9 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         image.sprite = CoverImage == null ? image.sprite : CoverImage;
         image.sortingOrder = 0;//层级调整
         //初始化体力值与行动力
+        Debug.Log(Profile.AbilityActivityType);
+        actualPower = Profile.BasicPower;
+        actualHealthPoint = Profile.BasicHealthPoint;
         powerValue.text = actualPower.ToString();
         powerValue.gameObject.SetActive(true);
         hpValue.text = actualHealthPoint.ToString();
@@ -116,13 +126,9 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //销毁信息显示用的东西（这些东西游戏模式用不到）
         if (cardName.gameObject != null)
         {
-            DestroyImmediate(cardName.gameObject);
-            DestroyImmediate(cv.gameObject);
-            DestroyImmediate(description.gameObject);
-
-            foreach (var item in othersToDestroy)
+            foreach (var item in gameModeToDestroy)
             {
-                if (item != null) DestroyImmediate(item);
+                DestroyImmediate(item);
             }
         }
 
@@ -164,12 +170,21 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     {
 
         //更新数据
-        if (changePower) actualPower += value2;
+        if (changePower)
+        {
+            actualPower += value2;
+        }
         if (changeHealth)
         {
             actualHealthPoint -= value1;
             //告知自己挨打了
             OnHurt(Activator);
+            //显示被打的信息
+            //仅正数（扣血）时显示
+            if(value1 > 0)
+            {
+                cardInformation.Show($"HP - {value1}");
+            }
         }
         //更新显示
         powerValue.text = actualPower.ToString();
@@ -179,9 +194,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
     public async UniTask OnDebut()
     {
-
-        if(Profile.AbilityActivityType == Information.CardAbilityTypes.Debut)
-        {
+        if (Profile.AbilityActivityType == Information.CardAbilityTypes.Debut)
+        {         
           await  AbilityReasonAnalyze(null);
         }
 
@@ -193,7 +207,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         if (Profile.AbilityActivityType == Information.CardAbilityTypes.Round)
         {
             //分析一下该做什么，顺便触发能力
-            AbilityReasonAnalyze(null);
+            await AbilityReasonAnalyze(null);
            
         }
 
@@ -273,8 +287,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// </summary>
     async UniTask AbilityReasonAnalyze(CardPanel activator)
     {
-        //等10ms
-        await UniTask.Delay(10);
+        //等20ms
+        await UniTask.Delay(20);
 
         //确定条件对象们
         CardPanel[] ReasonObjects = null; //确定范围内的条件对象

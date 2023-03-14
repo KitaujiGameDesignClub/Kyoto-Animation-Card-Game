@@ -11489,7 +11489,7 @@ MonoBehaviour:
   - {fileID: 801481000}
   - {fileID: 1418646892}
   ContinueBattleButton: {fileID: 2109904557}
-  roundLogger: {fileID: 0}
+  roundLogger: {fileID: 977795363}
   StartBattleButton: {fileID: 535092906}
   RestartTestButton: {fileID: 1344474964}
   CancelTestButton: {fileID: 1660610600}
