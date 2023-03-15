@@ -73,8 +73,13 @@ public class GameStageCtrl : MonoBehaviour
             }
         }
 
+        await UniTask.Delay(500);
+
+        ShowAbilityNews($"{nameof(BattleSystem)}",null,"卡牌登场指令执行完成");
+
         //调整游戏状态为“在打架”
         GameState.gameState = Information.GameState.Competition;
+
 
         switch (pauseModeOfBattle)
         {
@@ -118,13 +123,8 @@ public class GameStageCtrl : MonoBehaviour
 
         //取消强制停止
         forceToStop = false;
-        //调整游戏状态为“准备”
-        GameState.gameState = Information.GameState.Preparation;
         //执行打架结束事件
         battleEnd.Invoke();
-
-
-
     }
 
 

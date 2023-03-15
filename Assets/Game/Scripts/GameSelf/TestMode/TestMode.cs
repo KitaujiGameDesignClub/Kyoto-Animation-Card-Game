@@ -117,7 +117,7 @@ public class TestMode : MonoBehaviour
         //面板初始化
         title.text = $"目前处于测试模式\nDevice:{SystemInfo.deviceType}  CPU:{SystemInfo.processorType}  OS:{SystemInfo.operatingSystem}  RAM:{SystemInfo.systemMemorySize}MiB  Screen:{Screen.currentResolution}";
         //初始化一个新游戏
-        GameState.CreateNewGame();
+        GameStageCtrl.stageCtrl.InitializeGame();
 
         panel.gameObject.SetActive(true);
 

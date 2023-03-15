@@ -42,6 +42,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 1ad139f2dade2b541a87b4311d975075, type: 3}
   - {fileID: 21300000, guid: 81d7b7561dbcf814d8532f388db439a7, type: 3}
   - {fileID: 21300000, guid: c31d082861e2c8c4c86b252cae2c7cd1, type: 3}
+  - {fileID: 21300000, guid: 7284d3d89d1fbe94f8c5ff86a64317b8, type: 3}
   - {fileID: 21300000, guid: 13f4fb9a50c721c4c924149b664c3386, type: 3}
   - {fileID: 21300000, guid: 330436eb16486824da567eba4115e1c0, type: 3}
   - {fileID: 21300000, guid: 6df48eec915a14a40ab0815347142d18, type: 3}
@@ -49,9 +50,10 @@ SpriteAtlas:
   - "\u559C\u591A\u90C1\u4EE3-bocchi-the-rock (1)"
   - right arrow
   - 640x500a0a0
+  - positiveInformaiton
   - enemy
   - button_white
-  - cardInformation
+  - negativeInformaiton
   m_RenderDataMap: {}
   m_Tag: Battle
   m_IsVariant: 0

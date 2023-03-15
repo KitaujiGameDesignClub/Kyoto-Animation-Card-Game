@@ -81,6 +81,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     public CardPanelInformation cardInformation;
     public GameObject[] gameModeToDestroy;
 
+    #region 信息填充
+
 
     /// <summary>
     /// 信息展示用（即不是游戏模式）
@@ -115,7 +117,6 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         image.sprite = CoverImage == null ? image.sprite : CoverImage;
         image.sortingOrder = 0;//层级调整
         //初始化体力值与行动力
-        Debug.Log(Profile.AbilityActivityType);
         actualPower = Profile.BasicPower;
         actualHealthPoint = Profile.BasicHealthPoint;
         powerValue.text = actualPower.ToString();
@@ -144,27 +145,33 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         image.transform.localPosition = Vector3.zero;
     }
 
+    #endregion
 
-    public void GetDamaged(int damage, CardPanel activator) => ChangeHealthAndPower(true, damage, false, -1, activator);
+    #region 游戏状态
+
+
+    public void GetDamaged(int damage, CardPanel activator) => ChangeHealthAndPower(true, actualHealthPoint - damage, false, -1, activator);
 
     public void ChangeTeam(int targetTeamId)
     {
 
     }
 
-    public void PowerUp(int value, CardPanel activator)
-    {
-
-    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value">增长值</param>
+    /// <param name="activator"></param>
+    public void PowerUp(int value, CardPanel activator) => ChangeHealthAndPower(false,-1, true, actualPower + value, activator);
 
 
     /// <summary>
     /// 修改血量和攻击力
     /// </summary>
     /// <param name="changeHealth">要修改生命值吗</param>
-    /// <param name="value1">正数:减血</param>
+    /// <param name="value1">火力最终值</param>
     /// <param name="changePower">要修改攻击力吗</param>
-    /// <param name="value2">正数：提高攻击力数值</param>
+    /// <param name="value2">生命最终值</param>
     /// <param name="Activator">是谁触发了这个函数</param>
     public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2, CardPanel Activator)
     {
@@ -172,23 +179,44 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //更新数据
         if (changePower)
         {
-            actualPower += value2;
+            //火力提升了，通知一下
+            if(value2 > actualPower)
+            {
+                cardInformation.Show($"Power\n+ {value2 - actualHealthPoint}", false);
+            }
+            //火力被降低了
+            else if (value2 < actualPower)
+            {
+                cardInformation.Show($"Power\n- {actualHealthPoint - value2}", true);
+            }
+
+            actualPower = value2;
+            //更新显示
+            hpValue.text = actualHealthPoint.ToString();
         }
+
         if (changeHealth)
         {
-            actualHealthPoint -= value1;
-            //告知自己挨打了
-            OnHurt(Activator);
-            //显示被打的信息
-            //仅正数（扣血）时显示
-            if(value1 > 0)
+           //是挨打          
+          if(actualHealthPoint > value1)
             {
-                cardInformation.Show($"HP - {value1}");
+                //告知自己挨打了
+                OnHurt(Activator);
+                cardInformation.Show($"HP\n- {actualHealthPoint - value1}",true);
+                GameStageCtrl.stageCtrl.ShowAbilityNews($"{Activator.Profile.FriendlyCardName}(tid:{Activator.teamId},id:{Activator.cardId})",$"“{Profile.FriendlyCardName}(tid:{teamId},cid:{cardId})”",$"的HP - {actualHealthPoint - value1}");
             }
+          //是回血
+            else  if(actualHealthPoint < value1)
+            {
+                cardInformation.Show($"HP\n+ {value1 - actualHealthPoint}", false);
+            }
+
+          //修改参数
+            actualHealthPoint = value1;
+            //更新显示
+            powerValue.text = actualPower.ToString();
         }
-        //更新显示
-        powerValue.text = actualPower.ToString();
-        hpValue.text = actualHealthPoint.ToString();
+      
     }
 
 
@@ -196,7 +224,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     {
         if (Profile.AbilityActivityType == Information.CardAbilityTypes.Debut)
         {         
-          await  AbilityReasonAnalyze(null);
+          await  AbilityReasonAnalyze(null,"from OnDebut");
+            await UniTask.Delay(300);
         }
 
     }
@@ -207,8 +236,10 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         if (Profile.AbilityActivityType == Information.CardAbilityTypes.Round)
         {
             //分析一下该做什么，顺便触发能力
-            await AbilityReasonAnalyze(null);
-           
+            await AbilityReasonAnalyze(null,"from Attack");
+
+            await UniTask.Delay(300);
+
         }
 
 
@@ -220,7 +251,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //靠近要攻击目标卡牌
         while (true)
         {
-            tr.position = Vector2.Lerp(tr.position, attackPoint, 0.1f);
+            tr.position = Vector2.Lerp(tr.position, attackPoint, 0.04f);
             //足够近，停止循环
             if (Math.Abs(tr.position.x - attackPoint.x) <= 0.1f && Math.Abs(tr.position.y - attackPoint.y) <= 0.1f)
             {
@@ -231,13 +262,12 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //施暴
         target.GetDamaged(actualPower, this);
 
-        //等60ms
-        await UniTask.Delay(60);
+        await UniTask.Delay(250);
 
         //回到原地点
         while (true)
         {
-            tr.position = Vector2.Lerp(tr.position, originalPos, 0.1f);
+            tr.position = Vector2.Lerp(tr.position, originalPos, 0.06f);
             //足够近，停止循环（尽量能靠近）
             if (Math.Abs(tr.position.x - originalPos.x) <= 0.1f && Math.Abs(tr.position.y - originalPos.y) <= 0.1f)
             {
@@ -245,6 +275,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
             }
             await UniTask.Yield(PlayerLoopTiming.Update);
         }
+
+        await UniTask.Delay(400);
     }
 
     public async UniTask Exit(CardPanel activator)
@@ -263,11 +295,14 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         if (Profile.AbilityActivityType == Information.CardAbilityTypes.GetHurt && actualHealthPoint > 0)
         {           
             //分析一下该做什么，顺便触发能力
-          await AbilityReasonAnalyze(activator);
+          await AbilityReasonAnalyze(activator,"from OnHurt");
+            await UniTask.Delay(300);
         }
 
         if (actualHealthPoint <= 0) await Exit(activator);
     }
+
+    #endregion
 
 
     #region 能力解析相关
@@ -285,8 +320,12 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// <summary>
     /// 能力触发原因判定
     /// </summary>
-    async UniTask AbilityReasonAnalyze(CardPanel activator)
+    async UniTask AbilityReasonAnalyze(CardPanel activator,string debugInf = null)
     {
+#if UNITY_EDITOR
+        Debug.Log(debugInf);
+#endif
+
         //等20ms
         await UniTask.Delay(20);
 
@@ -761,7 +800,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                         $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
 
                 case Information.Parameter.HealthPoint:
-                    card.ChangeHealthAndPower(true, ChangeIntValue(card.actualHealthPoint), false, 0,this);
+                    card.ChangeHealthAndPower( true, ChangeIntValue(card.actualHealthPoint),false,-1, this);
                     ShowNews(card.Profile.FriendlyCardName, $"的体力值（HP）变为了{card.actualHealthPoint}");
 
                     break;
