@@ -607,7 +607,7 @@ namespace Maker
                 {
                     Notify.notify.CreateBannerNotification(delegate { banInput.SetActive(false); },
                         "文件储存错误，详细信息请看控制台");
-                    banInput.SetActive(false);
+                    BanInputLayer(false, "保存中...");
                     throw e;
                 }
             }
@@ -636,13 +636,13 @@ namespace Maker
                 {
                     Notify.notify.CreateBannerNotification(delegate { banInput.SetActive(false); },
                         "文件储存错误，详细信息请看控制台");
-                    banInput.SetActive(false);
+                    BanInputLayer(false, "保存中...");
                     throw e;
                 }
             }
 
             //关闭输入禁用层
-            banInput.SetActive(false);
+            BanInputLayer(false, "保存中...");
             changeSignal.SetActive(false);
         }
 
@@ -683,7 +683,7 @@ namespace Maker
             else
             {
                 //关闭禁用曾
-                banInput.SetActive(false);
+                BanInputLayer(false, "另存中...");
                 return null;
             }
         }

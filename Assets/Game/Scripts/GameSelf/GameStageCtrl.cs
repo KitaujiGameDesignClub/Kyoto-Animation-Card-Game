@@ -225,7 +225,7 @@ public class GameStageCtrl : MonoBehaviour
     /// <param name="Exit"></param>
     /// <param name="index">放置位置。-1则为最后一个卡，0则放在第一个，1放在第二个，以此类推，最大5</param>
     /// <returns></returns>
-    public CardPanel AddCardAndDisplayInStage(CharacterCard Profile, int teamId, Sprite coverImage, AudioClip Debut, AudioClip ability, AudioClip Defeat, AudioClip Exit,int index = -1)
+    public async UniTask<CardPanel> AddCardAndDisplayInStage(CharacterCard Profile, int teamId, Sprite coverImage, AudioClip Debut, AudioClip ability, AudioClip Defeat, AudioClip Exit,int index = -1)
     {
         //这个对外显示
         CardPanel panel = null;
@@ -265,10 +265,18 @@ public class GameStageCtrl : MonoBehaviour
             //修改物体名称
             panel.gameObject.name = $"{panel.Profile.CardName}";
 
+
+            //如果在打架，那就执行一下Ondebut
+            if(GameState.gameState == Information.GameState.Competition)
+            {
+                await panel.OnDebut();
+            }
+
             return panel;
+
         }
 
-        else return null;
+        return panel;
     }
 
  

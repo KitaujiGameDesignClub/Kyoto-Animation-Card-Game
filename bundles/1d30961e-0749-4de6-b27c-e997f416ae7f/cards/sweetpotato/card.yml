@@ -1,0 +1,49 @@
+﻿# Only for 社团Battle！ with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+UUID: fbb8d7ad-b9f1-4d61-a90e-67192fd175ef
+CodeVersion: 1
+CardName: sweetpotato
+AuthorName: PureAmaya
+FriendlyCardName: 烤山芋
+Anime: 通用卡牌
+tags:
+- 食物
+CardCount: 0
+ImageName: cover.jpg
+CharacterName: ''
+CV: 不设置声优
+gender: 0
+allowAsChief: false
+BasicHealthPoint: 5
+BasicPower: 0
+AbilityActivityType: Round
+Reason:
+  NeededObjects:
+    LargeScope: AllInTeam
+    ParameterToShrinkScope: Tag
+    Logic: 0
+    Threshold: 吹奏乐部
+  JudgeParameter: None
+  ReasonJudgeMethod: Value
+  Logic: 0
+  Threshold: ''
+Result:
+  RegardActivatorAsResultObject: true
+  ResultObject:
+    LargeScope: None
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  ParameterToChange: HealthPoint
+  ChangeMethod: addition
+  Value: 3
+  SummonCardName: ''
+  Ridicule: 0
+  Silence: 0
+AbilityDescription: 每回合给己方的吹奏乐部成员提供3点体力值
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut
+voiceAbilityFileName: voiceAbility

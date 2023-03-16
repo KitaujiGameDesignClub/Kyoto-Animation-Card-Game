@@ -1,0 +1,57 @@
+﻿# Only for 社团Battle！ with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+UUID: eb71837f-3035-4253-8ae7-2cf461fff638
+CodeVersion: 1
+CardName: sweetpotatoKamiKaori
+AuthorName: PureAmaya
+FriendlyCardName: 红薯女神：中世古香织
+Anime: 吹响吧!上低音号
+tags:
+- 吹奏乐部
+- 学生，高中生
+- 水手服
+- 乐器，小号
+- 泪痣
+CardCount: 3
+ImageName: cover.jpg
+CharacterName: 中世古香织
+CV: 茅原实里
+gender: 2
+allowAsChief: true
+BasicHealthPoint: 6
+BasicPower: 5
+AbilityActivityType: Debut
+Reason:
+  NeededObjects:
+    LargeScope: Any
+    ParameterToShrinkScope: CharacterName
+    Logic: 0
+    Threshold: ''
+  JudgeParameter: None
+  ReasonJudgeMethod: Value
+  Logic: 0
+  Threshold: ''
+Result:
+  RegardActivatorAsResultObject: false
+  ResultObject:
+    LargeScope: Any
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  ParameterToChange: None
+  ChangeMethod: addition
+  Value: ''
+  SummonCardName: 烤山芋
+  Ridicule: 0
+  Silence: 0
+AbilityDescription: >
+  出场时，召唤一个“红薯”，他每回合都会给己方所有吹奏乐部的成员提高2点体力值
+
+
+  <size=90%>pixivid:95680868
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut
+voiceAbilityFileName: voiceAbility

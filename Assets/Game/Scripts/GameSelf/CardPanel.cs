@@ -223,8 +223,9 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     public async UniTask OnDebut()
     {
         if (Profile.AbilityActivityType == Information.CardAbilityTypes.Debut)
-        {         
-          await  AbilityReasonAnalyze(null,"from OnDebut");
+        {
+            await UniTask.Delay(200);
+            await  AbilityReasonAnalyze(null,"from OnDebut");
             await UniTask.Delay(300);
         }
 
