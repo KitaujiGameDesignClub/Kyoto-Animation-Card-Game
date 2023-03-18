@@ -203,7 +203,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                 //告知自己挨打了
                 OnHurt(Activator);
                 cardInformation.Show($"HP\n- {actualHealthPoint - value1}",true);
-                GameStageCtrl.stageCtrl.ShowAbilityNews($"{Activator.Profile.FriendlyCardName}(tid:{Activator.teamId},id:{Activator.cardId})",$"“{Profile.FriendlyCardName}(tid:{teamId},cid:{cardId})”",$"的HP - {actualHealthPoint - value1}");
+                GameStageCtrl.stageCtrl.ShowAbilityNews($"{Activator.Profile.FriendlyCardName}(tid:{Activator.teamId},id:{Activator.cardId})",$"{Profile.FriendlyCardName}(tid:{teamId},cid:{cardId})",$"的HP - {actualHealthPoint - value1}");
             }
           //是回血
             else  if(actualHealthPoint < value1)
@@ -241,6 +241,13 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
             await UniTask.Delay(300);
 
+        }
+
+        if(actualPower <= 0)
+        {
+            GameStageCtrl.stageCtrl.ShowAbilityNews($"{Profile.FriendlyCardName}(tid:{teamId},id{cardId})", null, "因为执行力（攻击力）=0，无法攻击");
+            await UniTask.Delay(400);
+            return;
         }
 
 

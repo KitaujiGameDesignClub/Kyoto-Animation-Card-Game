@@ -182,6 +182,74 @@ namespace Maker
 
             #region 事件注册
 
+            #region 自动禁用一些参数
+
+            //触发类型为None（不触发能力时）禁用其他所有的内容
+            abilityReasonType.onValueChanged.AddListener(delegate (int value)
+            {
+                //启用的话，不能随便启用
+                //禁用的话，随便禁用
+                    abilityReasonLargeScope.interactable = value != 0;
+                // 0就是选择了None。禁用有关的参数输入
+                    abilityReasonLargeScope.onValueChanged.Invoke(value == 0 ? 0:abilityReasonLargeScope.value);
+
+               
+            });
+            //触发条件中，检索范围=None（不设定范围）
+            abilityReasonLargeScope.onValueChanged.AddListener(delegate (int value)
+            {
+                //启用的话，不能随便启用
+                //禁用的话，随便禁用
+                abilityReasonParameter.interactable = value != 0;
+                abilityReasonParameter.onValueChanged.Invoke(value == 0 ? 0 : abilityReasonParameter.value);
+                abilityReasonJudgeParameter.interactable = value != 0;
+                abilityReasonJudgeParameter.onValueChanged.Invoke(value == 0 ? 0 : abilityReasonJudgeParameter.value);
+               
+            });
+            //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
+            abilityReasonJudgeParameter.onValueChanged.AddListener(delegate (int value)
+            {
+                abilityReasonJudgeMethod.interactable = value != 0;
+                abilityReasonJudgeLogic.interactable = value != 0;
+                inputFieldHelperContent(abilityReasonJudgeThreshold, value);
+
+                //这个为None时，能力不能发动，后续的触发效果也不能修改
+                abilityResultLargeScope.interactable = value != 0;
+                abilityResultLargeScope.onValueChanged.Invoke(value == 0 ? 0 : abilityResultLargeScope.value);
+            });
+            //当“范围参数”变化时，同步更新“范围阈值”的辅助下拉框内容
+            abilityReasonParameter.onValueChanged.AddListener(delegate (int value)
+            {
+
+                abilityReasonLogic.interactable = value != 0;
+                inputFieldHelperContent(abilityReasonThreshold, value);
+            });
+            //当“修改参数”变化时，同步更新“值”的辅助下拉框内容
+            abilityResultParameterToChange.onValueChanged.AddListener(delegate (int value)
+            {
+                abilityResultChangeMethod.interactable = value != 0;
+                inputFieldHelperContent(abilityResultChangeValue, value);
+            });
+            //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
+            abilityResultParameter.onValueChanged.AddListener(delegate (int value)
+            {
+                abilityResultLogic.interactable = value != 0;
+                inputFieldHelperContent(abilityResultThreshold, value);
+            });
+
+            //触发效果中，检索范围=None（不设定范围）
+            abilityResultLargeScope.onValueChanged.AddListener(delegate (int value)
+            {
+                abilityResultParameter.interactable = value != 0;
+                abilityResultParameter.onValueChanged.Invoke(value == 0 ? 0 : abilityResultParameter.value);
+                abilityResultParameterToChange.interactable = value != 0;
+                abilityResultParameterToChange.onValueChanged.Invoke(value == 0 ? 0 : abilityResultParameterToChange.value);
+                abilityResultSummon.interactable = value != 0;
+                abilityResultRidicule.interactable = value != 0;
+                abilityResultSilence.interactable = value != 0;
+
+            });
+
             //启用“将触发效果的卡牌作为对象卡牌”，则自动禁用一些东西（默认是off，所以没啥问题）
             abilityReasonObjectAsTarget.OnOn.AddListener(delegate ()
             {
@@ -192,12 +260,17 @@ namespace Maker
             });
             abilityReasonObjectAsTarget.OnOff.AddListener(delegate ()
             {
-                abilityResultLargeScope.interactable = true;
-                abilityResultParameter.interactable = true;
-                abilityResultLogic.interactable = true;
-                abilityResultThreshold.interactable = true;
+                //如果嘲讽那边可以输入，说明能力触发效果这边是可以用的
+                if (abilityResultRidicule.interactable)
+                {
+                    abilityResultLargeScope.interactable = true;
+                    abilityResultParameter.interactable = true;
+                    abilityResultParameter.onValueChanged.Invoke(abilityResultParameter.value);
+                    abilityResultLogic.interactable = abilityResultParameter.value != 0;
+                }               
             });
 
+            #endregion
             //保存热键
             CardMaker.cardMaker.WantToSave.AddListener(UniTask.UnityAction(async () => { await SaveOrSaveTo(); }));
 
@@ -267,27 +340,7 @@ namespace Maker
             //开关能力编辑界面
             abilityDescriptionButton.OnClick.AddListener(delegate { abilityDescriptionEditor.SetActive(!abilityDescriptionEditor.activeSelf); });
 
-            //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
-            abilityReasonJudgeParameter.onValueChanged.AddListener(delegate (int arg0)
-            {
-                inputFieldHelperContent(abilityReasonJudgeThreshold, arg0);
-            });
-            //当“修范围数”变化时，同步更新“范围阈值”的辅助下拉框内容
-            abilityReasonParameter.onValueChanged.AddListener(delegate (int arg0)
-            {
-                inputFieldHelperContent(abilityReasonThreshold, arg0);
-            });
-            //当“修改参数”变化时，同步更新“值”的辅助下拉框内容
-            abilityResultParameterToChange.onValueChanged.AddListener(delegate (int arg0)
-            {
-                inputFieldHelperContent(abilityResultChangeValue, arg0);
-            });
-            //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
-            abilityResultParameter.onValueChanged.AddListener(delegate (int arg0)
-            {
-                inputFieldHelperContent(abilityResultThreshold, arg0);
-            });
-
+           
 
             //ability描述点击 清楚内容 按钮，成品预览那边同步更新
             abilityDescription.onValueChanged.AddListener(delegate (string arg0)
@@ -363,27 +416,34 @@ namespace Maker
             basicHp.SetTextWithoutNotify(nowEditingCard.BasicHealthPoint.ToString());
             basicPower.SetTextWithoutNotify(nowEditingCard.BasicPower.ToString());
 
-            abilityReasonType.SetValueWithoutNotify((int)nowEditingCard.AbilityActivityType);
-            abilityReasonLargeScope.SetValueWithoutNotify((int)nowEditingCard.Reason.NeededObjects.LargeScope);
-            abilityReasonParameter.SetValueWithoutNotify((int)nowEditingCard.Reason.NeededObjects.ParameterToShrinkScope);
-            abilityReasonLogic.SetValueWithoutNotify(nowEditingCard.Reason.NeededObjects.Logic+ 3);
-            abilityReasonThreshold.inputField.SetTextWithoutNotify(nowEditingCard.Reason.NeededObjects.Threshold);
-            abilityReasonJudgeParameter.SetValueWithoutNotify((int)nowEditingCard.Reason.JudgeParameter);
-            abilityReasonJudgeMethod.SetValueWithoutNotify((int)nowEditingCard.Reason.ReasonJudgeMethod);
-            abilityReasonJudgeLogic.SetValueWithoutNotify(nowEditingCard.Reason.Logic + 3);
-            abilityReasonJudgeThreshold.inputField.SetTextWithoutNotify(nowEditingCard.Reason.Threshold);
+            //设置为-1，便于激活onvalueChanged（value-1时）
+            abilityReasonType.value = -1;
+            abilityReasonType.value =((int)nowEditingCard.AbilityActivityType);
+            abilityReasonLargeScope.value = -1;
+            abilityReasonLargeScope.value = ((int)nowEditingCard.Reason.NeededObjects.LargeScope);
+            abilityReasonParameter.value = -1;
+            abilityReasonParameter.value =((int)nowEditingCard.Reason.NeededObjects.ParameterToShrinkScope);
+            abilityReasonLogic.value = (nowEditingCard.Reason.NeededObjects.Logic+ 3);
+            abilityReasonThreshold.inputField.text = (nowEditingCard.Reason.NeededObjects.Threshold);
+            abilityReasonJudgeParameter.value = ((int)nowEditingCard.Reason.JudgeParameter);
+            abilityReasonJudgeParameter.value = -1;
+            abilityReasonJudgeMethod.value = ((int)nowEditingCard.Reason.ReasonJudgeMethod);
+            abilityReasonJudgeLogic.value = (nowEditingCard.Reason.Logic + 3);
+            abilityReasonJudgeThreshold.inputField.text = (nowEditingCard.Reason.Threshold);
             abilityReasonObjectAsTarget.Set(nowEditingCard.Result.RegardActivatorAsResultObject);
-            abilityResultLargeScope.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.LargeScope);
-            abilityResultParameter.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.ParameterToShrinkScope);
-            abilityResultLogic.SetValueWithoutNotify((int)nowEditingCard.Result.ResultObject.Logic + 3);
-            abilityResultThreshold.inputField.SetTextWithoutNotify(nowEditingCard.Result.ResultObject.Threshold);
-            abilityResultParameterToChange.SetValueWithoutNotify((int)nowEditingCard.Result.ParameterToChange);
-            abilityResultChangeMethod.SetValueWithoutNotify((int)nowEditingCard.Result.ChangeMethod);
-            abilityResultChangeValue.inputField.SetTextWithoutNotify(nowEditingCard.Result.Value);
-            abilityResultSummon.inputField.SetTextWithoutNotify(nowEditingCard.Result.SummonCardName);
+            abilityResultLargeScope.value = -1;
+            abilityResultLargeScope.value = ((int)nowEditingCard.Result.ResultObject.LargeScope);
+            abilityResultParameter.value=((int)nowEditingCard.Result.ResultObject.ParameterToShrinkScope);
+            abilityResultLogic.value=((int)nowEditingCard.Result.ResultObject.Logic + 3);
+            abilityResultThreshold.inputField.text= (nowEditingCard.Result.ResultObject.Threshold);
+            abilityResultParameterToChange.value = -1;
+            abilityResultParameterToChange.value=((int)nowEditingCard.Result.ParameterToChange);
+            abilityResultChangeMethod.value=((int)nowEditingCard.Result.ChangeMethod);
+            abilityResultChangeValue.inputField.text=(nowEditingCard.Result.Value);
+            abilityResultSummon.inputField.text=(nowEditingCard.Result.SummonCardName);
             abilityResultSummon.ChangeOptionDatas(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
-            abilityResultRidicule.SetTextWithoutNotify(nowEditingCard.Result.Ridicule.ToString());
-            abilityResultSilence.SetTextWithoutNotify(nowEditingCard.Result.Silence.ToString());
+            abilityResultRidicule.text = (nowEditingCard.Result.Ridicule.ToString());
+            abilityResultSilence.text = (nowEditingCard.Result.Silence.ToString());
             abilityDescription.text = nowEditingCard.AbilityDescription;//这个必须通知onValueChanged，以便让预览更新
          
             //tag也同步一下
@@ -447,13 +507,6 @@ namespace Maker
                 preview.image.sprite = defaultImage;
             }
             #endregion
-
-            //更新下拉栏的禁用情况
-            inputFieldHelperContent(abilityReasonJudgeThreshold,abilityReasonJudgeParameter.value);
-            inputFieldHelperContent(abilityReasonThreshold,  abilityReasonParameter.value);
-            inputFieldHelperContent(abilityResultChangeValue, abilityResultParameterToChange.value);
-            inputFieldHelperContent(abilityResultThreshold, abilityResultParameter.value);
-
 ;
 
             CardMaker.cardMaker.BanInputLayer(false, "卡牌加载中...");
@@ -694,13 +747,15 @@ namespace Maker
         /// 当“判定参数”变化时，同步更新“可变下拉栏”的下拉框内容
         /// </summary>
         /// <param name="inputFieldWithDropdown"></param>
-        /// <param name="index"></param>
+        /// <param name="index">所选参数在dropdown内的值</param>
         private void inputFieldHelperContent(InputFieldWithDropdown inputFieldWithDropdown, int index)
         {               
             inputFieldWithDropdown.supportFilter = true;
-            
+            inputFieldWithDropdown.interactable = true;
+
             switch (index)
             {
+
                 //Anime
                 case (int)Information.Parameter.Anime:
                     inputFieldWithDropdown.ChangeOptionDatas(AnimeField.options, true);
@@ -740,9 +795,9 @@ namespace Maker
                     inputFieldWithDropdown.ban = new ();
                     break;
 
+                    //其他的，不需要下拉栏的
                 default:
-                    inputFieldWithDropdown.Ban();
-                    inputFieldWithDropdown.ClearOptions();
+                    inputFieldWithDropdown.interactable =false;
                     break;
             }
         }

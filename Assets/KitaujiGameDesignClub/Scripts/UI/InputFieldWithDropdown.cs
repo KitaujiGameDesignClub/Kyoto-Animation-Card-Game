@@ -31,7 +31,8 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             set
             {
                 inputField.interactable = value;
-                dropdownButton.interactable = value;
+                if (!value) Ban();
+                else dropdownButton.interactable = value;
             }
         }
 
@@ -148,7 +149,6 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         /// <param name="all">要作为此下拉列表的全部内容吗</param>
         public void ChangeOptionDatas(List<string> optionDatas, bool all = true)
         {
-            dropdownButton.interactable = true;
             dropdown.ClearOptions();
           if(optionDatas != null)   dropdown.AddOptions(optionDatas);
            dropdown.RefreshShownValue();
