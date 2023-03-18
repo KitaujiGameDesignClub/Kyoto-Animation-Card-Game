@@ -28,13 +28,13 @@ AbilityActivityType: Debut
 Reason:
   NeededObjects:
     LargeScope: AllOnSpot
-    ParameterToShrinkScope: Tag
+    ParameterToShrinkScope: None
     Logic: 0
     Threshold: 吹奏乐
-  JudgeParameter: None
+  JudgeParameter: Tag
   ReasonJudgeMethod: Value
   Logic: 0
-  Threshold: ''
+  Threshold: 吹奏乐
 Result:
   RegardActivatorAsResultObject: false
   ResultObject:

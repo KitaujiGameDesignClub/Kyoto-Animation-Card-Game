@@ -1,0 +1,52 @@
+﻿# Only for 社团Battle！ with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+UUID: 6e0b240a-cb0f-4abe-b087-2e0b68762f1a
+CodeVersion: 1
+CardName: 006
+AuthorName: 一宏妹妹
+FriendlyCardName: 五月七日茴香
+Anime: 中二病也要谈恋爱！
+tags:
+- 极东魔术昼寝结社之夏
+- 学生，社团部员
+- 慵懒
+- 睡觉
+CardCount: 3
+ImageName: cover.png
+CharacterName: 五月七日茴香
+CV: 不设置声优
+gender: 2
+allowAsChief: false
+BasicHealthPoint: 15
+BasicPower: 6
+AbilityActivityType: Round
+Reason:
+  NeededObjects:
+    LargeScope: Any
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  JudgeParameter: None
+  ReasonJudgeMethod: Value
+  Logic: 0
+  Threshold: ''
+Result:
+  RegardActivatorAsResultObject: false
+  ResultObject:
+    LargeScope: RandomInTeam
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  ParameterToChange: Power
+  ChangeMethod: addition
+  Value: 6
+  SummonCardName: ''
+  Ridicule: 0
+  Silence: 1
+AbilityDescription: 特长是睡觉，睡眠会给队友增加攻击力
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut
+voiceAbilityFileName: voiceAbility

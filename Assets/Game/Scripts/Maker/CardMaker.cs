@@ -116,8 +116,10 @@ namespace Maker
             ;
             //帧率修正
             Application.targetFrameRate = 60;
+#if UNITY_ANDROID
             Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, Screen.fullScreen,
                 60);
+#endif
 
             cardMaker = this;
 
@@ -324,8 +326,6 @@ namespace Maker
                         $"{Information.bundlesPath}/{allBundleLoadedGUID[allAvailableBundlesDropdownToExport.value]}/{Information.ManifestFileName}";
 
 
-
-                    Debug.Log(banInput.activeSelf);
 #if UNITY_STANDALONE || UNITY_EDITOR
 
                     var rawSavePathNoExtension =
@@ -349,12 +349,9 @@ namespace Maker
                         }
                     }
 
-                    Debug.Log(banInput.activeSelf);
-                    UnityEditor.EditorApplication.isPaused = true;
                     Notify.notify.CreateBannerNotification(null,
                         $"“{allAvailableBundlesDropdownToExport.captionText.text}”卡组导出成功\n{savePathNoRepeat}.zip");
 
-                    Debug.Log(banInput.activeSelf);
 #elif UNITY_ANDROID && !UNITY_EDITOR
 
 

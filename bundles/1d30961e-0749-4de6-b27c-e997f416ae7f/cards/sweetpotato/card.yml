@@ -22,17 +22,17 @@ AbilityActivityType: Round
 Reason:
   NeededObjects:
     LargeScope: AllInTeam
-    ParameterToShrinkScope: Tag
+    ParameterToShrinkScope: None
     Logic: 0
     Threshold: 吹奏乐部
-  JudgeParameter: None
+  JudgeParameter: Tag
   ReasonJudgeMethod: Value
   Logic: 0
-  Threshold: ''
+  Threshold: 吹奏乐部
 Result:
   RegardActivatorAsResultObject: true
   ResultObject:
-    LargeScope: None
+    LargeScope: Any
     ParameterToShrinkScope: None
     Logic: 0
     Threshold: ''
@@ -42,7 +42,11 @@ Result:
   SummonCardName: ''
   Ridicule: 0
   Silence: 0
-AbilityDescription: 每回合给己方的吹奏乐部成员提供3点体力值
+AbilityDescription: >-
+  <size=80%>不过这玩意还真挺好吃的（</size>
+
+
+  每回合给己方的吹奏乐部成员提供3点体力值
 voiceExitFileName: voiceExit
 voiceDefeatFileName: voiceDefeat
 voiceDebutFileName: voiceDebut

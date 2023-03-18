@@ -18,11 +18,19 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         private List<string> allOptionDatas = new List<string>();
 
 
+
+
         public string text
         {
             get => inputField.text;
             set => inputField.text = value;
             
+        }
+
+        public TMP_InputField.ContentType contentType
+        {
+            get { return inputField.contentType; }
+            set => inputField.contentType = value;
         }
 
         public bool interactable
@@ -71,7 +79,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
 
         private void Awake()
         {
-            
+
           //  inputField = GetComponentInChildren<TMP_InputField>();
           //  dropdown = GetComponentInChildren<TMP_Dropdown>();
            // dropdownButton = GetComponentInChildren<Button>();

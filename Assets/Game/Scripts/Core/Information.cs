@@ -747,6 +747,10 @@ namespace Core
             /// 任何情况下都会可以 ，不进行后续判断，直接运行Result所定义的能力，且RegardActivatorAsResultObject=false
             /// </summary>
             Any,
+
+
+            //注意，None和Any的顺序不得修改，也不得插入任何其他的字段
+
             /// <summary>
             /// 发动者自身
             /// </summary>
@@ -963,6 +967,9 @@ namespace Core
 
                     case Parameter.Power:
                         return "执行力";
+
+                    case Parameter.Silence:
+                        return "剩余沉默回合数";
 
                     case Parameter.Ridicule:
                         return "剩余嘲讽回合数";

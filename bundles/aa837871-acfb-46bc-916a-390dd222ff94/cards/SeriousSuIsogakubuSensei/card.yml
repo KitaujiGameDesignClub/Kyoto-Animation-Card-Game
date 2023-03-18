@@ -25,17 +25,17 @@ AbilityActivityType: Round
 Reason:
   NeededObjects:
     LargeScope: AllInTeam
-    ParameterToShrinkScope: Tag
+    ParameterToShrinkScope: None
     Logic: 0
     Threshold: 乐器
-  JudgeParameter: None
+  JudgeParameter: Tag
   ReasonJudgeMethod: Value
-  Logic: -3
-  Threshold: ''
+  Logic: 0
+  Threshold: 乐器
 Result:
   RegardActivatorAsResultObject: true
   ResultObject:
-    LargeScope: None
+    LargeScope: Activator
     ParameterToShrinkScope: None
     Logic: -3
     Threshold: ''

@@ -195,35 +195,40 @@ namespace Maker
 
                
             });
-            //触发条件中，检索范围=None（不设定范围）
+            //触发条件中，检索范围=None（不设定范围） 0 or any任何情况下都可以 1
             abilityReasonLargeScope.onValueChanged.AddListener(delegate (int value)
             {
                 //启用的话，不能随便启用
                 //禁用的话，随便禁用
-                abilityReasonParameter.interactable = value != 0;
-                abilityReasonParameter.onValueChanged.Invoke(value == 0 ? 0 : abilityReasonParameter.value);
-                abilityReasonJudgeParameter.interactable = value != 0;
+                bool disable = value == 0 || value == 1;
+                abilityReasonParameter.interactable = !disable;
+                abilityReasonParameter.onValueChanged.Invoke(disable ? 0 : abilityReasonParameter.value);
+                abilityReasonJudgeParameter.interactable = !disable;
                 abilityReasonJudgeParameter.onValueChanged.Invoke(value == 0 ? 0 : abilityReasonJudgeParameter.value);
                
-            });
-            //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
-            abilityReasonJudgeParameter.onValueChanged.AddListener(delegate (int value)
-            {
-                abilityReasonJudgeMethod.interactable = value != 0;
-                abilityReasonJudgeLogic.interactable = value != 0;
-                inputFieldHelperContent(abilityReasonJudgeThreshold, value);
-
-                //这个为None时，能力不能发动，后续的触发效果也不能修改
-                abilityResultLargeScope.interactable = value != 0;
-                abilityResultLargeScope.onValueChanged.Invoke(value == 0 ? 0 : abilityResultLargeScope.value);
             });
             //当“范围参数”变化时，同步更新“范围阈值”的辅助下拉框内容
             abilityReasonParameter.onValueChanged.AddListener(delegate (int value)
             {
-
                 abilityReasonLogic.interactable = value != 0;
                 inputFieldHelperContent(abilityReasonThreshold, value);
             });
+            //当“判定参数”变化时，同步更新“判定阈值”的辅助下拉框内容
+            abilityReasonJudgeParameter.onValueChanged.AddListener(delegate (int value)
+            {
+               
+                //这个为None时，能力不能发动，后续的触发效果也不能修改
+                //但是，如果触发条件中，检索范围=any任何情况下都可以(1)时，允许激活
+                //总而言之就是，如果检索范围时any的话，触发条件都禁用，触发效果正常填写
+
+                    abilityReasonJudgeMethod.interactable = abilityReasonLargeScope.value == 1 ? false: value != 0;
+                    abilityReasonJudgeLogic.interactable = abilityReasonLargeScope.value == 1 ? false : value != 0;
+                    inputFieldHelperContent(abilityReasonJudgeThreshold, abilityReasonLargeScope.value == 1 ? 0 : value);
+                    abilityResultLargeScope.interactable = abilityReasonLargeScope.value == 1 ? true : value != 0;
+
+                //能进行能力效果的编辑吗
+                abilityResultLargeScope.onValueChanged.Invoke(!abilityResultLargeScope.interactable ? 0 : abilityResultLargeScope.value);
+            });           
             //当“修改参数”变化时，同步更新“值”的辅助下拉框内容
             abilityResultParameterToChange.onValueChanged.AddListener(delegate (int value)
             {
@@ -239,36 +244,66 @@ namespace Maker
 
             //触发效果中，检索范围=None（不设定范围）
             abilityResultLargeScope.onValueChanged.AddListener(delegate (int value)
-            {
-                abilityResultParameter.interactable = value != 0;
-                abilityResultParameter.onValueChanged.Invoke(value == 0 ? 0 : abilityResultParameter.value);
-                abilityResultParameterToChange.interactable = value != 0;
-                abilityResultParameterToChange.onValueChanged.Invoke(value == 0 ? 0 : abilityResultParameterToChange.value);
+            {              
+
+                switch (abilityResultLargeScope.value)
+                {
+                    //任何情况下都可以：等效于“将触发效果的卡牌作为对象卡牌”
+                    //触发器同一效果
+                    case 1 or (int)Information.Objects.Activator:
+                        abilityResultParameter.interactable = false;
+                        abilityResultLogic.interactable = false;
+                        abilityResultThreshold.interactable = false;
+                        abilityReasonObjectAsTarget.TurnOn();
+                        break;
+
+                    //除了any（任何情况下都可以）和触发器以外，其余的都正常处理禁用状态
+                    default:
+                        abilityResultParameter.interactable = value != 0;
+                        abilityResultParameter.onValueChanged.Invoke(value == 0 ? 0 : abilityResultParameter.value);
+                        abilityReasonObjectAsTarget.TurnOff();
+                        break;
+                }
+
+                //二者公用的
                 abilityResultSummon.interactable = value != 0;
                 abilityResultRidicule.interactable = value != 0;
                 abilityResultSilence.interactable = value != 0;
+                abilityResultParameterToChange.interactable = value != 0;
+                abilityResultParameterToChange.onValueChanged.Invoke(value == 0 ? 0 : abilityResultParameterToChange.value);
+
 
             });
 
+            #region 暂时不要这个入口了
+            /*
             //启用“将触发效果的卡牌作为对象卡牌”，则自动禁用一些东西（默认是off，所以没啥问题）
             abilityReasonObjectAsTarget.OnOn.AddListener(delegate ()
             {
                 abilityResultLargeScope.interactable = false;
-                abilityResultParameter.interactable = false;
+               abilityResultParameter.interactable = false;
                 abilityResultLogic.interactable = false;
                 abilityResultThreshold.interactable = false;
             });
             abilityReasonObjectAsTarget.OnOff.AddListener(delegate ()
             {
-                //如果嘲讽那边可以输入，说明能力触发效果这边是可以用的
+                //如果嘲讽那边可以输入，说明能力触发效果这边是可以用的                
                 if (abilityResultRidicule.interactable)
                 {
                     abilityResultLargeScope.interactable = true;
-                    abilityResultParameter.interactable = true;
-                    abilityResultParameter.onValueChanged.Invoke(abilityResultParameter.value);
-                    abilityResultLogic.interactable = abilityResultParameter.value != 0;
+
+                    //还有个要求，就是触发效果的检索范围不是触发器和任何情况都可以
+                    if (abilityResultLargeScope.value != 1 && abilityResultLargeScope.value != (int)Information.Objects.Activator)
+                    {
+                        abilityResultParameter.interactable = true;
+                        abilityResultParameter.onValueChanged.Invoke(abilityResultParameter.value);
+                        abilityResultLogic.interactable = abilityResultParameter.value != 0;
+                    }
+                
                 }               
             });
+            */
+            #endregion
 
             #endregion
             //保存热键
@@ -425,8 +460,8 @@ namespace Maker
             abilityReasonParameter.value =((int)nowEditingCard.Reason.NeededObjects.ParameterToShrinkScope);
             abilityReasonLogic.value = (nowEditingCard.Reason.NeededObjects.Logic+ 3);
             abilityReasonThreshold.inputField.text = (nowEditingCard.Reason.NeededObjects.Threshold);
-            abilityReasonJudgeParameter.value = ((int)nowEditingCard.Reason.JudgeParameter);
             abilityReasonJudgeParameter.value = -1;
+            abilityReasonJudgeParameter.value = ((int)nowEditingCard.Reason.JudgeParameter);      
             abilityReasonJudgeMethod.value = ((int)nowEditingCard.Reason.ReasonJudgeMethod);
             abilityReasonJudgeLogic.value = (nowEditingCard.Reason.Logic + 3);
             abilityReasonJudgeThreshold.inputField.text = (nowEditingCard.Reason.Threshold);
@@ -760,12 +795,14 @@ namespace Maker
                 case (int)Information.Parameter.Anime:
                     inputFieldWithDropdown.ChangeOptionDatas(AnimeField.options, true);
                     inputFieldWithDropdown.ban = AnimeField.ban;
+                    inputFieldWithDropdown.contentType = TMP_InputField.ContentType.Standard;
                     break;
 
                 //tag
                 case (int)Information.Parameter.Tag:
                     inputFieldWithDropdown.ChangeOptionDatas(tagField.options, true);
                     inputFieldWithDropdown.ban = tagField.ban;
+                    inputFieldWithDropdown.contentType = TMP_InputField.ContentType.Standard;
                     break;
 
            
@@ -773,29 +810,41 @@ namespace Maker
                 case (int)Information.Parameter.CV:
                     inputFieldWithDropdown.ChangeOptionDatas(CVField.options);
                     inputFieldWithDropdown.ban = CVField.ban;
+                    inputFieldWithDropdown.contentType = TMP_InputField.ContentType.Standard;
                     break;
 
                 //characterName
                 case (int)Information.Parameter.CharacterName:
                     inputFieldWithDropdown.ChangeOptionDatas(CharacterNameField.options);
                     inputFieldWithDropdown.ban = CharacterNameField.ban;
+                    inputFieldWithDropdown.contentType = TMP_InputField.ContentType.Standard;
                     break;
 
                 case (int)Information.Parameter.Gender:
                     inputFieldWithDropdown.ChangeOptionDatas(genderField.options);
                     inputFieldWithDropdown.ban = new ();
+                    inputFieldWithDropdown.contentType = TMP_InputField.ContentType.Standard;
                     break;
                 
                 case (int) Information.Parameter.Team:
-                    var content = new List<TMP_Dropdown.OptionData>();
-                    content.Add(new TMP_Dropdown.OptionData("从属玩家社团（队伍）"));
-                    content.Add(new TMP_Dropdown.OptionData("从属电脑社团（队伍）"));
-                    content.Add(new TMP_Dropdown.OptionData("改变从属社团（队伍）"));
+                    var content = new List<TMP_Dropdown.OptionData>
+                    {
+                        new TMP_Dropdown.OptionData("从属玩家社团（队伍）"),
+                        new TMP_Dropdown.OptionData("从属电脑社团（队伍）"),
+                        new TMP_Dropdown.OptionData("改变从属社团（队伍）")
+                    };
                     inputFieldWithDropdown.ChangeOptionDatas(content);
                     inputFieldWithDropdown.ban = new ();
+                    inputFieldWithDropdown.contentType = TMP_InputField.ContentType.Standard;
                     break;
 
-                    //其他的，不需要下拉栏的
+                case (int)Information.Parameter.Coin or (int)Information.Parameter.HealthPoint or (int)Information.Parameter.Power:
+                    inputFieldWithDropdown.Ban();
+                    inputFieldWithDropdown.contentType = TMP_InputField.ContentType.IntegerNumber;
+                    break;
+
+
+                    //其他的，不允许输入（因为有特供的输入框给他用了）
                 default:
                     inputFieldWithDropdown.interactable =false;
                     break;

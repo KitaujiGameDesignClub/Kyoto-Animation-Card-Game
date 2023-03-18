@@ -24,9 +24,9 @@ BasicHealthPoint: 6
 BasicPower: 5
 AbilityActivityType: Debut
 Reason:
-  NeededObjects:
+  NeededObjects: &o0
     LargeScope: Any
-    ParameterToShrinkScope: CharacterName
+    ParameterToShrinkScope: None
     Logic: 0
     Threshold: ''
   JudgeParameter: None
@@ -34,12 +34,8 @@ Reason:
   Logic: 0
   Threshold: ''
 Result:
-  RegardActivatorAsResultObject: false
-  ResultObject:
-    LargeScope: Any
-    ParameterToShrinkScope: None
-    Logic: 0
-    Threshold: ''
+  RegardActivatorAsResultObject: true
+  ResultObject: *o0
   ParameterToChange: None
   ChangeMethod: addition
   Value: ''
