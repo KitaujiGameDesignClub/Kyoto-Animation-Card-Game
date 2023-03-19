@@ -6,6 +6,9 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// 用于卡牌正面/负面效果信息的显示
+/// </summary>
 public class CardPanelInformation : MonoBehaviour
 {
     public TMP_Text text;

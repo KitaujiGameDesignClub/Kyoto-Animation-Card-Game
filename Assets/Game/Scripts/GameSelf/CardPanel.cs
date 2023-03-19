@@ -15,12 +15,17 @@ using Random = System.Random;
 /// </summary>
 public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义行为（写代码）
 {
-    [Header("游戏中状态")]
-    [HideInInspector] public CharacterInGame cardStateInGame;
+
     /// <summary>
-    /// 此角色卡的配置文件
+    /// 此角色卡的配置文件（用于游戏中对某些参数的修改）
     /// </summary>
-    [HideInInspector]  public CharacterCard Profile;
+    public CharacterCard Profile;
+
+    /// <summary>
+    ///  卡牌的缓存
+    /// </summary>
+    internal CardCache cardCache;
+
     /// <summary>
     /// 是哪一个玩家的可用牌 0=A 1=B
     /// </summary>
@@ -30,21 +35,28 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// </summary>
     [HideInInspector] public int cardId;
     /// <summary>
-    /// 沉默回合数 
+    /// 沉默回合数  新卡为0
     /// </summary>
     [HideInInspector] public int silence = 0;
     /// <summary>
-    /// 嘲讽回合数
+    /// 嘲讽回合数 新卡为0
     /// </summary>
     [HideInInspector] public int ridicule = 0;
     /// <summary>
     /// 实际攻击力（各种影响攻击力的都对这个参数修改）
     /// </summary>
-    [HideInInspector] public int actualPower;
+    public int ActualPower
+    {
+        get => Profile.BasicPower; set => Profile.BasicPower = value;
+    }
+    
     /// <summary>
     /// 实际生命值（各种影响攻击力的都对这个参数修改）
     /// </summary>
-    [HideInInspector] public int actualHealthPoint;
+    public int ActualHealthPoint
+    {
+        get => Profile.BasicHealthPoint; set => Profile.BasicHealthPoint = value;
+    }
     /// <summary>
     /// 这一轮游戏这个卡牌已经干过活了
     /// </summary>
@@ -52,15 +64,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
     //之后的话，需要给资源建立一个缓存池，省的卡牌上场的时候卡顿
 
-    /// <summary>
-    /// 音效资源
-    /// </summary>
-    [HideInInspector] public AudioClip voiceDebut;
-    [HideInInspector] public AudioClip voiceDefeat;
-    [HideInInspector] public AudioClip voiceExit;
-    [HideInInspector] public AudioClip voiceAbility;
-    //图片资源
-    [HideInInspector] public Sprite CoverImage;
+
 
     [Header("通用")]
     public SpriteRenderer image;
@@ -80,6 +84,15 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     public TMP_Text hpValue;
     public CardPanelInformation cardInformation;
     public GameObject[] gameModeToDestroy;
+
+    /// <summary>
+    /// 回复卡牌至最初始的状态
+    /// </summary>
+    public void RecoverCard()
+    {
+        //各种数据的恢复
+        Profile = cardCache.card;
+    }
 
     #region 信息填充
 
@@ -114,14 +127,14 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     public void EnterGameMode()
     {
         //设置上图片
-        image.sprite = CoverImage == null ? image.sprite : CoverImage;
+        image.sprite = cardCache.CoverImage == null ? image.sprite : cardCache.CoverImage;
         image.sortingOrder = 0;//层级调整
         //初始化体力值与行动力
-        actualPower = Profile.BasicPower;
-        actualHealthPoint = Profile.BasicHealthPoint;
-        powerValue.text = actualPower.ToString();
+        ActualPower = Profile.BasicPower;
+        ActualHealthPoint = Profile.BasicHealthPoint;
+        powerValue.text = ActualPower.ToString();
         powerValue.gameObject.SetActive(true);
-        hpValue.text = actualHealthPoint.ToString();
+        hpValue.text = ActualHealthPoint.ToString();
         hpValue.gameObject.SetActive(true);
 
         //销毁信息显示用的东西（这些东西游戏模式用不到）
@@ -150,7 +163,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     #region 游戏状态
 
 
-    public void GetDamaged(int damage, CardPanel activator) => ChangeHealthAndPower(true, actualHealthPoint - damage, false, -1, activator);
+    public void GetDamaged(int damage, CardPanel activator) => ChangeHealthAndPower(true, ActualHealthPoint - damage, false, -1, activator);
 
     public void ChangeTeam(int targetTeamId)
     {
@@ -162,7 +175,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// </summary>
     /// <param name="value">增长值</param>
     /// <param name="activator"></param>
-    public void PowerUp(int value, CardPanel activator) => ChangeHealthAndPower(false,-1, true, actualPower + value, activator);
+    public void PowerUp(int value, CardPanel activator) => ChangeHealthAndPower(false,-1, true, ActualPower + value, activator);
 
 
     /// <summary>
@@ -180,41 +193,41 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         if (changePower)
         {
             //火力提升了，通知一下
-            if(value2 > actualPower)
+            if(value2 > ActualPower)
             {
-                cardInformation.Show($"Power\n+ {value2 - actualHealthPoint}", false);
+                cardInformation.Show($"Power\n+ {value2 - ActualHealthPoint}", false);
             }
             //火力被降低了
-            else if (value2 < actualPower)
+            else if (value2 < ActualPower)
             {
-                cardInformation.Show($"Power\n- {actualHealthPoint - value2}", true);
+                cardInformation.Show($"Power\n- {ActualHealthPoint - value2}", true);
             }
 
-            actualPower = value2;
+            ActualPower = value2;
             //更新显示
-            hpValue.text = actualHealthPoint.ToString();
+            hpValue.text = ActualHealthPoint.ToString();
         }
 
         if (changeHealth)
         {
            //是挨打          
-          if(actualHealthPoint > value1)
+          if(ActualHealthPoint > value1)
             {
                 //告知自己挨打了
                 OnHurt(Activator);
-                cardInformation.Show($"HP\n- {actualHealthPoint - value1}",true);
-                GameStageCtrl.stageCtrl.ShowAbilityNews($"{Activator.Profile.FriendlyCardName}(tid:{Activator.teamId},id:{Activator.cardId})",$"{Profile.FriendlyCardName}(tid:{teamId},cid:{cardId})",$"的HP - {actualHealthPoint - value1}");
+                cardInformation.Show($"HP\n- {ActualHealthPoint - value1}",true);
+                GameStageCtrl.stageCtrl.ShowAbilityNews($"{Activator.Profile.FriendlyCardName}(tid:{Activator.teamId},id:{Activator.cardId})",$"{Profile.FriendlyCardName}(tid:{teamId},cid:{cardId})",$"的HP - {ActualHealthPoint - value1}");
             }
           //是回血
-            else  if(actualHealthPoint < value1)
+            else  if(ActualHealthPoint < value1)
             {
-                cardInformation.Show($"HP\n+ {value1 - actualHealthPoint}", false);
+                cardInformation.Show($"HP\n+ {value1 - ActualHealthPoint}", false);
             }
 
           //修改参数
-            actualHealthPoint = value1;
+            ActualHealthPoint = value1;
             //更新显示
-            powerValue.text = actualPower.ToString();
+            powerValue.text = ActualPower.ToString();
         }
       
     }
@@ -243,7 +256,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
         }
 
-        if(actualPower <= 0)
+        if(ActualPower <= 0)
         {
             GameStageCtrl.stageCtrl.ShowAbilityNews($"{Profile.FriendlyCardName}(tid:{teamId},id{cardId})", null, "因为执行力（攻击力）=0，无法攻击");
             await UniTask.Delay(400);
@@ -268,7 +281,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
             await UniTask.Yield(PlayerLoopTiming.Update);
         }
         //施暴
-        target.GetDamaged(actualPower, this);
+        target.GetDamaged(ActualPower, this);
 
         await UniTask.Delay(250);
 
@@ -300,14 +313,14 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     public async UniTask OnHurt(CardPanel activator)
     {
         //能力设定为挨打发动，并且得有血
-        if (Profile.AbilityActivityType == Information.CardAbilityTypes.GetHurt && actualHealthPoint > 0)
+        if (Profile.AbilityActivityType == Information.CardAbilityTypes.GetHurt && ActualHealthPoint > 0)
         {           
             //分析一下该做什么，顺便触发能力
           await AbilityReasonAnalyze(activator,"from OnHurt");
             await UniTask.Delay(300);
         }
 
-        if (actualHealthPoint <= 0) await Exit(activator);
+        if (ActualHealthPoint <= 0) await Exit(activator);
     }
 
     #endregion
@@ -405,7 +418,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     {
                         for (int i = 0; i < parameterValues.Length; i++)
                         {
-                            parameterValues[i] = ReasonObjects[i].actualPower.ToString();
+                            parameterValues[i] = ReasonObjects[i].ActualPower.ToString();
                         }
                     }
                     else
@@ -808,13 +821,13 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                         $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
 
                 case Information.Parameter.HealthPoint:
-                    card.ChangeHealthAndPower( true, ChangeIntValue(card.actualHealthPoint),false,-1, this);
-                    ShowNews(card.Profile.FriendlyCardName, $"的体力值（HP）变为了{card.actualHealthPoint}");
+                    card.ChangeHealthAndPower( true, ChangeIntValue(card.ActualHealthPoint),false,-1, this);
+                    ShowNews(card.Profile.FriendlyCardName, $"的体力值（HP）变为了{card.ActualHealthPoint}");
 
                     break;
                 case Information.Parameter.Power:
-                    card.ChangeHealthAndPower(false,0 , true, ChangeIntValue(card.actualPower), this);
-                    ShowNews( card.Profile.FriendlyCardName, $"的执行力（攻击力）变为了{card.actualPower}");
+                    card.ChangeHealthAndPower(false,0 , true, ChangeIntValue(card.ActualPower), this);
+                    ShowNews( card.Profile.FriendlyCardName, $"的执行力（攻击力）变为了{card.ActualPower}");
                     break;
 
                 case Information.Parameter.Gender:
@@ -1077,11 +1090,11 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     break;
 
                 case Information.Parameter.HealthPoint:
-                    parameter = neededCards[i].actualHealthPoint.ToString();
+                    parameter = neededCards[i].ActualHealthPoint.ToString();
                     break;
 
                 case Information.Parameter.Power:
-                    parameter = neededCards[i].actualPower.ToString();
+                    parameter = neededCards[i].ActualPower.ToString();
                     break;
 
                 case Information.Parameter.Silence:

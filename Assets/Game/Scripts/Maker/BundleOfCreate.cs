@@ -19,9 +19,13 @@ namespace Maker
         /// </summary>
         public List<string> allCardsFriendlyName = new();
         /// <summary>
-        /// 记录这个卡组内，所有卡牌的所属文件夹的名字（这两个名称数组是要相互对应的
+        /// 记录这个卡组内，所有卡牌的所属文件夹的名字（这三个名称数组是要相互对应的）
         /// </summary>
         public List<string> allCardName = new();
+        /// <summary>
+        /// 记录这个卡组内，所有卡牌的UUID（这三个名称数组是要相互对应的）
+        /// </summary>
+        public List<string> allCardUuid = new();
 
         /// <summary>
         /// 上次加载的清单文件的完整路径
@@ -37,10 +41,19 @@ namespace Maker
         {
             manifest = new();
             card = new CharacterCard();
-            allCardsFriendlyName = new ();
-            allCardName = new ();
+            ClearAllCardCache();
             loadedManifestFullPath = string.Empty;
             loadedCardFullPath = string.Empty;
+        }
+
+        /// <summary>
+        /// 清除缓存的 所有卡牌的友好和识别名称还有UUID
+        /// </summary>
+        public void ClearAllCardCache()
+        {
+           allCardsFriendlyName.Clear();
+           allCardName.Clear();
+            allCardUuid.Clear();
         }
 
         //定义一个隐式转换

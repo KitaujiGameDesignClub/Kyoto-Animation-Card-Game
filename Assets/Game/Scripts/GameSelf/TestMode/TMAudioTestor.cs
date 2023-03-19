@@ -17,14 +17,13 @@ public class TMAudioTestor : MonoBehaviour
     public void EnableAudioTestor(CardPanel cardPanel)
     {
         gameObject.SetActive(true);
-        image.sprite = cardPanel.CoverImage;
+        image.sprite = cardPanel.cardCache.CoverImage;
         Name.text = $"{cardPanel.Profile.FriendlyCardName}\n<size=75%>{cardPanel.Profile.CardName}</size>";
         //音频资源添加
-        clips[0] = cardPanel.voiceDebut;       
-        clips[1] = cardPanel.voiceAbility;
-        clips[2] = cardPanel.voiceDefeat;
-       
-        clips[3] = cardPanel.voiceExit;
+        clips[0] = cardPanel.cardCache.voiceDebut;       
+        clips[1] = cardPanel.cardCache.voiceAbility;
+        clips[2] = cardPanel.cardCache.voiceDefeat;       
+        clips[3] = cardPanel.cardCache.voiceExit;
        
         //对于不存在的音频资源，禁用按钮的交互
         for (int i = 0; i < 4; i++)

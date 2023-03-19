@@ -450,13 +450,13 @@ namespace Maker
 
                 nowEditingBundle.manifest = bundle.manifest;
 
-                //缓存所有卡牌的友好和识别名称
-                nowEditingBundle.allCardsFriendlyName.Clear();
-                nowEditingBundle.allCardName.Clear();
+                //缓存所有卡牌的友好和识别名称还有UUID
+                nowEditingBundle.ClearAllCardCache();
                 foreach (var variable in bundle.cards)
                 {
                     nowEditingBundle.allCardsFriendlyName.Add(variable.FriendlyCardName);
                     nowEditingBundle.allCardName.Add(variable.CardName);
+                    nowEditingBundle.allCardUuid.Add(variable.UUID);
                 }
 
                 Debug.Log($"成功加载卡组“{bundle.manifest.FriendlyBundleName}”，内含{bundle.cards.Length}张卡牌");

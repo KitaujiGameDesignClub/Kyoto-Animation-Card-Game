@@ -240,13 +240,7 @@ public class GameStageCtrl : MonoBehaviour
 
                 //信息填充
                 panel.Profile = Profile;
-                //资源填充
-                panel.voiceAbility = ability;
-                panel.voiceExit = Exit;
-                panel.voiceDefeat = Defeat;
-                panel.voiceDebut = Debut;
-                //如果不提供图片，则用此预设的默认图片（在panel的EnterGameMode中执行）
-                panel.CoverImage = coverImage;     
+                //对于音频资源和图片资源的填充，零待商榷
             }
 
             //层级视图中的上下关系修正

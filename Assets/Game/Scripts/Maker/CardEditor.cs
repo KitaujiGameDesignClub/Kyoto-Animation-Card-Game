@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Core;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
@@ -8,6 +9,8 @@ using KitaujiGameDesignClub.GameFramework.UI;
 using Lean.Gui;
 using SimpleFileBrowser;
 using TMPro;
+using UnityEditor;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -331,9 +334,10 @@ namespace Maker
                             CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Remove(nowEditingCard
                                 .FriendlyCardName);
                             CardMaker.cardMaker.nowEditingBundle.allCardName.Remove(nowEditingCard.CardName);
+                            CardMaker.cardMaker.nowEditingBundle.allCardUuid.Remove(nowEditingCard.UUID);
 
-                            //然后切换
-                            switchToBundleEditor.OnClick.Invoke();
+                          //然后切换
+                          switchToBundleEditor.OnClick.Invoke();
 
 
                         }), "确认删除", delegate { }, "再想想");
@@ -475,7 +479,30 @@ namespace Maker
             abilityResultParameterToChange.value=((int)nowEditingCard.Result.ParameterToChange);
             abilityResultChangeMethod.value=((int)nowEditingCard.Result.ChangeMethod);
             abilityResultChangeValue.inputField.text=(nowEditingCard.Result.Value);
-            abilityResultSummon.inputField.text=(nowEditingCard.Result.SummonCardName);
+            //适用于旧版本兼容（其实是引入Uuid之后，这方面的逻辑忘了改了。。。）
+            if(!Guid.TryParse(nowEditingCard.Result.SummonCardName, out Guid guid))
+            {
+                //如果不是一个合法的guid（那就是friendlyName了）。则自动修复
+
+                //确确实实有这个卡牌的话，那就直接显示这个友好名称了
+                if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Contains(nowEditingCard.FriendlyCardName))
+                {
+                    abilityResultSummon.inputField.text = nowEditingCard.FriendlyCardName;
+                }
+                //这个卡牌有都没有的话 ，就无视这个参数
+                else
+                {
+                    abilityResultSummon.inputField.text = string.Empty;
+                    Debug.LogError($"“{nowEditingCard.Result.SummonCardName}”既不是一个合法的uuid，也不是一个已有卡牌的友好名称");
+                }
+            }
+            else
+            {
+                //如果是一个合法的guid。那就读取对应卡牌的友好名称
+                int index = CardMaker.cardMaker.nowEditingBundle.allCardUuid.FindIndex(n => n.Contains(nowEditingCard.Result.SummonCardName));
+                abilityResultSummon.inputField.text = CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName[index];
+            }
+            
             abilityResultSummon.ChangeOptionDatas(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
             abilityResultRidicule.text = (nowEditingCard.Result.Ridicule.ToString());
             abilityResultSilence.text = (nowEditingCard.Result.Silence.ToString());
@@ -679,6 +706,7 @@ namespace Maker
             
             //内存保存
             var editing = CardMaker.cardMaker.nowEditingBundle.card;
+            editing.UUID = string.IsNullOrEmpty(editing.UUID) ? Guid.NewGuid().ToString() : editing.UUID;
             editing.CardName = cardNameField.text;
             editing.AuthorName = AuthorNameField.text;
             editing.gender = genderField.value;
@@ -702,7 +730,14 @@ namespace Maker
             editing.Reason.ReasonJudgeMethod = (Information.JudgeMethod)abilityReasonJudgeMethod.value;
             editing.Reason.Threshold = abilityReasonJudgeThreshold.text;
             editing.Result.RegardActivatorAsResultObject = abilityReasonObjectAsTarget.On;
-            editing.Result.SummonCardName = abilityResultSummon.text;
+            int index = CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.FindIndex(a => a.Contains(abilityResultSummon.text));
+            if(index >= 0) editing.Result.SummonCardName = CardMaker.cardMaker.nowEditingBundle.allCardUuid[index];
+            //你这输入的卡牌友好名称不存在啊
+            else
+            {
+                Notify.notify.CreateBannerNotification(null,$"此卡组中不存在友好名称为“{abilityResultSummon.text}”的卡牌");
+                return;
+            }
             editing.Result.Ridicule = int.Parse(abilityResultRidicule.text);
             editing.Result.Silence = int.Parse(abilityResultSilence.text);
             editing.Result.ResultObject.LargeScope = (Information.Objects)abilityResultLargeScope.value;
@@ -712,9 +747,6 @@ namespace Maker
             editing.Result.ParameterToChange = (Information.Parameter)abilityResultParameterToChange.value;
             editing.Result.ChangeMethod = (Information.CalculationMethod)abilityResultChangeMethod.value;
             editing.Result.Value = abilityResultChangeValue.text;
-
-            //UUID
-            editing.UUID = string.IsNullOrEmpty(editing.UUID) ? Guid.NewGuid().ToString() : editing.UUID;
         
             //封面 string.IsNullOrEmpty(newImageFullPath) = true 没有选择新图片
             editing.ImageName = string.IsNullOrEmpty(newImageFullPath)
@@ -736,20 +768,24 @@ namespace Maker
             //禁用识别名称输入
             cardNameField.interactable = false;
 
-
             //卡组清单文件存在（保存）
             if (File.Exists(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath))
             {
+                //如果卡牌文件不存在，说明是新建的卡牌，以前还没有
+                if (!File.Exists($"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/cards/{nowEditingCard.CardName}/{Information.CardFileName}"))
+                {
+                    //注册此卡牌，使其能在manifest编辑器那边的切换器中显示出来
+                    var card = CardMaker.cardMaker.nowEditingBundle.card;
+                    CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Add(card.FriendlyCardName);
+                    CardMaker.cardMaker.nowEditingBundle.allCardName.Add(card.CardName);
+                    CardMaker.cardMaker.nowEditingBundle.allCardUuid.Add(card.UUID);
+                }              
+
                 var saveFullPath =
-                    $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/cards/{cardNameField.text}/{Information.CardFileName}";
+                   $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/cards/{cardNameField.text}/{Information.CardFileName}";
                 await CardMaker.cardMaker.AsyncSave(null, null, FileBrowserHelpers.GetDirectoryName(saveFullPath),
                     newImageFullPath, false, true,
                     audios);
-
-                //注册此卡牌，使其能在manifest编辑器那边的切换器中显示出来
-                var card = CardMaker.cardMaker.nowEditingBundle.card;
-                CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Add(card.FriendlyCardName);
-                CardMaker.cardMaker.nowEditingBundle.allCardName.Add(cardNameField.text);
 
                 Debug.Log(
                     $"此卡牌“{CardMaker.cardMaker.nowEditingBundle.card.FriendlyCardName}”属于卡组“{CardMaker.cardMaker.nowEditingBundle.manifest.FriendlyBundleName}”，已自动保存到该卡组中");
