@@ -1,9 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Core;
 using Cysharp.Threading.Tasks;
 using System;
+using KitaujiGameDesignClub.GameFramework.UI;
+using System.IO;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// 在加载好卡牌的情况下，游戏的本体逻辑应当都在这边
@@ -71,11 +74,13 @@ public class GameStageCtrl : MonoBehaviour
             {
                 await item.OnDebut();
             }
+
+            ShowAbilityNews($"{nameof(BattleSystem)}", null, "卡牌登场指令执行完成");
+            await UniTask.Delay(300);
+
+
         }
 
-        await UniTask.Delay(500);
-
-        ShowAbilityNews($"{nameof(BattleSystem)}",null,"卡牌登场指令执行完成");
 
         //调整游戏状态为“在打架”
         GameState.gameState = Information.GameState.Competition;
@@ -146,12 +151,12 @@ public class GameStageCtrl : MonoBehaviour
             var card = GetCardPanelOnSpot(teamId, i);
 
             //如果找到了一个这一回合还没打的卡牌的话，让他打，并终止for
-            if (!card.thisRoundHasActiviated)
+            if (!card.ThisRoundHasActiviated)
             {
                 //但是，如果这个牌 在同一方 比起刚刚已经打过的卡牌的序号要小（即在左侧多了个牌），跳过去，并认为他打了
-                if(GameState.whichCardPerforming[teamId] > card.cardId)
+                if(GameState.whichCardPerforming[teamId] > card.CardId)
                 {
-                    card.thisRoundHasActiviated = true;
+                    card.ThisRoundHasActiviated = true;
                     continue;
                 }
 
@@ -166,28 +171,28 @@ public class GameStageCtrl : MonoBehaviour
                 //执行卡牌这一回合该做的事情              
 
                 //没有沉默，正常打架
-                if (card.silence <= 0)
+                if (card.Silence <= 0)
                 {
                     //沉默回合数<0，＋1
-                    if(card.silence < 0)  card.silence++;
+                    if(card.Silence < 0)  card.Silence++;
                     //执行每回合都执行的攻击逻辑
                    await card.Attack(GetCardPanelOnSpot(teamId == 0? 1:0,UnityEngine.Random.Range(0,GameState.CardOnSpot[teamId == 0 ? 1 : 0].Count)));
                 }
                 //沉默了的，不打架了
                 else
                 {
-                    card.silence--;
+                    card.Silence--;
                 }
 
                     //记录一下，这个牌打过了
-                    card.thisRoundHasActiviated = true;
+                    card.ThisRoundHasActiviated = true;
 
                 //如果最右侧的卡打完了（打架逻辑在上面，则重置这一方所有的卡
                 if (i == GameState.CardOnSpot[teamId].Count - 1)
                 {
                     foreach (var item in GameState.CardOnSpot[teamId])
                     {
-                        item.thisRoundHasActiviated = false;
+                        item.ThisRoundHasActiviated = false;
                     }
                     GameState.whichCardPerforming[teamId] = 0;
                 }
@@ -212,48 +217,115 @@ public class GameStageCtrl : MonoBehaviour
 
     #region 卡牌调整逻辑
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="cardDiectoryPath">可以为null，但是会不加载音频和图片</param>
+    /// <param name="teamId"></param>
+    /// <param name="cardId"></param>
+    /// <param name="loadedCard"></param>
+    /// <returns></returns>
+    public async UniTask<CardPanel> LoadCardFromDiskAndDisplay(string cardDiectoryPath, int teamId, int cardId, CharacterCard loadedCard = null)
+    {
+       var uuid = await LoadCardAndSaveInCache(cardDiectoryPath, loadedCard);
+       return await DisplayCardFromCache(uuid, teamId, cardId);
+    }
 
     /// <summary>
-    /// 将某一卡牌上场，并在舞台上显示（正式游戏中要求提前加载好所需的资源）
+    /// 加载卡牌，并存到缓存中（不产生cardPanel）
     /// </summary>
-    /// <param name="Profile">卡牌配置</param>
-    /// <param name="teamId"></param>
-    /// <param name="coverImage"></param>
-    /// <param name="Debut"></param>
-    /// <param name="ability"></param>
-    /// <param name="Defeat"></param>
-    /// <param name="Exit"></param>
-    /// <param name="index">放置位置。-1则为最后一个卡，0则放在第一个，1放在第二个，以此类推，最大5</param>
-    /// <returns></returns>
-    public async UniTask<CardPanel> AddCardAndDisplayInStage(CharacterCard Profile, int teamId, Sprite coverImage, AudioClip Debut, AudioClip ability, AudioClip Defeat, AudioClip Exit,int index = -1)
+    /// <param name="profile"></param>
+    /// <returns>uuid</returns>
+    public async UniTask<string> LoadCardAndSaveInCache(string cardDiectoryPath, CharacterCard loadedCard = null)
     {
+        if(cardDiectoryPath == null && loadedCard == null)
+        {
+            UnityEngine.Debug.LogError("参数全空？");
+            return null;
+        }
+
+        //读yml
+        loadedCard ??= await CardReadWrite.GetOneCard(Path.Combine(cardDiectoryPath, Information.CardFileName), false);
+
+        //没给路径，不加载这些
+        if (!string.IsNullOrEmpty(cardDiectoryPath))
+        {
+            //图片加载              
+            //加载图片，如果加载失败的话，就用预设自带的默认图片了（panel到时候会被实例化，自带一个默认图片）
+            var texture = await CardReadWrite.CoverImageLoader(Path.Combine(cardDiectoryPath, loadedCard.ImageName));
+            Sprite image = null;
+            if (texture != null)
+            {
+                image = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.one / 2);
+
+            }
+            //音频加载
+            var (debut, ability, defeat, exit) = await UniTask.WhenAll(CardReadWrite.CardAudioLoader($"{cardDiectoryPath}/{loadedCard.voiceDebutFileName}"),
+                                                     CardReadWrite.CardAudioLoader($"{cardDiectoryPath} / {loadedCard.voiceAbilityFileName}"),
+                                                     CardReadWrite.CardAudioLoader($"{cardDiectoryPath} / {loadedCard.voiceDefeatFileName}"),
+                                                     CardReadWrite.CardAudioLoader($"{cardDiectoryPath}  /  {loadedCard.voiceExitFileName}"));
+
+        
+            //创建缓存
+            GameState.cardCaches.Add(new CardCache(loadedCard, debut, defeat, exit, ability, image));
+        }
+        else  GameState.cardCaches.Add(new CardCache(loadedCard, null, null, null, null, null));
+
+        return loadedCard.UUID;
+    }
+
+    /// <summary>
+    /// 从缓存中获取一个卡牌，然后显示它，没缓存的话会报错
+    /// </summary>
+    /// <param name="uuid"></param>
+    /// <param name="teamId"></param>
+    /// <param name="cardId">-1 在卡牌的最后（最右侧）生成  0是第一个</param>
+    /// <returns></returns>
+    public async UniTask<CardPanel> DisplayCardFromCache(string uuid,int teamId,int cardId = -1)
+    {
+        //先找缓存
+        var cacheIndex = -1;
+        for (int i = 0; i < GameState.cardCaches.Count; i++)
+        {
+            if (GameState.cardCaches[i].UUID == uuid)
+            {
+                cacheIndex = i;
+                break;
+            }
+        }
+
+        if(cacheIndex < 0)
+        {
+            Notify.notify.CreateBannerNotification(null, "卡牌创建发生错误，已终止。");
+            Debug.LogError($"卡牌uuid“{uuid}”无法在缓存中找到，原因未知");
+            return null;
+        }
+
         //这个对外显示
         CardPanel panel = null;
 
-        //还没超过上限的话 //以后要解除上线
+        //还没超过上限的话 //以后要解除上线，并且能找到Uuid
         if (GetCardCount(teamId) < Information.TeamMaxCardOnSpotCount)
         {
             if(panel == null)
             {
                 //新建一个卡面
                 panel = Instantiate(cardPrefeb, Vector2.zero, Quaternion.identity, TeamParent(teamId));
-
                 //信息填充
-                panel.Profile = Profile;
-                //对于音频资源和图片资源的填充，零待商榷
+                panel.cacheId = cacheIndex;
             }
 
             //层级视图中的上下关系修正
-            if (index >= 0) panel.tr.SetSiblingIndex(index + 6);
+            if (cardId >= 0) panel.tr.SetSiblingIndex(cardId + 6);
 
             //记录此卡牌
-            if (index < 0) GameState.CardOnSpot[teamId].Add(panel);
-            else GameState.CardOnSpot[teamId].Insert(index, panel);
+            if (cardId < 0) GameState.CardOnSpot[teamId].Add(panel);
+            else GameState.CardOnSpot[teamId].Insert(cardId, panel);
 
             //进入到游戏模式中
             panel.EnterGameMode();
             //赋予teamId
-            panel.teamId = teamId;
+            panel.TeamId = teamId;
             //整理场上的卡牌排序
             ArrangeTeamCardOnSpot(teamId);
             //修改物体名称
@@ -329,7 +401,7 @@ public class GameStageCtrl : MonoBehaviour
                 }
 
                 //赋予cardId
-                GameState.CardOnSpot[teamId][i - 6].cardId = i - 6;
+                GameState.CardOnSpot[teamId][i - 6].CardId = i - 6;
             }
             //没被激活的话，还是报错吧，这里不应该有没被激活的
             else
@@ -357,7 +429,7 @@ public class GameStageCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// 移除某个组的某个卡牌，并释放资源
+    /// 移除某个组的某个卡牌（不会影响卡牌缓存）
     /// </summary>
     /// <param name="teamId">0=A 1=B</param>
     /// <param name="index">第几张卡（从0开始）</param>
@@ -494,7 +566,7 @@ public class GameStageCtrl : MonoBehaviour
         //如果开着测试模式
         if(testMode != null)
         {
-            string content = string.Empty;
+            string content = null;
             if (string.IsNullOrEmpty(Subject))
             {
                 throw new ArgumentException($"“{nameof(Subject)}”不能为 null 或空。", nameof(Subject));

@@ -21,10 +21,6 @@ public class TestMode : MonoBehaviour
 
     [Header("通用")]
     public TMP_Text title;
-    /// <summary>
-    /// 切换到游戏场景之前，需要执行的事件
-    /// </summary>
-    private List<UnityAction> eventBeforeSwitchToGame = new();
     public CanvasGroup panel;
     public TMP_Text loadState;
     public LeanButton panelCloseButton;
@@ -155,7 +151,6 @@ public class TestMode : MonoBehaviour
         //初始化额外加载状态
         loadState.text = string.Empty;
         GameUI.gameUI.SetBanInputLayer(true, "测试模式载入中...");
-        BackgroundActivity();
 
 
         #region 卡牌选择器
@@ -262,38 +257,33 @@ public class TestMode : MonoBehaviour
         });
 
 
-        //确认此卡牌上场，并添加加载资源的事件
-        CardSelectorConfirmButton.OnClick.AddListener(delegate
+        //确认此卡牌上场
+        CardSelectorConfirmButton.OnClick.AddListener(UniTask.UnityAction( async () => 
         {
             //allBundles[selectedBundleId]：所选卡组
 
             //不选择卡牌，不允许执行确认操作
             if (CardList.DropdownValue > 0)
             {
-                //添加加载资源的事件
-                eventBeforeSwitchToGame.Add(UniTask.UnityAction(async () =>
-                {
-                    //所选卡牌
-                    var card = allBundles[selectedBundleId].cards[selectedCardId];
-                    loadState.text = $"正在加载“{card.FriendlyCardName}”，请等待...";
-                    //所选卡牌的文件夹路径
-                    var cardDiectoryPath = $"{Path.GetDirectoryName(allBundles[selectedBundleId].manifestFullPath)}/cards/{card.CardName}";
+                //所选卡牌
+                var card = allBundles[selectedBundleId].cards[selectedCardId];
+                loadState.text = $"正在加载“{card.FriendlyCardName}”，请等待...";
+                //所选卡牌的文件夹路径
+                var cardDiectoryPath = $"{Path.GetDirectoryName(allBundles[selectedBundleId].manifestFullPath)}/cards/{card.CardName}";
 
-                    //图片加载              
-                    var image = await LoadCoverImage($"{cardDiectoryPath}/{card.ImageName}");
-                    //音频加载
-                    var audios = await LoadAllAudioOfOneCard(card, cardDiectoryPath);
-                    GameStageCtrl.stageCtrl.AddCardAndDisplayInStage(card, 0, image, audios[0], audios[1], audios[2], audios[3]);
-                    loadState.text = string.Empty;
-                    image = null;
-                    audios = null;
-                    //刷新删除按钮的激活状态
-                    RefreshDeletionButtonState();
-                }));
+                //添加卡牌咯
+                await GameStageCtrl.stageCtrl.LoadCardFromDiskAndDisplay(cardDiectoryPath, 0, -1, card);
+
+                //刷新删除按钮的激活状态
+                RefreshDeletionButtonState();
+
+                //消除挂起
+                loadState.text = null;
+
             }
 
           
-        });
+        }));
         #endregion
 
         #region 语音测试器
@@ -336,14 +326,14 @@ public class TestMode : MonoBehaviour
         //开关
         Toggle(battleEmulatorToggle, battleEmulator);
         //添加敌机
-        BattleEnemyAdditionButton.onClick.AddListener(delegate 
+        BattleEnemyAdditionButton.onClick.AddListener(async delegate 
         {
             //清除已有敌机
             GameStageCtrl.stageCtrl.RemoveAllCardsOnSpot(1);
             //添加卡牌（反正现在就一个敌机卡）
             for (int i = 0; i < enemy[0].enemyProfile.CardCount; i++)
             {
-                GameStageCtrl.stageCtrl.AddCardAndDisplayInStage(enemy[0].enemyProfile, 1, enemy[0].image.sprite, null, null, null, null);
+               await AddEnemyCard(enemy[0].enemyProfile);
             } 
         });
 
@@ -412,25 +402,6 @@ public class TestMode : MonoBehaviour
         else roundLogger.text = $"{roundLogger.text}\n <b>YUKI.N ></b> {news}";
     }
 
-    [Obsolete("maybe useless")]
-    private async UniTask BackgroundActivity()
-    {
-        while (true)
-        {
-            await UniTask.Yield(PlayerLoopTiming.Update);
-
-            if(eventBeforeSwitchToGame.Count > 0)
-            {
-              eventBeforeSwitchToGame[0].Invoke();
-                //即使被remove掉，这个事件仍会继续运行
-              eventBeforeSwitchToGame.RemoveAt(0);
-            }
-            else
-            {
-                await UniTask.Yield(PlayerLoopTiming.Update);
-            }
-        }
-    }
 
     #region 通用
     void Toggle(Toggle toggle,GameObject panelObject)
@@ -510,34 +481,30 @@ public class TestMode : MonoBehaviour
         cardDescription.text = $"<b>能力介绍：</b>\n<margin-left=1em><size=80%>{cardContent.AbilityDescription}";
     }
 
-    async UniTask<Sprite> LoadCoverImage(string inmageFullPath)
+    #endregion
+
+    #region 打架模拟器配套方法
+
+    private async UniTask AddEnemyCard(CharacterCard characterCard)
     {
-        //加载图片，如果加载失败的话，就用预设自带的默认图片了
-        var texture = await CardReadWrite.CoverImageLoader(inmageFullPath);
-        if (texture != null)
-        {
-            return Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.one / 2);
+        CardPanel card = null;
+
+        //先看看缓存里有没有
+        foreach (CardCache item in GameState.cardCaches)
+        {            
+            //有的话就生成
+            if (item.UUID == characterCard.UUID)
+            {
+              card =  await GameStageCtrl.stageCtrl.DisplayCardFromCache(characterCard.UUID, 1);
+                break;
+            }
         }
-        else return null;
 
-    }
+        //没有的话就生成吧
+      if(card == null) card = await GameStageCtrl.stageCtrl.LoadCardFromDiskAndDisplay(null, 1, -1, characterCard);
 
-    /// <summary>
-    /// 按照debut ability defeat exit的顺序读取某个卡牌所有的音频
-    /// </summary>
-    /// <param name="cardContent"></param>
-    /// <param name="cardDirectoryPath"></param>
-    /// <returns></returns>
-    async UniTask<AudioClip[]> LoadAllAudioOfOneCard(CharacterCard cardContent,string cardDirectoryPath)
-    {
-        var (debut, ability, defeat, exit) = await UniTask.WhenAll(CardReadWrite.CardAudioLoader($"{cardDirectoryPath}/{cardContent.voiceDebutFileName}"),
-                                             CardReadWrite.CardAudioLoader($"{cardDirectoryPath}/{cardContent.voiceAbilityFileName}"),
-                                             CardReadWrite.CardAudioLoader($"{cardDirectoryPath}/{cardContent.voiceDefeatFileName}"),
-                                             CardReadWrite.CardAudioLoader($"{cardDirectoryPath}/{cardContent.voiceExitFileName}"));
-
-        AudioClip[] clips =  {debut,ability,defeat,exit};
-        return clips;
-
+      //换图片（反正现在就一个敌机）
+        card.image.sprite = enemy[0].image.sprite;
 
     }
     #endregion

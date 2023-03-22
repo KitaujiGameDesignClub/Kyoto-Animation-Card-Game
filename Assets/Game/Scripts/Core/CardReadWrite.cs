@@ -36,7 +36,7 @@ namespace Core
 
         public static void ImportDictionary(string fullPath, Information.DictionaryType dictionaryType)
         {
-            FileBrowserHelpers.CopyFile(fullPath,$"{YamlReadWrite.UnityButNotAssets}/saves/{dictionaryType.ToString()}.yml");
+            FileBrowserHelpers.CopyFile(fullPath,$"{YamlReadWrite.UnityButNotAssets}/saves/{dictionaryType}.yml");
            
           
         }
@@ -171,14 +171,14 @@ namespace Core
                 try
                 {
                     //读一下试试
-                    StreamReader streamReader = new StreamReader(manifestEntry.Open());
+                    StreamReader streamReader = new(manifestEntry.Open());
                     var content = streamReader.ReadToEnd();
                     streamReader.Close();
                     streamReader.Dispose();
                     zipArchive.Dispose();
 
                     //看看能不能加载出manifest来
-                    Deserializer deserializer = new Deserializer();
+                    Deserializer deserializer = new();
 
                     var manifest = (CardBundlesManifest)deserializer.Deserialize(content, typeof(CardBundlesManifest));
 
@@ -391,21 +391,16 @@ namespace Core
         /// <returns></returns>
         public static async UniTask<Bundle> GetOneBundle(string manifestFullPath)
         {
-            var manifest = new CardBundlesManifest();
-            var cards = Array.Empty<CharacterCard>();
-
             try
             {
-               
-                    //读取清单文件
-                    manifest =
-                        await YamlReadWrite.ReadAsync<CardBundlesManifest>(
-                            new DescribeFileIO(Path.GetFileName(manifestFullPath),
-                                $"-{Path.GetDirectoryName(manifestFullPath)}"),
-                            null, false);
 
-
-                cards = await GetAllCardsOfOneBundle(manifestFullPath);
+                //读取清单文件
+                CardBundlesManifest manifest =
+                    await YamlReadWrite.ReadAsync<CardBundlesManifest>(
+                        new DescribeFileIO(Path.GetFileName(manifestFullPath),
+                            $"-{Path.GetDirectoryName(manifestFullPath)}"),
+                        null, false);
+                CharacterCard[] cards = await GetAllCardsOfOneBundle(manifestFullPath);
 
 
                 return new Bundle(manifest, cards, manifestFullPath);

@@ -15,39 +15,56 @@ using Random = System.Random;
 /// </summary>
 public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义行为（写代码）
 {
+    /// <summary>
+    /// 缓存
+    /// </summary>
+   public CardCache cardCache
+    {
+        get => GameState.cardCaches[cacheId];
+        private set { GameState.cardCaches[cacheId] = value; }
+    }
 
     /// <summary>
-    /// 此角色卡的配置文件（用于游戏中对某些参数的修改）
+    /// 
     /// </summary>
-    public CharacterCard Profile;
+    public CharacterCard Profile
+    {
+        get { return cardCache.Profile; }
+        set { cardCache.Profile = value; }
+    }
 
     /// <summary>
-    ///  卡牌的缓存
+    /// 卡牌缓存中的id
     /// </summary>
-    internal CardCache cardCache;
+    public int cacheId { get; set; }
 
     /// <summary>
     /// 是哪一个玩家的可用牌 0=A 1=B
     /// </summary>
-    [HideInInspector] public int teamId;
+    public int TeamId { get; set; }
     /// <summary>
     /// 这一组内第几个卡牌（从0开始）
     /// </summary>
-    [HideInInspector] public int cardId;
+   public int CardId { get; set; }
     /// <summary>
     /// 沉默回合数  新卡为0
     /// </summary>
-    [HideInInspector] public int silence = 0;
+     public int Silence { get; set; }
     /// <summary>
     /// 嘲讽回合数 新卡为0
     /// </summary>
-    [HideInInspector] public int ridicule = 0;
+     public int Ridicule { get; set; }
+    
     /// <summary>
     /// 实际攻击力（各种影响攻击力的都对这个参数修改）
     /// </summary>
     public int ActualPower
     {
-        get => Profile.BasicPower; set => Profile.BasicPower = value;
+        get => Profile.BasicPower; 
+        set {
+            Profile.BasicPower = value; 
+            powerValue.text = value.ToString();
+        }
     }
     
     /// <summary>
@@ -55,12 +72,16 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// </summary>
     public int ActualHealthPoint
     {
-        get => Profile.BasicHealthPoint; set => Profile.BasicHealthPoint = value;
+        get => Profile.BasicHealthPoint; 
+        set {
+            Profile.BasicHealthPoint = value;
+            hpValue.text = value.ToString();
+                }
     }
     /// <summary>
     /// 这一轮游戏这个卡牌已经干过活了
     /// </summary>
-    [HideInInspector] public bool thisRoundHasActiviated = false;
+    public bool ThisRoundHasActiviated { get; set; }
 
     //之后的话，需要给资源建立一个缓存池，省的卡牌上场的时候卡顿
 
@@ -85,16 +106,19 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     public CardPanelInformation cardInformation;
     public GameObject[] gameModeToDestroy;
 
+
+    #region 信息填充与恢复
     /// <summary>
     /// 回复卡牌至最初始的状态
     /// </summary>
     public void RecoverCard()
     {
         //各种数据的恢复
-        Profile = cardCache.card;
-    }
 
-    #region 信息填充
+        Silence = 0;
+        Ridicule = 0;
+        ThisRoundHasActiviated = false;
+    }
 
 
     /// <summary>
@@ -195,17 +219,17 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
             //火力提升了，通知一下
             if(value2 > ActualPower)
             {
-                cardInformation.Show($"Power\n+ {value2 - ActualHealthPoint}", false);
+                cardInformation.Show($"Power\n+ {value2 - ActualPower}", false);
             }
             //火力被降低了
             else if (value2 < ActualPower)
             {
-                cardInformation.Show($"Power\n- {ActualHealthPoint - value2}", true);
+                cardInformation.Show($"Power\n- {ActualPower - value2}", true);
             }
 
+            Debug.Log(ActualPower + " " + value2);
+            //参数修改
             ActualPower = value2;
-            //更新显示
-            hpValue.text = ActualHealthPoint.ToString();
         }
 
         if (changeHealth)
@@ -213,21 +237,21 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
            //是挨打          
           if(ActualHealthPoint > value1)
             {
+                cardInformation.Show($"HP\n- {ActualHealthPoint - value1}", true);
+                //修改参数
+                ActualHealthPoint = value1;
                 //告知自己挨打了
                 OnHurt(Activator);
-                cardInformation.Show($"HP\n- {ActualHealthPoint - value1}",true);
-                GameStageCtrl.stageCtrl.ShowAbilityNews($"{Activator.Profile.FriendlyCardName}(tid:{Activator.teamId},id:{Activator.cardId})",$"{Profile.FriendlyCardName}(tid:{teamId},cid:{cardId})",$"的HP - {ActualHealthPoint - value1}");
+              
             }
           //是回血
             else  if(ActualHealthPoint < value1)
             {
                 cardInformation.Show($"HP\n+ {value1 - ActualHealthPoint}", false);
+                //修改参数
+                ActualHealthPoint = value1;
             }
-
-          //修改参数
-            ActualHealthPoint = value1;
-            //更新显示
-            powerValue.text = ActualPower.ToString();
+         
         }
       
     }
@@ -258,7 +282,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
         if(ActualPower <= 0)
         {
-            GameStageCtrl.stageCtrl.ShowAbilityNews($"{Profile.FriendlyCardName}(tid:{teamId},id{cardId})", null, "因为执行力（攻击力）=0，无法攻击");
+            GameStageCtrl.stageCtrl.ShowAbilityNews($"{Profile.FriendlyCardName}(tid:{TeamId},id{CardId})", null, "因为执行力（攻击力）=0，无法攻击");
             await UniTask.Delay(400);
             return;
         }
@@ -307,7 +331,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
             await AbilityReasonAnalyze(activator);
         }
 
-        GameStageCtrl.stageCtrl.RecycleCardOnSpot(teamId, cardId);
+        GameStageCtrl.stageCtrl.RecycleCardOnSpot(TeamId, CardId);
     }
 
     public async UniTask OnHurt(CardPanel activator)
@@ -317,7 +341,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         {           
             //分析一下该做什么，顺便触发能力
           await AbilityReasonAnalyze(activator,"from OnHurt");
-            await UniTask.Delay(300);
+            await UniTask.Delay(100);
         }
 
         if (ActualHealthPoint <= 0) await Exit(activator);
@@ -373,12 +397,11 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
         #endregion
 
-        //以下为二次判定，可以做多条件判断的那种
+        //以下为二次判定，可以做多条件判断的那种（从判断参数开始）
 
         //一开始就没选到卡牌的话，就算了
         if (chief != null || ReasonObjects != null)
-        {
-          
+        {       
 
             //判断的参数
             string[] parameterValues; //获取要判断的参数的值
@@ -394,15 +417,13 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                 parameterValues = new string[ReasonObjects.Length];
             }
 
-
             #region 获取判断的参数的值
 
             switch (Profile.Reason.JudgeParameter)
             {
-                //如果“判定参数”选择“不涉及参数”，那就直接解析结果了
+                //如果“判定参数”选择“不涉及参数”，那此能力不会发动
                 case Information.Parameter.None:
-                    AbilityResultAnalyze(ReasonObjects);
-                   return;
+                  return;
 
                 //部长/主席/主持的金币数量
                 case Information.Parameter.Coin:
@@ -433,7 +454,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     {
                         for (int i = 0; i < parameterValues.Length; i++)
                         {
-                            parameterValues[i] = ReasonObjects[i].silence.ToString(); //0 1 2...
+                            parameterValues[i] = ReasonObjects[i].Silence.ToString(); //0 1 2...
                         }
                     }
                     else
@@ -448,7 +469,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     {
                         for (int i = 0; i < parameterValues.Length; i++)
                         {
-                            parameterValues[i] = ReasonObjects[i].ridicule.ToString(); //0 1 2...
+                            parameterValues[i] = ReasonObjects[i].Ridicule.ToString(); //0 1 2...
                         }
                     }
                     else
@@ -478,7 +499,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     {
                         for (int i = 0; i < parameterValues.Length; i++)
                         {
-                            parameterValues[i] = ReasonObjects[i].teamId.ToString();
+                            parameterValues[i] = ReasonObjects[i].TeamId.ToString();
                         }
                     }
                     else
@@ -539,6 +560,9 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     break;
             }
 
+#if UNITY_EDITOR
+            Debug.Log($"判定参数：{parameterValues.Length}");
+#endif
             #endregion
 
 
@@ -565,10 +589,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
 
         //运用判断逻辑，对阈值进行判定
-        //只要存在一个符合要求的，就说明
+        //只要存在一个符合要求的，就说明能力能发动
         bool AllowAbilityExection = false;
-        //储存每个条件对象对于此参数要求是否满足 （true就符合条件）
-        var CheckedFixedValuesState = new bool[values.Length];
 
         #region 运用判断逻辑，对阈值进行判定
 
@@ -639,38 +661,35 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                             {
                                 //-3 不包含（不等于）
                                 case -3:
-                                    CheckedFixedValuesState[i] = fixedValues[i] != thresholdInt;
+                                    AllowAbilityExection = fixedValues[i] != thresholdInt;
                                     break;
 
                                 //-2 小于
                                 case -2:
-                                    CheckedFixedValuesState[i] = fixedValues[i] < thresholdInt;
+                                    AllowAbilityExection = fixedValues[i] < thresholdInt;
                                     break;
 
                                 //小于等于
                                 case -1:
-                                    CheckedFixedValuesState[i] = fixedValues[i] <= thresholdInt;
+                                    AllowAbilityExection = fixedValues[i] <= thresholdInt;
                                     break;
 
                                 //等于（包含）
                                 case 0:
-                                    CheckedFixedValuesState[i] = fixedValues[i] == thresholdInt;
+                                    AllowAbilityExection = fixedValues[i] == thresholdInt;
                                     break;
 
                                 //大于等于
                                 case 1:
-                                    CheckedFixedValuesState[i] = fixedValues[i] >= thresholdInt;
+                                    AllowAbilityExection = fixedValues[i] >= thresholdInt;
                                     break;
 
                                 //大于
                                 case 2:
-                                    CheckedFixedValuesState[i] = fixedValues[i] > thresholdInt;
+                                    AllowAbilityExection = fixedValues[i] > thresholdInt;
                                     break;
                             }
                         }
-
-                        //如果有参数符合要求，则记录以下，说明能力能正常被触发了
-                        if (CheckedFixedValuesState[i]) AllowAbilityExection = true;
 
 
                         //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
@@ -692,18 +711,14 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                         {
                             //-3 不等于（不包含）
                             case -3:
-                                CheckedFixedValuesState[i] = values[i] != Profile.Reason.Threshold;
+                                AllowAbilityExection = values[i] != Profile.Reason.Threshold;
                                 break;
 
                             //等于（包含）
                             case 0:
-                                CheckedFixedValuesState[i] = values[i] == Profile.Reason.Threshold;
+                                AllowAbilityExection = values[i] == Profile.Reason.Threshold;
                                 break;
                         }
-
-
-                        //如果有触发对象的参数符合要求，则记录以下，说明能力能正常被触发了
-                        if (CheckedFixedValuesState[i]) AllowAbilityExection = true;
 
 
                         //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
@@ -715,14 +730,14 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
                     break;
 
-                //每一个角色卡记录的tags:=SOS=coward
+                //每一个角色卡记录的tags:，SOS，coward
                 case Information.Parameter.Tag:
 
                     //看看记录的values（包含参数的数据值本身）有没有满足要求
                     for (int i = 0; i < values.Length; i++)
                     {
                         //得到每一个对象的所有tag（0不能要）
-                        string[] allTags = values[i].Split('=');
+                        string[] allTags = values[i].Split('，');
 
 
                         //按照记录的逻辑方式判断能否
@@ -730,18 +745,14 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                         {
                             //-3 不包含
                             case -3:
-                                CheckedFixedValuesState[i] = !allTags.Contains(Profile.Reason.Threshold);
+                                AllowAbilityExection = !allTags.Contains(Profile.Reason.Threshold);
                                 break;
 
                             //等于（包含）
                             case 0:
-                                CheckedFixedValuesState[i] = allTags.Contains(Profile.Reason.Threshold);
+                                AllowAbilityExection = allTags.Contains(Profile.Reason.Threshold);
                                 break;
                         }
-
-
-                        //如果有触发对象的参数符合要求，则记录以下，说明能力能正常被触发了
-                        if (CheckedFixedValuesState[i]) AllowAbilityExection = true;
 
 
                         //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
@@ -761,7 +772,10 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //有符合要求的条件对象，就执行能力的结果逻辑
         if (AllowAbilityExection)
         {
-            AbilityResultAnalyze(ReasonObjects);
+#if UNITY_EDITOR
+                Debug.Log("满足要求，能力发动");
+#endif
+                AbilityResultAnalyze(ReasonObjects);
         }
 
         }
@@ -855,7 +869,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                         //实现2：双方互换
                         if(Profile.Result.Value == 2.ToString())
                         {
-                            card.ChangeTeam(card.teamId == 0 ? 1:0);
+                            card.ChangeTeam(card.TeamId == 0 ? 1:0);
                         }
                         else
                         {
@@ -864,7 +878,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
 
                         //改完之后，才设置上消息通知
-                        var team = card.cardId switch
+                        var team = card.CardId switch
                         {
                             0 => "玩家社团",
                             1 => "电脑社团",
@@ -878,13 +892,13 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     break;
 
                 case Information.Parameter.Silence:
-                    card.silence = ChangeIntValue(card.silence);
-                    ShowNews(card.Profile.FriendlyCardName, $"的沉默回合数变为了{card.silence}");
+                    card.Silence = ChangeIntValue(card.Silence);
+                    ShowNews(card.Profile.FriendlyCardName, $"的沉默回合数变为了{card.Silence}");
                     break;
 
                 case Information.Parameter.Ridicule:
-                    card.ridicule = ChangeIntValue(card.ridicule);
-                    ShowNews(card.Profile.FriendlyCardName, $"的嘲讽回合数变为了{card.ridicule}");
+                    card.Ridicule = ChangeIntValue(card.Ridicule);
+                    ShowNews(card.Profile.FriendlyCardName, $"的嘲讽回合数变为了{card.Ridicule}");
                     break;
 
                 case Information.Parameter.Tag:
@@ -985,7 +999,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
             //己方上一位卡牌
             case Information.Objects.Last:
                 //只有一张卡，不执行
-                if (GameState.CardOnSpot[teamId].Count == 1)
+                if (GameState.CardOnSpot[TeamId].Count == 1)
                 {
                     neededCards = null;
                     return null;
@@ -993,12 +1007,12 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
                 neededCards = new CardPanel[1];
                 neededCards[0] =
-                    GameState.CardOnSpot[teamId][GameState.whichCardPerforming[teamId] == 1 ? 6 : -1];
+                    GameState.CardOnSpot[TeamId][GameState.whichCardPerforming[TeamId] == 1 ? 6 : -1];
                 break;
             //己方下一位卡牌
             case Information.Objects.Next:
                 //只有一张卡，不执行
-                if (GameState.CardOnSpot[teamId].Count == 1)
+                if (GameState.CardOnSpot[TeamId].Count == 1)
                 {
                     neededCards = null;
                     return null;
@@ -1006,7 +1020,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
                 neededCards = new CardPanel[1];
                 neededCards[0] =
-                    GameState.CardOnSpot[teamId][GameState.whichCardPerforming[teamId] == 6 ? 1 : +1];
+                    GameState.CardOnSpot[TeamId][GameState.whichCardPerforming[TeamId] == 6 ? 1 : +1];
                 break;
 
             case Information.Objects.Self:
@@ -1016,12 +1030,12 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
             //己方场上所有的角色卡牌
             case Information.Objects.AllInTeam:
-                neededCards = CommonTools.ListArrayConversion(GameState.CardOnSpot[teamId]);
+                neededCards = CommonTools.ListArrayConversion(GameState.CardOnSpot[TeamId]);
                 break;
 
             //敌方场上所有的角色卡牌
             case Information.Objects.AllOfEnemy:
-                neededCards = CommonTools.ListArrayConversion(GameState.CardOnSpot[teamId == 1 ? 0 : 1]);
+                neededCards = CommonTools.ListArrayConversion(GameState.CardOnSpot[TeamId == 1 ? 0 : 1]);
                 break;
 
             //场上所有角色卡牌
@@ -1047,26 +1061,33 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
                 neededCards = new CardPanel[1];
                 neededCards[0] =
-                    GameState.CardOnSpot[teamId][rd.Next(1, GameState.CardOnSpot[teamId].Count + 1)];
+                    GameState.CardOnSpot[TeamId][rd.Next(1, GameState.CardOnSpot[TeamId].Count + 1)];
                 break;
 
             // 地方方场上随机一位角色
             case Information.Objects.RandomOfEnemy:
                 neededCards = new CardPanel[1];
                 neededCards[0] =
-                    GameState.CardOnSpot[teamId == 1 ? 0 : 1][
-                        rd.Next(1, GameState.CardOnSpot[teamId].Count + 1)];
+                    GameState.CardOnSpot[TeamId == 1 ? 0 : 1][
+                        rd.Next(1, GameState.CardOnSpot[TeamId].Count + 1)];
                 break;
         }
 
         #endregion
 
+#if UNITY_EDITOR
+        Debug.Log($"检索范围：{neededCards.Length}");
+#endif
 
         #region 根据参数进行范围缩小
 
         //None时，直接把需要的对象定义为大范围内的所有对象，不进行后续处理
         if (objectsScope.ParameterToShrinkScope == Information.Parameter.None)
         {
+
+#if UNITY_EDITOR
+            Debug.Log($"确定范围：{neededCards.Length}");
+#endif
             return neededCards;
         }
 
@@ -1098,11 +1119,11 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     break;
 
                 case Information.Parameter.Silence:
-                    parameter = neededCards[i].silence.ToString();
+                    parameter = neededCards[i].Silence.ToString();
                     break;
 
                 case Information.Parameter.Ridicule:
-                    parameter = neededCards[i].ridicule.ToString();
+                    parameter = neededCards[i].Ridicule.ToString();
                     break;
           
 
@@ -1115,7 +1136,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     break;
 
                 case Information.Parameter.Team:
-                    parameter = neededCards[i].teamId.ToString();
+                    parameter = neededCards[i].TeamId.ToString();
                     break;
 
                 case Information.Parameter.Tag:
@@ -1227,6 +1248,10 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
         #endregion
 
+#if UNITY_EDITOR
+        Debug.Log($"确定范围：{neededCards.Length}");
+#endif
+
         return neededCards;
     }
 
@@ -1241,12 +1266,12 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         {
             //对家主持/主席/部长
             case Information.Objects.ChiefOfEnemy:
-                return GameState.chiefs[teamId == 0 ? 1 : 0];
+                return GameState.chiefs[TeamId == 0 ? 1 : 0];
 
             //自家主持/主席/部长
             case Information.Objects.OurChief:
 
-                return GameState.chiefs[teamId];
+                return GameState.chiefs[TeamId];
         }
 
         return null;

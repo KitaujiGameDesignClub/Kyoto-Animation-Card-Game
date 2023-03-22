@@ -142,7 +142,6 @@ namespace KitaujiGameDesignClub.GameFramework
                 streamReader.Dispose();
                 streamReader.Close();
 
-                Debug.Log($"成功加载：{fileName}");
                 return fileContent;
             }
             catch (Exception e)

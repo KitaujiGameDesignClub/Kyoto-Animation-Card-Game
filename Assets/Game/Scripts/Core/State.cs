@@ -10,20 +10,14 @@ namespace Core
     {
 
         /// <summary>
-        /// 玩家各自所有可用的卡牌（包含手牌+场上的牌+可以被招募的牌）
-        /// </summary>
-        public static List<CharacterCard>[] AllAvailableCards = new List<CharacterCard>[2];
-
-
-        /// <summary>
         /// 各自登场的角色卡（最多6个）
         /// </summary>
         public static List<CardPanel>[] CardOnSpot = new List<CardPanel>[2];
-        /// <summary>
-        /// 各自手牌里的角色卡（最多10个）
-        /// </summary>
-        public static List<CardPanel>[] CardInHand = new List<CardPanel>[2];
 
+        /// <summary>
+        /// 缓存所有的卡牌
+        /// </summary>
+        public static List<CardCache> cardCaches = new();
 
         /// <summary>
         /// 哪一队在攻击 0=A 1=B -1还没开始
@@ -47,13 +41,10 @@ namespace Core
         /// </summary>
         public static void CreateNewGame()
         {
-            AllAvailableCards = new List<CharacterCard>[2];
+            cardCaches = new();
             CardOnSpot = new List<CardPanel>[2];
             CardOnSpot[0] = new();
             CardOnSpot[1] = new();
-            CardInHand = new List<CardPanel>[2];
-            CardInHand[0] = new();
-            CardInHand[1] = new();
             whichTeamIsAttacking = -1;
             whichCardPerforming[0] = 0; whichCardPerforming[1] = 0;
             chiefs = new Chief[2];

@@ -12649,7 +12649,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1558315830
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13848,10 +13848,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyProfile:
-    UUID: 
+    UUID: ENEMY001
     CodeVersion: 1
     CardName: TM-SawakoSensei
-    AuthorName: 
+    AuthorName: PureAmaya
     FriendlyCardName: "\u4EBA\u6C11\u53EB\u5E08"
     Anime: "\u8F7B\u97F3\u5C11\u5973"
     tags:

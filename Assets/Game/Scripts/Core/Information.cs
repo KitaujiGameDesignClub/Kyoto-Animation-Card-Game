@@ -188,7 +188,7 @@ namespace Core
         /// <summary>
         /// 游戏会在这里读取卡组
         /// </summary>
-        public static string bundlesPath = $"{YamlReadWrite.UnityButNotAssets}/bundles";
+        public static readonly string bundlesPath = $"{YamlReadWrite.UnityButNotAssets}/bundles";
 
         public static readonly DescribeFileIO AnimeListIO = new DescribeFileIO("animeList.yml", "saves", "# 此文件包含了动漫列表，用于规范卡组中所属动画的文本" +
     "\n# 此文件不会影响正常游戏，但是卡组编辑器“所属动画”一栏中的可选内容会受到此文件的影响（便于卡组内卡牌的互动，以及卡组间卡牌的互动）" +
