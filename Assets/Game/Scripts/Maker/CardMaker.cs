@@ -309,48 +309,51 @@ namespace Maker
         /// </summary>
         internal async UniTask Export()
         {
-            if (allAvailableBundlesDropdownToExport.options.Count > 0)
+            if (allAvailableBundlesDropdownToExport.options.Count <= 0)
             {
-                //还没加载所有已经加载的卡组
+                return;
+            }
 
-                FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组", ".zip"));
 
-                await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, true, title: "导出卡组",
-                    saveButtonText: "选择");
+            //还没加载所有已经加载的卡组
 
-                if (FileBrowser.Success)
-                {
-                    BanInputLayer(true, "卡组导出中...");
+            FileBrowser.SetFilters(false, new FileBrowser.Filter("卡组", ".zip"));
 
-                    var selectedBundlePath =
-                        $"{Information.bundlesPath}/{allBundleLoadedGUID[allAvailableBundlesDropdownToExport.value]}/{Information.ManifestFileName}";
+            await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, true, title: "导出卡组",
+                saveButtonText: "选择");
+
+            if (FileBrowser.Success)
+            {
+
+                var selectedBundlePath =
+                    $"{Information.bundlesPath}/{allBundleLoadedGUID[allAvailableBundlesDropdownToExport.value]}/{Information.ManifestFileName}";
 
 
 #if UNITY_STANDALONE || UNITY_EDITOR
 
-                    var rawSavePathNoExtension =
-                        $"{FileBrowser.Result[0]}{CommonTools.CleanInvalid(allAvailableBundlesDropdownToExport.captionText.text)}";
-                    //不断循环，在文件名后面加数字，直到不重名为止
-                    var savePathNoRepeat = rawSavePathNoExtension;
+                var rawSavePathNoExtension =
+                    $"{FileBrowser.Result[0]}/{CommonTools.CleanInvalid(allAvailableBundlesDropdownToExport.captionText.text)}";
+                //不断循环，在文件名后面加数字，直到不重名为止
+                var savePathNoRepeat = rawSavePathNoExtension;
 
-                    int i = 0;
-                    while (true)
+                int i = 0;
+                while (true)
+                {
+                    i++;
+                    if (FileBrowserHelpers.FileExists($"{savePathNoRepeat}.zip"))
                     {
-                        i++;
-                        if (FileBrowserHelpers.FileExists($"{savePathNoRepeat}.zip"))
-                        {
-                            savePathNoRepeat = $"{rawSavePathNoExtension}-{i}";
-                        }
-                        else
-                        {
-                            //导出
-                            CardReadWrite.ExportBundleZip(Path.GetDirectoryName($"{savePathNoRepeat}.zip"), Path.GetFileName($"{savePathNoRepeat}.zip"), selectedBundlePath);
-                            break;
-                        }
+                        savePathNoRepeat = $"{rawSavePathNoExtension}-{i}";
                     }
+                    else
+                    {
+                        //导出
+                        CardReadWrite.ExportBundleZip(Path.GetDirectoryName($"{savePathNoRepeat}.zip"), Path.GetFileName($"{savePathNoRepeat}.zip"), selectedBundlePath);
+                        break;
+                    }
+                }
 
-                    Notify.notify.CreateBannerNotification(null,
-                        $"“{allAvailableBundlesDropdownToExport.captionText.text}”卡组导出成功\n{savePathNoRepeat}.zip");
+                Notify.notify.CreateBannerNotification(null,
+                    $"“{allAvailableBundlesDropdownToExport.captionText.text}”卡组导出成功\n{savePathNoRepeat}.zip");
 
 #elif UNITY_ANDROID && !UNITY_EDITOR
 
@@ -364,8 +367,13 @@ namespace Maker
 
 #endif
 
-                    BanInputLayer(false, "卡组导入中...");
-                }
+
+
+
+                GC.Collect();
+                await Resources.UnloadUnusedAssets();
+
+
             }
         }
 
@@ -611,7 +619,7 @@ namespace Maker
 
             if (saveCard)
             {
-                saveStatus.text = "卡牌保存中...";
+                saveStatus.text = "卡牌保存中..."; 
 
                 try
                 {
@@ -638,53 +646,15 @@ namespace Maker
                 }
             }
 
+            BanInputLayer(true, "清理中...");
+            GC.Collect();
+            await Resources.UnloadUnusedAssets();
+
             //关闭输入禁用层
             BanInputLayer(false, "保存中...");
             changeSignal.SetActive(false);
+
         }
-
-
-        /// <summary>
-        /// 通用的另存为（返回值为保存的路径，仅DirectoryName）
-        /// </summary>
-        /// <param name="manifestNewImageFullPath">清单文件的新图片的全路径</param>
-        /// <param name="index">卡牌文件，在卡组内是第几张牌？</param>
-        /// <param name="newCardImageFullPath">卡牌的新图片的全路径</param>
-        /// <param name="saveManifest"></param>
-        /// <param name="saveCard"></param>
-        /// <returns>保存成功了吗？</returns>
-        public async UniTask<string> AsyncSaveTo(string manifestNewImageFullPath, string newCardImageFullPath,
-            bool saveManifest, bool saveCard, audioSetting[] cardAudioSettings)
-        {
-            //还没有保存过/不是打开编辑卡包，打开选择文件的窗口，选择保存位置
-
-            await FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Folders, false, title: "另存为",
-                saveButtonText: "选择文件夹");
-
-            //开启输入禁用层
-            BanInputLayer(true, "另存为中...");
-
-
-            if (FileBrowser.Success)
-            {
-                //保存
-                await AsyncSave(
-                    $"{FileBrowser.Result[0]}/{nowEditingBundle.manifest.UUID}",
-                    manifestNewImageFullPath,
-                    $"{FileBrowser.Result[0]}/{nowEditingBundle.card.CardName}",
-                    newCardImageFullPath, saveManifest, saveCard,
-                    cardAudioSettings);
-
-                return FileBrowser.Result[0];
-            }
-            else
-            {
-                //关闭禁用曾
-                BanInputLayer(false, "另存中...");
-                return null;
-            }
-        }
-
         #endregion
 
 

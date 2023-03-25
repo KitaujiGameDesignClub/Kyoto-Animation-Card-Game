@@ -39,8 +39,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             set
             {
                 inputField.interactable = value;
-                if (!value) Ban();
-                else dropdownButton.interactable = value;
+ dropdownButton.interactable = value;
             }
         }
 
@@ -172,7 +171,6 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             dropdown.Hide();
             dropdownButton.interactable = false;
             allOptionDatas = null;
-            dropdown.ClearOptions();
         }
 
         public void ClearOptions() => dropdown.ClearOptions();

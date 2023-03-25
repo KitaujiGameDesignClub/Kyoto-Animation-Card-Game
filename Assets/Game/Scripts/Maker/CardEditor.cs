@@ -368,7 +368,7 @@ namespace Maker
                         //切换界面
 
                         //然后切换
-                        await CardMaker.cardMaker.bundleEditor.OpenManifestEditor();
+                        await CardMaker.cardMaker.bundleEditor.OpenManifestEditor(false);
                         gameObject.SetActive(false);
                     }));
             });

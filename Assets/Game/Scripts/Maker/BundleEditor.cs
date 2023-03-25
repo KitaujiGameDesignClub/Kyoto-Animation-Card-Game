@@ -90,9 +90,9 @@ namespace Maker
         /// <summary>
         /// 打开manifest editor（同步方法中，一定要放到最后一步）
         /// </summary>
-        public async UniTask OpenManifestEditor()
+        public async UniTask OpenManifestEditor(bool load = true)
         {
-            CardMaker.cardMaker.BanInputLayer(true, "卡组配置加载中...");
+          if(load) CardMaker.cardMaker.BanInputLayer(true, "卡组配置加载中...");
 
             //获取卡组清单信息
             var manifest = CardMaker.cardMaker.nowEditingBundle.manifest;
@@ -106,19 +106,23 @@ namespace Maker
             //  shortDescription.text = CardMaker.cardMaker.nowEditingBundle.manifest.shortDescription;
 
 
-            CardMaker.cardMaker.BanInputLayer(true, "卡组封面加载中...");
-            //封面图片加载
-            //先设置成默认的
-            bundleImage.sprite = DefaultImage;
-            //如果是加载的已有卡组，则读取现成的cover图片
-            if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath != string.Empty)
+            if (load)
             {
-                //加载图片
-                await ManifestLoadImageAsync(
-                    $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/{CardMaker.cardMaker.nowEditingBundle.manifest.ImageName}");
+                CardMaker.cardMaker.BanInputLayer(true, "卡组封面加载中...");
+                //封面图片加载
+                //先设置成默认的
+                bundleImage.sprite = DefaultImage;
+                //如果是加载的已有卡组，则读取现成的cover图片
+                if (CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath != string.Empty)
+                {
+                    //加载图片
+                    await ManifestLoadImageAsync(
+                        $"{Path.GetDirectoryName(CardMaker.cardMaker.nowEditingBundle.loadedManifestFullPath)}/{CardMaker.cardMaker.nowEditingBundle.manifest.ImageName}");
 
 
-                //新建卡组，找不到图片，就保持刚刚设置的默认图片
+                    //新建卡组，找不到图片，就保持刚刚设置的默认图片
+                }
+
             }
 
             //调整能否切换到卡牌编辑器

@@ -13,6 +13,7 @@ using System.IO;
 using Unity.VisualScripting;
 using System.Linq;
 using System.Text;
+using UnityEngine.Profiling;
 
 public class TestMode : MonoBehaviour
 {
@@ -22,7 +23,6 @@ public class TestMode : MonoBehaviour
     [Header("通用")]
     public TMP_Text title;
     public CanvasGroup panel;
-    public TMP_Text loadState;
     public LeanButton panelCloseButton;
     public LeanButton CardSelectorOpenByFileExplorerButton;
     [Header("卡牌选择器")]
@@ -69,6 +69,11 @@ public class TestMode : MonoBehaviour
     /// 选择的卡牌的id（选定卡组内的）
     /// </summary>
     int selectedCardId = -1;
+
+    /// <summary>
+    /// 已经加载过卡牌了
+    /// </summary>
+    bool hasAddCard = false;
 
     [Header("语音测试器")]
     public GameObject voiceTestor;
@@ -148,8 +153,7 @@ public class TestMode : MonoBehaviour
     private async UniTask LoadTestMode()
     {
         animator = GetComponent<Animator>();
-        //初始化额外加载状态
-        loadState.text = string.Empty;
+
         GameUI.gameUI.SetBanInputLayer(true, "测试模式载入中...");
 
 
@@ -171,6 +175,16 @@ public class TestMode : MonoBehaviour
                 GameStageCtrl.stageCtrl.RemoveCardOnSpot(0, value);
                 //调整按钮的禁用关系
                 RefreshDeletionButtonState();
+
+                //己方这边已经没有卡组在场上了
+                if (GameState.CardOnSpot[0].Count == 0)
+                {
+                    //恢复卡组选择
+                    BundleList.interactable = true;
+                    //不知道为什么总是要给删掉加载的卡牌。。。
+                  //  BundleList.ChangeOptionDatas(allBundles);
+                }
+
              //   Debug.Log($"{value}  {i}"); 经过这行代码的验证，i在这个事件中永远是6，所以需要缓存一个value
             });
         }
@@ -207,6 +221,8 @@ public class TestMode : MonoBehaviour
         //选定的卡组信息同步
         BundleList.onDropdownValueChangedWithoutInt.AddListener(delegate
         {
+            //清除卡组缓存
+            GameState.cardCaches.Clear();
 
             //选定另一个卡组时，清空卡牌选择栏
             selectedCardId = -1;
@@ -265,21 +281,48 @@ public class TestMode : MonoBehaviour
             //不选择卡牌，不允许执行确认操作
             if (CardList.DropdownValue > 0)
             {
+
+                //禁止切换卡组
+                BundleList.interactable = false;
+
+                //如果卡组没有缓存，那就将此卡组内所有的卡牌导入到缓存中
+                if (GameState.cardCaches.Count == 0)
+                {
+                    //第一次加载卡牌的话不回收垃圾
+                    if (hasAddCard)
+                    {
+                        GameUI.gameUI.SetBanInputLayer(true, "清理中...");
+
+                        //垃圾清理
+                        GC.Collect();
+                        await Resources.UnloadUnusedAssets(); 
+
+                        await UniTask.Delay(10);
+
+                    }
+
+                    GameUI.gameUI.SetBanInputLayer(true, "卡组加载中...");
+
+
+                    var beforeMemoryUsed = Profiler.GetTotalAllocatedMemoryLong(); 
+                    await CardReadWrite.LoadBundleAndSaveInCache(Path.GetDirectoryName(allBundles[selectedBundleId].manifestFullPath));
+
+                    manifestDescription.text = $"{manifestDescription.text}\n\n卡组内存占用：{((Profiler.GetTotalAllocatedMemoryLong() - beforeMemoryUsed)/1024/1024f).ToString("#0.00")}MiB";
+
+                    GameUI.gameUI.SetBanInputLayer(false, "卡组加载中...");
+                }
+
                 //所选卡牌
                 var card = allBundles[selectedBundleId].cards[selectedCardId];
-                loadState.text = $"正在加载“{card.FriendlyCardName}”，请等待...";
-                //所选卡牌的文件夹路径
-                var cardDiectoryPath = $"{Path.GetDirectoryName(allBundles[selectedBundleId].manifestFullPath)}/cards/{card.CardName}";
 
-                //添加卡牌咯
-                await GameStageCtrl.stageCtrl.LoadCardFromDiskAndDisplay(cardDiectoryPath, 0, -1, card);
+                //从缓存中添加卡牌咯
+                await GameStageCtrl.stageCtrl.DisplayCardFromCache(card.UUID, 0);  
 
                 //刷新删除按钮的激活状态
                 RefreshDeletionButtonState();
 
-                //消除挂起
-                loadState.text = null;
-
+                //第一次加载卡牌已经结束了
+                hasAddCard = true;
             }
 
           
@@ -409,13 +452,9 @@ public class TestMode : MonoBehaviour
         //上方的切换器
         toggle.onValueChanged.AddListener(delegate
         {
-            //全都加载完了，才能切换开关
-            if (string.IsNullOrEmpty(loadState.text))
-            {
                 //切换开关状态                
                 animator.SetBool("Expanded", toggle.isOn);
                 panelObject.SetActive(toggle.isOn);
-            }
 
         });
 
@@ -492,7 +531,7 @@ public class TestMode : MonoBehaviour
         //先看看缓存里有没有
         foreach (CardCache item in GameState.cardCaches)
         {            
-            //有的话就生成
+            //有的话就用缓存了
             if (item.UUID == characterCard.UUID)
             {
               card =  await GameStageCtrl.stageCtrl.DisplayCardFromCache(characterCard.UUID, 1);
@@ -501,7 +540,12 @@ public class TestMode : MonoBehaviour
         }
 
         //没有的话就生成吧
-      if(card == null) card = await GameStageCtrl.stageCtrl.LoadCardFromDiskAndDisplay(null, 1, -1, characterCard);
+      if(card == null)
+        {
+            var uuid = await CardReadWrite.LoadCardAndSaveInCache(null, characterCard);
+            card = await GameStageCtrl.stageCtrl.DisplayCardFromCache(characterCard.UUID, 1);
+
+        }
 
       //换图片（反正现在就一个敌机）
         card.image.sprite = enemy[0].image.sprite;

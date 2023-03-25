@@ -217,62 +217,7 @@ public class GameStageCtrl : MonoBehaviour
 
     #region 卡牌调整逻辑
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="cardDiectoryPath">可以为null，但是会不加载音频和图片</param>
-    /// <param name="teamId"></param>
-    /// <param name="cardId"></param>
-    /// <param name="loadedCard"></param>
-    /// <returns></returns>
-    public async UniTask<CardPanel> LoadCardFromDiskAndDisplay(string cardDiectoryPath, int teamId, int cardId, CharacterCard loadedCard = null)
-    {
-       var uuid = await LoadCardAndSaveInCache(cardDiectoryPath, loadedCard);
-       return await DisplayCardFromCache(uuid, teamId, cardId);
-    }
 
-    /// <summary>
-    /// 加载卡牌，并存到缓存中（不产生cardPanel）
-    /// </summary>
-    /// <param name="profile"></param>
-    /// <returns>uuid</returns>
-    public async UniTask<string> LoadCardAndSaveInCache(string cardDiectoryPath, CharacterCard loadedCard = null)
-    {
-        if(cardDiectoryPath == null && loadedCard == null)
-        {
-            UnityEngine.Debug.LogError("参数全空？");
-            return null;
-        }
-
-        //读yml
-        loadedCard ??= await CardReadWrite.GetOneCard(Path.Combine(cardDiectoryPath, Information.CardFileName), false);
-
-        //没给路径，不加载这些
-        if (!string.IsNullOrEmpty(cardDiectoryPath))
-        {
-            //图片加载              
-            //加载图片，如果加载失败的话，就用预设自带的默认图片了（panel到时候会被实例化，自带一个默认图片）
-            var texture = await CardReadWrite.CoverImageLoader(Path.Combine(cardDiectoryPath, loadedCard.ImageName));
-            Sprite image = null;
-            if (texture != null)
-            {
-                image = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.one / 2);
-
-            }
-            //音频加载
-            var (debut, ability, defeat, exit) = await UniTask.WhenAll(CardReadWrite.CardAudioLoader($"{cardDiectoryPath}/{loadedCard.voiceDebutFileName}"),
-                                                     CardReadWrite.CardAudioLoader($"{cardDiectoryPath} / {loadedCard.voiceAbilityFileName}"),
-                                                     CardReadWrite.CardAudioLoader($"{cardDiectoryPath} / {loadedCard.voiceDefeatFileName}"),
-                                                     CardReadWrite.CardAudioLoader($"{cardDiectoryPath}  /  {loadedCard.voiceExitFileName}"));
-
-        
-            //创建缓存
-            GameState.cardCaches.Add(new CardCache(loadedCard, debut, defeat, exit, ability, image));
-        }
-        else  GameState.cardCaches.Add(new CardCache(loadedCard, null, null, null, null, null));
-
-        return loadedCard.UUID;
-    }
 
     /// <summary>
     /// 从缓存中获取一个卡牌，然后显示它，没缓存的话会报错
@@ -283,23 +228,7 @@ public class GameStageCtrl : MonoBehaviour
     /// <returns></returns>
     public async UniTask<CardPanel> DisplayCardFromCache(string uuid,int teamId,int cardId = -1)
     {
-        //先找缓存
-        var cacheIndex = -1;
-        for (int i = 0; i < GameState.cardCaches.Count; i++)
-        {
-            if (GameState.cardCaches[i].UUID == uuid)
-            {
-                cacheIndex = i;
-                break;
-            }
-        }
-
-        if(cacheIndex < 0)
-        {
-            Notify.notify.CreateBannerNotification(null, "卡牌创建发生错误，已终止。");
-            Debug.LogError($"卡牌uuid“{uuid}”无法在缓存中找到，原因未知");
-            return null;
-        }
+         var cacheIndex = CardReadWrite.GetCardIndexFromCache(uuid);
 
         //这个对外显示
         CardPanel panel = null;
@@ -344,9 +273,6 @@ public class GameStageCtrl : MonoBehaviour
 
         return panel;
     }
-
- 
-
 
 
     /// <summary>

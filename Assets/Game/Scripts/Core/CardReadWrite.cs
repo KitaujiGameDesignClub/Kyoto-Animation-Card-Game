@@ -20,6 +20,97 @@ namespace Core
     /// </summary>
     public class CardReadWrite
     {
+        #region 创建缓存
+
+        public static async UniTask LoadBundleAndSaveInCache(string manifestDirectoryPath)
+        {
+            DirectoryInfo   directory = new DirectoryInfo(Path.Combine(manifestDirectoryPath,"cards"));
+
+           var allCards = directory.GetFiles(Information.CardFileName, SearchOption.AllDirectories);
+
+
+            foreach (var card in allCards)
+            {
+                await LoadCardAndSaveInCache(card.DirectoryName);
+            }
+
+        }
+
+
+
+        /// <summary>
+        /// 加载一个卡牌，并存到缓存中（不产生cardPanel）
+        /// </summary>
+        /// <param name="cardDiectoryPath">卡牌路径（仅文件夹，null时不会加载资源文件）</param>
+        /// <param name="loadedCard">预设已经加载的卡牌</param>
+        /// <returns>uuid</returns>
+        public static async UniTask<string> LoadCardAndSaveInCache(string cardDiectoryPath, CharacterCard loadedCard = null)
+        {
+            if (cardDiectoryPath == null && loadedCard == null)
+            {
+                throw new Exception("参数全空？");
+            }
+
+            //读yml
+            loadedCard ??= await GetOneCard(Path.Combine(cardDiectoryPath, Information.CardFileName), false);
+
+            //没给路径，不加载这些
+            if (!string.IsNullOrEmpty(cardDiectoryPath))
+            {
+                //图片加载              
+                //加载图片，如果加载失败的话，就用预设自带的默认图片了（panel到时候会被实例化，自带一个默认图片）
+                var texture = await CoverImageLoader(Path.Combine(cardDiectoryPath, loadedCard.ImageName));
+                Sprite image = null;
+                if (texture != null)
+                {
+                    image = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.one / 2);
+
+                }
+                //音频加载
+                var (debut, ability, defeat, exit) = await UniTask.WhenAll(CardAudioLoader($"{cardDiectoryPath}/{loadedCard.voiceDebutFileName}"),
+                                                         CardAudioLoader($"{cardDiectoryPath} / {loadedCard.voiceAbilityFileName}"),
+                                                         CardAudioLoader($"{cardDiectoryPath} / {loadedCard.voiceDefeatFileName}"),
+                                                         CardAudioLoader($"{cardDiectoryPath}  /  {loadedCard.voiceExitFileName}"));
+
+
+                //创建缓存
+                GameState.cardCaches.Add(new CardCache(loadedCard, debut, defeat, exit, ability, image));
+            }
+            else GameState.cardCaches.Add(new CardCache(loadedCard, null, null, null, null, null));
+
+            return loadedCard.UUID;
+        }
+      
+        /// <summary>
+        /// 获取某一个卡牌在缓存中的序号
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
+        public static int GetCardIndexFromCache(string uuid)
+        {
+            //先找缓存
+           var  cacheIndex = -1;
+            for (int i = 0; i < GameState.cardCaches.Count; i++)
+            {
+                if (GameState.cardCaches[i].UUID == uuid)
+                {
+                    cacheIndex = i;
+                    break;
+                }
+            }
+
+            if (cacheIndex < 0)
+            {
+                Notify.notify.CreateBannerNotification(null, "卡牌创建发生错误，已终止。");
+                Debug.LogError($"卡牌uuid“{uuid}”无法在缓存中找到，原因未知");
+            }
+
+            return cacheIndex;
+        }
+        
+        #endregion
+
+
         #region 游戏特有的yaml资源（字典文件）读写
 
         public static void ExportDictionary(string directoryName, string fileName)

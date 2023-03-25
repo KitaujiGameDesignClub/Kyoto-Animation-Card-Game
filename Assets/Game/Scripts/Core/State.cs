@@ -50,6 +50,7 @@ namespace Core
             chiefs = new Chief[2];
             gameState = Information.GameState.Preparation;
         }
+        
     }
 }
 

@@ -354,7 +354,12 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
     async UniTask Summon( )
     {
-      //  GameStageCtrl.stageCtrl.AddCardAndDisplayInStage(entr)
+
+        var ar = await GameStageCtrl.stageCtrl.DisplayCardFromCache(Profile.Result.SummonCardName, TeamId, CardId + 1);
+        ShowNews(null, $"召唤了一张卡牌“{ar.Profile.FriendlyCardName}”");
+
+        await UniTask.Delay(250);
+
     }
 
     /// <summary>
@@ -787,9 +792,9 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// </summary>
     /// <param name="checkedKixedValuesState">储存每个条件对象对于此参数要求是否满足 （true就符合条件）</param>
     /// <param name="reasonObjects">得到那些条件对象</param>
-    void AbilityResultAnalyze(CardPanel[] reasonObjects = null)
+    async void AbilityResultAnalyze(CardPanel[] reasonObjects = null)
     {
-        ShowNews( null, $"得到了{reasonObjects.Length}个符合要求的卡牌");
+     if(reasonObjects != null) ShowNews(null, $"得到了{reasonObjects.Length}个符合要求的卡牌");
 
         //能力发动到谁身上？
         Chief chiefToOperate = null;
@@ -797,10 +802,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
         //召唤
         if (!string.IsNullOrEmpty(Profile.Result.SummonCardName))
-        {
-
-            ShowNews(null,"召唤了一张卡牌");
-            //11451444444
+        { 
+           await Summon();
 
             //如果要召唤，那就直接不把激活能力的条件对象作为结果对象
             Profile.Result.RegardActivatorAsResultObject = false;
@@ -825,117 +828,120 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
         #region 修改参数
 
-        //对目标角色卡的参数进行修改
-        foreach (var card in characterToOperate)
+        if (chiefToOperate != null)
         {
-            switch (Profile.Result.ParameterToChange)
+            //对目标角色卡的参数进行修改
+            foreach (var card in characterToOperate)
             {
-                case Information.Parameter.Coin:
-                    throw new Exception(
-                        $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
+                switch (Profile.Result.ParameterToChange)
+                {
+                    case Information.Parameter.Coin:
+                        throw new Exception(
+                            $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
 
-                case Information.Parameter.HealthPoint:
-                    card.ChangeHealthAndPower( true, ChangeIntValue(card.ActualHealthPoint),false,-1, this);
-                    ShowNews(card.Profile.FriendlyCardName, $"的体力值（HP）变为了{card.ActualHealthPoint}");
+                    case Information.Parameter.HealthPoint:
+                        card.ChangeHealthAndPower(true, ChangeIntValue(card.ActualHealthPoint), false, -1, this);
+                        ShowNews(card.Profile.FriendlyCardName, $"的体力值（HP）变为了{card.ActualHealthPoint}");
 
-                    break;
-                case Information.Parameter.Power:
-                    card.ChangeHealthAndPower(false,0 , true, ChangeIntValue(card.ActualPower), this);
-                    ShowNews( card.Profile.FriendlyCardName, $"的执行力（攻击力）变为了{card.ActualPower}");
-                    break;
+                        break;
+                    case Information.Parameter.Power:
+                        card.ChangeHealthAndPower(false, 0, true, ChangeIntValue(card.ActualPower), this);
+                        ShowNews(card.Profile.FriendlyCardName, $"的执行力（攻击力）变为了{card.ActualPower}");
+                        break;
 
-                case Information.Parameter.Gender:
-                    card.Profile.gender = ChangeIntValue(card.Profile.gender);
+                    case Information.Parameter.Gender:
+                        card.Profile.gender = ChangeIntValue(card.Profile.gender);
 
-                 
-                    var gender = card.Profile.gender switch
-                    {
-                        1 => "男",
-                        2 => "女",
-                        _ => "未知或不重要",
-                    };
-                    ShowNews(card.Profile.FriendlyCardName, $"的性别变为了{gender}");
-                    break;
 
-                //修改所属的team。0=玩家方 1=电脑方 2=双方交换
-                case Information.Parameter.Team:
-                    //ChangeIntValue里要求必须为changeTo
-                    if(Profile.Result.ChangeMethod != Information.CalculationMethod.ChangeTo)
-                    {
-                        Debug.LogError($"{Profile.FriendlyCardName}的能力想要修改卡牌的所属社团（队伍），但是他没有将“修改方法”设置为“ChangeTo”");
-                    }
-                    else
-                    {
-                        //实现2：双方互换
-                        if(Profile.Result.Value == 2.ToString())
+                        var gender = card.Profile.gender switch
                         {
-                            card.ChangeTeam(card.TeamId == 0 ? 1:0);
+                            1 => "男",
+                            2 => "女",
+                            _ => "未知或不重要",
+                        };
+                        ShowNews(card.Profile.FriendlyCardName, $"的性别变为了{gender}");
+                        break;
+
+                    //修改所属的team。0=玩家方 1=电脑方 2=双方交换
+                    case Information.Parameter.Team:
+                        //ChangeIntValue里要求必须为changeTo
+                        if (Profile.Result.ChangeMethod != Information.CalculationMethod.ChangeTo)
+                        {
+                            Debug.LogError($"{Profile.FriendlyCardName}的能力想要修改卡牌的所属社团（队伍），但是他没有将“修改方法”设置为“ChangeTo”");
                         }
                         else
                         {
-                            card.ChangeTeam(Convert.ToInt32(Profile.Result.Value));
+                            //实现2：双方互换
+                            if (Profile.Result.Value == 2.ToString())
+                            {
+                                card.ChangeTeam(card.TeamId == 0 ? 1 : 0);
+                            }
+                            else
+                            {
+                                card.ChangeTeam(Convert.ToInt32(Profile.Result.Value));
+                            }
+
+
+                            //改完之后，才设置上消息通知
+                            var team = card.CardId switch
+                            {
+                                0 => "玩家社团",
+                                1 => "电脑社团",
+
+                            };
+
+                            ShowNews(card.Profile.FriendlyCardName, $"的所属社团变为了{team}");
                         }
 
 
-                        //改完之后，才设置上消息通知
-                        var team = card.CardId switch
+                        break;
+
+                    case Information.Parameter.Silence:
+                        card.Silence = ChangeIntValue(card.Silence);
+                        ShowNews(card.Profile.FriendlyCardName, $"的沉默回合数变为了{card.Silence}");
+                        break;
+
+                    case Information.Parameter.Ridicule:
+                        card.Ridicule = ChangeIntValue(card.Ridicule);
+                        ShowNews(card.Profile.FriendlyCardName, $"的嘲讽回合数变为了{card.Ridicule}");
+                        break;
+
+                    case Information.Parameter.Tag:
+                        switch (Profile.Result.ChangeMethod)
                         {
-                            0 => "玩家社团",
-                            1 => "电脑社团",
+                            //添加/删除一个tag  values种，如果有个“-”。说明是减去这个tag
+                            case Information.CalculationMethod.addition:
+                                //开头没有-号，加上一个tag
+                                if (Profile.Result.Value.Substring(0, 1) != "-" && !card.Profile.tags.Contains(Profile.Result.Value))
+                                {
+                                    card.Profile.tags.Add(Profile.Result.Value);
+                                    ShowNews(card.Profile.FriendlyCardName, $"的标签添加了{Profile.Result.Value}");
+                                }
+                                //开头有-号，减去一个tag
+                                else if (Profile.Result.Value.Substring(0, 1) == "-" && card.Profile.tags.Contains(Profile.Result.Value))
+                                {
+                                    card.Profile.tags.Remove(Profile.Result.Value);
+                                    ShowNews(card.Profile.FriendlyCardName, $"的标签删除了{Profile.Result.Value}");
+                                }
+                                break;
 
-                        };
-
-                        ShowNews(card.Profile.FriendlyCardName, $"的所属社团变为了{team}");
-                    }
-
-                 
-                    break;
-
-                case Information.Parameter.Silence:
-                    card.Silence = ChangeIntValue(card.Silence);
-                    ShowNews(card.Profile.FriendlyCardName, $"的沉默回合数变为了{card.Silence}");
-                    break;
-
-                case Information.Parameter.Ridicule:
-                    card.Ridicule = ChangeIntValue(card.Ridicule);
-                    ShowNews(card.Profile.FriendlyCardName, $"的嘲讽回合数变为了{card.Ridicule}");
-                    break;
-
-                case Information.Parameter.Tag:
-                    switch (Profile.Result.ChangeMethod)
-                    {
-                        //添加/删除一个tag  values种，如果有个“-”。说明是减去这个tag
-                        case Information.CalculationMethod.addition:
-                            //开头没有-号，加上一个tag
-                            if (Profile.Result.Value.Substring(0, 1) != "-" && !card.Profile.tags.Contains(Profile.Result.Value))
-                            {
-                                card.Profile.tags.Add(Profile.Result.Value);
-                                ShowNews(card.Profile.FriendlyCardName, $"的标签添加了{Profile.Result.Value}");
-                            }
-                            //开头有-号，减去一个tag
-                            else if (Profile.Result.Value.Substring(0, 1) == "-" && card.Profile.tags.Contains(Profile.Result.Value))
-                            {
-                                card.Profile.tags.Remove(Profile.Result.Value);
-                                ShowNews(card.Profile.FriendlyCardName, $"的标签删除了{Profile.Result.Value}");
-                            }
-                            break;
-
-                        default:
-                            throw new Exception($"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})对标签的修改方法不正确。只能使用addition");
-                    }
-                    break;
-
-          
-
+                            default:
+                                throw new Exception($"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})对标签的修改方法不正确。只能使用addition");
+                        }
+                        break;
+                }
             }
         }
 
-        //主持
-        switch (Profile.Result.ParameterToChange)
+        if (chiefToOperate != null)
         {
-            case Information.Parameter.Coin:
-                chiefToOperate.coin = ChangeIntValue(chiefToOperate.coin);
-                break;
+            //主持
+            switch (Profile.Result.ParameterToChange)
+            {
+                case Information.Parameter.Coin:
+                    chiefToOperate.coin = ChangeIntValue(chiefToOperate.coin);
+                    break;
+            }
         }
         #endregion
     }
@@ -977,15 +983,16 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //需要的卡牌对象
         CardPanel[] neededCards = null;
 
-        #region 根据大范围筛选
+        if (objectsScope.LargeScope == Information.Objects.Any || objectsScope.LargeScope == Information.Objects.None)
+        {
+            return neededCards;
+        }
 
-        Random rd = new();
+            #region 根据大范围筛选
+
+            Random rd = new();
         switch (objectsScope.LargeScope)
         {
-            case Information.Objects.None:
-                break;
-
-
             //条件对象是：触发此能力的卡牌
             case Information.Objects.Activator:
                 //如果是受击是触发能力，则把activator（攻击者）作为条件对象
@@ -993,7 +1000,6 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
                 neededCards = new CardPanel[1];
                 neededCards[0] = activator;
-
                 break;
 
             //己方上一位卡牌
@@ -1076,7 +1082,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         #endregion
 
 #if UNITY_EDITOR
-        Debug.Log($"检索范围：{neededCards.Length}");
+   Debug.Log($"检索范围：{neededCards.Length}");
 #endif
 
         #region 根据参数进行范围缩小

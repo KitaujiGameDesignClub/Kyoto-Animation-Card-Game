@@ -39,14 +39,14 @@ Result:
   ParameterToChange: HealthPoint
   ChangeMethod: addition
   Value: 3
-  SummonCardName: ''
+  SummonCardName: fbb8d7ad-b9f1-4d61-a90e-67192fd175ef
   Ridicule: 0
   Silence: 0
 AbilityDescription: >-
   <size=80%>不过这玩意还真挺好吃的（</size>
 
 
-  每回合给己方的吹奏乐部成员提供3点体力值
+  每回合给己方的吹奏乐部成员提供1点体力值
 voiceExitFileName: voiceExit
 voiceDefeatFileName: voiceDefeat
 voiceDebutFileName: voiceDebut
