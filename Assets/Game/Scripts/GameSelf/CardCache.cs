@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 /// <summary>
 /// 读取到的卡牌的缓存，全局都是只读的
@@ -36,7 +37,25 @@ public readonly AudioClip voiceExit;
     //图片资源
     public readonly Sprite CoverImage;
 
-    public CardCache(CharacterCard card, AudioClip voiceDebut, AudioClip voiceDefeat, AudioClip voiceExit, AudioClip voiceAbility, Sprite coverImage)
+    public CardCache(CharacterCard card)
+    {
+        Profile = card;
+        //信息缓存
+        this.UUID = card.UUID;
+        CharacterName = card.CharacterName;
+        Gender = card.gender;
+        Anime = card.Anime;
+        Tag = card.tags;
+        hp = card.BasicHealthPoint;
+        power = card.BasicPower;
+        this.voiceDebut = null;
+        this.voiceDefeat = null;
+        this.voiceExit = null;
+        this.voiceAbility = null;
+        CoverImage = null;
+    }
+
+    public CardCache(CharacterCard card,ref AudioClip voiceDebut,ref AudioClip voiceDefeat,ref AudioClip voiceExit,ref AudioClip voiceAbility,ref Sprite coverImage)
     {
         Profile = card;
         //信息缓存

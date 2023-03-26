@@ -31,6 +31,8 @@ namespace Maker
         /// </summary>
         public Sprite bundlePathIco;
 
+        public TMP_Text VersionField;
+
         
         [Header("界面切换")] public GameObject title;
         [FormerlySerializedAs("InternalPanel")][FormerlySerializedAs("EditPanel")] public GameObject EditAndCreatePanel;
@@ -107,13 +109,11 @@ namespace Maker
 
         private void Awake()
         {
-
-
-
+            VersionField.text = $"游戏版本：ver.{Application.version}";
 
             //创建bundle文件夹
             if (!File.Exists(Information.bundlesPath)) Directory.CreateDirectory(Information.bundlesPath);
-            ;
+
             //帧率修正
             Application.targetFrameRate = 60;
 #if UNITY_ANDROID
@@ -230,30 +230,23 @@ namespace Maker
 
         #region 字典的导入导出
 
+        /// <summary>
+        /// 字典初始化
+        /// </summary>
+        /// <param name="dictionaryType"></param>
         public void DictionaryInitialize(int dictionaryType)
         {
-            var path =
-                $"{YamlReadWrite.UnityButNotAssets}/saves/{((Information.DictionaryType)dictionaryType).ToString()}.yml";
-            if (File.Exists(path)) File.Delete(path);
-
-            //重新读取字典文件
-            switch (dictionaryType)
+            Notify.notify.CreateStrongNotification(null, null, "要重置字典吗？", "这会使<b><size=110%>此字典</size></b>恢复到最初的状态\n重置后编辑器需要重启", delegate ()
             {
-                case 0:
-                    CardReadWrite.ReadAnimeList();
-                    break;
-                case 1:
-                    CardReadWrite.ReadCV();
-                    break;
-                case 2:
-                    CardReadWrite.ReadCharacterNames();
-                    break;
-                case 3:
-                    CardReadWrite.ReadTags();
-                    break;
-            }
+                var path =
+    $"{YamlReadWrite.UnityButNotAssets}/saves/{((Information.DictionaryType)dictionaryType).ToString()}.yml";
+                Debug.Log(path);
+                if (File.Exists(path)) File.Delete(path);
+                ExitGame();
 
-            Notify.notify.CreateBannerNotification(null, $"字典重置成功");
+            }, "确认", delegate () { },"取消");
+
+
         }
 
         public async void DictionaryExport(int dictionaryType)

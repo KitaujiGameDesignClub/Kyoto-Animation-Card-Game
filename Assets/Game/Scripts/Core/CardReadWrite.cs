@@ -74,9 +74,9 @@ namespace Core
 
 
                 //创建缓存
-                GameState.cardCaches.Add(new CardCache(loadedCard, debut, defeat, exit, ability, image));
+                GameState.cardCaches.Add(new CardCache(loadedCard,ref debut,ref defeat,ref exit,ref ability,ref image));
             }
-            else GameState.cardCaches.Add(new CardCache(loadedCard, null, null, null, null, null));
+            else GameState.cardCaches.Add(new CardCache(loadedCard));
 
             return loadedCard.UUID;
         }
@@ -360,10 +360,10 @@ namespace Core
 
 
         /// <summary>
-        /// 创建卡牌文件
+        /// 创建卡牌文件（保存用）
         /// </summary>
         /// <param name="characterCard">保存的内容</param>
-        /// <param name="directoryToSave">卡牌配置文件保存的路径</param>
+        /// <param name="directoryToSave">卡牌配置文件保存的路径（仅文件夹）</param>
         /// <param name="imageFullPath">新的封面图片的路径</param>
         /// <param name="newVoiceFileFullPath">新的音频文件的路径</param>
         /// <param name="voiceNamesWithoutExtension">语音文件的名字（不含拓展名）</param>
@@ -373,21 +373,46 @@ namespace Core
         {
 
             Directory.CreateDirectory(directoryToSave);
-            
-            //卡牌配置文件
-            var io = new DescribeFileIO(Information.CardFileName,
-                $"-{directoryToSave}",
-                "# card detail.\n# It'll tell you all the information of the card,but it can't work independently.");
-
-  await YamlReadWrite.WriteAsync(io, characterCard);
 
 
             //复制封面图片
-            if (!string.IsNullOrEmpty(imageFullPath) &&
-                imageFullPath != $"{directoryToSave}\\{characterCard.ImageName}")
+                if (!string.IsNullOrEmpty(imageFullPath) &&
+    imageFullPath != $"{directoryToSave}\\{characterCard.ImageName}")
+                {
+                    File.Copy(imageFullPath, Path.Combine(directoryToSave, characterCard.ImageName), true);
+                }
+
+            //检查图片大小
+            var texture = await CoverImageLoader(Path.Combine(directoryToSave, characterCard.ImageName));
+            if(texture != null)
             {
-               File.Copy(imageFullPath, Path.Combine(directoryToSave,characterCard.ImageName), true);
+                //如果像素超过1024，就压缩
+                if (texture.height > 1024)
+                {
+                    var image = new Texture2D(768, 1024, texture.format, false);
+
+                    for (int w = 0; w < image.width; w++)
+                    {
+                        for (int h = 0; h < image.height; h++)
+                        {
+                            Color color = texture.GetPixelBilinear(w / (float)image.width, h / (float)image.height);
+                            image.SetPixel(w, h, color);
+                        }
+                    }
+                    image.Apply();
+
+                    //删除原来的图片
+                    File.Delete(Path.Combine(directoryToSave, characterCard.ImageName));
+                    //创建新的图片
+                    await File.WriteAllBytesAsync(Path.Combine(directoryToSave, "cover.png"), image.EncodeToPNG());
+                    //修改配置文件，防止读不到图片
+                    characterCard.ImageName = "cover.png";
+
+                    Debug.Log($"“{characterCard.FriendlyCardName}”的图片已压缩");
+                }
             }
+
+
 
             //复制音频资源
             for (int i = 0; i < newVoiceFileFullPath.Length; i++)
@@ -401,6 +426,15 @@ namespace Core
                     File.Copy(newVoiceFileFullPath[i], audioTargetPath, true);
                 }
             }
+
+
+            //卡牌配置文件
+            var io = new DescribeFileIO(Information.CardFileName,
+                $"-{directoryToSave}",
+                "# card detail.\n# It'll tell you all the information of the card,but it can't work independently.");
+
+            await YamlReadWrite.WriteAsync(io, characterCard);
+
 
             Debug.Log($"“{characterCard.FriendlyCardName}”已成功保存在{directoryToSave}");
         }
@@ -640,7 +674,7 @@ namespace Core
             imageFullPath =$"file://{FixedLoadedPathDueToSAF(imageFullPath)}";
             
             var handler = new DownloadHandlerTexture();
-            UnityWebRequest unityWebRequest = new(imageFullPath, "GET", handler, null);
+            UnityWebRequest unityWebRequest = new(imageFullPath, "GET", handler, null); 
             
             //试试能不能正常加载图片
             try
@@ -650,10 +684,15 @@ namespace Core
                 //都等待了，不用isDone了
                 if (unityWebRequest.result == UnityWebRequest.Result.Success)
                 {
-                    var image = handler.texture;
-                    handler.Dispose();
-                    unityWebRequest.Dispose();
-                    return image;
+
+
+                    if (handler.texture.width % 4 == 0 && handler.texture.height % 4 == 0)
+                    {
+                        handler.texture.Compress(false);
+                    }
+
+                    unityWebRequest = null;
+                    return handler.texture;
 
                 }
                 //不存在或加载失败，返回空值

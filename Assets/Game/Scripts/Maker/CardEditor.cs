@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Core;
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Triggers;
 using KitaujiGameDesignClub.GameFramework.UI;
 using Lean.Gui;
 using SimpleFileBrowser;
 using TMPro;
-using UnityEditor;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -493,7 +489,6 @@ namespace Maker
                 else
                 {
                     abilityResultSummon.inputField.text = string.Empty;
-                    Debug.LogError($"“{nowEditingCard.Result.SummonCardName}”既不是一个合法的uuid，也不是一个已有卡牌的友好名称");
                 }
             }
             else

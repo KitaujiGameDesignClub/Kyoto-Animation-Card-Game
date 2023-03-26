@@ -1,11 +1,9 @@
 using Core;
-using Core.Interface;
 using Cysharp.Threading.Tasks;
 using KitaujiGameDesignClub.GameFramework.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using Random = System.Random;
@@ -49,11 +47,17 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// <summary>
     /// 沉默回合数  新卡为0
     /// </summary>
-     public int Silence { get; set; }
+     public int Silence { 
+        get; 
+        set;
+    }
     /// <summary>
     /// 嘲讽回合数 新卡为0
     /// </summary>
-     public int Ridicule { get; set; }
+     public int Ridicule {
+        get; 
+        set; 
+    }
     
     /// <summary>
     /// 实际攻击力（各种影响攻击力的都对这个参数修改）
@@ -62,7 +66,19 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     {
         get => Profile.BasicPower; 
         set {
-            Profile.BasicPower = value; 
+            //火力提升了，通知一下
+            if (value > ActualPower)
+            {
+                cardInformation.Show($"Power\n+ {value - ActualPower}", false);
+            }
+            //火力被降低了
+            else if (value < ActualPower)
+            {
+                cardInformation.Show($"Power\n- {ActualPower - value}", true);
+            }
+
+            //参数修改
+            Profile.BasicPower = value;
             powerValue.text = value.ToString();
         }
     }
@@ -73,7 +89,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     public int ActualHealthPoint
     {
         get => Profile.BasicHealthPoint; 
-        set {
+       private set {
             Profile.BasicHealthPoint = value;
             hpValue.text = value.ToString();
                 }
@@ -140,8 +156,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
             {
                 DestroyImmediate(item);
             }
-        }
-      
+        }      
     }
 
     /// <summary>
@@ -187,20 +202,12 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     #region 游戏状态
 
 
-    public void GetDamaged(int damage, CardPanel activator) => ChangeHealthAndPower(true, ActualHealthPoint - damage, false, -1, activator);
+    public void GetDamaged(int damage, CardPanel activator) => ChangeHealth(ActualHealthPoint - damage,  activator);
 
     public void ChangeTeam(int targetTeamId)
     {
 
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="value">增长值</param>
-    /// <param name="activator"></param>
-    public void PowerUp(int value, CardPanel activator) => ChangeHealthAndPower(false,-1, true, ActualPower + value, activator);
-
 
     /// <summary>
     /// 修改血量和攻击力
@@ -210,30 +217,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// <param name="changePower">要修改攻击力吗</param>
     /// <param name="value2">生命最终值</param>
     /// <param name="Activator">是谁触发了这个函数</param>
-    public void ChangeHealthAndPower(bool changeHealth, int value1, bool changePower, int value2, CardPanel Activator)
+    public void ChangeHealth(int value1, CardPanel Activator)
     {
-
-        //更新数据
-        if (changePower)
-        {
-            //火力提升了，通知一下
-            if(value2 > ActualPower)
-            {
-                cardInformation.Show($"Power\n+ {value2 - ActualPower}", false);
-            }
-            //火力被降低了
-            else if (value2 < ActualPower)
-            {
-                cardInformation.Show($"Power\n- {ActualPower - value2}", true);
-            }
-
-            Debug.Log(ActualPower + " " + value2);
-            //参数修改
-            ActualPower = value2;
-        }
-
-        if (changeHealth)
-        {
            //是挨打          
           if(ActualHealthPoint > value1)
             {
@@ -250,10 +235,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                 cardInformation.Show($"HP\n+ {value1 - ActualHealthPoint}", false);
                 //修改参数
                 ActualHealthPoint = value1;
-            }
-         
-        }
-      
+            }      
     }
 
 
@@ -352,7 +334,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
     #region 能力解析相关
 
-    async UniTask Summon( )
+    async UniTask Summon()
     {
 
         var ar = await GameStageCtrl.stageCtrl.DisplayCardFromCache(Profile.Result.SummonCardName, TeamId, CardId + 1);
@@ -810,6 +792,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         }
 
 
+
+
         #region 获取能力发动的对象 能力发动到谁身上？
 
         //如果把激活能力的条件对象作为结果对象，才查找对象
@@ -833,19 +817,29 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
             //对目标角色卡的参数进行修改
             foreach (var card in characterToOperate)
             {
+                //额外的沉默
+                card.Silence += Convert.ToInt32(Profile.Result.Silence);
+                ShowNews(card.Profile.FriendlyCardName, $"的沉默回合数变为了{card.Silence}");
+
+                //额外的嘲讽
+                card.Ridicule += Convert.ToInt32(Profile.Result.Ridicule);
+                ShowNews(card.Profile.FriendlyCardName, $"的嘲讽回合数变为了{card.Ridicule}");
+
+
                 switch (Profile.Result.ParameterToChange)
                 {
+
                     case Information.Parameter.Coin:
                         throw new Exception(
                             $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})无法修改Coin参数，因为他的能力指向的结果对象不是CharacterCard，而是chief");
 
                     case Information.Parameter.HealthPoint:
-                        card.ChangeHealthAndPower(true, ChangeIntValue(card.ActualHealthPoint), false, -1, this);
+                        card.ChangeHealth(ChangeIntValue(card.ActualHealthPoint), this);
                         ShowNews(card.Profile.FriendlyCardName, $"的体力值（HP）变为了{card.ActualHealthPoint}");
 
                         break;
                     case Information.Parameter.Power:
-                        card.ChangeHealthAndPower(false, 0, true, ChangeIntValue(card.ActualPower), this);
+                        card.ActualPower = ChangeIntValue(card.ActualPower);
                         ShowNews(card.Profile.FriendlyCardName, $"的执行力（攻击力）变为了{card.ActualPower}");
                         break;
 
@@ -947,7 +941,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     }
 
     /// <summary>
-    /// 修改int类型的值，并返回最终值
+    /// 修改int类型的值，并返回最终值（涉及到 修改方法）
     /// </summary>
     /// <param name="parameter">被修改的参数</param>
     /// <param name="values">（</param>

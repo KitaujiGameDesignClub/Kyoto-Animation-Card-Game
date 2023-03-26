@@ -69,7 +69,7 @@ TextureImporter:
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 7
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -233,10 +233,10 @@ TextureImporter:
     secondaryTextures: []
     nameFileIdTable:
       bass: 1353145
-      gituar_yui: 2065796195
       drums: -565132480
-      keyboard: 486623271
       gituar_cat: 2007425521
+      gituar_yui: 2065796195
+      keyboard: 486623271
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
