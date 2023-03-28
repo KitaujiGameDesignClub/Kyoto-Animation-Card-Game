@@ -109,7 +109,8 @@ namespace Maker
 
         private void Awake()
         {
-            VersionField.text = $"游戏版本：ver.{Application.version}";
+            var ss = Application.version.Contains("weekly") ? $"{Application.version}\n<color=red><size=130%>此为每周版，很可能有相当多的bug，在操作卡组之前请先备份" : Application.version;
+            VersionField.text = $"游戏版本：ver.{ss}";
 
             //创建bundle文件夹
             if (!File.Exists(Information.bundlesPath)) Directory.CreateDirectory(Information.bundlesPath);

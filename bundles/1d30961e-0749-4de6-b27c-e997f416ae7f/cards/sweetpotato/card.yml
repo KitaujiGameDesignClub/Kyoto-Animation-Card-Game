@@ -1,4 +1,4 @@
-﻿# Only for 社团Battle！ with utf-8
+# Only for 社团Battle！ with utf-8
 # card detail.
 # It'll tell you all the information of the card,but it can't work independently.
 
@@ -38,8 +38,8 @@ Result:
     Threshold: ''
   ParameterToChange: HealthPoint
   ChangeMethod: addition
-  Value: 3
-  SummonCardName: fbb8d7ad-b9f1-4d61-a90e-67192fd175ef
+  Value: 1
+  SummonCardName: 
   Ridicule: 0
   Silence: 0
 AbilityDescription: >-

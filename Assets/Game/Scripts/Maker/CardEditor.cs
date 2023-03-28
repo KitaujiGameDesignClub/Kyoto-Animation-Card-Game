@@ -476,28 +476,31 @@ namespace Maker
             abilityResultChangeMethod.value=((int)nowEditingCard.Result.ChangeMethod);
             abilityResultChangeValue.inputField.text=(nowEditingCard.Result.Value);
             //适用于旧版本兼容（其实是引入Uuid之后，这方面的逻辑忘了改了。。。）
-            if(!Guid.TryParse(nowEditingCard.Result.SummonCardName, out Guid guid))
+            if (!string.IsNullOrEmpty(nowEditingCard.Result.SummonCardName))
             {
-                //如果不是一个合法的guid（那就是friendlyName了）。则自动修复
-
-                //确确实实有这个卡牌的话，那就直接显示这个友好名称了
-                if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Contains(nowEditingCard.FriendlyCardName))
+                if (!Guid.TryParse(nowEditingCard.Result.SummonCardName, out Guid guid))
                 {
-                    abilityResultSummon.inputField.text = nowEditingCard.FriendlyCardName;
+                    //如果不是一个合法的guid（那就是friendlyName了）。则自动修复
+
+                    //确确实实有这个卡牌的话，那就直接显示这个友好名称了
+                    if (CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.Contains(nowEditingCard.FriendlyCardName))
+                    {
+                        abilityResultSummon.inputField.text = nowEditingCard.FriendlyCardName;
+                    }
+                    //这个卡牌有都没有的话 ，就无视这个参数
+                    else
+                    {
+                        abilityResultSummon.inputField.text = string.Empty;
+                    }
                 }
-                //这个卡牌有都没有的话 ，就无视这个参数
                 else
                 {
-                    abilityResultSummon.inputField.text = string.Empty;
+                    //如果是一个合法的guid。那就读取对应卡牌的友好名称
+                    int index = CardMaker.cardMaker.nowEditingBundle.allCardUuid.FindIndex(n => n.Contains(nowEditingCard.Result.SummonCardName));
+                    abilityResultSummon.inputField.text = CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName[index];
                 }
+
             }
-            else
-            {
-                //如果是一个合法的guid。那就读取对应卡牌的友好名称
-                int index = CardMaker.cardMaker.nowEditingBundle.allCardUuid.FindIndex(n => n.Contains(nowEditingCard.Result.SummonCardName));
-                abilityResultSummon.inputField.text = CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName[index];
-            }
-            
             abilityResultSummon.ChangeOptionDatas(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
             abilityResultRidicule.text = (nowEditingCard.Result.Ridicule.ToString());
             abilityResultSilence.text = (nowEditingCard.Result.Silence.ToString());

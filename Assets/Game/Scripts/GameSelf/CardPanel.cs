@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 using Random = System.Random;
 
@@ -264,7 +265,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
         if(ActualPower <= 0)
         {
-            GameStageCtrl.stageCtrl.ShowAbilityNews($"{Profile.FriendlyCardName}(tid:{TeamId},id{CardId})", null, "因为执行力（攻击力）=0，无法攻击");
+            GameStageCtrl.stageCtrl.ShowAbilityNews($"{Profile.FriendlyCardName}(tid:{TeamId},id:{CardId})", null, "因为执行力（攻击力）=0，无法攻击");
             await UniTask.Delay(400);
             return;
         }
@@ -347,7 +348,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// <summary>
     /// 展示能力的一些新信息（格式弄好了）
     /// </summary>
-    void ShowNews(string Recepetors, string DoWhat) => GameStageCtrl.stageCtrl.ShowAbilityNews(Profile.FriendlyCardName, Recepetors, DoWhat);
+    void ShowNews(string Recepetors, string DoWhat) => GameStageCtrl.stageCtrl.ShowAbilityNews($"{Profile.FriendlyCardName}(tid:{TeamId},id:{CardId})", Recepetors, DoWhat);
 
     /// <summary>
     /// 能力触发原因判定
@@ -549,6 +550,11 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
 #if UNITY_EDITOR
             Debug.Log($"判定参数：{parameterValues.Length}");
+
+            foreach ( var parameter in parameterValues )
+            {
+                Debug.Log($"参数的值：{parameter}");
+            }
 #endif
             #endregion
 
@@ -579,12 +585,15 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //只要存在一个符合要求的，就说明能力能发动
         bool AllowAbilityExection = false;
 
-        #region 运用判断逻辑，对阈值进行判定
+            //满足条件的卡牌
+            CardPanel[] SatisfactoryCards = ReasonObjects;
 
-        //count（计数）判定：
-        if (Profile.Reason.ReasonJudgeMethod == Information.JudgeMethod.Count)
+            #region 运用判断逻辑，对阈值进行判定
+
+            //count（计数）判定：
+            if (Profile.Reason.ReasonJudgeMethod == Information.JudgeMethod.Count)
         {
-            //满足要求的参数的长度
+            //有几个参数？
             var parameterValuesLength = int.Parse(values[0]);
             int thresholdInt = int.Parse(Profile.Reason.Threshold);
 
@@ -622,8 +631,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //values判定：
         else
         {
-            //这些都是对values（数值进行判定）
-            switch (Profile.Reason.JudgeParameter)
+                //这些都是对values（数值进行判定）
+                switch (Profile.Reason.JudgeParameter)
             {
                 //数据为Int
                 case Information.Parameter.Coin or Information.Parameter.Power or Information.Parameter.Silence
@@ -635,6 +644,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     //将记录的values转换成Int，并进行有关的判断逻辑处理
                     for (int i = 0; i < values.Length; i++)
                     {
+
                         //将记录的values转换成Int
                         if (!int.TryParse(values[i], out fixedValues[i]))
                         {
@@ -678,14 +688,11 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                             }
                         }
 
-
-                        //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
-                        if (!Profile.Result.RegardActivatorAsResultObject || Profile.Result.SummonCardName != String.Empty)
-                        {
-                            if (AllowAbilityExection) break;
-                        }
+                        //不满足条件的，去掉
+                         if(!AllowAbilityExection)  SatisfactoryCards[i] = null;
                     }
 
+                    //switch的
                     break;
 
                 //其他定性的（不含tag）
@@ -705,17 +712,17 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                             case 0:
                                 AllowAbilityExection = values[i] == Profile.Reason.Threshold;
                                 break;
+
+                                default:
+                                    throw new Exception("定性的参数不能选择不包含、包含以外的逻辑");
+                            }
+
+                            //不满足条件的，去掉
+                            if (!AllowAbilityExection) SatisfactoryCards[i] = null;
+
                         }
 
-
-                        //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
-                        if (!Profile.Result.RegardActivatorAsResultObject || Profile.Result.SummonCardName != String.Empty)
-                        {
-                            if (AllowAbilityExection) break;
-                        }
-                    }
-
-                    break;
+                        break;
 
                 //每一个角色卡记录的tags:，SOS，coward
                 case Information.Parameter.Tag:
@@ -739,30 +746,33 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                             case 0:
                                 AllowAbilityExection = allTags.Contains(Profile.Reason.Threshold);
                                 break;
+
+                                default:
+                                    throw new Exception("定性的参数不能选择不包含、包含以外的逻辑");
+
+                            }
+
+                            //不满足条件的，去掉
+                            if (!AllowAbilityExection) SatisfactoryCards[i] = null;
+
                         }
 
-
-                        //如果能触发能力，并且不会对满足要求的条件对象执行有关操作，或者说是要召唤什么，那么有符合要求的条件对象时，直接就去执行能力的逻辑了
-                        if (!Profile.Result.RegardActivatorAsResultObject || Profile.Result.SummonCardName != String.Empty)
-                        {
-                            if (AllowAbilityExection) break;
-                        }
-                    }
-
-                    break;
+                        break;
             }
         }
 
-        #endregion
+            #endregion
 
 
-        //有符合要求的条件对象，就执行能力的结果逻辑
-        if (AllowAbilityExection)
+            //有符合要求的条件对象，就执行能力的结果逻辑
+            SatisfactoryCards = SatisfactoryCards.Where(s =>  s != null).ToArray();//去掉所有null
+            if (AllowAbilityExection || SatisfactoryCards.Length > 0)
         {
 #if UNITY_EDITOR
                 Debug.Log("满足要求，能力发动");
 #endif
-                AbilityResultAnalyze(ReasonObjects);
+                AbilityResultAnalyze(SatisfactoryCards);
+                SatisfactoryCards = null;
         }
 
         }
@@ -812,18 +822,20 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
         #region 修改参数
 
-        if (chiefToOperate != null)
+        if (characterToOperate != null)
         {
             //对目标角色卡的参数进行修改
             foreach (var card in characterToOperate)
             {
-                //额外的沉默
-                card.Silence += Convert.ToInt32(Profile.Result.Silence);
-                ShowNews(card.Profile.FriendlyCardName, $"的沉默回合数变为了{card.Silence}");
+                //额外的沉默（加法运算那个）
+                var intt = Convert.ToInt32(Profile.Result.Silence);
+                card.Silence += intt;
+               if(intt > 0) ShowNews($"{card.Profile.FriendlyCardName}(tid:{card.TeamId},id:{card.CardId})", $"的沉默回合数增加了{Profile.Result.Silence}");
 
-                //额外的嘲讽
-                card.Ridicule += Convert.ToInt32(Profile.Result.Ridicule);
-                ShowNews(card.Profile.FriendlyCardName, $"的嘲讽回合数变为了{card.Ridicule}");
+                //额外的嘲讽（加法运算那个）
+                intt = Convert.ToInt32(Profile.Result.Ridicule);
+                card.Ridicule += intt;
+                if(intt > 0) ShowNews($"{card.Profile.FriendlyCardName}(tid:{card.TeamId},id:{card.CardId})", $"的嘲讽回合数增加了{Profile.Result.Ridicule}");
 
 
                 switch (Profile.Result.ParameterToChange)
@@ -835,12 +847,12 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
                     case Information.Parameter.HealthPoint:
                         card.ChangeHealth(ChangeIntValue(card.ActualHealthPoint), this);
-                        ShowNews(card.Profile.FriendlyCardName, $"的体力值（HP）变为了{card.ActualHealthPoint}");
+                        ShowNews($"{card.Profile.FriendlyCardName}(tid:{card.TeamId},id:{card.CardId})", $"的体力值（HP）变为了{card.ActualHealthPoint}");
 
                         break;
                     case Information.Parameter.Power:
                         card.ActualPower = ChangeIntValue(card.ActualPower);
-                        ShowNews(card.Profile.FriendlyCardName, $"的执行力（攻击力）变为了{card.ActualPower}");
+                        ShowNews($"{card.Profile.FriendlyCardName}(tid:{card.TeamId},id:{card.CardId})", $"的执行力（攻击力）变为了{card.ActualPower}");
                         break;
 
                     case Information.Parameter.Gender:
@@ -853,7 +865,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                             2 => "女",
                             _ => "未知或不重要",
                         };
-                        ShowNews(card.Profile.FriendlyCardName, $"的性别变为了{gender}");
+                        ShowNews($"{card.Profile.FriendlyCardName}(tid:{card.TeamId},id:{card.CardId})", $"的性别变为了{gender}");
                         break;
 
                     //修改所属的team。0=玩家方 1=电脑方 2=双方交换
@@ -884,7 +896,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
                             };
 
-                            ShowNews(card.Profile.FriendlyCardName, $"的所属社团变为了{team}");
+                            ShowNews($"{card.Profile.FriendlyCardName}(tid:{card.TeamId},id:{card.CardId})", $"的所属社团变为了{team}");
                         }
 
 
@@ -892,12 +904,12 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
                     case Information.Parameter.Silence:
                         card.Silence = ChangeIntValue(card.Silence);
-                        ShowNews(card.Profile.FriendlyCardName, $"的沉默回合数变为了{card.Silence}");
+                        ShowNews($"{card.Profile.FriendlyCardName}(tid:{card.TeamId},id:{card.CardId})", $"的沉默回合数变为了{card.Silence}");
                         break;
 
                     case Information.Parameter.Ridicule:
                         card.Ridicule = ChangeIntValue(card.Ridicule);
-                        ShowNews(card.Profile.FriendlyCardName, $"的嘲讽回合数变为了{card.Ridicule}");
+                        ShowNews($"{card.Profile.FriendlyCardName}(tid:{card.TeamId},id:{card.CardId})", $"的嘲讽回合数变为了{card.Ridicule}");
                         break;
 
                     case Information.Parameter.Tag:
@@ -909,13 +921,13 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                                 if (Profile.Result.Value.Substring(0, 1) != "-" && !card.Profile.tags.Contains(Profile.Result.Value))
                                 {
                                     card.Profile.tags.Add(Profile.Result.Value);
-                                    ShowNews(card.Profile.FriendlyCardName, $"的标签添加了{Profile.Result.Value}");
+                                    ShowNews($"{card.Profile.FriendlyCardName}(tid:{card.TeamId},id:{card.CardId})", $"的标签添加了{Profile.Result.Value}");
                                 }
                                 //开头有-号，减去一个tag
                                 else if (Profile.Result.Value.Substring(0, 1) == "-" && card.Profile.tags.Contains(Profile.Result.Value))
                                 {
                                     card.Profile.tags.Remove(Profile.Result.Value);
-                                    ShowNews(card.Profile.FriendlyCardName, $"的标签删除了{Profile.Result.Value}");
+                                    ShowNews($"{card.Profile.FriendlyCardName}(tid:{card.TeamId},id:{card.CardId})", $"的标签删除了{Profile.Result.Value}");
                                 }
                                 break;
 
@@ -1090,7 +1102,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 #endif
             return neededCards;
         }
-
+        //除此之外，再次检索一下，以缩小范围
         //缓存一下，储存符合条件要求的卡牌对象
         List<CardPanel> cache = new List<CardPanel>();
 
@@ -1211,6 +1223,10 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                         case 0:
                             allowed = parameter == Profile.Reason.NeededObjects.Threshold;
                             break;
+
+                        default:
+                            throw new Exception("定性的参数不能选择不包含、包含以外的逻辑");
+
                     }
                     break;
 
@@ -1233,6 +1249,9 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                         case 0:
                             allowed = allTags.Contains(Profile.Reason.NeededObjects.Threshold);
                             break;
+
+                        default:
+                            throw new Exception("定性的参数不能选择不包含、包含以外的逻辑");
                     }
 
                     break;
