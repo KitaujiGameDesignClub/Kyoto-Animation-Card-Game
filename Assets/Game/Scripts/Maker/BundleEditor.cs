@@ -50,8 +50,6 @@ namespace Maker
 
         internal void Initialization()
         {
-            //保存热键
-            CardMaker.cardMaker.WantToSave.AddListener(UniTask.UnityAction(async () => { await SaveOrSaveTo(); }));
 
             #region 切换事件组
 

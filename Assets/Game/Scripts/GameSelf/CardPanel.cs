@@ -167,7 +167,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     public void EnterGameMode()
     {
         //设置上图片
-        image.sprite = cardCache.CoverImage == null ? image.sprite : cardCache.CoverImage;
+        image.sprite = cardCache.CoverImage == null ? image.sprite :  cardCache.CoverImage;
         image.sortingOrder = 0;//层级调整
         //初始化体力值与行动力
         ActualPower = Profile.BasicPower;
@@ -226,7 +226,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                 cardInformation.Show($"HP\n- {ActualHealthPoint - value1}", true);
                 //修改参数
                 ActualHealthPoint = value1;
-                //告知自己挨打了
+                //告知自己挨打了（不等待）
                 OnHurt(Activator);
               
             }
@@ -244,9 +244,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     {
         if (Profile.AbilityActivityType == Information.CardAbilityTypes.Debut)
         {
-            await UniTask.Delay(200);
-            await  AbilityReasonAnalyze(null,"from OnDebut");
-            await UniTask.Delay(300);
+            await  AbilityReasonAnalyze(null,true,"from OnDebut");
         }
 
     }
@@ -257,16 +255,13 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         if (Profile.AbilityActivityType == Information.CardAbilityTypes.Round)
         {
             //分析一下该做什么，顺便触发能力
-            await AbilityReasonAnalyze(null,"from Attack");
-
-            await UniTask.Delay(300);
+            await AbilityReasonAnalyze(null,true, "from Attack");
 
         }
 
         if(ActualPower <= 0)
         {
             GameStageCtrl.stageCtrl.ShowAbilityNews($"{Profile.FriendlyCardName}(tid:{TeamId},id:{CardId})", null, "因为执行力（攻击力）=0，无法攻击");
-            await UniTask.Delay(400);
             return;
         }
 
@@ -279,9 +274,9 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //靠近要攻击目标卡牌
         while (true)
         {
-            tr.position = Vector2.Lerp(tr.position, attackPoint, 0.04f);
+            tr.position = Vector2.Lerp(tr.position, attackPoint, 20f * Time.deltaTime);
             //足够近，停止循环
-            if (Math.Abs(tr.position.x - attackPoint.x) <= 0.1f && Math.Abs(tr.position.y - attackPoint.y) <= 0.1f)
+            if (Math.Abs(tr.position.x - attackPoint.x) <= 0.05f && Math.Abs(tr.position.y - attackPoint.y) <= 0.05f)
             {
                 break;
             }
@@ -290,21 +285,23 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //施暴
         target.GetDamaged(ActualPower, this);
 
-        await UniTask.Delay(250);
+        //逗留时间
+        await UniTask.Delay(BattleDelayManagement.CardStayTime);
 
         //回到原地点
         while (true)
         {
-            tr.position = Vector2.Lerp(tr.position, originalPos, 0.06f);
+            tr.position = Vector2.Lerp(tr.position, originalPos, 30f * Time.deltaTime);
+
             //足够近，停止循环（尽量能靠近）
-            if (Math.Abs(tr.position.x - originalPos.x) <= 0.1f && Math.Abs(tr.position.y - originalPos.y) <= 0.1f)
+            if (Math.Abs(tr.position.x - originalPos.x) <= 0.05f && Math.Abs(tr.position.y - originalPos.y) <= 0.05f)
             {
                 break;
             }
             await UniTask.Yield(PlayerLoopTiming.Update);
         }
 
-        await UniTask.Delay(400);
+        await UniTask.Delay(BattleDelayManagement.RoundEndWaitTime);
     }
 
     public async UniTask Exit(CardPanel activator)
@@ -323,8 +320,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         if (Profile.AbilityActivityType == Information.CardAbilityTypes.GetHurt && ActualHealthPoint > 0)
         {           
             //分析一下该做什么，顺便触发能力
-          await AbilityReasonAnalyze(activator,"from OnHurt");
-            await UniTask.Delay(100);
+          await AbilityReasonAnalyze(activator,allowPreWait:false,"from OnHurt");
         }
 
         if (ActualHealthPoint <= 0) await Exit(activator);
@@ -341,7 +337,6 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         var ar = await GameStageCtrl.stageCtrl.DisplayCardFromCache(Profile.Result.SummonCardName, TeamId, CardId + 1);
         ShowNews(null, $"召唤了一张卡牌“{ar.Profile.FriendlyCardName}”");
 
-        await UniTask.Delay(250);
 
     }
 
@@ -353,14 +348,15 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// <summary>
     /// 能力触发原因判定
     /// </summary>
-    async UniTask AbilityReasonAnalyze(CardPanel activator,string debugInf = null)
+    async UniTask AbilityReasonAnalyze(CardPanel activator,bool allowPreWait = true,string debugInf = null)
     {
+        
+        //发动能力之前的等待时间
+        await UniTask.Delay(BattleDelayManagement.AbilityToPerformWaitTime);
+
 #if UNITY_EDITOR
         Debug.Log(debugInf);
 #endif
-
-        //等20ms
-        await UniTask.Delay(20);
 
         //确定条件对象们
         CardPanel[] ReasonObjects = null; //确定范围内的条件对象
@@ -373,6 +369,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         {
             Profile.Result.RegardActivatorAsResultObject = false;
             AbilityResultAnalyze();
+            //能力发动之后的等待延迟
+            await UniTask.Delay(BattleDelayManagement.AbilityPerformedWaitTime);
             return;
         }
         else
@@ -776,6 +774,9 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         }
 
         }
+
+        //能力发动之后的等待延迟
+        await UniTask.Delay(BattleDelayManagement.AbilityPerformedWaitTime);
     }
 
 
@@ -784,7 +785,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// </summary>
     /// <param name="checkedKixedValuesState">储存每个条件对象对于此参数要求是否满足 （true就符合条件）</param>
     /// <param name="reasonObjects">得到那些条件对象</param>
-    async void AbilityResultAnalyze(CardPanel[] reasonObjects = null)
+    void AbilityResultAnalyze(CardPanel[] reasonObjects = null)
     {
      if(reasonObjects != null) ShowNews(null, $"得到了{reasonObjects.Length}个符合要求的卡牌");
 
@@ -795,7 +796,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //召唤
         if (!string.IsNullOrEmpty(Profile.Result.SummonCardName))
         { 
-           await Summon();
+            Summon();//先不等待
 
             //如果要召唤，那就直接不把激活能力的条件对象作为结果对象
             Profile.Result.RegardActivatorAsResultObject = false;

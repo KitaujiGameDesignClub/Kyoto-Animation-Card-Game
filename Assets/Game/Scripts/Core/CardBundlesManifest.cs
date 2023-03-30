@@ -22,12 +22,12 @@ namespace  Core
         /// </summary>
         public string FriendlyBundleName = "默认卡包";
 
-        public string Anime;
+        public string Anime = string.Empty;
 
         /// <summary>
         /// 封面图片（含拓展名）
         /// </summary>
-        public string ImageName;
+        public string ImageName = string.Empty;
         
         /// <summary>
         /// 卡包版本。用于玩家和作者进行区分

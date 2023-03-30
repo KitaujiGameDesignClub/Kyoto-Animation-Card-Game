@@ -1,0 +1,47 @@
+﻿# Only for 社团Battle！ with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+UUID: 808e7c39-d03b-436e-b137-0c5ebe4d96ec
+CodeVersion: 1
+CardName: EventOfWithdrawal
+AuthorName: 事件「退部危机」
+FriendlyCardName: 默认卡牌
+Anime: 吹响吧!上低音号
+tags: []
+CardCount: 1
+ImageName: ''
+CharacterName: ''
+CV: 不设置声优
+gender: 0
+allowAsChief: true
+BasicHealthPoint: 3
+BasicPower: 2
+AbilityActivityType: None
+Reason:
+  NeededObjects: &o0
+    LargeScope: None
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  JudgeParameter: None
+  ReasonJudgeMethod: Value
+  Logic: 0
+  Threshold: ''
+Result:
+  RegardActivatorAsResultObject: false
+  ResultObject: *o0
+  ParameterToChange: None
+  ChangeMethod: addition
+  Value: ''
+  SummonCardName: a3dc5f4b-1f7a-439a-89a4-76852794dc62
+  Ridicule: 0
+  Silence: 0
+AbilityDescription: >-
+  甚至可以写一点简短的小骚话
+
+  我很好奇能力是什么
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut
+voiceAbilityFileName: voiceAbility

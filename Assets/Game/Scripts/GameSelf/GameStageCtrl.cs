@@ -72,8 +72,6 @@ public class GameStageCtrl : MonoBehaviour
             }
 
             ShowAbilityNews($"{nameof(BattleSystem)}", null, "卡牌登场指令执行完成");
-            await UniTask.Delay(300);
-
 
         }
 
@@ -124,7 +122,7 @@ public class GameStageCtrl : MonoBehaviour
 
         //取消强制停止
         forceToStop = false;
-        //执行打架结束事件
+        //执行打架结束事件 
         battleEnd.Invoke();
     }
 

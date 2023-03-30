@@ -305,8 +305,6 @@ namespace Maker
             #endregion
 
             #endregion
-            //保存热键
-            CardMaker.cardMaker.WantToSave.AddListener(UniTask.UnityAction(async () => { await SaveOrSaveTo(); }));
 
             //删除卡牌
             DeleteButton.onClick.AddListener(delegate
@@ -500,6 +498,10 @@ namespace Maker
                     abilityResultSummon.inputField.text = CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName[index];
                 }
 
+            }
+            else
+            {
+                abilityResultSummon.inputField.text = string.Empty;
             }
             abilityResultSummon.ChangeOptionDatas(CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName);
             abilityResultRidicule.text = (nowEditingCard.Result.Ridicule.ToString());
@@ -728,12 +730,14 @@ namespace Maker
             editing.Reason.ReasonJudgeMethod = (Information.JudgeMethod)abilityReasonJudgeMethod.value;
             editing.Reason.Threshold = abilityReasonJudgeThreshold.text;
             editing.Result.RegardActivatorAsResultObject = abilityReasonObjectAsTarget.On;
+           //index = 0的是自带的提示性文本
             int index = CardMaker.cardMaker.nowEditingBundle.allCardsFriendlyName.FindIndex(a => a.Contains(abilityResultSummon.text));
-            if(index >= 0) editing.Result.SummonCardName = CardMaker.cardMaker.nowEditingBundle.allCardUuid[index];
-            //你这输入的卡牌友好名称不存在啊
+            if (index > 0) editing.Result.SummonCardName = CardMaker.cardMaker.nowEditingBundle.allCardUuid[index];
+            else if (index == 0) editing.Result.SummonCardName = string.Empty;
+            //你这输入的卡牌友好名称不存在啊（没找到，-1）
             else
             {
-                Notify.notify.CreateBannerNotification(null,$"此卡组中不存在友好名称为“{abilityResultSummon.text}”的卡牌");
+                Notify.notify.CreateBannerNotification(null, $"此卡组中不存在友好名称为“{abilityResultSummon.text}”的卡牌");
                 return;
             }
             editing.Result.Ridicule = int.Parse(abilityResultRidicule.text);

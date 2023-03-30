@@ -100,10 +100,6 @@ namespace Maker
         /// 上次激活热键后，松开了吗
         /// </summary>
         private bool releaseButton = true;
-        /// <summary>
-        /// 想要保存
-        /// </summary>
-        [HideInInspector] public UnityEvent WantToSave = new();
 
         #endregion
 
@@ -206,7 +202,16 @@ namespace Maker
                 if (Input.GetKey(KeyCode.S) && controlPressed)
                 {
                     releaseButton = false;
-                    WantToSave.Invoke();
+                   
+                    if(ManifestEditorPlane.activeSelf) 
+                    {
+                        bundleEditor.SaveButton();
+                    }
+                    else if(CardEditorPlane.activeSelf) 
+                    {
+                        cardEditor.SaveButton();
+                    }
+
                 }
                 //打开根目录
                 if (Input.GetKey(KeyCode.E) && controlPressed)

@@ -25,7 +25,7 @@ namespace Core
         /// </summary>f
         public string CardName = string.Empty;
 
-        public string AuthorName;
+        public string AuthorName = string.Empty;
         
         /// <summary>
         /// 友好卡牌名，用来显示给玩家的
@@ -35,7 +35,7 @@ namespace Core
         /// <summary>
         /// 所属动画
         /// </summary>
-        public string Anime;
+        public string Anime = string.Empty;
 
         /// <summary>
         /// 角色标签
@@ -50,12 +50,12 @@ namespace Core
         /// <summary>
         /// 图片名字（含拓展名）
         /// </summary>
-        public string ImageName;
+        public string ImageName = string.Empty;
 
         /// <summary>
         /// 角色名称（无则空）
         /// </summary>
-        public string CharacterName;
+        public string CharacterName = string.Empty;
 
         /// <summary>
         /// 所用声优
