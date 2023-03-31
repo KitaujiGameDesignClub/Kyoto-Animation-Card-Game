@@ -5,42 +5,47 @@
 UUID: 808e7c39-d03b-436e-b137-0c5ebe4d96ec
 CodeVersion: 1
 CardName: EventOfWithdrawal
-AuthorName: 事件「退部危机」
-FriendlyCardName: 默认卡牌
+AuthorName: PureAmaya
+FriendlyCardName: 事件「反省：退部危机」
 Anime: 吹响吧!上低音号
 tags: []
 CardCount: 1
-ImageName: ''
+ImageName: cover.png
 CharacterName: ''
 CV: 不设置声优
 gender: 0
 allowAsChief: true
-BasicHealthPoint: 3
-BasicPower: 2
-AbilityActivityType: None
+BasicHealthPoint: 8
+BasicPower: 0
+AbilityActivityType: GetHurt
 Reason:
-  NeededObjects: &o0
-    LargeScope: None
+  NeededObjects:
+    LargeScope: AllInTeam
+    ParameterToShrinkScope: Tag
+    Logic: 0
+    Threshold: 市立南中学校
+  JudgeParameter: HealthPoint
+  ReasonJudgeMethod: Value
+  Logic: 1
+  Threshold: 5
+Result:
+  RegardActivatorAsResultObject: true
+  ResultObject:
+    LargeScope: Any
     ParameterToShrinkScope: None
     Logic: 0
     Threshold: ''
-  JudgeParameter: None
-  ReasonJudgeMethod: Value
-  Logic: 0
-  Threshold: ''
-Result:
-  RegardActivatorAsResultObject: false
-  ResultObject: *o0
-  ParameterToChange: None
+  ParameterToChange: Power
   ChangeMethod: addition
-  Value: ''
-  SummonCardName: a3dc5f4b-1f7a-439a-89a4-76852794dc62
+  Value: 5
+  SummonCardName: ''
   Ridicule: 0
   Silence: 0
 AbilityDescription: >-
-  甚至可以写一点简短的小骚话
+  当此卡牌被攻击时，<b>己方所有南中的学生和毕业生</b>在有余力的情况下（<b>体力值>=5</b>），提高执行力5点
 
-  我很好奇能力是什么
+
+  <size=80%>pixivId:75376917
 voiceExitFileName: voiceExit
 voiceDefeatFileName: voiceDefeat
 voiceDebutFileName: voiceDebut

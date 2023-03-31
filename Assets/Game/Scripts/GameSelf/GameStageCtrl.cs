@@ -163,20 +163,8 @@ public class GameStageCtrl : MonoBehaviour
                 }
 
                 //执行卡牌这一回合该做的事情              
-
-                //没有沉默，正常打架
-                if (card.Silence <= 0)
-                {
-                    //沉默回合数<0，＋1
-                    if(card.Silence < 0)  card.Silence++;
-                    //执行每回合都执行的攻击逻辑
-                   await card.Attack(GetCardPanelOnSpot(teamId == 0? 1:0,UnityEngine.Random.Range(0,GameState.CardOnSpot[teamId == 0 ? 1 : 0].Count)));
-                }
-                //沉默了的，不打架了
-                else
-                {
-                    card.Silence--;
-                }
+                //执行每回合都执行的攻击逻辑
+                await card.Attack(GetCardPanelOnSpot(teamId == 0 ? 1 : 0, UnityEngine.Random.Range(0, GameState.CardOnSpot[teamId == 0 ? 1 : 0].Count)));
 
                     //记录一下，这个牌打过了
                     card.ThisRoundHasActiviated = true;

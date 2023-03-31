@@ -566,6 +566,7 @@ namespace Core
             //读取清单文件
             for (int i = 0; i < fileInfos.Length; i++)
             {
+                Debug.Log(fileInfos[i].FullName);
                 bundles[i] = await GetOneBundle(fileInfos[i].FullName);
             }
       

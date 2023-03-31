@@ -251,6 +251,20 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
     public async UniTask Attack(CardPanel target)
     {
+        //没有沉默，正常打架
+        if (Silence <= 0)
+        {
+            //沉默回合数<0，＋1
+            if (Silence < 0) Silence++;
+        }
+        //沉默了的，不打架了
+        else
+        {
+            Silence--;
+            return;
+        }
+
+
         //实战能力
         if (Profile.AbilityActivityType == Information.CardAbilityTypes.Round)
         {
@@ -430,7 +444,22 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     }
                     else
                         throw new Exception(
-                            $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断角色卡攻击力，但是能力原因的条件对象不是角色卡");
+                            $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断角色卡执行力（攻击力），但是能力原因的条件对象不是角色卡");
+
+                    break;
+
+                //角色卡的hp
+                case Information.Parameter.HealthPoint:
+                    if (chief == null)
+                    {
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            parameterValues[i] = ReasonObjects[i].ActualHealthPoint.ToString();
+                        }
+                    }
+                    else
+                        throw new Exception(
+                            $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})想要判断角色卡体力值（hp），但是能力原因的条件对象不是角色卡");
 
                     break;
 
@@ -570,7 +599,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                 values[0] = parameterValues.Length.ToString();
                 break;
 
-            //如果是value，直接把参数的值作为判断的值
+            //如果是取值，直接把参数的值作为判断的值
             case Information.JudgeMethod.Value:
                 values = parameterValues;
                 break;
@@ -646,6 +675,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                         //将记录的values转换成Int
                         if (!int.TryParse(values[i], out fixedValues[i]))
                         {
+                                Debug.Log($"{values[i]},{values[i].Length}");
                             throw new Exception(
                                 $"{Profile.FriendlyCardName}(内部名称：{Profile.CardName})的能力出发原因中，{Profile.Reason.JudgeParameter}是int的，但是给定的阈值形式上不符合int类型");
                         }
@@ -729,26 +759,36 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                     for (int i = 0; i < values.Length; i++)
                     {
                         //得到每一个对象的所有tag（0不能要）
-                        string[] allTags = values[i].Split('，');
+                        string[] allTags = string.IsNullOrEmpty(values[i])? null: values[i].Split('，');
 
+                        //根本没有tag啊
+                        if(allTags == null)
+                            {
+                                AllowAbilityExection = false; 
+                            }
+                        //有tag才进行判断
+                            else
+                            {
+                                //按照记录的逻辑方式判断能否
+                                switch (Profile.Reason.Logic)
+                                {
+                                    //-3 不包含
+                                    case -3:
+                                        AllowAbilityExection = !allTags.Contains(Profile.Reason.Threshold);
+                                        break;
 
-                        //按照记录的逻辑方式判断能否
-                        switch (Profile.Reason.Logic)
-                        {
-                            //-3 不包含
-                            case -3:
-                                AllowAbilityExection = !allTags.Contains(Profile.Reason.Threshold);
-                                break;
+                                    //等于（包含）
+                                    case 0:
+                                        AllowAbilityExection = allTags.Contains(Profile.Reason.Threshold);
+                                        break;
 
-                            //等于（包含）
-                            case 0:
-                                AllowAbilityExection = allTags.Contains(Profile.Reason.Threshold);
-                                break;
+                                    default:
+                                        throw new Exception("定性的参数不能选择不包含、包含以外的逻辑");
 
-                                default:
-                                    throw new Exception("定性的参数不能选择不包含、包含以外的逻辑");
+                                }
 
                             }
+
 
                             //不满足条件的，去掉
                             if (!AllowAbilityExection) SatisfactoryCards[i] = null;
@@ -1235,25 +1275,35 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                 case Information.Parameter.Tag:
 
                     //得到每一个对象的所有tag
-                    string[] allTags = parameter.Split('，');
+                    string[] allTags = string.IsNullOrEmpty(parameter)?null: parameter.Split('，');
 
-
-                    //按照记录的逻辑方式判断能否
-                    switch (Profile.Reason.NeededObjects.Logic)
+                    //根本没tag
+                    if(allTags == null)
                     {
-                        //-3 不包含
-                        case -3:
-                            allowed = !allTags.Contains(Profile.Reason.NeededObjects.Threshold);
-                            break;
-
-                        //等于（包含）
-                        case 0:
-                            allowed = allTags.Contains(Profile.Reason.NeededObjects.Threshold);
-                            break;
-
-                        default:
-                            throw new Exception("定性的参数不能选择不包含、包含以外的逻辑");
+                        allowed = false;
                     }
+                    //有tag就判定
+                    else
+                    {
+                        //按照记录的逻辑方式判断能否
+                        switch (Profile.Reason.NeededObjects.Logic)
+                        {
+                            //-3 不包含
+                            case -3:
+                                allowed = !allTags.Contains(Profile.Reason.NeededObjects.Threshold);
+                                break;
+
+                            //等于（包含）
+                            case 0:
+                                allowed = allTags.Contains(Profile.Reason.NeededObjects.Threshold);
+                                break;
+
+                            default:
+                                throw new Exception("定性的参数不能选择不包含、包含以外的逻辑");
+                        }
+
+                    }
+
 
                     break;
             }
