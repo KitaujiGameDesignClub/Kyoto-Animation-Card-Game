@@ -740,8 +740,8 @@ namespace Maker
                 Notify.notify.CreateBannerNotification(null, $"此卡组中不存在友好名称为“{abilityResultSummon.text}”的卡牌");
                 return;
             }
-            editing.Result.Ridicule = int.Parse(abilityResultRidicule.text);
-            editing.Result.Silence = int.Parse(abilityResultSilence.text);
+            editing.Result.Ridicule = string.IsNullOrEmpty(abilityResultRidicule.text) ? 0: int.Parse(abilityResultRidicule.text);
+            editing.Result.Silence = string.IsNullOrEmpty(abilityResultSilence.text) ? 0 : int.Parse(abilityResultSilence.text);
             editing.Result.ResultObject.LargeScope = (Information.Objects)abilityResultLargeScope.value;
             editing.Result.ResultObject.ParameterToShrinkScope = (Information.Parameter)abilityResultParameter.value;
             editing.Result.ResultObject.Logic = abilityResultLogic.value - 3;

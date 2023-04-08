@@ -14,6 +14,10 @@ using Random = System.Random;
 /// </summary>
 public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义行为（写代码）
 {
+
+    public GameObject SilenceIndicator;
+    public GameObject RidiculeIndicator;
+
     /// <summary>
     /// 缓存
     /// </summary>
@@ -48,18 +52,30 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     /// <summary>
     /// 沉默回合数  新卡为0
     /// </summary>
-     public int Silence { 
-        get; 
-        set;
+     public int Silence {
+        get => _silence;
+        set
+        {
+            _silence = value;
+            SilenceIndicator .SetActive(_silence > 0);
+        }
     }
+    private int _silence = 0;
+
     /// <summary>
     /// 嘲讽回合数 新卡为0
     /// </summary>
      public int Ridicule {
-        get; 
-        set; 
+        get => _ridicule;
+        set
+        {
+            _ridicule = value;
+            RidiculeIndicator.SetActive(_ridicule > 0);
+        }
     }
-    
+    private int _ridicule = 0;
+
+
     /// <summary>
     /// 实际攻击力（各种影响攻击力的都对这个参数修改）
     /// </summary>
@@ -176,6 +192,8 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         powerValue.gameObject.SetActive(true);
         hpValue.text = ActualHealthPoint.ToString();
         hpValue.gameObject.SetActive(true);
+        Silence = 0;
+        Ridicule = 0;
 
         //销毁信息显示用的东西（这些东西游戏模式用不到）
         if (cardName.gameObject != null)
@@ -330,6 +348,9 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
     public async UniTask OnHurt(CardPanel activator)
     {
+        //如果自身有嘲讽，就-1
+        if (Ridicule > 0) Ridicule--;
+
         //能力设定为挨打发动，并且得有血
         if (Profile.AbilityActivityType == Information.CardAbilityTypes.GetHurt && ActualHealthPoint > 0)
         {           
@@ -1210,6 +1231,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
             //与阈值对比，判断此对象是否符合要求
             switch (objectsScope.ParameterToShrinkScope)
             {
+
                 //数据为Int
                 case Information.Parameter.Coin or Information.Parameter.Power or Information.Parameter.Silence
                     or Information.Parameter.HealthPoint or Information.Parameter.Ridicule or Information.Parameter.Gender or Information.Parameter.Team:

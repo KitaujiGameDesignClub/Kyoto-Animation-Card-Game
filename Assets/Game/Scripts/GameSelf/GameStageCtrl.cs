@@ -137,6 +137,8 @@ public class GameStageCtrl : MonoBehaviour
     {
         //记录是哪一组在打
         GameState.whichTeamIsAttacking = teamId;
+        //受击的一组
+        var teamAttacked = teamId == 0 ? 1 : 0;
 
         //GameState.CardOnSpot[teamId].Count会动态变化，千万不能提前缓存
         for (int i = 0; i < GameState.CardOnSpot[teamId].Count; i++)
@@ -164,10 +166,22 @@ public class GameStageCtrl : MonoBehaviour
 
                 //执行卡牌这一回合该做的事情              
                 //执行每回合都执行的攻击逻辑
-                await card.Attack(GetCardPanelOnSpot(teamId == 0 ? 1 : 0, UnityEngine.Random.Range(0, GameState.CardOnSpot[teamId == 0 ? 1 : 0].Count)));
 
-                    //记录一下，这个牌打过了
-                    card.ThisRoundHasActiviated = true;
+                //对面没有有嘲讽的
+                var ridicule = GameState.CardOnSpot[teamAttacked].Find(a => a.Ridicule > 0);
+                if (ridicule != null)
+                {
+                    //对面没有嘲讽的，随便打一个
+                    await card.Attack(GetCardPanelOnSpot(teamAttacked, UnityEngine.Random.Range(0, GameState.CardOnSpot[teamId == 0 ? 1 : 0].Count)));
+                }
+                else
+                {
+                    //有嘲讽的
+                    await card.Attack(ridicule);                    
+                }
+
+                //记录一下，这个牌打过了
+                card.ThisRoundHasActiviated = true;
 
                 //如果最右侧的卡打完了（打架逻辑在上面，则重置这一方所有的卡
                 if (i == GameState.CardOnSpot[teamId].Count - 1)

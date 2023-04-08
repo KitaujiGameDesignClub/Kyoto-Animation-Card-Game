@@ -1,0 +1,54 @@
+﻿# Only for 社团Battle！ with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+UUID: 249efefe-7cc8-4231-976e-3fe530707e0d
+CodeVersion: 1
+CardName: funnyBand
+AuthorName: PureAmaya
+FriendlyCardName: 整活中的吹奏乐部
+Anime: 吹响吧!上低音号
+tags:
+- 吹奏乐部
+- 乐器
+- 整活
+CardCount: 2
+ImageName: cover.jpg
+CharacterName: 通用卡牌
+CV: 不设置声优
+gender: 0
+allowAsChief: true
+BasicHealthPoint: 10
+BasicPower: 1
+AbilityActivityType: Round
+Reason:
+  NeededObjects:
+    LargeScope: Any
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  JudgeParameter: None
+  ReasonJudgeMethod: Value
+  Logic: 0
+  Threshold: ''
+Result:
+  RegardActivatorAsResultObject: false
+  ResultObject:
+    LargeScope: Self
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  ParameterToChange: None
+  ChangeMethod: addition
+  Value: ''
+  SummonCardName: ''
+  Ridicule: 1
+  Silence: 0
+AbilityDescription: >-
+  <size=80%>大炮（大号）糊脸233</size>
+
+  因为整活太好玩，每回合都会吸引对方所有人的注意力（即：<b>给自身每回合给自己施加1次嘲讽</b>）
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut
+voiceAbilityFileName: voiceAbility
