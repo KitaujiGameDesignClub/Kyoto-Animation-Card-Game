@@ -169,7 +169,7 @@ public class GameStageCtrl : MonoBehaviour
 
                 //对面没有有嘲讽的
                 var ridicule = GameState.CardOnSpot[teamAttacked].Find(a => a.Ridicule > 0);
-                if (ridicule != null)
+                if (ridicule == null)
                 {
                     //对面没有嘲讽的，随便打一个
                     await card.Attack(GetCardPanelOnSpot(teamAttacked, UnityEngine.Random.Range(0, GameState.CardOnSpot[teamId == 0 ? 1 : 0].Count)));

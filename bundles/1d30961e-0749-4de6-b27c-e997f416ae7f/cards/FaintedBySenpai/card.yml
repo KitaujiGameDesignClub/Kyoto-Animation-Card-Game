@@ -1,0 +1,51 @@
+﻿# Only for 社团Battle！ with utf-8
+# card detail.
+# It'll tell you all the information of the card,but it can't work independently.
+
+UUID: 7ee469cd-66c7-4d1e-b682-777b5ee1d063
+CodeVersion: 1
+CardName: FaintedBySenpai
+AuthorName: PureAmaya
+FriendlyCardName: 被学姐气晕.jpg
+Anime: 吹响吧!上低音号
+tags:
+- 北宇治
+- 吹奏乐部
+- 乐器，长笛
+CardCount: 3
+ImageName: cover.png
+CharacterName: 通用卡牌
+CV: 不设置声优
+gender: 2
+allowAsChief: true
+BasicHealthPoint: 5
+BasicPower: 2
+AbilityActivityType: Round
+Reason:
+  NeededObjects:
+    LargeScope: RandomOfEnemy
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  JudgeParameter: CV
+  ReasonJudgeMethod: Count
+  Logic: -1
+  Threshold: 1
+Result:
+  RegardActivatorAsResultObject: true
+  ResultObject:
+    LargeScope: Activator
+    ParameterToShrinkScope: None
+    Logic: 0
+    Threshold: ''
+  ParameterToChange: None
+  ChangeMethod: addition
+  Value: ''
+  SummonCardName: ''
+  Ridicule: 0
+  Silence: 1
+AbilityDescription: 每回合随机使对面的一位沉默回合数+1
+voiceExitFileName: voiceExit
+voiceDefeatFileName: voiceDefeat
+voiceDebutFileName: voiceDebut
+voiceAbilityFileName: voiceAbility

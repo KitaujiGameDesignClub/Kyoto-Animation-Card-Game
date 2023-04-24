@@ -303,6 +303,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //记录挨打一方的位置
         var attackPoint = target.tr.position;
 
+
         //靠近要攻击目标卡牌
         while (true)
         {
@@ -1135,7 +1136,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
                 neededCards = new CardPanel[1];
                 neededCards[0] =
-                    GameState.CardOnSpot[TeamId][rd.Next(1, GameState.CardOnSpot[TeamId].Count + 1)];
+                    GameState.CardOnSpot[TeamId][rd.Next(0, GameState.CardOnSpot[TeamId].Count)];
                 break;
 
             // 地方方场上随机一位角色
@@ -1143,7 +1144,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
                 neededCards = new CardPanel[1];
                 neededCards[0] =
                     GameState.CardOnSpot[TeamId == 1 ? 0 : 1][
-                        rd.Next(1, GameState.CardOnSpot[TeamId].Count + 1)];
+                        rd.Next(0, GameState.CardOnSpot[TeamId].Count)];
                 break;
         }
 
