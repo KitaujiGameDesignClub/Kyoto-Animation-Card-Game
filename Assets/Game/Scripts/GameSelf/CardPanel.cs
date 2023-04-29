@@ -14,12 +14,18 @@ using Random = System.Random;
 /// </summary>
 public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义行为（写代码）
 {
+    /*
+     * 修改变量都是修改的Profile和这个类的silence、ridicule
+     * 会变化的值的初始值在cache中
+     * 图片、音频资源也在那里面
+     */
+
 
     public GameObject SilenceIndicator;
     public GameObject RidiculeIndicator;
 
     /// <summary>
-    /// 缓存
+    /// 卡牌缓存
     /// </summary>
    public CardCache cardCache
     {
@@ -33,7 +39,6 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
     public CharacterCard Profile
     {
         get { return cardCache.Profile; }
-        set { cardCache.Profile = value; }
     }
 
     /// <summary>
@@ -185,12 +190,14 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         //设置上图片
         image.sprite = cardCache.CoverImage == null ? image.sprite :  cardCache.CoverImage;
         image.sortingOrder = 0;//层级调整
-        //初始化体力值与行动力
-        ActualPower = Profile.BasicPower;
-        ActualHealthPoint = Profile.BasicHealthPoint;
-        powerValue.text = ActualPower.ToString();
+        //重置可能发生变化的变量
+        ActualPower = cardCache.power;
+        ActualHealthPoint = cardCache.hp;
+        Profile.CharacterName = cardCache.CharacterName;
+        Profile.gender = cardCache.Gender;
+        Profile.Anime = cardCache.Anime;
+        Profile.tags = cardCache.Tag;
         powerValue.gameObject.SetActive(true);
-        hpValue.text = ActualHealthPoint.ToString();
         hpValue.gameObject.SetActive(true);
         Silence = 0;
         Ridicule = 0;
@@ -344,7 +351,7 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
             await AbilityReasonAnalyze(activator);
         }
 
-        GameStageCtrl.stageCtrl.RecycleCardOnSpot(TeamId, CardId);
+        GameStageCtrl.stageCtrl.CardDie(TeamId, CardId);
     }
 
     public async UniTask OnHurt(CardPanel activator)
@@ -369,9 +376,17 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
     async UniTask Summon()
     {
+        //没有达到卡牌数量的上限，才召唤
+        if (GameStageCtrl.stageCtrl.GetCardCount(TeamId) < Information.TeamMaxCardOnSpotCount)
+        {
+            var ar = await GameStageCtrl.stageCtrl.DisplayCardFromCache(Profile.Result.SummonCardName, TeamId, CardId + 1);
+            ShowNews(null, $"召唤了一张卡牌“{ar.Profile.FriendlyCardName}”");
 
-        var ar = await GameStageCtrl.stageCtrl.DisplayCardFromCache(Profile.Result.SummonCardName, TeamId, CardId + 1);
-        ShowNews(null, $"召唤了一张卡牌“{ar.Profile.FriendlyCardName}”");
+        }
+        else
+        {
+            ShowNews(null, $"所在队伍的卡牌数量到达上限(6)了，无法召唤");
+        }
 
 
     }
@@ -1136,15 +1151,15 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
 
                 neededCards = new CardPanel[1];
                 neededCards[0] =
-                    GameState.CardOnSpot[TeamId][rd.Next(0, GameState.CardOnSpot[TeamId].Count)];
+                    GameState.CardOnSpot[TeamId][rd.Next(0, GameState.CardOnSpot[TeamId].Count - 1)];
                 break;
 
-            // 地方方场上随机一位角色
+            // 敌方场上随机一位角色
             case Information.Objects.RandomOfEnemy:
                 neededCards = new CardPanel[1];
                 neededCards[0] =
                     GameState.CardOnSpot[TeamId == 1 ? 0 : 1][
-                        rd.Next(0, GameState.CardOnSpot[TeamId].Count)];
+                        rd.Next(0, GameState.CardOnSpot[TeamId == 1 ? 0 : 1].Count - 1)];
                 break;
         }
 
@@ -1340,10 +1355,6 @@ public class CardPanel : MonoBehaviour//接口可以以后实现玩家自定义�
         neededCards = CommonTools.ListArrayConversion(cache);
 
         #endregion
-
-#if UNITY_EDITOR
-        Debug.Log($"确定范围：{neededCards.Length}");
-#endif
 
         return neededCards;
     }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,11 +7,7 @@ using Core;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using KitaujiGameDesignClub.GameFramework.UI;
-using UnityEngine.Events;
 using System.IO;
-using Unity.VisualScripting;
-using System.Linq;
-using System.Text;
 using UnityEngine.Profiling;
 
 public class TestMode : MonoBehaviour
@@ -25,6 +20,7 @@ public class TestMode : MonoBehaviour
     public CanvasGroup panel;
     public LeanButton panelCloseButton;
     public LeanButton CardSelectorOpenByFileExplorerButton;
+    public Button GoToEditor;
     [Header("卡牌选择器")]
     public Toggle CardSelectorToggle;
     public GameObject cardSelector;
@@ -96,9 +92,12 @@ public class TestMode : MonoBehaviour
     public LeanToggle[] PauseModeSelector = new LeanToggle[4];
     public Button ContinueBattleButton;
     [SerializeField] private TMP_Text roundLogger;
+    [SerializeField] private ScrollRect loggerScroll;
     public LeanButton StartBattleButton;
     public LeanButton RestartTestButton;
-    public LeanButton CancelTestButton;
+    public LeanButton ShutdownTestButton;
+    private string[] EnemyCardUUIDCache;
+    private string[] PlayerCardUUIDCache;
 
 
     private Animator animator;
@@ -116,7 +115,7 @@ public class TestMode : MonoBehaviour
     async void Start()
     {        
         //面板初始化
-        title.text = $"目前处于测试模式\nDevice:{SystemInfo.deviceType}  CPU:{SystemInfo.processorType}  OS:{SystemInfo.operatingSystem}  RAM:{SystemInfo.systemMemorySize}MiB  Screen:{Screen.currentResolution}";
+        title.text = $"目前处于测试模式\n设备: {SystemInfo.deviceType}  CPU:{SystemInfo.processorType}  OS:{SystemInfo.operatingSystem}  Screen:{Screen.currentResolution.width}x{Screen.currentResolution.height}";
         //初始化一个新游戏
         GameStageCtrl.stageCtrl.InitializeGame();
 
@@ -155,6 +154,13 @@ public class TestMode : MonoBehaviour
         animator = GetComponent<Animator>();
 
         GameUI.gameUI.SetBanInputLayer(true, "测试模式载入中...");
+
+        #region 跳转到编辑器
+        GoToEditor.onClick.AddListener(delegate ()
+        {
+            Loading.LoadScene(1);
+        });
+        #endregion
 
 
         #region 卡牌选择器
@@ -366,6 +372,18 @@ public class TestMode : MonoBehaviour
         #endregion
 
         #region 打架模拟器
+
+        //掐架的控制器与选人面板的切换
+        void ChangePanel(bool intoBattleControl)
+        {
+            BattleEmulatorControlPart.SetActive(intoBattleControl);
+            battleEmulatorToggle.gameObject.SetActive(!intoBattleControl);
+            CardSelectorToggle.gameObject.SetActive(!intoBattleControl);
+            voiceTestorToggle.gameObject.SetActive(!intoBattleControl);
+            GoToEditor.gameObject.SetActive(!intoBattleControl);
+            panel.gameObject.SetActive(!intoBattleControl);
+        }
+
         //开关
         Toggle(battleEmulatorToggle, battleEmulator);
         //添加敌机
@@ -385,11 +403,18 @@ public class TestMode : MonoBehaviour
         {
             if(GameStageCtrl.stageCtrl.GetAllCardOnStage(0).Length > 0 && GameStageCtrl.stageCtrl.GetAllCardOnStage(1).Length > 0)
             {
-                BattleEmulatorControlPart.SetActive(true);
-                battleEmulatorToggle.gameObject.SetActive(false);
-                CardSelectorToggle.gameObject.SetActive(false);
-                voiceTestorToggle.gameObject.SetActive(false);
-                panel.gameObject.SetActive(false);
+                ChangePanel(true);
+                //记录缓存
+                PlayerCardUUIDCache = new string[GameState.CardOnSpot[0].Count];
+                for (int i = 0; i < GameState.CardOnSpot[0].Count; i++)
+                {
+                    PlayerCardUUIDCache[i] = GameState.CardOnSpot[0][i].Profile.UUID;                   
+                }
+                EnemyCardUUIDCache = new string[GameState.CardOnSpot[1].Count];
+                for (int i = 0; i < GameState.CardOnSpot[1].Count; i++)
+                {
+                    EnemyCardUUIDCache[i] = GameState.CardOnSpot[1][i].Profile.UUID;
+                }
             }
             else
             {
@@ -400,21 +425,59 @@ public class TestMode : MonoBehaviour
             GameState.gameState = Information.GameState.Preparation;
         });
 
-        //模拟开战
+        //取消掐架测试，并返回到选人界面
+        ShutdownTestButton.OnClick.AddListener(delegate ()
+        {
+            //重置测试状态
+            RestartTestButton.OnClick.Invoke();
+            ChangePanel(false);
+        });
+        //重新测试
+        RestartTestButton.OnClick.AddListener(delegate ()
+        {
+            //停止打架
+            GameStageCtrl.stageCtrl.StopBattle();
+
+            GameStageCtrl.stageCtrl.RemoveAllCardsOnSpot(0);
+            GameStageCtrl.stageCtrl.RemoveAllCardsOnSpot(1);
+            foreach (var item in PlayerCardUUIDCache)
+            {
+                GameStageCtrl.stageCtrl.DisplayCardFromCache(item, 0);
+            }
+            foreach (var item in EnemyCardUUIDCache)
+            {
+                GameStageCtrl.stageCtrl.DisplayCardFromCache(item, 1);
+            }
+
+            //激活开始测试的按钮
+            StartBattleButton.gameObject.SetActive(true);
+            //禁用继续测试按钮
+            ContinueBattleButton.interactable = false;
+        });
+
+        //模拟开战（下方那个蓝色的按钮）
         StartBattleButton.OnClick.AddListener(delegate
         {
-            //禁用“继续战斗”按钮
-            ContinueBattleButton.interactable = false;
-            //禁用“开始战斗”按钮
-            StartBattleButton.interactable = false;
 
             for (int i = 0; i < PauseModeSelector.Length; i++)
             {
                 //找到选择的是哪个暂停模式，开打
                 //顺便注册激活“继续战斗”按钮事件
-                if (PauseModeSelector[i].On) GameStageCtrl.stageCtrl.BattleSystem((Information.PauseModeOfBattle)i,delegate { ContinueBattleButton.interactable = true; });
+                if (PauseModeSelector[i].On)
+                {
+                    GameStageCtrl.stageCtrl.BattleSystem((Information.PauseModeOfBattle)i, (Action)delegate { ContinueBattleButton.interactable = true; });
+                    break;
+                }
 
-            }           
+            }
+            //清除日志
+            roundLogger.text = string.Empty;
+            //禁用“继续战斗”按钮
+            ContinueBattleButton.interactable = false;//（上方那个白色的按钮）
+            //禁用“开始战斗”按钮
+            StartBattleButton.gameObject.SetActive(false);
+
+
         });
 
         //继续战斗
@@ -427,7 +490,7 @@ public class TestMode : MonoBehaviour
             {
                 //找到选择的是哪个暂停模式，开打
                 //顺便注册激活“继续战斗”按钮事件
-                if (PauseModeSelector[i].On) GameStageCtrl.stageCtrl.BattleSystem((Information.PauseModeOfBattle)i, delegate { ContinueBattleButton.interactable = true; });
+                if (PauseModeSelector[i].On) GameStageCtrl.stageCtrl.BattleSystem((Information.PauseModeOfBattle)i, (Action)delegate { ContinueBattleButton.interactable = true; });
 
             }
         });
@@ -443,6 +506,8 @@ public class TestMode : MonoBehaviour
     {
         if(clear) roundLogger.text = string.Empty;
         else roundLogger.text = $"{roundLogger.text}\n <b>YUKI.N ></b> {news}";
+        //拉到最底下
+        loggerScroll.verticalNormalizedPosition = 0f;
     }
 
 
@@ -542,13 +607,10 @@ public class TestMode : MonoBehaviour
         //没有的话就生成吧
       if(card == null)
         {
-            var uuid = await CardReadWrite.LoadCardAndSaveInCache(null, characterCard);
+            var uuid = await CardReadWrite.LoadCardAndSaveInCache(null, characterCard, enemy[0].image.sprite);
             card = await GameStageCtrl.stageCtrl.DisplayCardFromCache(characterCard.UUID, 1);
 
         }
-
-      //换图片（反正现在就一个敌机）
-        card.image.sprite = enemy[0].image.sprite;
 
     }
     #endregion

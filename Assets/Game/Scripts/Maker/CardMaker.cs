@@ -111,12 +111,6 @@ namespace Maker
             //创建bundle文件夹
             if (!File.Exists(Information.bundlesPath)) Directory.CreateDirectory(Information.bundlesPath);
 
-            //帧率修正
-            Application.targetFrameRate = 60;
-#if UNITY_ANDROID
-            Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, Screen.fullScreen,
-                60);
-#endif
 
             cardMaker = this;
 
@@ -709,6 +703,11 @@ namespace Maker
         }
 
         #region 界面切换（返回，编辑器间切换）和打开帮助文档
+
+        public void GoToTest()
+        {
+            Loading.LoadScene(2);
+        }
 
         public void OpenHelpDocument() => basicEvents.OpenURL("https://shimo.im/docs/N2A1M7mzZ4S0NRAD");
         public void ExitGame()

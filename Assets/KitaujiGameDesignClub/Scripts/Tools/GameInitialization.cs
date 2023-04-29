@@ -28,11 +28,12 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         public virtual void Awake()
         {
 
+            //帧率修正
             Application.targetFrameRate = 60;
-            Screen.SetResolution(Screen.currentResolution.width,Screen.currentResolution.height,Screen.fullScreen,60);
-
-            OnDemandRendering.renderFrameInterval = 1;
-
+#if UNITY_ANDROID
+            Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, Screen.fullScreen,
+                60);
+#endif
 
             //读取游戏基础设置文件（如果文件不存在或者不合规，会重置）
             Settings.ReadSettings();
@@ -51,7 +52,7 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
 
             //加载场景
 #if !UNITY_EDITOR
-          SceneManager.LoadScene("Opening");
+          SceneManager.LoadScene(openingScene);
 
 #else
 

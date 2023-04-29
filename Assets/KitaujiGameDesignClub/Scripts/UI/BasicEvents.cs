@@ -70,7 +70,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         {
             if (PublicAudioSource.publicAudioSource != null)   PublicAudioSource.publicAudioSource.StopMusicPlaying();
             clickSound();
-            SceneManager.LoadScene(LoadScene);
+            SceneManager.LoadScene(gameScene);
             Settings.SaveSettings();
         }
 

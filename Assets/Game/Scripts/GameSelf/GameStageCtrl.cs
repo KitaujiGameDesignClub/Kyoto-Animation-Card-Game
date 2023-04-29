@@ -19,7 +19,6 @@ public class GameStageCtrl : MonoBehaviour
     /// 卡牌预用点位 A=0 B=1
     /// </summary>
     [SerializeField] private Team[] CardPrePoint  = new Team[2];
-    [SerializeField] private Transform CardCache;
 
     /// <summary>
     /// 每个卡牌之间 攻击的间隔(ms)
@@ -50,15 +49,24 @@ public class GameStageCtrl : MonoBehaviour
         GameState.CreateNewGame();
     }
 
+
+    public void StopBattle()
+    {
+        forceToStop = true;
+        GameState.gameState = Information.GameState.Preparation;
+        GameState.ReBattleState();
+    }
+
     /// <summary>
-    /// 打架系统
+    /// 打架系统（这个是真的，真的打起来了）
     /// </summary>
     /// <param name="pauseModeOfBattle"></param>
     /// <returns></returns>
-   public  async UniTask BattleSystem(Information.PauseModeOfBattle pauseModeOfBattle,Action battleEnd)
+    public async UniTask BattleSystem(Information.PauseModeOfBattle pauseModeOfBattle, Action battleEnd)
     {
+
         //就要打架了，让场上所有的卡牌执行“登场”函数
-        if(GameState.gameState != Information.GameState.Competition)
+        if (GameState.gameState != Information.GameState.Competition)
         {
             var allCards = GetAllCardOnStage(0);
             foreach (var item in allCards)
@@ -85,8 +93,8 @@ public class GameStageCtrl : MonoBehaviour
             //每张卡牌运行后，都要暂停
             case Information.PauseModeOfBattle.EachCard:
 
-                   await CardRound(GameState.whichTeamIsAttacking == 0 ? 1:0);
-                
+                await CardRound(GameState.whichTeamIsAttacking == 0 ? 1 : 0);
+
                 break;
 
             case Information.PauseModeOfBattle.EachEnemyCard:
@@ -102,7 +110,7 @@ public class GameStageCtrl : MonoBehaviour
                 while (true)
                 {
                     //每个卡牌该怎么做就怎么做
-                   await CardRound(GameState.whichTeamIsAttacking == 0 ? 1 : 0);
+                    await CardRound(GameState.whichTeamIsAttacking == 0 ? 1 : 0);
                     //如果是玩家这边执行完了，就停止这个循环，即暂停了游戏loop
                     if (GameState.whichTeamIsAttacking == 0) break;
                 }
@@ -125,7 +133,6 @@ public class GameStageCtrl : MonoBehaviour
         //执行打架结束事件 
         battleEnd.Invoke();
     }
-
 
 
     /// <summary>
@@ -161,29 +168,44 @@ public class GameStageCtrl : MonoBehaviour
 
                 if(testMode != null)
                 {
-                    testMode.RoundLoggerManager($"team:{teamId}的“{GetCardPanelOnSpot(teamId,i).Profile.FriendlyCardName}”(排序:{i})正在活动");
+                   if(card.Silence > 0)
+                    {
+                        testMode.RoundLoggerManager($"“{GetCardPanelOnSpot(teamId, i).Profile.FriendlyCardName}”(tid:{teamId}id:{i})沉默了。还剩余{card.Silence - 1}回合");
+
+                    }
+                    else testMode.RoundLoggerManager($"“{GetCardPanelOnSpot(teamId, i).Profile.FriendlyCardName}”(tid:{teamId}id:{i})正在活动");
+
                 }
 
                 //执行卡牌这一回合该做的事情              
                 //执行每回合都执行的攻击逻辑
 
-                //对面没有有嘲讽的
-                var ridicule = GameState.CardOnSpot[teamAttacked].Find(a => a.Ridicule > 0);
-                if (ridicule == null)
+                //沉默判断
+                if (card.Silence > 0)
                 {
-                    //对面没有嘲讽的，随便打一个
-                    await card.Attack(GetCardPanelOnSpot(teamAttacked, UnityEngine.Random.Range(0, GameState.CardOnSpot[teamId == 0 ? 1 : 0].Count)));
+                    card.Silence--;
                 }
                 else
                 {
-                    //有嘲讽的
-                    await card.Attack(ridicule);                    
+                    //对面没有有嘲讽的
+                    var ridicule = GameState.CardOnSpot[teamAttacked].Find(a => a.Ridicule > 0);
+                    if (ridicule == null)
+                    {
+                        //对面没有嘲讽的，随便打一个
+                        await card.Attack(GetCardPanelOnSpot(teamAttacked, UnityEngine.Random.Range(0, GameState.CardOnSpot[teamId == 0 ? 1 : 0].Count)));
+                    }
+                    else
+                    {
+                        //有嘲讽的
+                        await card.Attack(ridicule);
+                    }
+
                 }
 
                 //记录一下，这个牌打过了
                 card.ThisRoundHasActiviated = true;
 
-                //如果最右侧的卡打完了（打架逻辑在上面，则重置这一方所有的卡
+                //如果最右侧的卡打完了（打架逻辑在上面，则重置顺序，从最左侧开始
                 if (i == GameState.CardOnSpot[teamId].Count - 1)
                 {
                     foreach (var item in GameState.CardOnSpot[teamId])
@@ -192,7 +214,7 @@ public class GameStageCtrl : MonoBehaviour
                     }
                     GameState.whichCardPerforming[teamId] = 0;
                 }
-                //没打完，遍历停在这个卡牌
+                //最右侧还没打，遍历停在这个卡牌
                 else break;
                 
             }
@@ -372,17 +394,15 @@ public class GameStageCtrl : MonoBehaviour
     }
 
     /// <summary>
-    ///  （用于卡牌打输了）回收某一个卡牌，使其回到缓存中
+    ///  用于卡牌打输了
     /// </summary>
     /// <param name="teamId"></param>
     /// <param name="index"></param>
     /// <param name="autoArrange"></param>
-    public void RecycleCardOnSpot(int teamId, int index, bool autoArrange = true)
+    public void CardDie(int teamId, int index, bool autoArrange = true)
     {
-        //将此卡牌移到缓存中，并将其隐藏（父对象is disactive）
-       GetCardTransformOnSpot(teamId, index).parent = CardCache;
-        Destroy(GetCardTransformOnSpot(teamId, index).gameObject);
         //消除游戏记录
+        DestroyImmediate(GameState.CardOnSpot[teamId][index].gameObject);
         GameState.CardOnSpot[teamId].RemoveAt(index);
         if (autoArrange) ArrangeTeamCardOnSpot(teamId);
     }
@@ -437,13 +457,6 @@ public class GameStageCtrl : MonoBehaviour
             return cardPanel.GetComponent<T>();
         }
     }
-
-    /// <summary>
-    /// 获取缓存中的所有卡牌panel组件
-    /// </summary>
-    /// <returns></returns>
-    public CardPanel[] GetAllCardPanelsInCache() => CardCache.GetComponentsInChildren<CardPanel>();
-
 
 
     /// <summary>

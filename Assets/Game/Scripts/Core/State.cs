@@ -50,7 +50,16 @@ namespace Core
             chiefs = new Chief[2];
             gameState = Information.GameState.Preparation;
         }
-        
+
+        /// <summary>
+        /// 重置打架状态
+        /// </summary>
+        public static void ReBattleState()
+        {
+            whichTeamIsAttacking = -1;
+            whichCardPerforming[0] = 0; whichCardPerforming[1] = 0;
+        }
+
     }
 }
 

@@ -4,38 +4,34 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using KitaujiGameDesignClub.GameFramework.Tools;
+using Cysharp.Threading.Tasks;
 
 namespace KitaujiGameDesignClub.GameFramework.UI
 {
     public class Loading : MonoBehaviour
     {
-        public int GameScene;
+        public static void LoadScene(int sceneId)
+        {
 
-        public TMP_Text loadingState;
-
-
-        /// <summary>
-        /// 本轮游戏的小剧场的背景图
-        /// </summary>
-        public static Sprite dialogueImage;
-
+            loadScene(sceneId);
+        }
 
         // Start is called before the first frame update
-        private IEnumerator Start()
+        static async UniTask loadScene(int sceneId)
         {
+            SceneManager.LoadScene(3);
+
+            await UniTask.DelayFrame(1);
+
             if (PublicAudioSource.publicAudioSource != null) PublicAudioSource.publicAudioSource.StopMusicPlaying();
 
-
-            loadingState.text = "少女调音中.....\n清除无用资源";
             Settings.SaveSettings();
             GC.Collect();
-            yield return Resources.UnloadUnusedAssets();
+            await Resources.UnloadUnusedAssets();
             GC.Collect();
-            yield return Resources.UnloadUnusedAssets();
+            await Resources.UnloadUnusedAssets();
 
-
-            loadingState.text = "少女调音中.....\n载入游戏场景";
-            yield return SceneManager.LoadSceneAsync(GameScene);
+            await SceneManager.LoadSceneAsync(sceneId);
         }
     }
 }

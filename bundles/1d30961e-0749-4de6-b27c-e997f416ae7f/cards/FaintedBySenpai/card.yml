@@ -27,10 +27,10 @@ Reason:
     ParameterToShrinkScope: None
     Logic: 0
     Threshold: ''
-  JudgeParameter: CV
-  ReasonJudgeMethod: Count
-  Logic: -1
-  Threshold: 1
+  JudgeParameter: Power
+  ReasonJudgeMethod: Value
+  Logic: 1
+  Threshold: 0
 Result:
   RegardActivatorAsResultObject: true
   ResultObject:

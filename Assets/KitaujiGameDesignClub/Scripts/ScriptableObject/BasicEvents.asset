@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ac44ec94724c994f836979ea40041b7, type: 3}
   m_Name: BasicEvents
   m_EditorClassIdentifier: 
-  gameScene: 0
+  gameScene: 2
   LoadScene: 0
   OpeningScene: 0

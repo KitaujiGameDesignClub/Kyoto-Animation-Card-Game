@@ -58,8 +58,8 @@ namespace KitaujiGameDesignClub.GameFramework.Tools
         {
             QualitySettings.vSyncCount = BasicSettingsContent.sync ? 1 : 0;
             CameraReadAndApplySettings.ReadAndApply();
-            Screen.SetResolution(BasicSettingsContent.resolution.width, BasicSettingsContent.resolution.height,
-                BasicSettingsContent.fullscreenMode == FullScreenMode.FullScreenWindow, 60);
+       //     Screen.SetResolution(BasicSettingsContent.resolution.width, BasicSettingsContent.resolution.height,
+        //        BasicSettingsContent.fullscreenMode == FullScreenMode.FullScreenWindow, 60);
             if (PublicAudioSource.publicAudioSource != null) PublicAudioSource.publicAudioSource.UpdateMusicVolume();
             if (StaticVideoPlayer.staticVideoPlayer != null) StaticVideoPlayer.staticVideoPlayer.UpdateVol();
         }

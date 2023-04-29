@@ -14,6 +14,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
         public TMP_InputField inputField;
        [SerializeField] private TMP_Dropdown dropdown;
        [SerializeField] private Button dropdownButton;
+        [SerializeField] protected Button ClearButton;
 
         private List<string> allOptionDatas = new List<string>();
 
@@ -40,6 +41,7 @@ namespace KitaujiGameDesignClub.GameFramework.UI
             {
                 inputField.interactable = value;
  dropdownButton.interactable = value;
+                ClearButton.interactable = value;
             }
         }
 

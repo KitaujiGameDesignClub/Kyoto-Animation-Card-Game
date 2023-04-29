@@ -876,7 +876,8 @@ namespace Maker
                     inputFieldWithDropdown.contentType = TMP_InputField.ContentType.Standard;
                     break;
 
-                case (int)Information.Parameter.Coin or (int)Information.Parameter.HealthPoint or (int)Information.Parameter.Power:
+                    //整数型的
+                case (int)Information.Parameter.Coin or (int)Information.Parameter.HealthPoint or (int)Information.Parameter.Power or (int)Information.Parameter.Silence or (int)Information.Parameter.Ridicule:
                     inputFieldWithDropdown.Ban();
                     inputFieldWithDropdown.contentType = TMP_InputField.ContentType.IntegerNumber;
                     break;

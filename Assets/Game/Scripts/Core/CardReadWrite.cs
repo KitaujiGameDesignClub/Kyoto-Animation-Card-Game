@@ -44,14 +44,14 @@ namespace Core
         /// <param name="cardDiectoryPath">卡牌路径（仅文件夹，null时不会加载资源文件）</param>
         /// <param name="loadedCard">预设已经加载的卡牌</param>
         /// <returns>uuid</returns>
-        public static async UniTask<string> LoadCardAndSaveInCache(string cardDiectoryPath, CharacterCard loadedCard = null)
+        public static async UniTask<string> LoadCardAndSaveInCache(string cardDiectoryPath, CharacterCard loadedCard = null,Sprite cardImage = null)
         {
             if (cardDiectoryPath == null && loadedCard == null)
             {
                 throw new Exception("参数全空？");
             }
 
-            //读yml
+            //读yml（已经给了card的话，就不读了）
             loadedCard ??= await GetOneCard(Path.Combine(cardDiectoryPath, Information.CardFileName), false);
 
             //没给路径，不加载这些
@@ -76,7 +76,7 @@ namespace Core
                 //创建缓存
                 GameState.cardCaches.Add(new CardCache(loadedCard,ref debut,ref defeat,ref exit,ref ability,ref image));
             }
-            else GameState.cardCaches.Add(new CardCache(loadedCard));
+            else GameState.cardCaches.Add(new CardCache(loadedCard,ref cardImage));
 
             return loadedCard.UUID;
         }

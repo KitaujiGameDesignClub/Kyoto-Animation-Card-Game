@@ -18,7 +18,7 @@ public class CardCache
     //识别
     public readonly string UUID;
 
-    //可变的信息缓存
+    //可变的信息缓存（缓存最初的样子）
    public readonly string CharacterName;
     public readonly int Gender;
     public readonly string Anime;
@@ -32,7 +32,7 @@ public class CardCache
     /// </summary>
     public readonly AudioClip voiceDebut;
     public readonly AudioClip voiceDefeat;
-public readonly AudioClip voiceExit;
+    public readonly AudioClip voiceExit;
     public readonly AudioClip voiceAbility;
     //图片资源
     public readonly Sprite CoverImage;
@@ -53,6 +53,24 @@ public readonly AudioClip voiceExit;
         this.voiceExit = null;
         this.voiceAbility = null;
         CoverImage = null;
+    }
+
+    public CardCache(CharacterCard card,ref Sprite image)
+    {
+        Profile = card;
+        //信息缓存
+        this.UUID = card.UUID;
+        CharacterName = card.CharacterName;
+        Gender = card.gender;
+        Anime = card.Anime;
+        Tag = card.tags;
+        hp = card.BasicHealthPoint;
+        power = card.BasicPower;
+        this.voiceDebut = null;
+        this.voiceDefeat = null;
+        this.voiceExit = null;
+        this.voiceAbility = null;
+        CoverImage = image;
     }
 
     public CardCache(CharacterCard card,ref AudioClip voiceDebut,ref AudioClip voiceDefeat,ref AudioClip voiceExit,ref AudioClip voiceAbility,ref Sprite coverImage)
